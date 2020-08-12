@@ -1,0 +1,6 @@
+recursive-include build/sphinx/html *
+include README.md
+include LICENSE
+include CMakeLists.txt
+include src/*
+include python/*.cpp
