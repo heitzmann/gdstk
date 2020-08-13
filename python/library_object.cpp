@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* library_object_str(LibraryObject* self) {
     char buffer[256];
-    snprintf(buffer, COUNT(buffer), "Library '%s' with %ld cells and %ld raw cells",
+    snprintf(buffer, COUNT(buffer), "Library '%s' with %" PRId64 " cells and %" PRId64 " raw cells",
              self->library->name, self->library->cell_array.size,
              self->library->rawcell_array.size);
     return PyUnicode_FromString(buffer);

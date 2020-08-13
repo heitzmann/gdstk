@@ -1,7 +1,7 @@
 # GDSTK README
 
 [![Boost Software License - Version 1.0](https://img.shields.io/github/license/heitzmann/gdstk.svg)](https://www.boost.org/LICENSE_1_0.txt)
-[![Documentation Status](https://readthedocs.org/projects/gdstk/badge/?version=stable)](https://gdstk.readthedocs.io/en/stable/?badge=stable)
+[![Tests Runner](https://github.com/heitzmann/gdstk/workflows/Tests%20Runner/badge.svg)](https://github.com/heitzmann/gdstk/actions)
 [![Downloads](https://img.shields.io/github/downloads/heitzmann/gdstk/total.svg)](https://github.com/heitzmann/gdstk/releases)
 
 Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII stream files.
@@ -15,6 +15,14 @@ Key features for the creation of complex CAD layouts are included:
 
 Typical applications of Gdstk are in the fields of electronic chip design, planar lightwave circuit design, and mechanical engineering.
 
+
+## Documentation
+
+The complete documentation is available [here](http://heitzmann.github.io/gdstk).
+
+The source files can be found in the _docs_ directory.
+
+
 ## Installation
 
 The C++ library is meant to be used straight from source.
@@ -27,7 +35,7 @@ The included CMakeLists.txt file can be used as a guide.
 * [CMake](https://cmake.org/)
 * [Python](https://www.python.org/)
 * [Numpy](https://numpy.org/)
-* [Sphinx](https://www.sphinx-doc.org/) (only to build the [documentation](http://heitzmann.github.io/gdstk))
+* [Sphinx](https://www.sphinx-doc.org/) (to build the [documentation](http://heitzmann.github.io/gdstk))
 
 Installation from source should follow the usual method:
 
@@ -35,13 +43,8 @@ Installation from source should follow the usual method:
 python setup.py install
 ```
 
-Windows users have the option to use a pre-compiled binary from the [releases](https://github.com/heitzmann/gdspy/releases) page.
+Windows users have the option to use a pre-compiled binary from the [releases](https://github.com/heitzmann/gdstk/releases) page.
 
-## Documentation
-
-The complete documentation is available [here](http://heitzmann.github.io/gdstk).
-
-The source files can be found in the _docs_ directory.
 
 ## Support
 

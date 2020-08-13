@@ -28,7 +28,7 @@ class build_ext(_build_ext):
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + str(build_dir.absolute()),
             "-DCMAKE_BUILD_TYPE=" + config,
         ]
-        build_args = ["--config", config, "--", "-j4"]
+        build_args = ["--config", config]
 
         os.chdir(build_dir)
         self.spawn(["cmake", str(root_dir)] + cmake_args)
@@ -36,12 +36,18 @@ class build_ext(_build_ext):
             self.spawn(["cmake", "--build", "."] + build_args)
         os.chdir(root_dir)
 
-        self.extensions[0].extra_link_args.extend(
-            ["-L" + str(build_dir.absolute()), "-lgdstk"]
-        )
-        self.extensions[0].extra_link_args.extend(
-            (build_dir / "lapack_libs").read_text().split()
-        )
+        if platform.system() == "Windows":
+            link_args = [str(build_dir.absolute() / config / "gdstk.lib")]
+        else:
+            link_args = ["-L" + str(build_dir.absolute()), "-lgdstk"]
+
+        for arg in (build_dir / "lapack_libs").read_text().split():
+            if arg.endswith(".framework"):  # MacOS-specific
+                link_args.extend(["-framework", arg[arg.rfind("/") + 1 : -10]])
+            else:
+                link_args.append(arg)
+
+        self.extensions[0].extra_link_args.extend(link_args)
 
         super().run()
 
@@ -49,9 +55,7 @@ class build_ext(_build_ext):
 with open("README.md") as fin:
     long_description = fin.read()
 
-setup_requires = ["numpy", "wheel"]
-if {"pytest", "test", "ptr"}.intersection(sys.argv):
-    setup_requires.append("pytest-runner")
+setup_requires = ["numpy"]
 if "build_sphinx" in sys.argv:
     setup_requires.extend(["sphinx", "sphinx_rtd_theme"])
 
@@ -108,7 +112,6 @@ setup(
     },
     install_requires=["numpy"],
     setup_requires=setup_requires,
-    tests_require=["pytest"],
     platforms="OS Independent",
     classifiers=[
         "Development Status :: 1 - Planning",

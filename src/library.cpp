@@ -8,6 +8,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "library.h"
 
 #include <cfloat>
+#include <cmath>
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -26,15 +28,16 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Library::print(bool all) const {
-    printf("Library <%p> %s, unit %lg, precision %lg, %ld cells, %ld raw cells, owner <%p>\n", this,
-           name, unit, precision, cell_array.size, rawcell_array.size, owner);
+    printf("Library <%p> %s, unit %lg, precision %lg, %" PRId64 " cells, %" PRId64
+           " raw cells, owner <%p>\n",
+           this, name, unit, precision, cell_array.size, rawcell_array.size, owner);
     if (all) {
         for (int64_t i = 0; i < cell_array.size; i++) {
-            printf("{%ld} ", i);
+            printf("{%" PRId64 "} ", i);
             cell_array[i]->print(true);
         }
         for (int64_t i = 0; i < rawcell_array.size; i++) {
-            printf("{%ld} ", i);
+            printf("{%" PRId64 "} ", i);
             rawcell_array[i]->print(true);
         }
     }

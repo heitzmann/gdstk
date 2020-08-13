@@ -54,7 +54,7 @@ static Py_ssize_t parse_point_sequence(PyObject* py_polygon, bool fix_orientatio
         return -1;
     }
 
-    Py_ssize_t len = PySequence_Length(py_polygon);
+    const Py_ssize_t len = PySequence_Length(py_polygon);
     dest.size = 0;
     dest.ensure_slots(len);
 
@@ -67,8 +67,9 @@ static Py_ssize_t parse_point_sequence(PyObject* py_polygon, bool fix_orientatio
         if (py_point == NULL || parse_point(py_point, *p, "") != 0) {
             Py_XDECREF(py_point);
             PyErr_Format(PyExc_TypeError,
-                         "Item %ld in %s must be a sequence of 2 numbers or a complex value.", j,
-                         name);
+                         "Item %" PRId64
+                         " in %s must be a sequence of 2 numbers or a complex value.",
+                         j, name);
             return -1;
         }
         Py_DECREF(py_point);
@@ -85,24 +86,24 @@ static Py_ssize_t parse_point_sequence(PyObject* py_polygon, bool fix_orientatio
         }
         p++;
     }
+    dest.size = len;
+
     if (fix_orientation && orientation < 0) {
         Py_ssize_t i, j;
-        for (i = 0, j = len - 1; i < len; i++, j--) {
+        for (i = 0, j = len - 1; i < len / 2; i++, j--) {
             Vec2 p = dest[i];
             dest[i] = dest[j];
             dest[j] = p;
         }
     }
-
-    dest.size = len;
     return len;
 }
 
-static double* parse_sequence_double(PyObject* sequence, Py_ssize_t& len, const char* name) {
+static double* parse_sequence_double(PyObject* sequence, int64_t& len, const char* name) {
     len = PySequence_Length(sequence);
     if (len <= 0) {
-        PyErr_Format(PyExc_RuntimeError, "Argument %s is a sequence with invalid length (%ld).",
-                     name, len);
+        PyErr_Format(PyExc_RuntimeError,
+                     "Argument %s is a sequence with invalid length (%" PRId64 ").", name, len);
         return NULL;
     }
     double* values = (double*)malloc(sizeof(double) * len);
@@ -113,7 +114,8 @@ static double* parse_sequence_double(PyObject* sequence, Py_ssize_t& len, const 
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             free(values);
-            PyErr_Format(PyExc_RuntimeError, "Unable to convert item %ld in %s to float.", j, name);
+            PyErr_Format(PyExc_RuntimeError, "Unable to convert item %" PRId64 " in %s to float.",
+                         j, name);
             return NULL;
         }
     }
@@ -159,10 +161,10 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
     Py_ssize_t j = 0;
     while (PyDict_Next(dict, &j, &lttuple, &css_dict)) {
         if (!(PyDict_Check(css_dict) && PyTuple_Check(lttuple) && PyTuple_GET_SIZE(lttuple) == 2)) {
-            PyErr_Format(
-                PyExc_TypeError,
-                "Item %ld in %s must have a 2-element tuple as key and a dictionary as value.", j,
-                name);
+            PyErr_Format(PyExc_TypeError,
+                         "Item %" PRId64
+                         " in %s must have a 2-element tuple as key and a dictionary as value.",
+                         j, name);
             return -1;
         }
 
@@ -170,8 +172,9 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
         int16_t type = (int16_t)PyLong_AsLong(PyTuple_GET_ITEM(lttuple, 1));
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError,
-                         "Unable to retrieve layer and type from the key in item %ld in %s.", j,
-                         name);
+                         "Unable to retrieve layer and type from the key in item %" PRId64
+                         " in %s.",
+                         j, name);
             return -1;
         }
 
@@ -183,7 +186,8 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
         while (PyDict_Next(css_dict, &i, &key, &value)) {
             if (!(PyUnicode_Check(key) && PyUnicode_Check(value))) {
                 PyErr_Format(PyExc_TypeError,
-                             "Keys and values in dictionary %ld in %s are not strings.", j, name);
+                             "Keys and values in dictionary %" PRId64 " in %s are not strings.", j,
+                             name);
                 return -1;
             }
 

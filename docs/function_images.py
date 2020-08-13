@@ -102,7 +102,7 @@ def read_rawcells_example():
     cell2.add(gdstk.Reference(cell1, (-1, 0)))
     library = gdstk.Library()
     library.add(cell1, cell2)
-    library.write_gds("test.gds")
+    # library.write_gds("test.gds")
     raw_cells = gdstk.read_rawcells("test.gds")
     # print(raw_cells.keys())
     # print(len(raw_cells["CELL_1"].dependencies(True)))

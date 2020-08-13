@@ -11,9 +11,12 @@ clean:
 	-rm -rf build
 	-rm -rf docs/_build/* docs/_static/*/*.svg docs/geometry/* docs/library/*
 
-all: $(PY_MOD) docs
+all: $(PY_MOD) test docs
 
 docs: $(DOCS)
+
+test: $(PY_MOD)
+	pytest
 
 $(DOCS): $(PY_MOD) $(DOCS_SRC) $(IMG_SRC)
 	python setup.py build_sphinx
@@ -25,4 +28,4 @@ $(PY_MOD): $(PY_SRC) $(LIB_SRC)
 $(IMG_SRC): $(PY_MOD)
 	python $@
 
-.PHONY: default clean all docs
+.PHONY: default clean all docs test

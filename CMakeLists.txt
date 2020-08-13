@@ -2,12 +2,22 @@ cmake_minimum_required(VERSION 3.13.0)
 project(gdstk)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+    set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-missing-field-initializers -Wshadow")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "/nologo /W3 /MD")
+    set(CMAKE_CXX_FLAGS_DEBUG "/Zi")
+    set(CMAKE_CXX_FLAGS_RELEASE "/Ox /GL")
+else()
+    set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -Wformat -Wno-missing-field-initializers -Wno-missing-braces")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+endif()
 
 find_package(LAPACK REQUIRED)
 file(WRITE ${CMAKE_BINARY_DIR}/lapack_libs "")
@@ -31,6 +41,6 @@ add_library(gdstk STATIC
     src/style.cpp
     src/utils.cpp
     src/clipperlib/clipper.cpp
-)
+    )
 target_link_libraries(gdstk ${LAPACK_LIBRARIES})
 set_property(TARGET gdstk PROPERTY POSITION_INDEPENDENT_CODE ON)

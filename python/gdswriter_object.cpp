@@ -8,7 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 static PyObject* gdswriter_object_str(GdsWriterObject* self) {
     char buffer[256];
     snprintf(buffer, COUNT(buffer),
-             "GdsWriter with unit %lg, precision %lg, %ld maximal points per polygon",
+             "GdsWriter with unit %lg, precision %lg, %" PRId64 " maximal points per polygon",
              self->gdswriter->unit, self->gdswriter->precision, self->gdswriter->max_points);
     return PyUnicode_FromString(buffer);
 }

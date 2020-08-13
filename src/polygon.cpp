@@ -9,6 +9,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <algorithm>
 #include <cfloat>
+#include <cinttypes>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -22,8 +23,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Polygon::print(bool all) const {
-    printf("Polygon <%p>, size %ld, layer %hd, datatype %hd, properties <%p>, owner <%p>\n", this,
-           point_array.size, layer, datatype, properties, owner);
+    printf("Polygon <%p>, size %" PRId64 ", layer %hd, datatype %hd, properties <%p>, owner <%p>\n",
+           this, point_array.size, layer, datatype, properties, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);
@@ -224,8 +225,9 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
         cuts.ensure_slots(num_cuts);
         cuts.size = num_cuts;
         bool x_axis;
+        double* coords = (double*)malloc(sizeof(double) * num_points);
         if (max.x - min.x > max.y - min.y) {
-            double x[num_points];
+            double* x = coords;
             double* px = x;
             Vec2* pt = subj->point_array.items;
             for (int64_t j = 0; j < num_points; j++) (*px++) = (pt++)->x;
@@ -234,7 +236,7 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
             px = cuts.items;
             for (int64_t j = 0; j < num_cuts; j++) (*px++) = x[(int64_t)((j + 1.0) * frac + 0.5)];
         } else {
-            double y[num_points];
+            double* y = coords;
             double* py = y;
             Vec2* pt = subj->point_array.items;
             for (int64_t j = 0; j < num_points; j++) (*py++) = (pt++)->y;
@@ -243,6 +245,7 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
             py = cuts.items;
             for (int64_t j = 0; j < num_cuts; j++) (*py++) = y[(int64_t)((j + 1.0) * frac + 0.5)];
         }
+        free(coords);
 
         Array<Polygon*>* chopped = slice(*subj, cuts, x_axis, scaling);
         cuts.clear();
@@ -517,8 +520,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
 }
 
 // NOTE: s must be 0-terminated
-Array<Polygon*> text(const char* s, double size, const Vec2 position, bool vertical,
-                     int16_t layer, int16_t datatype) {
+Array<Polygon*> text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
+                     int16_t datatype) {
     Array<Polygon*> result = {0};
     size /= 16;
     Vec2 cursor = position;

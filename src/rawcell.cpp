@@ -7,17 +7,20 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "rawcell.h"
 
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 
 namespace gdstk {
 
 void RawCell::print(bool all) const {
-    printf("RawCell <%p>, %s, size %ld, data <%p>, owner <%p>\n", this, name, size, data, owner);
+    printf("RawCell <%p>, %s, size %" PRId64 ", data <%p>, owner <%p>\n", this, name, size, data,
+           owner);
     if (all) {
-        printf("Dependencies (%ld/%ld):\n", dependencies.size, dependencies.capacity);
+        printf("Dependencies (%" PRId64 "/%" PRId64 "):\n", dependencies.size,
+               dependencies.capacity);
         for (int64_t i = 0; i < dependencies.size; i++) {
-            printf("(%ld)", i);
+            printf("(%" PRId64 ")", i);
             dependencies[i]->print(false);
         }
     }

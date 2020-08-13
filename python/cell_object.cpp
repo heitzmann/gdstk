@@ -7,12 +7,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* cell_object_str(CellObject* self) {
     char buffer[256];
-    snprintf(
-        buffer, COUNT(buffer),
-        "Cell '%s' with %ld polygons, %ld flexpaths, %ld robustpaths, %ld references, and %ld labels",
-        self->cell->name, self->cell->polygon_array.size, self->cell->flexpath_array.size,
-        self->cell->robustpath_array.size, self->cell->reference_array.size,
-        self->cell->label_array.size);
+    snprintf(buffer, COUNT(buffer),
+             "Cell '%s' with %" PRId64 " polygons, %" PRId64 " flexpaths, %" PRId64
+             " robustpaths, %" PRId64 " references, and %" PRId64 " labels",
+             self->cell->name, self->cell->polygon_array.size, self->cell->flexpath_array.size,
+             self->cell->robustpath_array.size, self->cell->reference_array.size,
+             self->cell->label_array.size);
     return PyUnicode_FromString(buffer);
 }
 

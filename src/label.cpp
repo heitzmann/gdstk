@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "label.h"
 
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 

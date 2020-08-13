@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* polygon_object_str(PolygonObject* self) {
     char buffer[128];
-    snprintf(buffer, COUNT(buffer), "Polygon at layer %hd, datatype %hd, with %ld points",
+    snprintf(buffer, COUNT(buffer), "Polygon at layer %hd, datatype %hd, with %" PRId64 " points",
              self->polygon->layer, self->polygon->datatype, self->polygon->point_array.size);
     return PyUnicode_FromString(buffer);
 }
@@ -128,10 +128,10 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius, &tol))
         return NULL;
     if (PySequence_Check(radius)) {
-        Py_ssize_t num = 0;
+        int64_t num = 0;
         radii = parse_sequence_double(radius, num, "radius");
         if (num < self->polygon->point_array.size) {
-            PyErr_Format(PyExc_TypeError, "Not enough items in sequence (expecting %ld).",
+            PyErr_Format(PyExc_TypeError, "Not enough items in sequence (expecting %" PRId64 ").",
                          self->polygon->point_array.size);
             if (radii) free(radii);
             return NULL;

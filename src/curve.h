@@ -5,9 +5,12 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
+#define _USE_MATH_DEFINES
+
 #ifndef __CURVE_H__
 #define __CURVE_H__
 
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 
@@ -74,7 +77,7 @@ struct Curve {
 
     void turn(double radius, double angle) {
         const Vec2 direction = point_array[point_array.size - 1] - last_ctrl;
-        const double initial_angle = direction.angle() + (angle < 0 ? 0.5 * M_PI : -0.5 * M_PI);
+        double initial_angle = direction.angle() + (angle < 0 ? 0.5 * M_PI : -0.5 * M_PI);
         arc(radius, radius, initial_angle, initial_angle + angle, 0);
     }
 

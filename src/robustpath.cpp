@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "robustpath.h"
 
+#include <cinttypes>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -85,11 +86,12 @@ Vec2 SubPath::gradient(double u) const {
         } break;
         case SubPathType::Bezier: {
             const int64_t size = ctrl.size - 1;
-            Vec2 _ctrl[size];
+            Vec2 *_ctrl = (Vec2 *)malloc(sizeof(Vec2) * size);
             Vec2 *dst = _ctrl;
             const Vec2 *src = ctrl.items;
             for (int64_t i = 0; i < size; i++, src++, dst++) *dst = size * (*(src + 1) - *src);
             result = eval_bezier(u, _ctrl, size);
+            free(_ctrl);
         } break;
         case SubPathType::Bezier2: {
             const Vec2 dp0 = 2 * (p1 - p0);
@@ -378,18 +380,18 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
 }
 
 void RobustPath::print(bool all) const {
-    printf(
-        "RobustPath <%p> at (%lg, %lg), size %ld, %ld elements, tol %lg, max_evals %ld, properties <%p>, owner <%p>\n",
-        this, end_point.x, end_point.y, subpath_array.size, num_elements, tolerance, max_evals,
-        properties, owner);
+    printf("RobustPath <%p> at (%lg, %lg), size %" PRId64 ", %" PRId64
+           " elements, tol %lg, max_evals %" PRId64 ", properties <%p>, owner <%p>\n",
+           this, end_point.x, end_point.y, subpath_array.size, num_elements, tolerance, max_evals,
+           properties, owner);
     if (all) {
         for (int64_t ns = 0; ns < subpath_array.size; ns++) {
-            printf("(%ld) ", ns);
+            printf("(%" PRId64 ") ", ns);
             subpath_array[ns].print();
         }
         RobustPathElement *el = elements;
         for (int64_t ne = 0; ne < num_elements; ne++, el++)
-            printf("Element %ld, layer %d, datatype %d, end %d (%lg, %lg)\n", ne, el->layer,
+            printf("Element %" PRId64 ", layer %d, datatype %d, end %d (%lg, %lg)\n", ne, el->layer,
                    el->datatype, (int)el->end_type, el->end_extensions.u, el->end_extensions.v);
     }
 }

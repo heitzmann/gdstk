@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "curve.h"
 
+#include <cinttypes>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -18,7 +19,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Curve::print(bool all) const {
-    printf("Curve <%p>, size %ld, tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
+    printf("Curve <%p>, size %" PRId64 ", tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
            point_array.size, tolerance, last_ctrl.x, last_ctrl.y, owner);
     if (all) {
         printf("Points: ");
@@ -335,7 +336,6 @@ void Curve::quadratic_smooth(const Array<Vec2> points, bool relative) {
             append_quad(first_point, last_ctrl, last_point);
         }
     }
-    last_ctrl = last_ctrl;
 }
 
 void Curve::bezier(const Array<Vec2> points, bool relative) {

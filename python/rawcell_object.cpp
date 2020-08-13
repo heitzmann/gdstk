@@ -7,7 +7,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* rawcell_object_str(RawCellObject* self) {
     char buffer[256];
-    snprintf(buffer, COUNT(buffer), "RawCell '%s' with %ld bytes and %ld dependencies",
+    snprintf(buffer, COUNT(buffer),
+             "RawCell '%s' with %" PRId64 " bytes and %" PRId64 " dependencies",
              self->rawcell->name, self->rawcell->size, self->rawcell->dependencies.size);
     return PyUnicode_FromString(buffer);
 }

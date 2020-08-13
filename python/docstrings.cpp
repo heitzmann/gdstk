@@ -2176,7 +2176,9 @@ Examples:
     .. image:: ../_static/cell/flatten.*
        :align: center)!");
 
-PyDoc_STRVAR(cell_object_copy_doc, R"!(copy(name, translation=(0, 0), rotation=0, magnification=1, x_reflection=False, deep_copy=True) -> gdstk.Cell
+PyDoc_STRVAR(
+    cell_object_copy_doc,
+    R"!(copy(name, translation=(0, 0), rotation=0, magnification=1, x_reflection=False, deep_copy=True) -> gdstk.Cell
 
 Create a copy of this cell.
 
@@ -2198,7 +2200,9 @@ Args:
 Returns:
     Copy of this cell.)!");
 
-PyDoc_STRVAR(cell_object_write_svg_doc, R"!(write_svg(outfile, scaling=10, style=None, fontstyle=None, background=\"#222222\", pad=\"5%\") -> self
+PyDoc_STRVAR(
+    cell_object_write_svg_doc,
+    R"!(write_svg(outfile, scaling=10, style=None, fontstyle=None, background=\"#222222\", pad=\"5%\") -> self
 
 Export this cell to an SVG image file. Colors and attributes must follow
 SVG specification.
@@ -2384,8 +2388,8 @@ Notes:
 
 // GdsWriter
 
-
-PyDoc_STRVAR(gdswriter_object_type_doc, R"!(GdsWriter(outfile, name="library", unit=1e-6, precision=1e-9, max_points=199)
+PyDoc_STRVAR(gdswriter_object_type_doc,
+             R"!(GdsWriter(outfile, name="library", unit=1e-6, precision=1e-9, max_points=199)
 
 Multi-step GDSII stream file writer.
 
@@ -2426,7 +2430,8 @@ Finish writing the output file and close it.)!");
 
 // Module-level functions
 
-PyDoc_STRVAR(rectangle_function_doc, R"!(rectangle(corner1, corner2, layer=0, datatype=0) -> gdstk.Polygon
+PyDoc_STRVAR(rectangle_function_doc,
+             R"!(rectangle(corner1, corner2, layer=0, datatype=0) -> gdstk.Polygon
 
 Create a rectangle.
 
@@ -2436,7 +2441,8 @@ Args:
     layer: GDSII layer number assigned to this polygon.
     datatype: GDSII data type number assigned to this polygon.)!");
 
-PyDoc_STRVAR(cross_function_doc, R"!(cross(center, full_size, arm_width, layer=0, datatype=0) -> gdstk.Polygon
+PyDoc_STRVAR(cross_function_doc,
+             R"!(cross(center, full_size, arm_width, layer=0, datatype=0) -> gdstk.Polygon
 
 Create a cross shape.
 
@@ -2454,7 +2460,9 @@ Examples:
     .. image:: ../_static/function/cross.*
        :align: center)!");
 
-PyDoc_STRVAR(regular_polygon_function_doc, R"!(regular_polygon(center, side_length, sides, rotation=0, layer=0, datatype=0) -> gdstk.Polygon
+PyDoc_STRVAR(
+    regular_polygon_function_doc,
+    R"!(regular_polygon(center, side_length, sides, rotation=0, layer=0, datatype=0) -> gdstk.Polygon
 
 Create a regular polygon.
 
@@ -2475,7 +2483,9 @@ Examples:
     .. image:: ../_static/function/regular_polygon.*
        :align: center)!");
 
-PyDoc_STRVAR(ellipse_function_doc, R"!(ellipse(center, radius, inner_radius=None, initial_angle=0, final_angle=0, tolerance=0.01, layer=0, datatype=0) -> gdstk.Polygon
+PyDoc_STRVAR(
+    ellipse_function_doc,
+    R"!(ellipse(center, radius, inner_radius=None, initial_angle=0, final_angle=0, tolerance=0.01, layer=0, datatype=0) -> gdstk.Polygon
 
 Create an ellipse, circle, slice or ring.
 
@@ -2507,7 +2517,9 @@ Examples:
     .. image:: ../_static/function/ellipse.*
        :align: center)!");
 
-PyDoc_STRVAR(racetrack_function_doc, R"!(racetrack(center, straight_length, radius, inner_radius=0, vertical=False, tolerance=0.01, layer=0, datatype=0) -> gdstk.Polygon
+PyDoc_STRVAR(
+    racetrack_function_doc,
+    R"!(racetrack(center, straight_length, radius, inner_radius=0, vertical=False, tolerance=0.01, layer=0, datatype=0) -> gdstk.Polygon
 
 Create a racetrack shape.
 
@@ -2529,7 +2541,8 @@ Examples:
     .. image:: ../_static/function/racetrack.*
        :align: center)!");
 
-PyDoc_STRVAR(text_function_doc, R"!(text(text, size, position, vertical=False, layer=0, datatype=0) -> list
+PyDoc_STRVAR(text_function_doc,
+             R"!(text(text, size, position, vertical=False, layer=0, datatype=0) -> list
 
 Create polygonal text.
 
@@ -2559,7 +2572,9 @@ Notes:
     full height ``size``, respectively. For vertical text, characters
     and columns are respectively spaced 9 / 8 and 1 times ``size``.)!");
 
-PyDoc_STRVAR(offset_function_doc, R"!(offset(polygons, distance, join="miter", tolerance=2, precision=1e-3, use_union=False, layer=0, datatype=0) -> list
+PyDoc_STRVAR(
+    offset_function_doc,
+    R"!(offset(polygons, distance, join="miter", tolerance=2, precision=1e-3, use_union=False, layer=0, datatype=0) -> list
 
 Dilate or erode polygons.
 
@@ -2598,7 +2613,8 @@ Examples:
     .. image:: ../_static/function/offset.*
        :align: center)!");
 
-PyDoc_STRVAR(boolean_function_doc, R"!(boolean(operand1, operand2, operation, precision=1e-3, layer=0, datatype=0) -> list
+PyDoc_STRVAR(boolean_function_doc,
+             R"!(boolean(operand1, operand2, operation, precision=1e-3, layer=0, datatype=0) -> list
 
 Execute boolean (clipping) operations between polygons.
 
@@ -2659,7 +2675,8 @@ Examples:
     .. image:: ../_static/function/slice.*
        :align: center)!");
 
-PyDoc_STRVAR(inside_function_doc, R"!(inside(points, polygons, short_circuit=*, precision=1e=3) -> tuple
+PyDoc_STRVAR(inside_function_doc,
+             R"!(inside(points, polygons, short_circuit=*, precision=1e=3) -> tuple
 
 Test whether the points are inside the polygons.
 

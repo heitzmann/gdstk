@@ -8,6 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "cell.h"
 
 #include <cfloat>
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -21,29 +22,29 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Cell::print(bool all) const {
-    printf(
-        "Cell <%p> %s, %ld polygons, %ld flexpaths, %ld robustpaths, %ld references, %ld labels, owner <%p>\n",
-        this, name, polygon_array.size, flexpath_array.size, robustpath_array.size,
-        reference_array.size, label_array.size, owner);
+    printf("Cell <%p> %s, %" PRId64 " polygons, %" PRId64 " flexpaths, %" PRId64
+           " robustpaths, %" PRId64 " references, %" PRId64 " labels, owner <%p>\n",
+           this, name, polygon_array.size, flexpath_array.size, robustpath_array.size,
+           reference_array.size, label_array.size, owner);
     if (all) {
         for (int64_t i = 0; i < polygon_array.size; i++) {
-            printf("[%ld] ", i);
+            printf("[%" PRId64 "] ", i);
             polygon_array[i]->print(true);
         }
         for (int64_t i = 0; i < flexpath_array.size; i++) {
-            printf("[%ld] ", i);
+            printf("[%" PRId64 "] ", i);
             flexpath_array[i]->print(true);
         }
         for (int64_t i = 0; i < robustpath_array.size; i++) {
-            printf("[%ld] ", i);
+            printf("[%" PRId64 "] ", i);
             robustpath_array[i]->print(true);
         }
         for (int64_t i = 0; i < reference_array.size; i++) {
-            printf("[%ld] ", i);
+            printf("[%" PRId64 "] ", i);
             reference_array[i]->print();
         }
         for (int64_t i = 0; i < label_array.size; i++) {
-            printf("[%ld] ", i);
+            printf("[%" PRId64 "] ", i);
             label_array[i]->print();
         }
     }
@@ -468,7 +469,7 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
 }
 
 void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
-    char buffer[strlen(name) + 1];
+    char* buffer = (char*)malloc(sizeof(char) * (strlen(name) + 1));
     char* d = buffer;
     for (char* c = name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
@@ -496,6 +497,7 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     for (int64_t i = 0; i < label_array.size; i++, label++) (*label)->to_svg(out, scaling);
 
     fprintf(out, "</g>\n");
+    free(buffer);
 }
 
 void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label_style,

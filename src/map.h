@@ -5,9 +5,12 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
+#define _USE_MATH_DEFINES
+
 #ifndef __MAP_H__
 #define __MAP_H__
 
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -20,7 +23,7 @@ namespace gdstk {
 // FNV-1a hash function (32 bits)
 #define MAP_FNV_PRIME 0x01000193
 #define MAP_FNV_OFFSET 0x811c9dc5
-static int64_t hash(const char* key) {
+static inline int64_t hash(const char* key) {
     uint32_t h = MAP_FNV_OFFSET;
     for (const char* c = key; *c; c++) {
         h ^= (uint32_t)(*c);
@@ -54,15 +57,15 @@ struct Map {
     }
 
     void print(bool all) const {
-        printf("Map <%p>, size %ld/%ld, items <%p>\n", this, size, capacity, items);
+        printf("Map <%p>, size %" PRId64 "/%" PRId64 ", items <%p>\n", this, size, capacity, items);
         if (all) {
             MapItem<T>* item = items;
             for (int64_t i = 0; i < capacity; i++, item++) {
-                printf("(%ld) Item <%p>, key <%p:%s>, value <%p>, next <%p>\n", i, item, item->key,
-                       item->key ? item->key : "", item->value, item->next);
+                printf("(%" PRId64 ") Item <%p>, key <%p:%s>, value <%p>, next <%p>\n", i, item,
+                       item->key, item->key ? item->key : "", item->value, item->next);
                 for (MapItem<T>* it = item->next; it; it = it->next) {
-                    printf("(%ld) Item <%p>, key <%p:%s>, value <%p>, next <%p>\n", i, it, it->key,
-                           it->key ? it->key : "", it->value, it->next);
+                    printf("(%" PRId64 ") Item <%p>, key <%p:%s>, value <%p>, next <%p>\n", i, it,
+                           it->key, it->key ? it->key : "", it->value, it->next);
                 }
             }
         }

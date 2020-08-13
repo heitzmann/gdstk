@@ -274,8 +274,8 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
     int64_t num_groups = groups.size;
     int64_t num_polygons = polygons.size;
 
-    std::vector<ClipperLib::cInt[4]> paths_bb(num_polygons);
-    for (int64_t p = 0; p < num_polygons; p++) bounding_box(paths[p], paths_bb[p]);
+    ClipperLib::cInt *paths_bb = (ClipperLib::cInt*)malloc(sizeof(ClipperLib::cInt) * 4 * num_polygons);
+    for (int64_t p = 0; p < num_polygons; p++) bounding_box(paths[p], paths_bb + 4 * p);
 
     if (short_circuit == ShortCircuit::None) {
         num = 0;
@@ -283,15 +283,15 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
         bool* result = (bool*)malloc(sizeof(bool) * num);
 
         ClipperLib::cInt all_bb[4];
-        all_bb[0] = paths_bb[0][0];
-        all_bb[1] = paths_bb[0][1];
-        all_bb[2] = paths_bb[0][2];
-        all_bb[3] = paths_bb[0][3];
+        all_bb[0] = paths_bb[0 * 4 + 0];
+        all_bb[1] = paths_bb[0 * 4 + 1];
+        all_bb[2] = paths_bb[0 * 4 + 2];
+        all_bb[3] = paths_bb[0 * 4 + 3];
         for (int64_t p = 1; p < num_polygons; p++) {
-            if (all_bb[0] > paths_bb[p][0]) all_bb[0] = paths_bb[p][0];
-            if (all_bb[1] < paths_bb[p][1]) all_bb[1] = paths_bb[p][1];
-            if (all_bb[2] > paths_bb[p][2]) all_bb[2] = paths_bb[p][2];
-            if (all_bb[3] < paths_bb[p][3]) all_bb[3] = paths_bb[p][3];
+            if (all_bb[0] > paths_bb[p * 4 + 0]) all_bb[0] = paths_bb[p * 4 + 0];
+            if (all_bb[1] < paths_bb[p * 4 + 1]) all_bb[1] = paths_bb[p * 4 + 1];
+            if (all_bb[2] > paths_bb[p * 4 + 2]) all_bb[2] = paths_bb[p * 4 + 2];
+            if (all_bb[3] < paths_bb[p * 4 + 3]) all_bb[3] = paths_bb[p * 4 + 3];
         }
 
         int64_t k = 0;
@@ -302,15 +302,16 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                 if (groups_paths[i][j].X >= all_bb[0] && groups_paths[i][j].X <= all_bb[1] &&
                     groups_paths[i][j].Y >= all_bb[2] && groups_paths[i][j].Y <= all_bb[3])
                     for (int64_t p = 0; p < num_polygons && in == false; p++)
-                        if (groups_paths[i][j].X >= paths_bb[p][0] &&
-                            groups_paths[i][j].X <= paths_bb[p][1] &&
-                            groups_paths[i][j].Y >= paths_bb[p][2] &&
-                            groups_paths[i][j].Y <= paths_bb[p][3] &&
+                        if (groups_paths[i][j].X >= paths_bb[p * 4 + 0] &&
+                            groups_paths[i][j].X <= paths_bb[p * 4 + 1] &&
+                            groups_paths[i][j].Y >= paths_bb[p * 4 + 2] &&
+                            groups_paths[i][j].Y <= paths_bb[p * 4 + 3] &&
                             PointInPolygon(groups_paths[i][j], paths[p]) != 0)
                             in = true;
                 result[k++] = in;
             }
         }
+        free(paths_bb);
         return result;
     } else if (short_circuit == ShortCircuit::Any) {
         num = num_groups;
@@ -322,32 +323,33 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             bounding_box(groups_paths[j], group_bb);
 
             for (int64_t p = 0; p < num_polygons && in == false; p++)
-                if (group_bb[0] <= paths_bb[p][1] && group_bb[1] >= paths_bb[p][0] &&
-                    group_bb[2] <= paths_bb[p][3] && group_bb[3] >= paths_bb[p][2])
+                if (group_bb[0] <= paths_bb[p * 4 + 1] && group_bb[1] >= paths_bb[p * 4 + 0] &&
+                    group_bb[2] <= paths_bb[p * 4 + 3] && group_bb[3] >= paths_bb[p * 4 + 2])
                     for (int64_t i = 0; i < num_points && in == false; i++)
-                        if (groups_paths[j][i].X >= paths_bb[p][0] &&
-                            groups_paths[j][i].X <= paths_bb[p][1] &&
-                            groups_paths[j][i].Y >= paths_bb[p][2] &&
-                            groups_paths[j][i].Y <= paths_bb[p][3] &&
+                        if (groups_paths[j][i].X >= paths_bb[p * 4 + 0] &&
+                            groups_paths[j][i].X <= paths_bb[p * 4 + 1] &&
+                            groups_paths[j][i].Y >= paths_bb[p * 4 + 2] &&
+                            groups_paths[j][i].Y <= paths_bb[p * 4 + 3] &&
                             PointInPolygon(groups_paths[j][i], paths[p]) != 0)
                             in = true;
             result[j] = in;
         }
+        free(paths_bb);
         return result;
     } else if (short_circuit == ShortCircuit::All) {
         num = num_groups;
         bool* result = (bool*)malloc(sizeof(bool) * num);
 
         ClipperLib::cInt all_bb[4];
-        all_bb[0] = paths_bb[0][0];
-        all_bb[1] = paths_bb[0][1];
-        all_bb[2] = paths_bb[0][2];
-        all_bb[3] = paths_bb[0][3];
+        all_bb[0] = paths_bb[0 * 4 + 0];
+        all_bb[1] = paths_bb[0 * 4 + 1];
+        all_bb[2] = paths_bb[0 * 4 + 2];
+        all_bb[3] = paths_bb[0 * 4 + 3];
         for (int64_t p = 1; p < num_polygons; p++) {
-            if (all_bb[0] > paths_bb[p][0]) all_bb[0] = paths_bb[p][0];
-            if (all_bb[1] < paths_bb[p][1]) all_bb[1] = paths_bb[p][1];
-            if (all_bb[2] > paths_bb[p][2]) all_bb[2] = paths_bb[p][2];
-            if (all_bb[3] < paths_bb[p][3]) all_bb[3] = paths_bb[p][3];
+            if (all_bb[0] > paths_bb[p * 4 + 0]) all_bb[0] = paths_bb[p * 4 + 0];
+            if (all_bb[1] < paths_bb[p * 4 + 1]) all_bb[1] = paths_bb[p * 4 + 1];
+            if (all_bb[2] > paths_bb[p * 4 + 2]) all_bb[2] = paths_bb[p * 4 + 2];
+            if (all_bb[3] < paths_bb[p * 4 + 3]) all_bb[3] = paths_bb[p * 4 + 3];
         }
 
         for (int64_t j = 0; j < num_groups; j++) {
@@ -359,20 +361,22 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                 if (groups_paths[j][i].X >= all_bb[0] && groups_paths[j][i].X <= all_bb[1] &&
                     groups_paths[j][i].Y >= all_bb[2] && groups_paths[j][i].Y <= all_bb[3])
                     for (int64_t p = 0; p < num_polygons && this_in == false; p++)
-                        if (groups_paths[j][i].X >= paths_bb[p][0] &&
-                            groups_paths[j][i].X <= paths_bb[p][1] &&
-                            groups_paths[j][i].Y >= paths_bb[p][2] &&
-                            groups_paths[j][i].Y <= paths_bb[p][3] &&
+                        if (groups_paths[j][i].X >= paths_bb[p * 4 + 0] &&
+                            groups_paths[j][i].X <= paths_bb[p * 4 + 1] &&
+                            groups_paths[j][i].Y >= paths_bb[p * 4 + 2] &&
+                            groups_paths[j][i].Y <= paths_bb[p * 4 + 3] &&
                             PointInPolygon(groups_paths[j][i], paths[p]) != 0)
                             this_in = true;
                 in = this_in;
             }
             result[j] = in;
         }
+        free(paths_bb);
         return result;
     }
 
     num = 0;
+    free(paths_bb);
     return NULL;
 }
 

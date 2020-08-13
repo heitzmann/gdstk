@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "flexpath.h"
 
+#include <cinttypes>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -24,16 +25,16 @@ void FlexPath::init(const Vec2 initial_position, const double* width, const doub
 }
 
 void FlexPath::print(bool all) const {
-    printf(
-        "FlexPath <%p>, size %ld, %ld elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
-        this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties, owner);
+    printf("FlexPath <%p>, size %" PRId64 ", %" PRId64
+           " elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
+           this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties, owner);
     if (all) {
         FlexPathElement* el = elements;
         for (int64_t ne = 0; ne < num_elements; ne++, el++) {
-            printf(
-                "Element %ld, layer %d, datatype %d, join %d, end %d (%lg, %lg), bend %d (%lg)\n",
-                ne, el->layer, el->datatype, (int)el->join_type, (int)el->end_type,
-                el->end_extensions.u, el->end_extensions.v, (int)el->bend_type, el->bend_radius);
+            printf("Element %" PRId64
+                   ", layer %d, datatype %d, join %d, end %d (%lg, %lg), bend %d (%lg)\n",
+                   ne, el->layer, el->datatype, (int)el->join_type, (int)el->end_type,
+                   el->end_extensions.u, el->end_extensions.v, (int)el->bend_type, el->bend_radius);
         }
         printf("Spine: ");
         spine.print(true);

@@ -5,6 +5,8 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
+#define _USE_MATH_DEFINES
+
 #define PY_SSIZE_T_CLEAN
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
@@ -765,8 +767,8 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
         for (int64_t i = PySequence_Length(py_polygons) - 1; i >= 0; i--) {
             PyObject* arg = PySequence_ITEM(py_polygons, i);
             if (arg == NULL) {
-                PyErr_Format(PyExc_RuntimeError, "Unable to retrieve item %ld from sequence %s.", i,
-                             name);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to retrieve item %" PRId64 " from sequence %s.", i, name);
                 for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
                     polygon_array[j]->clear();
                     free(polygon_array[j]);
@@ -793,8 +795,8 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
             } else {
                 Polygon* polygon = (Polygon*)calloc(1, sizeof(Polygon));
                 if (parse_point_sequence(arg, true, polygon->point_array, "") < 0) {
-                    PyErr_Format(PyExc_RuntimeError, "Unable to parse item %ld from sequence %s.",
-                                 i, name);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to parse item %" PRId64 " from sequence %s.", i, name);
                     for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
                         polygon_array[j]->clear();
                         free(polygon_array[j]);
@@ -1316,7 +1318,7 @@ static PyMethodDef gdstk_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static int gdstk_exec(PyObject* module) {
-    if (PyModule_AddStringConstant(module, "__version__", "0.1-dev") < 0) {
+    if (PyModule_AddStringConstant(module, "__version__", "0.1.dev0") < 0) {
         Py_XDECREF(module);
         return -1;
     }

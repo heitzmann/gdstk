@@ -5,9 +5,12 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
+#define _USE_MATH_DEFINES
+
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -28,7 +31,7 @@ struct Array {
 
     void print(bool all) const {
         const int64_t n = 6;
-        printf("Array <%p>, size %ld/%ld\n", this, size, capacity);
+        printf("Array <%p>, size %" PRId64 "/%" PRId64 "\n", this, size, capacity);
         if (all) {
             for (int64_t i = 0; i < size; i += n) {
                 for (int64_t j = 0; j < n && i + j < size; j++) {
@@ -92,7 +95,7 @@ struct Array {
 template <>
 inline void Array<Vec2>::print(bool all) const {
     const int64_t n = 6;
-    printf("Array <%p>, size %ld/%ld\n", this, size, capacity);
+    printf("Array <%p>, size %" PRId64 "/%" PRId64 "\n", this, size, capacity);
     if (all) {
         for (int64_t i = 0; i < size; i += n) {
             for (int64_t j = 0; j < n && i + j < size; j++) {

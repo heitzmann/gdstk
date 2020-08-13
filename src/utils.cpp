@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "utils.h"
 
+#include <cinttypes>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -154,12 +155,15 @@ Vec2 eval_bezier3(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2, const V
 }
 
 Vec2 eval_bezier(double t, const Vec2* ctrl, int64_t size) {
-    Vec2 p[size];
+    Vec2 result;
+    Vec2* p = (Vec2*)malloc(sizeof(Vec2) * size);
     memcpy(p, ctrl, sizeof(Vec2) * size);
     const double r = 1 - t;
     for (int64_t j = size - 1; j > 0; j--)
         for (int64_t i = 0; i < j; i++) p[i] = r * p[i] + t * p[i + 1];
-    return p[0];
+    result = p[0];
+    free(p);
+    return result;
 }
 
 // Calculated control points `a` and `b` are stored in `points`, which must
@@ -177,9 +181,9 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
     const double C = 0.5 * (3.0 - sqrt(5.0));
 
     int info = 0;
-    int ipiv[2 * size];
-    double a[4 * size * size];
-    double b[2 * size];
+    int* ipiv = (int*)malloc(sizeof(int) * 2 * size);
+    double* a = (double*)malloc(sizeof(double) * (4 * size * size + 2 * size));
+    double* b = a + 4 * size * size;
 
     Vec2* pts = points;
     Vec2* tens = tension;
@@ -263,6 +267,8 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 v = v_next;
                 w = w_next;
             }
+            free(ipiv);
+            free(a);
             return;
         }
 
@@ -336,18 +342,18 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 a[k1 + dim * l] = 1;
                 // A_k
                 a[l + dim * k] = length_v * tens[i2].u * tens[i1].u * tens[i1].u;
-                // printf("a %ld %ld %lg\n", l, k, a[l + dim * k]);
+                // printf("a %"PRId64" %"PRId64" %lg\n", l, k, a[l + dim * k]);
                 // B_{k+1}
                 a[l + dim * k1] =
                     -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v * (1 - 3 * tens[i2].u);
-                // printf("a %ld %ld %lg\n", l, k1, a[l + dim * k1]);
+                // printf("a %"PRId64" %"PRId64" %lg\n", l, k1, a[l + dim * k1]);
                 // C_{k+1}
                 a[l + dim * l] =
                     length_v * tens[i2].u * tens[i1].u * tens[i1].u * (1 - 3 * tens[i0].v);
-                // printf("a %ld %ld %lg\n", l, l, a[l + dim * l]);
+                // printf("a %"PRId64" %"PRId64" %lg\n", l, l, a[l + dim * l]);
                 // D_{k+2}
                 a[l + dim * l1] = -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v;
-                // printf("a %ld %ld %lg\n", l, l1, a[l + dim * l1]);
+                // printf("a %"PRId64" %"PRId64" %lg\n", l, l1, a[l + dim * l1]);
 
                 delta_prev = delta;
                 length_v_prev = length_v;
@@ -381,7 +387,7 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 a[dim - 1 + dim * (dim - 1)] = ti3 * (1 - 3 * tens[n - 1].v) - cto3;
             }
             if (range > 1 || !ang_c[i] || !ang_c[j]) {
-                // printf("Solving range [%ld, %ld]\n\n", i, j);
+                // printf("Solving range [%"PRId64", %"PRId64"]\n\n", i, j);
                 // for (int _l = 0; _l < dim; _l++) {
                 //     printf("%s[", _l == (dim - 1) / 2 ? "A = " : "    ");
                 //     for (int _c = 0; _c < dim; _c++) printf(" %lg ", a[_l + dim * _c]);
@@ -436,6 +442,8 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
         free(theta);
         free(phi);
     }
+    free(ipiv);
+    free(a);
 }
 
 }  // namespace gdstk

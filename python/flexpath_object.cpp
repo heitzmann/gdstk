@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* flexpath_object_str(FlexPathObject* self) {
     char buffer[64];
-    snprintf(buffer, COUNT(buffer), "FlexPath with %ld paths and %ld points",
+    snprintf(buffer, COUNT(buffer), "FlexPath with %" PRId64 " paths and %" PRId64 " points",
              self->flexpath->num_elements, self->flexpath->spine.point_array.size);
     return PyUnicode_FromString(buffer);
 }
@@ -99,14 +99,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (item == NULL) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %ld from width sequence.", i);
+                                 "Unable to retrieve item %" PRId64 " from width sequence.", i);
                     return -1;
                 }
                 const double half_width = 0.5 * PyFloat_AsDouble(item);
                 Py_DECREF(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert width[%ld] to float.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert width[%" PRId64 "] to float.", i);
                     return -1;
                 }
 
@@ -114,14 +115,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (item == NULL) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %ld from offset sequence.", i);
+                                 "Unable to retrieve item %" PRId64 " from offset sequence.", i);
                     return -1;
                 }
                 const double offset = PyFloat_AsDouble(item);
                 Py_DECREF(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert offset[%ld] to float.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert offset[%" PRId64 "] to float.", i);
                     return -1;
                 }
 
@@ -146,14 +148,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (item == NULL) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %ld from width sequence.", i);
+                                 "Unable to retrieve item %" PRId64 " from width sequence.", i);
                     return -1;
                 }
                 const double half_width = 0.5 * PyFloat_AsDouble(item);
                 Py_DECREF(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert width[%ld] to float.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert width[%" PRId64 "] to float.", i);
                     return -1;
                 }
 
@@ -183,14 +186,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
             if (item == NULL) {
                 flexpath_cleanup(self);
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to retrieve item %ld from offset sequence.", i);
+                             "Unable to retrieve item %" PRId64 " from offset sequence.", i);
                 return -1;
             }
             const double offset = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
                 flexpath_cleanup(self);
-                PyErr_Format(PyExc_RuntimeError, "Unable to convert offset[%ld] to float.", i);
+                PyErr_Format(PyExc_RuntimeError, "Unable to convert offset[%" PRId64 "] to float.",
+                             i);
                 return -1;
             }
 
@@ -238,13 +242,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 PyObject* item = PyList_GET_ITEM(py_layer, i);
                 if (item == NULL) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from layer list.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to get item %" PRId64 " from layer list.", i);
                     return -1;
                 }
                 el->layer = PyLong_AsLong(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%ld] to int.", i);
+                    PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRId64 "] to int.",
+                                 i);
                     return -1;
                 }
             }
@@ -273,14 +279,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 PyObject* item = PyList_GET_ITEM(py_datatype, i);
                 if (item == NULL) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from datatype list.",
-                                 i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to get item %" PRId64 " from datatype list.", i);
                     return -1;
                 }
                 el->datatype = PyLong_AsLong(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert datatype[%ld] to int.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert datatype[%" PRId64 "] to int.", i);
                     return -1;
                 }
             }
@@ -310,7 +317,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (item == NULL) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %ld from joins list.", i);
+                                 "Unable to retrieve item %" PRId64 " from joins list.", i);
                     return -1;
                 }
                 if (PyCallable_Check(item)) {
@@ -396,7 +403,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (item == NULL) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %ld from ends list.", i);
+                                 "Unable to retrieve item %" PRId64 " from ends list.", i);
                     return -1;
                 }
                 if (PyCallable_Check(item)) {
@@ -494,14 +501,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (item == NULL) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %ld from bend_radius sequence.", i);
+                                 "Unable to retrieve item %" PRId64 " from bend_radius sequence.",
+                                 i);
                     return -1;
                 }
                 const double bend_radius = PyFloat_AsDouble(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert bend_radius[%ld] to float.",
-                                 i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert bend_radius[%" PRId64 "] to float.", i);
                     return -1;
                 }
                 if (bend_radius > 0) {
@@ -540,9 +548,9 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 PyObject* item = PyList_GET_ITEM(py_bend_function, i);
                 if (item == NULL || !PyCallable_Check(item)) {
                     flexpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to get callable from item %ld from bend_function list.",
-                                 i);
+                    PyErr_Format(
+                        PyExc_RuntimeError,
+                        "Unable to get callable from item %" PRId64 " from bend_function list.", i);
                     return -1;
                 }
                 el->bend_type = BendType::Function;
@@ -669,13 +677,14 @@ static PyObject* flexpath_object_set_layers(FlexPathObject* self, PyObject* arg)
     for (int64_t i = 0; i < len; i++) {
         PyObject* item = PySequence_ITEM(arg, i);
         if (item == NULL) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from sequence.", i);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
             return NULL;
         }
         flexpath->elements[i].layer = PyLong_AsLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %ld to int.", i);
+            PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRId64 " to int.",
+                         i);
             return NULL;
         }
     }
@@ -698,13 +707,13 @@ static PyObject* flexpath_object_set_datatypes(FlexPathObject* self, PyObject* a
     for (int64_t i = 0; i < len; i++) {
         PyObject* item = PySequence_ITEM(arg, i);
         if (item == NULL) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from sequence.", i);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
             return NULL;
         }
         flexpath->elements[i].datatype = PyLong_AsLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %ld to int.", i);
+            PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRId64 " to int.", i);
             return NULL;
         }
     }
@@ -721,14 +730,15 @@ static int parse_flexpath_width(const FlexPath flexpath, PyObject* py_width, dou
         for (int64_t i = 0; i < flexpath.num_elements; i++) {
             PyObject* item = PySequence_ITEM(py_width, i);
             if (item == NULL) {
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from sequence width.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from sequence width.", i);
                 return -1;
             }
             *width++ = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert item %ld from sequence width to float.", i);
+                             "Unable to convert item %" PRId64 " from sequence width to float.", i);
                 return -1;
             }
         }
@@ -754,14 +764,16 @@ static int parse_flexpath_offset(const FlexPath flexpath, PyObject* py_offset, d
         for (int64_t i = 0; i < flexpath.num_elements; i++) {
             PyObject* item = PySequence_ITEM(py_offset, i);
             if (item == NULL) {
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from sequence offset.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from sequence offset.", i);
                 return -1;
             }
             *offset++ = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert item %ld from sequence offset to float.", i);
+                             "Unable to convert item %" PRId64 " from sequence offset to float.",
+                             i);
                 return -1;
             }
         }
@@ -787,31 +799,42 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
                                      &py_width, &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
-        if (parse_flexpath_width(*flexpath, py_width, width) < 0) return NULL;
+        if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     double* offset = NULL;
     if (py_offset != NULL && py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
-        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) return NULL;
+        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     if (PySequence_Check(py_coord)) {
         int64_t size;
         double* coord = parse_sequence_double(py_coord, size, "x");
-        if (coord == NULL) return NULL;
+        if (coord == NULL) {
+            free(buffer);
+            return NULL;
+        }
         flexpath->horizontal(coord, size, width, offset, relative > 0);
         free(coord);
     } else {
         double single = PyFloat_AsDouble(py_coord);
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert coordinate to float.");
+            free(buffer);
             return NULL;
         }
         flexpath->horizontal(&single, 1, width, offset, relative > 0);
     }
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -826,31 +849,42 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
                                      &py_width, &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
-        if (parse_flexpath_width(*flexpath, py_width, width) < 0) return NULL;
+        if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     double* offset = NULL;
     if (py_offset != NULL && py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
-        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) return NULL;
+        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     if (PySequence_Check(py_coord)) {
         int64_t size;
         double* coord = parse_sequence_double(py_coord, size, "y");
-        if (coord == NULL) return NULL;
+        if (coord == NULL) {
+            free(buffer);
+            return NULL;
+        }
         flexpath->vertical(coord, size, width, offset, relative > 0);
         free(coord);
     } else {
         double single = PyFloat_AsDouble(py_coord);
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert coordinate to float.");
+            free(buffer);
             return NULL;
         }
         flexpath->vertical(&single, 1, width, offset, relative > 0);
     }
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -876,12 +910,13 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
             return NULL;
         }
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -890,11 +925,13 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
     flexpath->segment(point_array, width, offset, relative > 0);
     point_array.clear();
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -916,12 +953,13 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
                         "Argument xy must be a sequence of at least 3 coordinates.");
         return NULL;
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -930,11 +968,13 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
     flexpath->cubic(point_array, width, offset, relative > 0);
     point_array.clear();
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -957,12 +997,13 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
                         "Argument xy must be a sequence of at least 2 coordinates.");
         return NULL;
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -971,11 +1012,13 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
     flexpath->cubic_smooth(point_array, width, offset, relative > 0);
     point_array.clear();
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -998,12 +1041,13 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
                         "Argument xy must be a sequence of at least 2 coordinates.");
         return NULL;
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -1012,11 +1056,13 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
     flexpath->quadratic(point_array, width, offset, relative > 0);
     point_array.clear();
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1043,12 +1089,13 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
             return NULL;
         }
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -1057,11 +1104,13 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
     flexpath->quadratic_smooth(point_array, width, offset, relative > 0);
     point_array.clear();
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1087,12 +1136,13 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
             return NULL;
         }
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -1101,11 +1151,13 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
     flexpath->bezier(point_array, width, offset, relative > 0);
     point_array.clear();
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1162,7 +1214,8 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
             if (!item) {
                 free(tension);
                 point_array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from angles sequence.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from angles sequence.", i);
                 return NULL;
             }
             if (item == Py_None)
@@ -1174,7 +1227,8 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
                     free(tension);
                     point_array.clear();
                     Py_DECREF(item);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert angle[%ld] to float.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert angle[%" PRId64 "] to float.", i);
                     return NULL;
                 }
             }
@@ -1209,8 +1263,8 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
             if (!item) {
                 free(tension);
                 point_array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from tension_in sequence.",
-                             i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from tension_in sequence.", i);
                 return NULL;
             }
             tension[i].u = PyFloat_AsDouble(item);
@@ -1218,7 +1272,8 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
             if (PyErr_Occurred()) {
                 free(tension);
                 point_array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to convert tension_in[%ld] to float.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to convert tension_in[%" PRId64 "] to float.", i);
                 return NULL;
             }
         }
@@ -1251,8 +1306,8 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
             if (!item) {
                 free(tension);
                 point_array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from tension_out sequence.",
-                             i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from tension_out sequence.", i);
                 return NULL;
             }
             tension[i].v = PyFloat_AsDouble(item);
@@ -1260,19 +1315,21 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
             if (PyErr_Occurred()) {
                 free(tension);
                 point_array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to convert tension_out[%ld] to float.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to convert tension_out[%" PRId64 "] to float.", i);
                 return NULL;
             }
         }
     }
 
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free(tension);
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -1282,6 +1339,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free(tension);
             point_array.clear();
+            free(buffer);
             return NULL;
         }
     }
@@ -1291,6 +1349,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
 
     point_array.clear();
     free(tension);
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1318,7 +1377,8 @@ static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObj
             return NULL;
         }
     } else if (PySequence_Length(py_radius) != 2) {
-        PyErr_SetString(PyExc_TypeError, "Argument radius must be a number of a sequence of 2 numbers.");
+        PyErr_SetString(PyExc_TypeError,
+                        "Argument radius must be a number of a sequence of 2 numbers.");
         return NULL;
     } else {
         PyObject* item = PySequence_ITEM(py_radius, 0);
@@ -1346,18 +1406,25 @@ static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObj
             return NULL;
         }
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
-        if (parse_flexpath_width(*flexpath, py_width, width) < 0) return NULL;
+        if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     double* offset = NULL;
     if (py_offset != NULL && py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
-        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) return NULL;
+        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     flexpath->arc(radius_x, radius_y, initial_angle, final_angle, rotation, width, offset);
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1372,18 +1439,25 @@ static PyObject* flexpath_object_turn(FlexPathObject* self, PyObject* args, PyOb
                                      &py_width, &py_offset))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
-        if (parse_flexpath_width(*flexpath, py_width, width) < 0) return NULL;
+        if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     double* offset = NULL;
     if (py_offset != NULL && py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
-        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) return NULL;
+        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     flexpath->turn(radius, angle, width, offset);
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1402,21 +1476,28 @@ static PyObject* flexpath_object_parametric(FlexPathObject* self, PyObject* args
         PyErr_SetString(PyExc_TypeError, "Argument path_function must be callable.");
         return NULL;
     }
-    double buffer[flexpath->num_elements * 2];
+    double* buffer = (double*)malloc(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
     if (py_width != NULL && py_width != Py_None) {
         width = buffer;
-        if (parse_flexpath_width(*flexpath, py_width, width) < 0) return NULL;
+        if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     double* offset = NULL;
     if (py_offset != NULL && py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
-        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) return NULL;
+        if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
+            free(buffer);
+            return NULL;
+        }
     }
     Py_INCREF(py_function);
     flexpath->parametric((ParametricVec2)eval_parametric_vec2, (void*)py_function, width, offset,
                          relative > 0);
     Py_DECREF(py_function);
+    free(buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1457,8 +1538,8 @@ static PyObject* flexpath_object_commands(FlexPathObject* self, PyObject* args) 
     int64_t instr_size = instr - instructions;
     int64_t processed = self->flexpath->commands(instructions, instr_size);
     if (processed < instr_size) {
-        PyErr_Format(PyExc_RuntimeError, "Error parsing argument %ld in curve construction.",
-                     processed);
+        PyErr_Format(PyExc_RuntimeError,
+                     "Error parsing argument %" PRId64 " in curve construction.", processed);
         free(instructions);
         return NULL;
     }

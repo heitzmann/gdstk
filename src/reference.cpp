@@ -335,7 +335,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
     const char* src_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
-    char ref_name[strlen(src_name) + 1];
+    char* ref_name = (char*)malloc(sizeof(char) * (strlen(src_name) + 1));
     char* d = ref_name;
     for (const char* c = src_name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
@@ -354,6 +354,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
             fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
         }
     }
+    free(ref_name);
 }
 
 }  // namespace gdstk

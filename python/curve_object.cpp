@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* curve_object_str(CurveObject* self) {
     char buffer[64];
-    snprintf(buffer, COUNT(buffer), "Curve with %ld points", self->curve->point_array.size);
+    snprintf(buffer, COUNT(buffer), "Curve with %" PRId64 " points", self->curve->point_array.size);
     return PyUnicode_FromString(buffer);
 }
 
@@ -267,7 +267,8 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             if (!item) {
                 free(tension);
                 array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from angles sequence.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from angles sequence.", i);
                 return NULL;
             }
             if (item == Py_None)
@@ -279,7 +280,8 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                     free(tension);
                     array.clear();
                     Py_DECREF(item);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert angles[%ld] to float.", i);
+                    PyErr_Format(PyExc_RuntimeError,
+                                 "Unable to convert angles[%" PRId64 "] to float.", i);
                     return NULL;
                 }
             }
@@ -314,8 +316,8 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             if (!item) {
                 free(tension);
                 array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from tension_in sequence.",
-                             i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from tension_in sequence.", i);
                 return NULL;
             }
             tension[i].u = PyFloat_AsDouble(item);
@@ -323,7 +325,8 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             if (PyErr_Occurred()) {
                 free(tension);
                 array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to convert tension_in[%ld] to float.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to convert tension_in[%" PRId64 "] to float.", i);
                 return NULL;
             }
         }
@@ -356,8 +359,8 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             if (!item) {
                 free(tension);
                 array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to get item %ld from tension_out sequence.",
-                             i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRId64 " from tension_out sequence.", i);
                 return NULL;
             }
             tension[i].v = PyFloat_AsDouble(item);
@@ -365,7 +368,8 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             if (PyErr_Occurred()) {
                 free(tension);
                 array.clear();
-                PyErr_Format(PyExc_RuntimeError, "Unable to convert tension_out[%ld] to float.", i);
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to convert tension_out[%" PRId64 "] to float.", i);
                 return NULL;
             }
         }
@@ -500,8 +504,8 @@ static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
     int64_t instr_size = instr - instructions;
     int64_t processed = self->curve->commands(instructions, instr_size);
     if (processed < instr_size) {
-        PyErr_Format(PyExc_RuntimeError, "Error parsing argument %ld in curve construction.",
-                     processed);
+        PyErr_Format(PyExc_RuntimeError,
+                     "Error parsing argument %" PRId64 " in curve construction.", processed);
         free(instructions);
         return NULL;
     }
