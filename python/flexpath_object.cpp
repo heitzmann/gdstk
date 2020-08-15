@@ -77,8 +77,10 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         }
     }
 
-    const int64_t size = flexpath->spine.point_array.size;
     int64_t num_elements = 1;
+    const int64_t size = flexpath->spine.point_array.size;
+    if (size > 1)
+        flexpath->spine.last_ctrl = flexpath->spine.point_array[size - 2];
 
     if (PySequence_Check(py_width)) {
         num_elements = PySequence_Length(py_width);
