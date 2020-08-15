@@ -115,7 +115,7 @@ static PyObject* curve_object_segment(CurveObject* self, PyObject* args, PyObjec
         self->curve->segment(array, relative > 0);
     } else {
         PyErr_Clear();
-        if (parse_point_sequence(xy, false, array, "xy") < 0) {
+        if (parse_point_sequence(xy, array, "xy") < 0) {
             array.clear();
             return NULL;
         }
@@ -133,7 +133,7 @@ static PyObject* curve_object_cubic(CurveObject* self, PyObject* args, PyObject*
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:cubic", (char**)keywords, &xy, &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, false, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0) {
         array.clear();
         return NULL;
     }
@@ -151,7 +151,7 @@ static PyObject* curve_object_cubic_smooth(CurveObject* self, PyObject* args, Py
                                      &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, false, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0) {
         array.clear();
         return NULL;
     }
@@ -168,7 +168,7 @@ static PyObject* curve_object_quadratic(CurveObject* self, PyObject* args, PyObj
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:quadratic", (char**)keywords, &xy, &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, false, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0) {
         array.clear();
         return NULL;
     }
@@ -193,7 +193,7 @@ static PyObject* curve_object_quadratic_smooth(CurveObject* self, PyObject* args
         self->curve->quadratic_smooth(array, relative > 0);
     } else {
         PyErr_Clear();
-        if (parse_point_sequence(xy, false, array, "xy") < 0) {
+        if (parse_point_sequence(xy, array, "xy") < 0) {
             array.clear();
             return NULL;
         }
@@ -211,7 +211,7 @@ static PyObject* curve_object_bezier(CurveObject* self, PyObject* args, PyObject
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:bezier", (char**)keywords, &xy, &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, false, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0) {
         array.clear();
         return NULL;
     }
@@ -241,7 +241,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         return NULL;
 
     Array<Vec2> array = {0};
-    if (parse_point_sequence(py_points, false, array, "points") < 0) {
+    if (parse_point_sequence(py_points, array, "points") < 0) {
         array.clear();
         return NULL;
     }

@@ -55,7 +55,7 @@ double Polygon::area() const {
         result += v1.cross(v2);
         v1 = v2;
     }
-    return 0.5 * result;
+    return 0.5 * fabs(result);
 }
 
 void Polygon::bounding_box(Vec2& min, Vec2& max) const {

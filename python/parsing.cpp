@@ -47,8 +47,7 @@ static int parse_point(PyObject* point, Vec2& v, const char* name) {
     return 0;
 }
 
-static Py_ssize_t parse_point_sequence(PyObject* py_polygon, bool fix_orientation,
-                                       Array<Vec2>& dest, const char* name) {
+static Py_ssize_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, const char* name) {
     if (!PySequence_Check(py_polygon)) {
         PyErr_Format(PyExc_TypeError, "Argument %s must be a sequence of points.", name);
         return -1;
@@ -57,11 +56,7 @@ static Py_ssize_t parse_point_sequence(PyObject* py_polygon, bool fix_orientatio
     const Py_ssize_t len = PySequence_Length(py_polygon);
     dest.size = 0;
     dest.ensure_slots(len);
-
-    double orientation = 0;
     Vec2* p = dest.items;
-    Vec2 v0 = {0};
-    Vec2 v1 = {0};
     for (Py_ssize_t j = 0; j < len; ++j) {
         PyObject* py_point = PySequence_ITEM(py_polygon, j);
         if (py_point == NULL || parse_point(py_point, *p, "") != 0) {
@@ -73,29 +68,9 @@ static Py_ssize_t parse_point_sequence(PyObject* py_polygon, bool fix_orientatio
             return -1;
         }
         Py_DECREF(py_point);
-        if (fix_orientation) {
-            if (j == 0)
-                v0 = *p;
-            else if (j == 1)
-                v1 = *p - v0;
-            else {
-                Vec2 v2 = *p - v0;
-                orientation += v1.cross(v2);
-                v1 = v2;
-            }
-        }
         p++;
     }
     dest.size = len;
-
-    if (fix_orientation && orientation < 0) {
-        Py_ssize_t i, j;
-        for (i = 0, j = len - 1; i < len / 2; i++, j--) {
-            Vec2 p = dest[i];
-            dest[i] = dest[j];
-            dest[j] = p;
-        }
-    }
     return len;
 }
 

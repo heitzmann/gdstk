@@ -894,7 +894,7 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
                                      &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size != 3) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size != 3) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of 3 coordinates.");
         return NULL;
@@ -930,7 +930,7 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
                                      &py_width, &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size != 2) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size != 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of 2 coordinates.");
         return NULL;
@@ -966,7 +966,7 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
                                      &py_width, &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size != 2) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size != 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of 2 coordinates.");
         return NULL;
@@ -1032,7 +1032,7 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
                                      &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size < 1) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size < 1) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of coordinates.");
         return NULL;
@@ -1083,7 +1083,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
 
     RobustPath* robustpath = self->robustpath;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(py_points, false, point_array, "points") < 0) {
+    if (parse_point_sequence(py_points, point_array, "points") < 0) {
         point_array.clear();
         return NULL;
     }

@@ -533,7 +533,7 @@ Array<Vec2> custom_end_function(const Vec2 first_point, const Vec2 first_directi
         function, "(dd)(dd)(dd)(dd)", first_point.x, first_point.y, first_direction.x,
         first_direction.y, second_point.x, second_point.y, second_direction.x, second_direction.y);
     if (result != NULL) {
-        if (parse_point_sequence(result, false, array, "") < 0) {
+        if (parse_point_sequence(result, array, "") < 0) {
             PyErr_Format(PyExc_RuntimeError, "Unable to parse return value (%S) from end function.",
                          result);
         }
@@ -551,7 +551,7 @@ static Array<Vec2> custom_join_function(const Vec2 first_point, const Vec2 first
                               first_direction.x, first_direction.y, second_point.x, second_point.y,
                               second_direction.x, second_direction.y, center.x, center.y, width);
     if (result != NULL) {
-        if (parse_point_sequence(result, false, array, "") < 0) {
+        if (parse_point_sequence(result, array, "") < 0) {
             PyErr_Format(PyExc_RuntimeError,
                          "Unable to parse return value (%S) from join function.", result);
         }
@@ -566,7 +566,7 @@ static Array<Vec2> custom_bend_function(double radius, double initial_angle, dou
     PyObject* result = PyObject_CallFunction(function, "ddd(dd)", radius, initial_angle,
                                              final_angle, center.x, center.y);
     if (result != NULL) {
-        if (parse_point_sequence(result, false, array, "") < 0) {
+        if (parse_point_sequence(result, array, "") < 0) {
             PyErr_Format(PyExc_RuntimeError,
                          "Unable to parse return value (%S) from bend function.", result);
         }
@@ -794,7 +794,7 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
                 polys.clear();
             } else {
                 Polygon* polygon = (Polygon*)calloc(1, sizeof(Polygon));
-                if (parse_point_sequence(arg, true, polygon->point_array, "") < 0) {
+                if (parse_point_sequence(arg, polygon->point_array, "") < 0) {
                     PyErr_Format(PyExc_RuntimeError,
                                  "Unable to parse item %" PRId64 " from sequence %s.", i, name);
                     for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
@@ -1060,7 +1060,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         points.ensure_slots(1);
         points.size = 1;
         points[0] = (Polygon*)calloc(1, sizeof(Polygon));
-        if (parse_point_sequence(py_points, false, points[0]->point_array, "") < 0) {
+        if (parse_point_sequence(py_points, points[0]->point_array, "") < 0) {
             free(points[0]);
             points.clear();
             PyErr_SetString(PyExc_RuntimeError,
@@ -1078,7 +1078,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         for (int64_t j = 0; j < num_groups; j++) {
             points[j] = (Polygon*)calloc(1, sizeof(Polygon));
             item = PySequence_ITEM(py_points, j);
-            if (parse_point_sequence(item, false, points[j]->point_array, "") < 0) {
+            if (parse_point_sequence(item, points[j]->point_array, "") < 0) {
                 Py_DECREF(item);
                 for (; j >= 0; j--) {
                     points[j]->clear();

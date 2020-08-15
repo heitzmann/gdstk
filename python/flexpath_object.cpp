@@ -71,7 +71,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         flexpath->spine.point_array.append(single_point);
     } else {
         PyErr_Clear();
-        if (parse_point_sequence(py_points, false, flexpath->spine.point_array, "points") < 0) {
+        if (parse_point_sequence(py_points, flexpath->spine.point_array, "points") < 0) {
             flexpath_cleanup(self);
             return -1;
         }
@@ -905,7 +905,7 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
         point_array.size = 1;
     else {
         PyErr_Clear();
-        if (parse_point_sequence(xy, false, point_array, "xy") < 0) {
+        if (parse_point_sequence(xy, point_array, "xy") < 0) {
             point_array.clear();
             return NULL;
         }
@@ -947,7 +947,7 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
         return NULL;
     FlexPath* flexpath = self->flexpath;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size < 3) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size < 3) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError,
                         "Argument xy must be a sequence of at least 3 coordinates.");
@@ -991,7 +991,7 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
         return NULL;
     FlexPath* flexpath = self->flexpath;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size < 2) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size < 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError,
                         "Argument xy must be a sequence of at least 2 coordinates.");
@@ -1035,7 +1035,7 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
     FlexPath* flexpath = self->flexpath;
     Array<Vec2> point_array = {0};
     point_array.ensure_slots(1);
-    if (parse_point_sequence(xy, false, point_array, "xy") < 0 || point_array.size < 2) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size < 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError,
                         "Argument xy must be a sequence of at least 2 coordinates.");
@@ -1084,7 +1084,7 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
         point_array.size = 1;
     else {
         PyErr_Clear();
-        if (parse_point_sequence(xy, false, point_array, "xy") < 0) {
+        if (parse_point_sequence(xy, point_array, "xy") < 0) {
             point_array.clear();
             return NULL;
         }
@@ -1131,7 +1131,7 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
         point_array.size = 1;
     else {
         PyErr_Clear();
-        if (parse_point_sequence(xy, false, point_array, "xy") < 0) {
+        if (parse_point_sequence(xy, point_array, "xy") < 0) {
             point_array.clear();
             return NULL;
         }
@@ -1188,7 +1188,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
 
     FlexPath* flexpath = self->flexpath;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(py_points, false, point_array, "points") < 0) {
+    if (parse_point_sequence(py_points, point_array, "points") < 0) {
         point_array.clear();
         return NULL;
     }

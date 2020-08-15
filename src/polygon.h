@@ -22,8 +22,6 @@ namespace gdstk {
 struct Polygon {
     int16_t layer;
     int16_t datatype;
-    // point_array is expected to be oriented in counter-clockwise direction otherwise area() will
-    // return a negative value and it might be considered a hole in clipperlib
     Array<Vec2> point_array;
     Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).
