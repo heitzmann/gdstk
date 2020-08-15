@@ -640,7 +640,7 @@ PyDoc_STRVAR(reference_object_spacing_doc, R"!(Spacing between copies in the arr
 
 PyDoc_STRVAR(
     flexpath_object_type_doc,
-    R"!(FlexPath(points, width, offset=0, joins="natural", ends="flush", bend_radius=0, bend_function=None, tolerance=1e-2, gdsii_path=false, scale_width=true, layer=0, datatype=0)
+    R"!(FlexPath(points, width, offset=0, joins="natural", ends="flush", bend_radius=0, bend_function=None, tolerance=1e-2, gdsii_path=False, scale_width=True, layer=0, datatype=0)
 
 Flexible path creation.
 

@@ -56,6 +56,7 @@ void FlexPath::copy_from(const FlexPath& path) {
     spine.copy_from(path.spine);
     properties = properties_copy(path.properties);
     scale_width = path.scale_width;
+    gdsii_path = path.gdsii_path;
     num_elements = path.num_elements;
     elements = (FlexPathElement*)calloc(num_elements, sizeof(FlexPathElement));
 
@@ -88,8 +89,8 @@ void FlexPath::scale(double scale, const Vec2 center) {
     Vec2* p = spine.point_array.items;
     for (int64_t num = spine.point_array.size; num > 0; num--, p++)
         *p = (*p - center) * scale + center;
-    Vec2 wo_scale = {scale, 1};
-    if (scale_width) wo_scale.y = scale;
+    Vec2 wo_scale = {1, fabs(scale)};
+    if (scale_width) wo_scale.u = wo_scale.v;
     FlexPathElement* el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
         Vec2* wo = el->half_width_and_offset.items;
@@ -106,6 +107,11 @@ void FlexPath::mirror(const Vec2 p0, const Vec2 p1) {
     Vec2* p = spine.point_array.items;
     for (int64_t num = spine.point_array.size; num > 0; num--, p++)
         *p = v * (*p - p0).inner(r) - *p + p2;
+    FlexPathElement* el = elements;
+    for (int64_t ne = 0; ne < num_elements; ne++, el++) {
+        Vec2* wo = el->half_width_and_offset.items;
+        for (int64_t num = spine.point_array.size; num > 0; num--, wo++) wo->v = -wo->v;
+    }
 }
 
 void FlexPath::rotate(double angle, const Vec2 center) {

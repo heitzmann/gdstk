@@ -1596,7 +1596,7 @@ static PyMethodDef robustpath_object_methods[] = {
 
 static PyObject* robustpath_object_get_layers(RobustPathObject* self, void*) {
     RobustPath* robustpath = self->robustpath;
-    PyObject* result = PyList_New(robustpath->num_elements);
+    PyObject* result = PyTuple_New(robustpath->num_elements);
     if (result == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         return NULL;
@@ -1608,14 +1608,14 @@ static PyObject* robustpath_object_get_layers(RobustPathObject* self, void*) {
             Py_DECREF(result);
             return NULL;
         }
-        PyList_SET_ITEM(result, i, item);
+        PyTuple_SET_ITEM(result, i, item);
     }
     return result;
 }
 
 static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) {
     RobustPath* robustpath = self->robustpath;
-    PyObject* result = PyList_New(robustpath->num_elements);
+    PyObject* result = PyTuple_New(robustpath->num_elements);
     if (result == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         return NULL;
@@ -1627,7 +1627,7 @@ static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) 
             Py_DECREF(result);
             return NULL;
         }
-        PyList_SET_ITEM(result, i, item);
+        PyTuple_SET_ITEM(result, i, item);
     }
     return result;
 }
