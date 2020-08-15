@@ -69,12 +69,12 @@ if platform.system() == "Darwin" and LooseVersion(platform.release()) >= LooseVe
     extra_link_args.extend(["-stdlib=libc++", "-mmacosx-version-min=10.9"])
 
 version = None
-version_re = re.compile('"__version__", "([^"]*)"\)')
-with open("python/gdstk_module.cpp") as fin:
+version_re = re.compile('#define GDSTK_VERSION "(.*)"')
+with open("src/gdstk.h") as fin:
     for line in fin:
-        m = version_re.findall(line)
-        if len(m) > 0:
-            version = m[0]
+        m = version_re.match(line)
+        if m:
+            version = m[1]
             break
 if version is None:
     raise RuntimeError("Unable to determine version.")

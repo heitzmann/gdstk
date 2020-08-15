@@ -10,6 +10,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __GDSTK_H__
 #define __GDSTK_H__
 
+#define GDSTK_VERSION "0.1.dev0"
+
 #include "array.h"
 #include "cell.h"
 #include "clipper_tools.h"

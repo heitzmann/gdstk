@@ -1318,7 +1318,7 @@ static PyMethodDef gdstk_methods[] = {
     {NULL, NULL, 0, NULL}};
 
 static int gdstk_exec(PyObject* module) {
-    if (PyModule_AddStringConstant(module, "__version__", "0.1.dev0") < 0) {
+    if (PyModule_AddStringConstant(module, "__version__", GDSTK_VERSION) < 0) {
         Py_XDECREF(module);
         return -1;
     }
