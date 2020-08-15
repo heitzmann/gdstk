@@ -45,17 +45,6 @@ struct Map {
     int64_t size;       // number of slots used
     MapItem<T>* items;  // slots
 
-    Map<T>(int64_t initial_capacity) : capacity{initial_capacity}, size{0} {
-        items = (MapItem<T>*)calloc(initial_capacity, sizeof(MapItem<T>));
-    }
-
-    Map<T>(const Map<T>& map) : size{0} {
-        capacity = map.capacity;
-        items = (MapItem<T>*)calloc(capacity, sizeof(MapItem<T>));
-        for (MapItem<T>* item = next_item(NULL); item; item = next_item(item))
-            set(item->key, item->value);
-    }
-
     void print(bool all) const {
         printf("Map <%p>, size %" PRId64 "/%" PRId64 ", items <%p>\n", this, size, capacity, items);
         if (all) {
@@ -71,7 +60,26 @@ struct Map {
         }
     }
 
-    MapItem<T>* next_item(const MapItem<T>* current) const {
+    void copy_from(const Map<T>& map) {
+        size = 0;
+        capacity = map.capacity;
+        items = (MapItem<T>*)calloc(capacity, sizeof(MapItem<T>));
+        for (MapItem<T>* item = map.next(NULL); item; item = map.next(item)) set(item->key, item->value);
+    }
+
+    void resize(int64_t new_capacity) {
+        Map<T> new_map;
+        new_map.size = 0;
+        new_map.capacity = new_capacity;
+        new_map.items = (MapItem<T>*)calloc(new_capacity, sizeof(MapItem<T>));
+        for (MapItem<T>* it = next(NULL); it; it = next(it)) new_map.set(it->key, it->value);
+        clear();
+        capacity = new_map.capacity;
+        size = new_map.size;
+        items = new_map.items;
+    }
+
+    MapItem<T>* next(const MapItem<T>* current) const {
         if (!current) {
             for (int64_t i = 0; i < capacity; i++)
                 if (items[i].key) return items + i;
@@ -107,6 +115,9 @@ struct Map {
     }
 
     void set(const char* key, T value) {
+        // Equallity is important for capacity == 0
+        if (size * 10 >= capacity * MAP_CAP) resize(capacity > 0 ? 2 * capacity : 4);
+
         int64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) {
@@ -132,18 +143,10 @@ struct Map {
                 size++;
             }
         }
-        if (size * 10 > capacity * MAP_CAP) {
-            Map<T> new_map(2 * capacity);
-            for (MapItem<T>* it = next_item(NULL); it; it = next_item(it))
-                new_map.set(it->key, it->value);
-            clear();
-            capacity = new_map.capacity;
-            size = new_map.size;
-            items = new_map.items;
-        }
     }
 
     T get(const char* key) const {
+        if (size == 0) return T{0};
         int64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return T{0};
@@ -154,6 +157,7 @@ struct Map {
     }
 
     void del(const char* key) {
+        if (size == 0) return;
         int64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return;

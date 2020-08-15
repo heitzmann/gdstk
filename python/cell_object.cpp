@@ -373,10 +373,10 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         }
     }
 
-    StyleMap style(64);
+    StyleMap style = {0};
     if (style_obj && update_style(style_obj, style, "style") < 0) return NULL;
 
-    StyleMap label_style(64);
+    StyleMap label_style = {0};
     if (label_style_obj && update_style(label_style_obj, label_style, "fontstyle") < 0) {
         style.clear();
         return NULL;

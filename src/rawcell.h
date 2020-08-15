@@ -33,7 +33,7 @@ struct RawCell {
     void to_gds(FILE* out) const;
 };
 
-Map<RawCell*> read_rawcells(FILE* in, int64_t initial_capacity);
+Map<RawCell*> read_rawcells(FILE* in);
 
 }  // namespace gdstk
 

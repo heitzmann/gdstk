@@ -28,16 +28,6 @@ static const char* default_style(int16_t layer, int16_t type) {
     return buffer;
 }
 
-StyleMap::StyleMap(int64_t initial_capacity) : capacity{initial_capacity}, size{0} {
-    style = (Style*)calloc(initial_capacity, sizeof(Style));
-}
-
-StyleMap::StyleMap(const StyleMap& map) : size{0} {
-    capacity = map.capacity;
-    style = (Style*)calloc(capacity, sizeof(Style));
-    for (Style* s = map.next(NULL); s; s = map.next(s)) set(s->layer, s->type, s->value);
-}
-
 void StyleMap::clear() {
     if (style) {
         for (int64_t i = 0; i < capacity; i++) {
@@ -56,7 +46,38 @@ void StyleMap::clear() {
     size = 0;
 }
 
+void StyleMap::copy_from(const StyleMap& map) {
+    size = 0;
+    capacity = map.capacity;
+    style = (Style*)calloc(capacity, sizeof(Style));
+    for (Style* s = map.next(NULL); s; s = map.next(s)) set(s->layer, s->type, s->value);
+}
+
+void StyleMap::resize(int64_t new_capacity) {
+    StyleMap new_map;
+    new_map.capacity = new_capacity;
+    new_map.style = (Style*)calloc(new_capacity, sizeof(Style));
+    for (int64_t i = 0; i < capacity; i++) {
+        Style* prop = style[i].next;
+        while (prop != NULL) {
+            int64_t j = HASH2(prop->layer, prop->type) % new_map.capacity;
+            Style* slot = new_map.style + j;
+            while (slot->next != NULL) slot = slot->next;
+            slot->next = prop;
+            slot = prop->next;
+            prop->next = NULL;
+            prop = slot;
+        }
+    }
+    free(style);
+    style = new_map.style;
+    capacity = new_map.capacity;
+}
+
 void StyleMap::set(int16_t layer, int16_t type, const char* value) {
+    // Equallity is important for capacity == 0
+    if (size * 10 >= capacity * MAP_CAP) resize(capacity > 0 ? 2 * capacity : 4);
+
     int64_t idx = HASH2(layer, type) % capacity;
     Style* s = style + idx;
     while (!(s->next == NULL || (s->next->layer == layer && s->next->type == type))) s = s->next;
@@ -84,28 +105,10 @@ void StyleMap::set(int16_t layer, int16_t type, const char* value) {
         s->value = (char*)malloc(sizeof(char) * len);
         memcpy(s->value, default_value, len);
     }
-
-    if (size * 10 > capacity * MAP_CAP) {
-        StyleMap new_map(2 * capacity);
-        for (int64_t i = 0; i < capacity; i++) {
-            Style* prop = style[i].next;
-            while (prop != NULL) {
-                int64_t j = HASH2(prop->layer, prop->type) % new_map.capacity;
-                Style* slot = new_map.style + j;
-                while (slot->next != NULL) slot = slot->next;
-                slot->next = prop;
-                slot = prop->next;
-                prop->next = NULL;
-                prop = slot;
-            }
-        }
-        free(style);
-        style = new_map.style;
-        capacity = new_map.capacity;
-    }
 }
 
 const char* StyleMap::get(int16_t layer, int16_t type) const {
+    if (size == 0) return default_style(layer, type);
     int64_t i = HASH2(layer, type) % capacity;
     Style* s = style[i].next;
     while (!(s == NULL || (s->layer == layer && s->type == type))) s = s->next;
@@ -115,6 +118,8 @@ const char* StyleMap::get(int16_t layer, int16_t type) const {
 }
 
 void StyleMap::del(int16_t layer, int16_t type) {
+    if (size == 0) return;
+
     int64_t i = HASH2(layer, type) % capacity;
     Style* s = style + i;
     while (!(s->next == NULL || (s->next->layer == layer && s->next->type == type))) s = s->next;

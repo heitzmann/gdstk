@@ -37,10 +37,9 @@ struct StyleMap {
     int64_t size;
     Style* style;
 
-    StyleMap(int64_t initial_capacity);
-    StyleMap(const StyleMap& map);
-
     void clear();
+    void copy_from(const StyleMap& map);
+    void resize(int64_t new_capacity);
     void set(int16_t layer, int16_t type, const char* value);
     const char* get(int16_t layer, int16_t type) const;
     void del(int16_t layer, int16_t type);

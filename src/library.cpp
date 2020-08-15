@@ -228,7 +228,8 @@ Library read_gds(FILE* in, double unit) {
                 library.precision = db_in_meters;
             } break;
             case 0x04: {  // ENDLIB
-                Map<Cell*> map((int64_t)(1.0 + 10.0 / MAP_CAP * library.cell_array.size));
+                Map<Cell*> map = {0};
+                map.resize((int64_t)(1.0 + 10.0 / MAP_CAP * library.cell_array.size));
                 for (int64_t i = library.cell_array.size - 1; i >= 0; i--)
                     map.set(library.cell_array[i]->name, library.cell_array[i]);
                 for (int64_t i = library.cell_array.size - 1; i >= 0; i--) {

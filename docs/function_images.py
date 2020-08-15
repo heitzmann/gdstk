@@ -88,11 +88,11 @@ def slice_image():
 
 def inside_example():
     rect = gdstk.rectangle((0, 0), (1, 1))
-    # print(gdstk.inside([(0.5, 0.5), (2, 2)], rect))
-    # print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any"))
-    # print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all"))
+    print(gdstk.inside([(0.5, 0.5), (2, 2)], rect))
+    print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any"))
+    print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all"))
     # Point groups
-    # print(gdstk.inside([[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect))
+    print(gdstk.inside([[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect))
 
 
 def read_rawcells_example():
@@ -102,13 +102,13 @@ def read_rawcells_example():
     cell2.add(gdstk.Reference(cell1, (-1, 0)))
     library = gdstk.Library()
     library.add(cell1, cell2)
-    # library.write_gds("test.gds")
+    library.write_gds("test.gds")
     raw_cells = gdstk.read_rawcells("test.gds")
-    # print(raw_cells.keys())
-    # print(len(raw_cells["CELL_1"].dependencies(True)))
-    # print(len(raw_cells["CELL_2"].dependencies(True)))
+    print(raw_cells.keys())
+    print(len(raw_cells["CELL_1"].dependencies(True)))
+    print(len(raw_cells["CELL_2"].dependencies(True)))
     deps = raw_cells["CELL_2"].dependencies(True)
-    # print(deps[0] is raw_cells["CELL_1"])
+    print(deps[0] is raw_cells["CELL_1"])
 
 
 if __name__ == "__main__":
@@ -123,5 +123,5 @@ if __name__ == "__main__":
     draw(offset_image(), path)
     draw(boolean_image(), path)
     draw(slice_image(), path)
-    inside_example()
-    read_rawcells_example()
+    # inside_example()
+    # read_rawcells_example()

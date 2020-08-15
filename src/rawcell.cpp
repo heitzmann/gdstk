@@ -51,20 +51,18 @@ void RawCell::get_dependencies(bool recursive, Array<RawCell*>& result) const {
 
 void RawCell::to_gds(FILE* out) const { fwrite(data, sizeof(uint8_t), size, out); }
 
-Map<RawCell*> read_rawcells(FILE* in, int64_t initial_capacity) {
+Map<RawCell*> read_rawcells(FILE* in) {
     int32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
 
-    if (initial_capacity <= 0) initial_capacity = 16;
-    Map<RawCell*> result(initial_capacity);
+    Map<RawCell*> result = {0};
     RawCell* rawcell = NULL;
 
     while ((record_length = read_record(in, buffer)) > 0) {
         switch (buffer[2]) {
             case 0x04:  // ENDLIB
-                for (MapItem<RawCell*>* item = result.next_item(NULL); item;
-                     item = result.next_item(item)) {
+                for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
                     Array<RawCell*>* dependencies = &item->value->dependencies;
                     for (int64_t i = 0; i < dependencies->size;) {
                         char* name = (char*)((*dependencies)[i]);

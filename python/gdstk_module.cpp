@@ -1249,7 +1249,7 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
         return NULL;
     }
-    Map<RawCell*> map = read_rawcells(infile, 0);
+    Map<RawCell*> map = read_rawcells(infile);
     fclose(infile);
 
     PyObject* result = PyDict_New();
@@ -1257,7 +1257,7 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return dictionary.");
         return NULL;
     }
-    for (MapItem<RawCell*>* item = map.next_item(NULL); item; item = map.next_item(item)) {
+    for (MapItem<RawCell*>* item = map.next(NULL); item; item = map.next(item)) {
         RawCellObject* rawcell_obj = PyObject_New(RawCellObject, &rawcell_object_type);
         rawcell_obj = (RawCellObject*)PyObject_Init((PyObject*)rawcell_obj, &rawcell_object_type);
         rawcell_obj->rawcell = item->value;
