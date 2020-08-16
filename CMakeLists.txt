@@ -19,6 +19,11 @@ else()
     set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 endif()
 
+get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(IS_MULTICONFIG)
+    file(WRITE ${CMAKE_BINARY_DIR}/is_multiconfig "TRUE")
+endif()
+
 find_package(LAPACK REQUIRED)
 file(WRITE ${CMAKE_BINARY_DIR}/lapack_libs "")
 foreach(IT ${LAPACK_LIBRARIES})

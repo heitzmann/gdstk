@@ -36,18 +36,20 @@ class build_ext(_build_ext):
             self.spawn(["cmake", "--build", "."] + build_args)
         os.chdir(root_dir)
 
-        if platform.system() == "Windows":
-            link_args = [str(build_dir.absolute() / config / "gdstk.lib")]
+        if (build_dir / "is_multiconfig").exists():
+            # Visual Studio and Xcode
+            self.extensions[0].library_dirs.append(str((build_dir / config).absolute()))
         else:
-            link_args = ["-L" + str(build_dir.absolute()), "-lgdstk"]
+            self.extensions[0].library_dirs.append(str(build_dir.absolute()))
 
         for arg in (build_dir / "lapack_libs").read_text().split():
-            if arg.endswith(".framework"):  # MacOS-specific
-                link_args.extend(["-framework", arg[arg.rfind("/") + 1 : -10]])
+            if arg.endswith(".framework"):
+                # MacOS-specific
+                self.extensions[0].extra_link_args.extend(
+                    ["-framework", arg[arg.rfind("/") + 1 : -10]]
+                )
             else:
-                link_args.append(arg)
-
-        self.extensions[0].extra_link_args.extend(link_args)
+                self.extensions[0].extra_link_args.append(arg)
 
         super().run()
 
@@ -94,9 +96,10 @@ setup(
         Extension(
             "gdstk",
             ["python/gdstk_module.cpp"],
+            include_dirs=["src", numpy.get_include()],
+            libraries=["gdstk"],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
-            include_dirs=[numpy.get_include(), "src"],
         ),
     ],
     cmdclass={"build_ext": build_ext},

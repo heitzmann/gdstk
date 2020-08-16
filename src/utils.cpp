@@ -125,12 +125,28 @@ void swap64(uint64_t* buffer, int64_t n) {
 
 // Read record and make necessary swaps
 int32_t read_record(FILE* in, uint8_t* buffer) {
-    if (fread(buffer, 1, 4, in) < 4) return 0;
+    uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
+    if (read_length < 4) {
+        if (feof(in) != 0)
+            fprintf(stderr,
+                    "[GDSTK] Unable to read input file. End of file reached unexpectedly.\n");
+        else
+            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
+        return 0;
+    }
     swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
     const int32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) return 0;
     if (record_length == 4) return record_length;
-    if (fread(buffer + 4, 1, record_length - 4, in) < (uint32_t)(record_length - 4)) return 0;
+    read_length = fread(buffer + 4, sizeof(uint8_t), record_length - 4, in);
+    if (read_length < (uint32_t)(record_length - 4)) {
+        if (feof(in) != 0)
+            fprintf(stderr,
+                    "[GDSTK] Unable to read input file. End of file reached unexpectedly.\n");
+        else
+            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
+        return 0;
+    }
     return record_length;
 }
 
