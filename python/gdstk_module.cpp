@@ -1164,7 +1164,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|d:read_gds", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &unit))
         return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "r");
+    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
     if (!infile) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
         return NULL;
@@ -1244,7 +1244,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
 static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:read_rawcells", PyUnicode_FSConverter, &pybytes)) return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "r");
+    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
     if (!infile) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
         return NULL;
@@ -1278,7 +1278,7 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
 static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:gds_units", PyUnicode_FSConverter, &pybytes)) return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "r");
+    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
     if (!infile) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
         return NULL;

@@ -177,7 +177,7 @@ Library read_gds(FILE* in, double unit) {
     while ((record_length = read_record(in, buffer)) > 0) {
         int32_t data_length;
 
-        printf("%02X %s (%d bytes)", buffer[2], record_names[buffer[2]], record_length);
+        // printf("%02X %s (%d bytes)", buffer[2], record_names[buffer[2]], record_length);
 
         switch (buffer[3]) {
             case 1:
@@ -202,7 +202,7 @@ Library read_gds(FILE* in, double unit) {
                 // for (int64_t i = 0; i < data_length; i++) printf(" %c", str[i]);
         }
 
-        printf("\n");
+        // printf("\n");
 
         switch (buffer[2]) {
             case 0x00:  // HEADER

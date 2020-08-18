@@ -166,7 +166,7 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
                                      PyUnicode_FSConverter, &pybytes, &max_points))
         return NULL;
 
-    FILE* out = fopen(PyBytes_AS_STRING(pybytes), "w");
+    FILE* out = fopen(PyBytes_AS_STRING(pybytes), "wb");
     if (!out) {
         PyErr_SetString(PyExc_TypeError, "Could not open file for writing.");
         return NULL;

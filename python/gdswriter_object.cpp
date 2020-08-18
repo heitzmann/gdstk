@@ -33,7 +33,7 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
         return -1;
     if (!self->gdswriter) self->gdswriter = (GdsWriter*)calloc(1, sizeof(GdsWriter));
 
-    FILE* out = fopen(PyBytes_AS_STRING(pybytes), "w");
+    FILE* out = fopen(PyBytes_AS_STRING(pybytes), "wb");
     if (!out) {
         PyErr_SetString(PyExc_TypeError, "Could not open file for writing.");
         return -1;
