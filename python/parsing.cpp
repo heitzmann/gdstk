@@ -22,25 +22,25 @@ static int parse_point(PyObject* point, Vec2& v, const char* name) {
 
     PyObject* coord = PySequence_ITEM(point, 0);
     if (!coord) {
-        PyErr_Format(PyExc_RuntimeError, "Unable to get first item from %s.");
+        PyErr_Format(PyExc_RuntimeError, "Unable to get first item from %s.", name);
         return -1;
     }
     v.x = PyFloat_AsDouble(coord);
     Py_DECREF(coord);
     if (PyErr_Occurred()) {
-        PyErr_Format(PyExc_RuntimeError, "Error parsing first number from %s.");
+        PyErr_Format(PyExc_RuntimeError, "Error parsing first number from %s.", name);
         return -1;
     }
 
     coord = PySequence_ITEM(point, 1);
     if (!coord) {
-        PyErr_Format(PyExc_RuntimeError, "Unable to get second item from %s.");
+        PyErr_Format(PyExc_RuntimeError, "Unable to get second item from %s.", name);
         return -1;
     }
     v.y = PyFloat_AsDouble(coord);
     Py_DECREF(coord);
     if (PyErr_Occurred()) {
-        PyErr_Format(PyExc_RuntimeError, "Error parsing second number from %s.");
+        PyErr_Format(PyExc_RuntimeError, "Error parsing second number from %s.", name);
         return -1;
     }
 
