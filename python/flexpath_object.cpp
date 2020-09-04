@@ -597,7 +597,7 @@ static PyObject* flexpath_object_copy(FlexPathObject* self, PyObject* args) {
 
 static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject* args) {
     const Array<Vec2>* point_array = &self->flexpath->spine.point_array;
-    const npy_intp dims[] = {(npy_intp)point_array->size, 2};
+    npy_intp dims[] = {(npy_intp)point_array->size, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -610,7 +610,7 @@ static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject* args) {
 
 static PyObject* flexpath_object_widths(FlexPathObject* self, PyObject* args) {
     const FlexPath* flexpath = self->flexpath;
-    const npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.size, flexpath->num_elements};
+    npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.size, flexpath->num_elements};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -628,7 +628,7 @@ static PyObject* flexpath_object_widths(FlexPathObject* self, PyObject* args) {
 
 static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject* args) {
     const FlexPath* flexpath = self->flexpath;
-    const npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.size, flexpath->num_elements};
+    npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.size, flexpath->num_elements};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");

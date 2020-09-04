@@ -414,7 +414,7 @@ static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject* args) 
 
 static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args) {
     Array<Vec2> point_array = self->robustpath->spine();
-    const npy_intp dims[] = {(npy_intp)point_array.size, 2};
+    npy_intp dims[] = {(npy_intp)point_array.size, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -433,7 +433,7 @@ static PyObject* robustpath_object_width(RobustPathObject* self, PyObject* args,
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:width", (char**)keywords, &u, &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    const npy_intp dims[] = {robustpath->num_elements};
+    npy_intp dims[] = {robustpath->num_elements};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -452,7 +452,7 @@ static PyObject* robustpath_object_position(RobustPathObject* self, PyObject* ar
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:position", (char**)keywords, &u, &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    const npy_intp dims[] = {robustpath->num_elements, 2};
+    npy_intp dims[] = {robustpath->num_elements, 2};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -471,7 +471,7 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:gradient", (char**)keywords, &u, &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    const npy_intp dims[] = {robustpath->num_elements, 2};
+    npy_intp dims[] = {robustpath->num_elements, 2};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");

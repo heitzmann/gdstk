@@ -255,7 +255,7 @@ static PyMethodDef polygon_object_methods[] = {
 
 static PyObject* polygon_object_get_points(PolygonObject* self, void*) {
     const Array<Vec2>* point_array = &self->polygon->point_array;
-    const npy_intp dims[] = {(npy_intp)point_array->size, 2};
+    npy_intp dims[] = {(npy_intp)point_array->size, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
