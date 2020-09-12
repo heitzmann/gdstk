@@ -5,7 +5,7 @@ DOCS_SRC=$(wildcard docs/*.rst)
 PY_MOD=build/lib.linux-x86_64-3.8/gdstk.cpython-38-x86_64-linux-gnu.so
 DOCS=docs/_build/html/index.html
 
-default: all
+default: $(PY_MOD)
 
 clean:
 	-rm -rf build

@@ -89,9 +89,10 @@ struct SubPath {
             };
         };
     };
+
     void print() const;
-    Vec2 gradient(double u) const;
-    Vec2 eval(double u) const;
+    Vec2 gradient(double u, const double* trafo) const;
+    Vec2 eval(double u, const double* trafo) const;
 };
 
 struct RobustPathElement {
@@ -164,11 +165,12 @@ struct RobustPath {
     // Width and offset remain unchainged.
     int64_t commands(const CurveInstruction* items, int64_t size);
 
-    // Result must be an array with at least path.num_elements elements
     // 0 <= u <= path.subpath_array.size
-    void position(double u, bool from_below, Vec2* result) const;
-    void gradient(double u, bool from_below, Vec2* result) const;
+    Vec2 position(double u, bool from_below) const;
+    Vec2 gradient(double u, bool from_below) const;
+    // Result must be an array with at least path.num_elements elements
     void width(double u, bool from_below, double* result) const;
+    void offset(double u, bool from_below, double* result) const;
 
     Array<Vec2> spine() const;
     Array<Polygon*> to_polygons() const;

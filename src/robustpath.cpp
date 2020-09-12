@@ -37,12 +37,6 @@ static double interp(const Interpolation &interpolation, double u) {
     return result;
 }
 
-static Vec2 apply_transform(const double *trafo, Vec2 point) {
-    Vec2 result = Vec2{point.x * trafo[0] + point.y * trafo[1] + trafo[2],
-                       point.x * trafo[3] + point.y * trafo[4] + trafo[5]};
-    return result;
-}
-
 void SubPath::print() const {
     switch (type) {
         case SubPathType::Segment:
@@ -71,18 +65,18 @@ void SubPath::print() const {
     }
 }
 
-Vec2 SubPath::gradient(double u) const {
-    Vec2 result;
+Vec2 SubPath::gradient(double u, const double *trafo) const {
+    Vec2 grad;
     u = u < 0 ? 0 : (u > 1 ? 1 : u);
     switch (type) {
         case SubPathType::Segment:
-            result = end - begin;
+            grad = end - begin;
             break;
         case SubPathType::Arc: {
             const double angle = LERP(angle_i, angle_f, u);
             const double dx = -radius_x * (angle_f - angle_i) * sin(angle);
             const double dy = radius_y * (angle_f - angle_i) * cos(angle);
-            result = Vec2{dx * cos_rot - dy * sin_rot, dx * sin_rot + dy * cos_rot};
+            grad = Vec2{dx * cos_rot - dy * sin_rot, dx * sin_rot + dy * cos_rot};
         } break;
         case SubPathType::Bezier: {
             const int64_t size = ctrl.size - 1;
@@ -90,97 +84,101 @@ Vec2 SubPath::gradient(double u) const {
             Vec2 *dst = _ctrl;
             const Vec2 *src = ctrl.items;
             for (int64_t i = 0; i < size; i++, src++, dst++) *dst = size * (*(src + 1) - *src);
-            result = eval_bezier(u, _ctrl, size);
+            grad = eval_bezier(u, _ctrl, size);
             free(_ctrl);
         } break;
         case SubPathType::Bezier2: {
             const Vec2 dp0 = 2 * (p1 - p0);
             const Vec2 dp1 = 2 * (p2 - p1);
-            result = eval_line(u, dp0, dp1);
+            grad = eval_line(u, dp0, dp1);
         } break;
         case SubPathType::Bezier3: {
             const Vec2 dp0 = 3 * (p1 - p0);
             const Vec2 dp1 = 3 * (p2 - p1);
             const Vec2 dp2 = 3 * (p3 - p2);
-            result = eval_bezier2(u, dp0, dp1, dp2);
+            grad = eval_bezier2(u, dp0, dp1, dp2);
         } break;
         case SubPathType::Parametric:
             if (path_gradient == NULL) {
                 const double u0 = u - step < 0 ? 0 : u - step;
                 const double u1 = u + step > 1 ? 1 : u + step;
-                result =
+                grad =
                     ((*path_function)(u1, func_data) - (*path_function)(u0, func_data)) / (u1 - u0);
             } else {
-                result = (*path_gradient)(u, grad_data);
+                grad = (*path_gradient)(u, grad_data);
             }
             break;
         default:
-            result = Vec2{0, 0};
+            grad = Vec2{0, 0};
     }
+    const double dx = grad.x;
+    const double dy = grad.y;
+    Vec2 result = Vec2{dx * trafo[0] + dy * trafo[1], dx * trafo[3] + dy * trafo[4]};
     return result;
 }
 
-Vec2 SubPath::eval(double u) const {
-    Vec2 result;
+Vec2 SubPath::eval(double u, const double *trafo) const {
     if (u < 0) {
-        const Vec2 p = eval(0);
-        const Vec2 v = gradient(0);
-        result = p + v * u;
-    } else if (u > 1) {
-        const Vec2 p = eval(1);
-        const Vec2 v = gradient(1);
-        result = p + v * (u - 1);
-    } else {
-        switch (type) {
-            case SubPathType::Segment:
-                result = LERP(begin, end, u);
-                break;
-            case SubPathType::Arc: {
-                const double angle = LERP(angle_i, angle_f, u);
-                const double x = radius_x * cos(angle);
-                const double y = radius_y * sin(angle);
-                result = center + Vec2{x * cos_rot - y * sin_rot, x * sin_rot + y * cos_rot};
-            } break;
-            case SubPathType::Bezier: {
-                result = eval_bezier(u, ctrl.items, ctrl.size);
-            } break;
-            case SubPathType::Bezier2: {
-                result = eval_bezier2(u, p0, p1, p2);
-            } break;
-            case SubPathType::Bezier3: {
-                result = eval_bezier3(u, p0, p1, p2, p3);
-            } break;
-            case SubPathType::Parametric:
-                result = (*path_function)(u, func_data) + reference;
-                break;
-            default:
-                result = Vec2{0, 0};
-        }
+        const Vec2 p = eval(0, trafo);
+        const Vec2 v = gradient(0, trafo);
+        return p + v * u;
     }
+
+    if (u > 1) {
+        const Vec2 p = eval(1, trafo);
+        const Vec2 v = gradient(1, trafo);
+        return p + v * (u - 1);
+    }
+
+    Vec2 point;
+    switch (type) {
+        case SubPathType::Segment:
+            point = LERP(begin, end, u);
+            break;
+        case SubPathType::Arc: {
+            const double angle = LERP(angle_i, angle_f, u);
+            const double x = radius_x * cos(angle);
+            const double y = radius_y * sin(angle);
+            point = center + Vec2{x * cos_rot - y * sin_rot, x * sin_rot + y * cos_rot};
+        } break;
+        case SubPathType::Bezier: {
+            point = eval_bezier(u, ctrl.items, ctrl.size);
+        } break;
+        case SubPathType::Bezier2: {
+            point = eval_bezier2(u, p0, p1, p2);
+        } break;
+        case SubPathType::Bezier3: {
+            point = eval_bezier3(u, p0, p1, p2, p3);
+        } break;
+        case SubPathType::Parametric:
+            point = (*path_function)(u, func_data) + reference;
+            break;
+        default:
+            point = Vec2{0, 0};
+    }
+    const double x = point.x;
+    const double y = point.y;
+    Vec2 result =
+        Vec2{x * trafo[0] + y * trafo[1] + trafo[2], x * trafo[3] + y * trafo[4] + trafo[5]};
     return result;
 }
 
 Vec2 RobustPath::spine_position(const SubPath &subpath, double u) const {
-    const Vec2 sp_position = subpath.eval(u);
-    return apply_transform(trafo, sp_position);
+    return subpath.eval(u, trafo);
 }
 
 Vec2 RobustPath::spine_gradient(const SubPath &subpath, double u) const {
-    const double step = 1.0 / (10.0 * max_evals);
-    const double u0 = u - step < 0 ? 0 : u - step;
-    const double u1 = u + step > 1 ? 1 : u + step;
-    Vec2 result = (spine_position(subpath, u1) - spine_position(subpath, u0)) / (u1 - u0);
-    return result;
+    return subpath.gradient(u, trafo);
 }
 
 Vec2 RobustPath::center_position(const SubPath &subpath, const Interpolation &offset,
                                  double u) const {
     const Vec2 sp_position = spine_position(subpath, u);
     const double offset_value = interp(offset, u) * offset_scale;
-    Vec2 spine_normal = subpath.gradient(u).ortho();
+    Vec2 spine_normal = subpath.gradient(u, trafo).ortho();
     spine_normal.normalize();
-    const Vec2 ct_position = sp_position + offset_value * spine_normal;
-    return apply_transform(trafo, ct_position);
+    Vec2 result = sp_position + offset_value * spine_normal;
+    return result;
 }
 
 Vec2 RobustPath::center_gradient(const SubPath &subpath, const Interpolation &offset,
@@ -422,6 +420,7 @@ void RobustPath::copy_from(const RobustPath &path) {
     offset_scale = path.offset_scale;
     memcpy(trafo, path.trafo, 6 * sizeof(double));
     scale_width = path.scale_width;
+    gdsii_path = path.gdsii_path;
 
     RobustPathElement *src = path.elements;
     RobustPathElement *dst = elements;
@@ -451,7 +450,8 @@ void RobustPath::simple_scale(double scale) {
     trafo[3] *= scale;
     trafo[4] *= scale;
     trafo[5] *= scale;
-    if (scale_width) width_scale *= scale;
+    offset_scale *= fabs(scale);
+    if (scale_width) width_scale *= fabs(scale);
 }
 
 void RobustPath::scale(double scale, const Vec2 center) {
@@ -461,26 +461,26 @@ void RobustPath::scale(double scale, const Vec2 center) {
 }
 
 void RobustPath::mirror(const Vec2 p0, const Vec2 p1) {
-    Vec2 direction = p1 - p0;
+    Vec2 direction = p0 - p1;
     direction.normalize();
+    translate(-p1);
     const double tr0 = trafo[0];
     const double tr1 = trafo[1];
     const double tr2 = trafo[2];
     const double tr3 = trafo[3];
     const double tr4 = trafo[4];
     const double tr5 = trafo[5];
-    const double m0 = 2 * direction.x * direction.x - 1;
-    const double m4 = 2 * direction.y * direction.y - 1;
+    const double m0 = direction.x * direction.x - direction.y * direction.y;
     const double m1 = 2 * direction.x * direction.y;
     const double m3 = m1;
-    const double m2 = -2 * (direction.x * (direction.x * p0.x + direction.y * p0.y) + p0.x);
-    const double m5 = -2 * (direction.y * (direction.x * p0.x + direction.y * p0.y) + p0.y);
+    const double m4 = -m0;
     trafo[0] = m0 * tr0 + m1 * tr3;
     trafo[1] = m0 * tr1 + m1 * tr4;
-    trafo[2] = m0 * tr2 + m1 * tr5 + m2;
+    trafo[2] = m0 * tr2 + m1 * tr5;
     trafo[3] = m3 * tr0 + m4 * tr3;
     trafo[4] = m3 * tr1 + m4 * tr4;
-    trafo[5] = m3 * tr2 + m4 * tr5 + m5;
+    trafo[5] = m3 * tr2 + m4 * tr5;
+    translate(p1);
     offset_scale *= -1;
 }
 
@@ -599,7 +599,8 @@ void RobustPath::cubic_smooth(const Vec2 point2, const Vec2 point3, const Interp
     SubPath sub = {SubPathType::Bezier3};
     sub.p0 = end_point;
     sub.p1 = end_point;
-    if (subpath_array.size > 0) sub.p1 += subpath_array[subpath_array.size - 1].gradient(1) / 3;
+    if (subpath_array.size > 0)
+        sub.p1 += subpath_array[subpath_array.size - 1].gradient(1, trafo) / 3;
     sub.p2 = point2;
     sub.p3 = point3;
     if (relative) {
@@ -631,7 +632,8 @@ void RobustPath::quadratic_smooth(const Vec2 point2, const Interpolation *width,
     SubPath sub = {SubPathType::Bezier2};
     sub.p0 = end_point;
     sub.p1 = end_point;
-    if (subpath_array.size > 0) sub.p1 += subpath_array[subpath_array.size - 1].gradient(1) / 2;
+    if (subpath_array.size > 0)
+        sub.p1 += subpath_array[subpath_array.size - 1].gradient(1, trafo) / 2;
     sub.p2 = point2;
     if (relative) sub.p2 += end_point;
     end_point = sub.p2;
@@ -699,7 +701,8 @@ void RobustPath::arc(double radius_x, double radius_y, double initial_angle, dou
 void RobustPath::turn(double radius, double angle, const Interpolation *width,
                       const Interpolation *offset) {
     Vec2 direction = Vec2{1, 0};
-    if (subpath_array.size > 0) direction = subpath_array[subpath_array.size - 1].gradient(1);
+    if (subpath_array.size > 0)
+        direction = subpath_array[subpath_array.size - 1].gradient(1, trafo);
     const double initial_angle = direction.angle() + (angle < 0 ? 0.5 * M_PI : -0.5 * M_PI);
     arc(radius, radius, initial_angle, initial_angle + angle, 0, width, offset);
 }
@@ -718,7 +721,7 @@ void RobustPath::parametric(ParametricVec2 curve_function, void *func_data,
     }
     sub.func_data = func_data;
     if (relative) sub.reference = end_point;
-    end_point = sub.eval(1);
+    end_point = sub.eval(1, trafo);
     subpath_array.append(sub);
     fill_widths_and_offsets(width, offset);
 }
@@ -802,7 +805,7 @@ int64_t RobustPath::commands(const CurveInstruction *items, int64_t size) {
     return size;
 }
 
-void RobustPath::position(double u, bool from_below, Vec2 *result) const {
+Vec2 RobustPath::position(double u, bool from_below) const {
     if (u >= subpath_array.size)
         u = subpath_array.size;
     else if (u < 0)
@@ -816,13 +819,10 @@ void RobustPath::position(double u, bool from_below, Vec2 *result) const {
         idx--;
         u = 1;
     }
-    SubPath *subpath = subpath_array.items + idx;
-    RobustPathElement *el = elements;
-    for (int64_t ne = 0; ne < num_elements; ne++, el++)
-        *result++ = center_position(*subpath, el->offset_array[idx], u);
+    return spine_position(subpath_array[idx], u);
 }
 
-void RobustPath::gradient(double u, bool from_below, Vec2 *result) const {
+Vec2 RobustPath::gradient(double u, bool from_below) const {
     if (u >= subpath_array.size)
         u = subpath_array.size;
     else if (u < 0)
@@ -836,10 +836,7 @@ void RobustPath::gradient(double u, bool from_below, Vec2 *result) const {
         idx--;
         u = 1;
     }
-    SubPath *subpath = subpath_array.items + idx;
-    RobustPathElement *el = elements;
-    for (int64_t ne = 0; ne < num_elements; ne++, el++)
-        *result++ = center_gradient(*subpath, el->offset_array[idx], u);
+    return spine_gradient(subpath_array[idx], u);
 }
 
 void RobustPath::width(double u, bool from_below, double *result) const {
@@ -859,6 +856,25 @@ void RobustPath::width(double u, bool from_below, double *result) const {
     RobustPathElement *el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++)
         *result++ = interp(el->width_array[idx], u) * width_scale;
+}
+
+void RobustPath::offset(double u, bool from_below, double *result) const {
+    if (u >= subpath_array.size)
+        u = subpath_array.size;
+    else if (u < 0)
+        u = 0;
+    int64_t idx = (int64_t)u;
+    u -= idx;
+    if (from_below && u == 0 && idx > 0) {
+        idx--;
+        u = 1;
+    } else if (idx == subpath_array.size) {
+        idx--;
+        u = 1;
+    }
+    RobustPathElement *el = elements;
+    for (int64_t ne = 0; ne < num_elements; ne++, el++)
+        *result++ = interp(el->offset_array[idx], u) * offset_scale;
 }
 
 void RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, double &u0,
@@ -881,11 +897,9 @@ void RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, do
     du1 /= norm_v1;
 
     double step = 1;
-    // int64_t counter = max_evals - 1;
-    // while (counter-- > 0) {
-    //     if (du0 == 0 && du1 == 0) return;
+    int64_t count = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (fabs(du0) > step_min || fabs(du1) > step_min) {
+    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = spine_position(sub0, new_u0);
@@ -909,7 +923,7 @@ void RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, do
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr, "[GDSTK] No intersection found in RobustPath construction.\n");
+    fprintf(stderr, "[GDSTK] No intersection found in RobustPath spine construction.\n");
 }
 
 void RobustPath::center_intersection(const SubPath &sub0, const Interpolation &offset0,
@@ -933,11 +947,9 @@ void RobustPath::center_intersection(const SubPath &sub0, const Interpolation &o
     du1 /= norm_v1;
 
     double step = 1;
-    // int64_t counter = max_evals - 1;
-    // while (counter-- > 0) {
-    //    if (du0 == 0 && du1 == 0) return;
+    int64_t count = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (fabs(du0) > step_min || fabs(du1) > step_min) {
+    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = center_position(sub0, offset0, new_u0);
@@ -961,6 +973,7 @@ void RobustPath::center_intersection(const SubPath &sub0, const Interpolation &o
             du1 /= norm_v1;
         }
     }
+    fprintf(stderr, "[GDSTK] No intersection found in RobustPath center construction.\n");
 }
 
 void RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offset0,
@@ -985,11 +998,9 @@ void RobustPath::left_intersection(const SubPath &sub0, const Interpolation &off
     du1 /= norm_v1;
 
     double step = 1;
-    // int64_t counter = max_evals - 1;
-    // while (counter-- > 0) {
-    //    if (du0 == 0 && du1 == 0) return;
+    int64_t count = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (fabs(du0) > step_min || fabs(du1) > step_min) {
+    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = left_position(sub0, offset0, width0, new_u0);
@@ -1013,6 +1024,7 @@ void RobustPath::left_intersection(const SubPath &sub0, const Interpolation &off
             du1 /= norm_v1;
         }
     }
+    fprintf(stderr, "[GDSTK] No intersection found in RobustPath left side construction.\n");
 }
 
 void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &offset0,
@@ -1037,11 +1049,9 @@ void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &of
     du1 /= norm_v1;
 
     double step = 1;
-    // int64_t counter = max_evals - 1;
-    // while (counter-- > 0) {
-    //     if (du0 == 0 && du1 == 0) return;
+    int64_t count = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (fabs(du0) > step_min || fabs(du1) > step_min) {
+    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = right_position(sub0, offset0, width0, new_u0);
@@ -1065,6 +1075,7 @@ void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &of
             du1 /= norm_v1;
         }
     }
+    fprintf(stderr, "[GDSTK] No intersection found in RobustPath right side construction.\n");
 }
 
 Array<Vec2> RobustPath::spine() const {
