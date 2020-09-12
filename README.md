@@ -35,7 +35,7 @@ The included CMakeLists.txt file can be used as a guide.
 * [CMake](https://cmake.org/)
 * [Python](https://www.python.org/)
 * [Numpy](https://numpy.org/)
-* [Sphinx](https://www.sphinx-doc.org/) (to build the [documentation](http://heitzmann.github.io/gdstk))
+* [Sphinx](https://www.sphinx-doc.org/) and [rtd theme](https://sphinx-rtd-theme.readthedocs.io/) (to build the [documentation](http://heitzmann.github.io/gdstk))
 
 Installation from source should follow the usual method:
 
