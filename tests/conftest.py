@@ -40,6 +40,10 @@ def assert_same_shape(sh1, sh2, precision):
         raise AssertionError("Shapes don't match. Debug library saved as %s" % outfile)
 
 
+def assert_close(a, b, atol=1e-12):
+    numpy.testing.assert_allclose(a, b, rtol=0, atol=atol)
+
+
 @pytest.fixture(scope="session")
 def proof_cells():
     infile = pathlib.Path(__file__).parent / "proof_lib.gds"
@@ -63,13 +67,37 @@ def make_proof_lib():
     for scale_width in [True, False]:
         cell = lib.new_cell(f"FlexPath: scale_width {scale_width}")
         path0 = gdstk.FlexPath(
-            (0j, 1j, 0.5 + 1j,),
+            (0j, 1j, 0.5 + 1j),
             [0.1, 0.2],
             0.3,
             tolerance=1e-4,
             scale_width=scale_width,
         )
         path0.turn(0.4, -numpy.pi, [0.2, 0.1]).segment((-0.2, 0), relative=True)
+        path1 = path0.copy().mirror((1.5, 0))
+        path1.set_layers(1, 1)
+        path2 = path0.copy().mirror((1.5, 0), (1.5, 1))
+        path2.set_layers(2, 2)
+        path3 = path0.copy().scale(2, (3, 0))
+        path3.set_layers(3, 3)
+        path4 = path0.copy().scale(-2, (-1, 0))
+        path4.set_layers(4, 4)
+        path5 = path0.copy().rotate(numpy.pi / 2, (2, 1)).translate(0.2, -0.3)
+        path5.set_layers(5, 5)
+        cell.add(path0, path1, path2, path3, path4, path5)
+
+    for scale_width in [True, False]:
+        cell = lib.new_cell(f"RobustPath: scale_width {scale_width}")
+        path0 = gdstk.RobustPath(
+            0j,
+            [0.1, 0.2],
+            0.3,
+            tolerance=1e-4,
+            scale_width=scale_width,
+        )
+        path0.vertical(1).horizontal(0.5).turn(0.4, -numpy.pi, [0.2, 0.1]).segment(
+            (-0.2, 0), relative=True
+        )
         path1 = path0.copy().mirror((1.5, 0))
         path1.set_layers(1, 1)
         path2 = path0.copy().mirror((1.5, 0), (1.5, 1))

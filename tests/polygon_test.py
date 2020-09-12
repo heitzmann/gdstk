@@ -10,7 +10,7 @@ import pytest
 import numpy
 import gdstk
 
-from conftest import assert_same_shape
+from conftest import assert_same_shape, assert_close
 
 
 def test_area_size():
@@ -80,20 +80,20 @@ def test_mirror():
 def test_rotate():
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])
     poly.rotate(numpy.pi / 2, 0.5 + 0.5j)
-    numpy.testing.assert_allclose(poly.points, [[1, 0], [1, 1], [0, 0]], atol=1e-9)
+    assert_close(poly.points, [[1, 0], [1, 1], [0, 0]])
 
 
 def test_scale():
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])
     poly.scale(0.5)
-    numpy.testing.assert_array_equal(poly.points, [[0, 0], [0.5, 0], [0, 0.5]])
+    assert_close(poly.points, [[0, 0], [0.5, 0], [0, 0.5]])
 
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])
     poly.scale(-2, 3, 1 + 0j)
-    numpy.testing.assert_array_equal(poly.points, [[3, 0], [1, 0], [3, 3]])
+    assert_close(poly.points, [[3, 0], [1, 0], [3, 3]])
 
 
 def test_translate():
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])
     poly.translate(-1, 2)
-    numpy.testing.assert_array_equal(poly.points, [[-1, 2], [0, 2], [-1, 3]])
+    assert_close(poly.points, [[-1, 2], [0, 2], [-1, 3]])
