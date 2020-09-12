@@ -426,11 +426,11 @@ static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args)
     return (PyObject*)result;
 }
 
-static PyObject* robustpath_object_width(RobustPathObject* self, PyObject* args, PyObject* kwds) {
+static PyObject* robustpath_object_widths(RobustPathObject* self, PyObject* args, PyObject* kwds) {
     double u = 0;
     int from_below = 1;
     const char* keywords[] = {"u", "from_below", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:width", (char**)keywords, &u, &from_below))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:widths", (char**)keywords, &u, &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
     npy_intp dims[] = {robustpath->num_elements};
@@ -444,22 +444,41 @@ static PyObject* robustpath_object_width(RobustPathObject* self, PyObject* args,
     return (PyObject*)result;
 }
 
+static PyObject* robustpath_object_offsets(RobustPathObject* self, PyObject* args, PyObject* kwds) {
+    double u = 0;
+    int from_below = 1;
+    const char* keywords[] = {"u", "from_below", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:offsets", (char**)keywords, &u, &from_below))
+        return NULL;
+    const RobustPath* robustpath = self->robustpath;
+    npy_intp dims[] = {robustpath->num_elements};
+    PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
+        return NULL;
+    }
+    double* data = (double*)PyArray_DATA((PyArrayObject*)result);
+    robustpath->offset(u, from_below > 0, data);
+    return (PyObject*)result;
+}
+
 static PyObject* robustpath_object_position(RobustPathObject* self, PyObject* args,
                                             PyObject* kwds) {
     double u = 0;
     int from_below = 1;
     const char* keywords[] = {"u", "from_below", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:position", (char**)keywords, &u, &from_below))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:position", (char**)keywords, &u,
+    &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    npy_intp dims[] = {robustpath->num_elements, 2};
+    npy_intp dims[] = {2};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
         return NULL;
     }
     Vec2* data = (Vec2*)PyArray_DATA((PyArrayObject*)result);
-    robustpath->position(u, from_below > 0, data);
+    *data = robustpath->position(u, from_below > 0);
     return (PyObject*)result;
 }
 
@@ -468,17 +487,18 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
     double u = 0;
     int from_below = 1;
     const char* keywords[] = {"u", "from_below", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:gradient", (char**)keywords, &u, &from_below))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:gradient", (char**)keywords, &u,
+    &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    npy_intp dims[] = {robustpath->num_elements, 2};
+    npy_intp dims[] = {2};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
         return NULL;
     }
     Vec2* data = (Vec2*)PyArray_DATA((PyArrayObject*)result);
-    robustpath->gradient(u, from_below > 0, data);
+    *data = robustpath->gradient(u, from_below > 0);
     return (PyObject*)result;
 }
 
@@ -807,7 +827,8 @@ static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* 
                                      &py_width, &py_offset, &relative))
         return NULL;
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -836,7 +857,8 @@ static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* ar
                                      &py_width, &py_offset, &relative))
         return NULL;
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -866,7 +888,8 @@ static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* arg
     Vec2 end_point;
     if (parse_point(xy, end_point, "xy") != 0) return NULL;
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -900,7 +923,8 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
         return NULL;
     }
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -936,7 +960,8 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
         return NULL;
     }
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -972,7 +997,8 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
         return NULL;
     }
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1004,7 +1030,8 @@ static PyObject* robustpath_object_quadratic_smooth(RobustPathObject* self, PyOb
     Vec2 end_point;
     if (parse_point(xy, end_point, "xy") != 0) return NULL;
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1038,7 +1065,8 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
         return NULL;
     }
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1217,7 +1245,8 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         }
     }
 
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1292,7 +1321,8 @@ static PyObject* robustpath_object_arc(RobustPathObject* self, PyObject* args, P
             return NULL;
         }
     }
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1320,7 +1350,8 @@ static PyObject* robustpath_object_turn(RobustPathObject* self, PyObject* args, 
                                      &py_width, &py_offset))
         return NULL;
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1359,7 +1390,8 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
         return NULL;
     }
     RobustPath* robustpath = self->robustpath;
-    Interpolation* o_buffer = (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
+    Interpolation* o_buffer =
+        (Interpolation*)malloc(sizeof(Interpolation) * 2 * robustpath->num_elements);
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
@@ -1540,11 +1572,13 @@ static PyObject* robustpath_object_delete_property(RobustPathObject* self, PyObj
 static PyMethodDef robustpath_object_methods[] = {
     {"copy", (PyCFunction)robustpath_object_copy, METH_NOARGS, robustpath_object_copy_doc},
     {"spine", (PyCFunction)robustpath_object_spine, METH_NOARGS, robustpath_object_spine_doc},
-    {"widths", (PyCFunction)robustpath_object_width, METH_VARARGS | METH_KEYWORDS,
-     robustpath_object_width_doc},
-    {"positions", (PyCFunction)robustpath_object_position, METH_VARARGS | METH_KEYWORDS,
+    {"widths", (PyCFunction)robustpath_object_widths, METH_VARARGS | METH_KEYWORDS,
+     robustpath_object_widths_doc},
+    {"offsets", (PyCFunction)robustpath_object_offsets, METH_VARARGS | METH_KEYWORDS,
+     robustpath_object_offsets_doc},
+    {"position", (PyCFunction)robustpath_object_position, METH_VARARGS | METH_KEYWORDS,
      robustpath_object_position_doc},
-    {"gradients", (PyCFunction)robustpath_object_gradient, METH_VARARGS | METH_KEYWORDS,
+    {"gradient", (PyCFunction)robustpath_object_gradient, METH_VARARGS | METH_KEYWORDS,
      robustpath_object_gradient_doc},
     {"to_polygons", (PyCFunction)robustpath_object_to_polygons, METH_NOARGS,
      robustpath_object_to_polygons_doc},

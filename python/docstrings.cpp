@@ -1041,7 +1041,7 @@ Args:
 Examples:
     >>> path = gdstk.FlexPath((0, 0), 0.2, tolerance=1e-3)
     >>> path.bezier([(4, 1), (4, 3), (0, 5),
-                     (-4, 3), (-4, -2), (0, -4)])
+    ...              (-4, 3), (-4, -2), (0, -4)])
 
     .. image:: ../_static/flexpath/bezier.*
        :align: center)!");
@@ -1387,7 +1387,7 @@ Central path spine.
 Returns:
     Copy of the points that make up the path at zero offset.)!");
 
-PyDoc_STRVAR(robustpath_object_width_doc, R"!(widths(u, from_below=True) -> numpy.ndarray
+PyDoc_STRVAR(robustpath_object_widths_doc, R"!(widths(u, from_below=True) -> numpy.ndarray
 
 Calculate the width of this path.
 
@@ -1400,7 +1400,20 @@ Args:
 Returns:
     The widths of each path at ``u``.)!");
 
-PyDoc_STRVAR(robustpath_object_position_doc, R"!(positions(u, from_below=True) -> numpy.ndarray
+PyDoc_STRVAR(robustpath_object_offsets_doc, R"!(offsets(u, from_below=True) -> numpy.ndarray
+
+Calculate the offset of this path.
+
+Args:
+    u (number): Where in the path to calculate the width. The value must
+      be in the range 0 thru :attr:`gdstk.RobustPath.size`, inclusive.
+    from_below: If there is a discontinuity at ``u``, use the value
+      approaching from below.
+
+Returns:
+    The offsets of each path at ``u``.)!");
+
+PyDoc_STRVAR(robustpath_object_position_doc, R"!(position(u, from_below=True) -> numpy.ndarray
 
 Calculate the position of this path.
 
@@ -1412,9 +1425,9 @@ Args:
       approaching from below.
 
 Returns:
-    The positions of each path at ``u``.)!");
+    The spine position of the path at ``u``.)!");
 
-PyDoc_STRVAR(robustpath_object_gradient_doc, R"!(gradients(u, from_below=True) -> numpy.ndarray
+PyDoc_STRVAR(robustpath_object_gradient_doc, R"!(gradient(u, from_below=True) -> numpy.ndarray
 
 Calculate the gradient of this path.
 
@@ -1426,7 +1439,7 @@ Args:
       approaching from below.
 
 Returns:
-    The gradients of each path at ``u``.)!");
+    The spine gradient of the path at ``u``.)!");
 
 PyDoc_STRVAR(robustpath_object_to_polygons_doc, R"!(to_polygons() -> list
 
