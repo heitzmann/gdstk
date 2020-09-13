@@ -55,7 +55,7 @@ if __name__ == "__main__":
     repeats = 32
     sets = 32
     print(f"Best average time out of {sets} sets of {repeats} runs.")
-    print_row("Benchmark", "gdspy", "gdstk", "Gain")
+    print_row("Benchmark", "Gdspy", "Gdstk", "Gain")
     for fname in bench_files:
         module = importlib.import_module(fname.stem)
         best = {}

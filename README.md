@@ -61,7 +61,7 @@ If maximal performance is important, the library should be used directly from C+
 These results were obtained on an Intel Core i7-3820 with 8 cores and 64 GB of RAM.
 They represent the best average time to run each function out of 32 sets of 32 runs each.
 
-| Benchmark       |    gdspy    |    gdstk    |   Gain  |
+| Benchmark       |    Gdspy    |    Gdstk    |   Gain  |
 | :-------------- | :---------: | :---------: | :-----: |
 | boolean-offset  |    411 μs   |   48.2 μs   |   8.53  |
 | bounding_box    |    633 μs   |   7.95 μs   |   79.6  |
