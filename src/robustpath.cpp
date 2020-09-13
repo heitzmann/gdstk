@@ -647,7 +647,7 @@ void RobustPath::bezier(const Array<Vec2> point_array, const Interpolation *widt
     sub.ctrl.append(end_point);
     sub.ctrl.extend(point_array);
     if (relative)
-        for (int64_t i = 1; i < point_array.size; i++) sub.ctrl[i] += end_point;
+        for (int64_t i = 1; i <= point_array.size; i++) sub.ctrl[i] += end_point;
     end_point = sub.ctrl[sub.ctrl.size - 1];
     subpath_array.append(sub);
     fill_widths_and_offsets(width, offset);

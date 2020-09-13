@@ -81,6 +81,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                         free(name);
                     }
                 }
+                return result;
                 break;
             case 0x05:  // BGNSTR
                 rawcell = (RawCell*)calloc(1, sizeof(RawCell));
@@ -127,7 +128,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
         }
     }
 
-    return result;
+    return Map<RawCell*>{0};
 }
 
 }  // namespace gdstk

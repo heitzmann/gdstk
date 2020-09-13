@@ -97,34 +97,9 @@ static double* parse_sequence_double(PyObject* sequence, int64_t& len, const cha
     return values;
 }
 
-// static int64_t* parse_sequence_int(PyObject* sequence, Py_ssize_t& len) {
-//     len = PySequence_Length(sequence);
-//     if (len <= 0) {
-//         PyErr_SetString(PyExc_TypeError, "Sequence with invalid length.");
-//         return NULL;
-//     }
-//     int64_t* values = (int64_t*)malloc(sizeof(int64_t) * len);
-//     int64_t* v = values;
-//     for (Py_ssize_t j = 0; j < len; j++) {
-//         PyObject* item = PySequence_ITEM(sequence, j);
-//         if (item == NULL) {
-//             PyErr_SetString(PyExc_RuntimeError, "Unable to get item from sequence.");
-//             return NULL;
-//         }
-//         *v++ = PyLong_AsLong(item);
-//         Py_DECREF(item);
-//         if (PyErr_Occurred()) {
-//             free(values);
-//             PyErr_SetString(PyExc_TypeError, "Unable to convert sequence value to int.");
-//             return NULL;
-//         }
-//     }
-//     return values;
-// }
-
 int update_style(PyObject* dict, StyleMap& map, const char* name) {
-    // TODO: buffer overflow error.
-    char buffer[4096];
+    Array<char> buffer = {0};
+    buffer.ensure_slots(4096);
 
     if (!PyDict_Check(dict)) {
         PyErr_Format(PyExc_TypeError, "Argument %s must be a dictionary.", name);
@@ -153,8 +128,7 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
             return -1;
         }
 
-        buffer[0] = 0;
-        Py_ssize_t free = COUNT(buffer) - 1;
+        buffer.size = 0;
         PyObject* key;
         PyObject* value;
         Py_ssize_t i = 0;
@@ -169,17 +143,27 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
             Py_ssize_t key_len = 0;
             Py_ssize_t value_len = 0;
             const char* key_str = PyUnicode_AsUTF8AndSize(key, &key_len);
+            if (!key_str) {
+                fprintf(stderr, "Unable to load key from string.");
+                break;
+            }
             const char* value_str = PyUnicode_AsUTF8AndSize(value, &value_len);
-            if (!key_str || !value_str || free < key_len + value_len + 2) break;
+            if (!value_str) {
+                fprintf(stderr, "Unable to load value from string.");
+                break;
+            }
 
-            strcat(buffer, key_str);
-            strcat(buffer, ":");
-            strcat(buffer, value_str);
-            strcat(buffer, ";");
-            free -= key_len + value_len + 2;
+            buffer.ensure_slots(key_len + value_len + 2);
+            memcpy(buffer.items + buffer.size, key_str, key_len);
+            buffer.size += key_len;
+            buffer.append(':');
+            memcpy(buffer.items + buffer.size, value_str, value_len);
+            buffer.size += value_len;
+            buffer.append(';');
         }
-
-        map.set(layer, type, buffer);
+        buffer.append('\0');
+        map.set(layer, type, buffer.items);
     }
+    buffer.clear();
     return 0;
 }
