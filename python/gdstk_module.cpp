@@ -25,6 +25,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define ReferenceObject_Check(o) PyObject_TypeCheck((o), &reference_object_type)
 #define RobustPathObject_Check(o) PyObject_TypeCheck((o), &robustpath_object_type)
 
+#define __STDC_FORMAT_MACROS
+#include <cinttypes>
+
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <structmember.h>
