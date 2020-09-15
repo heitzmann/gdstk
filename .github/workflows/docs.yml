@@ -19,8 +19,13 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
           pip install sphinx sphinx-rtd-theme
+      - name: Install Gdstk
+        run: python setup.py install --user
+      - name: Make figures
+        shell: bash
+        run: for I in docs/*_images.py; python "$I"; done
       - name: Build docs
-        run: python setup.py build build_sphinx
+        run: python setup.py build_sphinx
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
