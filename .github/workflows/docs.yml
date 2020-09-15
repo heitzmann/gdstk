@@ -22,8 +22,16 @@ jobs:
       - name: Install Gdstk
         run: python setup.py install --user
       - name: Make figures
-        shell: bash
-        run: for I in docs/*_images.py; python "$I"; done
+        run: |
+          python docs/cell_images.py
+          python docs/curve_images.py
+          python docs/flexpath_images.py
+          python docs/function_images.py
+          python docs/label_images.py
+          python docs/polygon_images.py
+          python docs/reference_images.py
+          python docs/robustpath_images.py
+          python docs/tutorial_images.py
       - name: Build docs
         run: python setup.py build_sphinx
       - name: Deploy
