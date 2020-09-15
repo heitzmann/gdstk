@@ -21,7 +21,7 @@ jobs:
           pip install sphinx sphinx-rtd-theme
       - name: Install Gdstk
         run: python setup.py install --user
-      - name: Make figures
+      - name: Make figures and samples
         run: |
           python docs/cell_images.py
           python docs/curve_images.py
@@ -32,6 +32,8 @@ jobs:
           python docs/reference_images.py
           python docs/robustpath_images.py
           python docs/tutorial_images.py
+          python docs/_static/fonts.py
+          python docs/_static/photonics.py
       - name: Build docs
         run: python setup.py build_sphinx
       - name: Deploy
