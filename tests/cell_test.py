@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright 2020-2020 Lucas Heitzmann Gabrielli.
+# This file is part of gdstk, distributed under the terms of the
+# Boost Software License - Version 1.0.  See the accompanying
+# LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
+
+import pytest
+import numpy
+import gdstk
+
+from conftest import assert_same_shape, assert_close
+
+
+@pytest.fixture
+def tree():
+    p1 = gdstk.Polygon(((0, 0), (0, 1), (1, 0)), 0, 0)
+    p2 = gdstk.Polygon(((2, 0), (2, 1), (1, 0)), 1, 1)
+    l1 = gdstk.Label("label1", (0, 0), layer=11)
+    l2 = gdstk.Label("label2", (2, 1), layer=12)
+    c1 = gdstk.Cell("tree1")
+    c1.add(p1)
+    c1.add(l1)
+    c2 = gdstk.Cell("tree2")
+    c2.add(l2)
+    c2.add(p2)
+    c2.add(gdstk.Reference(c1))
+    c3 = gdstk.Cell("tree3")
+    c3.add(gdstk.Reference(c2, (0, 0), columns=3, rows=2, spacing=(3, 3)))
+    return c3, c2, c1
+
+
+def test_add_element():
+    p = gdstk.Polygon(((0, 0), (1, 0), (0, 1)))
+    l = gdstk.Label("label", (0, 0))
+    c = gdstk.Cell("c_add_element")
+    assert c.add(p) is c
+    assert c.add(p, l) is c
+    polygons = c.polygons
+    assert len(polygons) == 2
+    assert polygons[0] is p
+    assert polygons[1] is p
+    assert len(c.labels) == 1
+    assert c.labels[0] is l
+
+
+def test_copy():
+    p = gdstk.Polygon(((0, 0), (1, 0), (0, 1)))
+    lbl = gdstk.Label("label", (0, 0))
+    cref = gdstk.Cell("ref").add(gdstk.rectangle((-1, -1), (-2, -2)))
+    ref = gdstk.Reference(cref)
+    cell = gdstk.Cell("original")
+    cell.add(p, lbl, ref)
+    shallow_copy = cell.copy("copy_0", deep_copy=False)
+    assert len(shallow_copy.polygons) == len(cell.polygons)
+    assert p in shallow_copy.polygons
+    assert len(shallow_copy.labels) == len(cell.labels)
+    assert lbl in shallow_copy.labels
+    assert len(shallow_copy.references) == len(cell.references)
+    assert ref in shallow_copy.references
+    deep_copy = cell.copy("copy_1")
+    assert len(deep_copy.polygons) == len(cell.polygons)
+    assert p not in deep_copy.polygons
+    assert len(deep_copy.labels) == len(cell.labels)
+    assert lbl not in deep_copy.labels
+    assert len(deep_copy.references) == len(cell.references)
+    assert ref not in deep_copy.references
+    assert deep_copy.references[0].cell is ref.cell
+
+
+def test_remove(tree):
+    c3, c2, c1 = tree
+    p1 = c1.polygons[0]
+    l1 = c1.labels[0]
+    c1.remove(p1)
+    assert len(c1.polygons) == 0
+    assert len(c1.labels) == 1
+    c1.remove(p1, l1)
+    assert len(c1.polygons) == 0
+    assert len(c1.labels) == 0
+
+
+def test_area():
+    c = gdstk.Cell("c_area")
+    c.add(gdstk.rectangle((0, 0), (1, 1), layer=0))
+    c.add(gdstk.rectangle((0, 0), (1, 1), layer=1))
+    c.add(gdstk.rectangle((1, 1), (2, 2), layer=1))
+    c.add(gdstk.rectangle((1, 1), (2, 2), datatype=2))
+    assert c.area() == 4.0
+    assert c.area(True) == {(0, 0): 1.0, (1, 0): 2.0, (0, 2): 1}
+
+
+def test_flatten(tree):
+    c3, c2, c1 = tree
+    c3.flatten()
+    polygons = c3.polygons
+    assert len(polygons) == 12
+    for i in range(12):
+        assert polygons[i].layer == 0 or polygons[i].layer == 1
+        assert polygons[i].layer == polygons[i].datatype
+    assert len(c3.labels) == 12
+
+
+def test_bb(tree):
+    c3, c2, c1 = tree
+    assert_close(c3.bounding_box(), ((0, 0), (8, 4)))
+    p2 = gdstk.Polygon(((-1, 2), (-1, 1), (0, 2)), 2, 2)
+    c2.add(p2)
+    assert_close(c3.bounding_box(), ((-1, 0), (8, 5)))
+    p1 = gdstk.Polygon(((0, 3), (0, 2), (1, 3)), 3, 3)
+    c1.add(p1)
+    assert_close(c3.bounding_box(), ((-1, 0), (8, 6)))
