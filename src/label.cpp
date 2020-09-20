@@ -85,34 +85,34 @@ void Label::to_svg(FILE* out, double scaling) const {
         case Anchor::NW:
         case Anchor::W:
         case Anchor::SW:
-            fprintf(out, " text-anchor=\"start\"");
+            fputs(" text-anchor=\"start\"", out);
             break;
         case Anchor::N:
         case Anchor::O:
         case Anchor::S:
-            fprintf(out, " text-anchor=\"middle\"");
+            fputs(" text-anchor=\"middle\"", out);
             break;
         case Anchor::NE:
         case Anchor::E:
         case Anchor::SE:
-            fprintf(out, " text-anchor=\"end\"");
+            fputs(" text-anchor=\"end\"", out);
             break;
     }
     switch (anchor) {
         case Anchor::NW:
         case Anchor::N:
         case Anchor::NE:
-            fprintf(out, " dominant-baseline=\"text-before-edge\"");
+            fputs(" dominant-baseline=\"text-before-edge\"", out);
             break;
         case Anchor::W:
         case Anchor::O:
         case Anchor::E:
-            fprintf(out, " dominant-baseline=\"central\"");
+            fputs(" dominant-baseline=\"central\"", out);
             break;
         case Anchor::SW:
         case Anchor::S:
         case Anchor::SE:
-            fprintf(out, " dominant-baseline=\"text-after-edge\"");
+            fputs(" dominant-baseline=\"text-after-edge\"", out);
             break;
     }
 
@@ -120,9 +120,28 @@ void Label::to_svg(FILE* out, double scaling) const {
             -scaling * origin.y);
     // Negative sign to correct for the default coordinate system with y-down
     if (rotation != 0) fprintf(out, " rotate(%lf)", rotation * (-180.0 / M_PI));
-    if (x_reflection) fprintf(out, " scale(1 -1)");
+    if (x_reflection) fputs(" scale(1 -1)", out);
     if (magnification != 1) fprintf(out, " scale(%lf)", magnification);
-    fprintf(out, "\">%s</text>\n", text);
+
+    // NOTE: Escape “<”, “>”, and “&” inside the SVG tag.  Here be dragons if the text is not ASCII.
+    // The GDSII specification imposes ASCII-only for strings, but who knows…
+    fputs("\">", out);
+    for (char* c = text; *c != 0; c++) {
+        switch (*c) {
+            case '<':
+                fputs("&lt;", out);
+                break;
+            case '>':
+                fputs("&gt;", out);
+                break;
+            case '&':
+                fputs("&amp;", out);
+                break;
+            default:
+                putc(*c, out);
+        }
+    }
+    fputs("</text>\n", out);
 }
 
 }  // namespace gdstk
