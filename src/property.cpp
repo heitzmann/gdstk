@@ -102,9 +102,8 @@ void properties_to_gds(const Property* properties, FILE* out) {
         fwrite(properties->value, sizeof(char), len, out);
     }
     if (size > 128)
-        fprintf(
-            stderr,
-            "[GDSTK] Properties with size larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n");
+        fputs(
+            "[GDSTK] Properties with size larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n", stderr);
 }
 
 }  // namespace gdstk

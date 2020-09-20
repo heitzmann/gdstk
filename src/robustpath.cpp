@@ -923,7 +923,7 @@ void RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, do
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr, "[GDSTK] No intersection found in RobustPath spine construction.\n");
+    fputs("[GDSTK] No intersection found in RobustPath spine construction.\n", stderr);
 }
 
 void RobustPath::center_intersection(const SubPath &sub0, const Interpolation &offset0,
@@ -973,7 +973,7 @@ void RobustPath::center_intersection(const SubPath &sub0, const Interpolation &o
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr, "[GDSTK] No intersection found in RobustPath center construction.\n");
+    fputs("[GDSTK] No intersection found in RobustPath center construction.\n", stderr);
 }
 
 void RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offset0,
@@ -1024,7 +1024,7 @@ void RobustPath::left_intersection(const SubPath &sub0, const Interpolation &off
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr, "[GDSTK] No intersection found in RobustPath left side construction.\n");
+    fputs("[GDSTK] No intersection found in RobustPath left side construction.\n", stderr);
 }
 
 void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &offset0,
@@ -1075,7 +1075,7 @@ void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &of
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr, "[GDSTK] No intersection found in RobustPath right side construction.\n");
+    fputs("[GDSTK] No intersection found in RobustPath right side construction.\n", stderr);
 }
 
 Array<Vec2> RobustPath::spine() const {

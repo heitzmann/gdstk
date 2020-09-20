@@ -399,9 +399,7 @@ Library read_gds(FILE* in, double unit) {
                 else if (label)
                     label->x_reflection = (data16[0] & 0x8000) != 0;
                 if (data16[0] & 0x0006)
-                    fprintf(
-                        stderr,
-                        "[GDSTK] Absolute magnification and rotation of references is not supported.\n");
+                    fputs("[GDSTK] Absolute magnification and rotation of references is not supported.\n", stderr);
                 break;
             case 0x1B:  // MAG
                 if (reference)
@@ -495,7 +493,7 @@ int gds_units(FILE* in, double& unit, double& precision) {
             return 0;
         }
     }
-    fprintf(stderr, "[GDSTK] GDSII file missing units definition.\n");
+    fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
     return -1;
 }
 

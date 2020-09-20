@@ -144,12 +144,12 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
             Py_ssize_t value_len = 0;
             const char* key_str = PyUnicode_AsUTF8AndSize(key, &key_len);
             if (!key_str) {
-                fprintf(stderr, "Unable to load key from string.");
+                fputs("Unable to load key from string.", stderr);
                 break;
             }
             const char* value_str = PyUnicode_AsUTF8AndSize(value, &value_len);
             if (!value_str) {
-                fprintf(stderr, "Unable to load value from string.");
+                fputs("Unable to load value from string.", stderr);
                 break;
             }
 

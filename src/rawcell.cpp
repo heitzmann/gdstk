@@ -102,9 +102,8 @@ Map<RawCell*> read_rawcells(FILE* in) {
                 if (rawcell) {
                     rawcell->size += record_length;
                     if (fseek(in, -rawcell->size, SEEK_CUR) != 0) {
-                        fprintf(
-                            stderr,
-                            "[GDSTK] Unable to rewind the position on the input file. No data will be imported into the RawCell.\n");
+                        fputs(
+                            "[GDSTK] Unable to rewind the position on the input file. No data will be imported into the RawCell.\n", stderr);
                         rawcell->size = 0;
                     }
                     rawcell->data = (uint8_t*)malloc(sizeof(uint8_t) * rawcell->size);

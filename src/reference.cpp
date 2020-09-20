@@ -336,6 +336,8 @@ void Reference::to_svg(FILE* out, double scaling) const {
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
     char* ref_name = (char*)malloc(sizeof(char) * (strlen(src_name) + 1));
+    // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
+    // strings, but who knows…
     char* d = ref_name;
     for (const char* c = src_name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
@@ -348,7 +350,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
         for (int64_t c = 0; c < columns; c++) {
             fprintf(out, "<use transform=\"translate(%lf %lf)", px, py);
             if (rotation != 0) fprintf(out, " rotate(%lf)", rotation * (180.0 / M_PI));
-            if (x_reflection) fprintf(out, " scale(1 -1)");
+            if (x_reflection) fputs(" scale(1 -1)", out);
             if (c > 0 || r > 0) fprintf(out, " translate(%lf %lf)", dx * c, dy * r);
             if (magnification != 1) fprintf(out, " scale(%lf)", magnification);
             fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);

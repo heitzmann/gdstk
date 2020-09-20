@@ -470,6 +470,8 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
 
 void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     char* buffer = (char*)malloc(sizeof(char) * (strlen(name) + 1));
+    // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
+    // strings, but who knows…
     char* d = buffer;
     for (char* c = name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
@@ -496,7 +498,7 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     Label** label = label_array.items;
     for (int64_t i = 0; i < label_array.size; i++, label++) (*label)->to_svg(out, scaling);
 
-    fprintf(out, "</g>\n");
+    fputs("</g>\n", out);
     free(buffer);
 }
 
@@ -573,21 +575,21 @@ void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label
     for (Style* s = label_style.next(NULL); s; s = label_style.next(s))
         fprintf(out, ".l%dt%d {%s}\n", s->layer, s->type, s->value);
 
-    fprintf(out, "</style>\n");
+    fputs("</style>\n", out);
 
     Cell** ref = array.items;
     for (int64_t j = 0; j < array.size; j++, ref++) (*ref)->to_svg(out, scaling, NULL);
 
     array.clear();
 
-    fprintf(out, "</defs>\n");
+    fputs("</defs>\n", out);
     if (background)
         fprintf(
             out,
             "<rect x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" fill=\"%s\" stroke=\"none\"/>\n",
             x, y, w, h, background);
     to_svg(out, scaling, "transform=\"scale(1 -1)\"");
-    fprintf(out, "</svg>");
+    fputs("</svg>", out);
 }
 
 }  // namespace gdstk

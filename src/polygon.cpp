@@ -299,9 +299,8 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     swap32((uint32_t*)coords.items, coords.size);
 
     if (total > 8190)
-        fprintf(
-            stderr,
-            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification.  This GDSII file might not be compatible with all readers.\n");
+        fputs(
+            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification.  This GDSII file might not be compatible with all readers.\n", stderr);
 
     int64_t i0 = 0;
     while (i0 < total) {

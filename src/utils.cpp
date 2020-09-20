@@ -128,8 +128,7 @@ int32_t read_record(FILE* in, uint8_t* buffer) {
     uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
     if (read_length < 4) {
         if (feof(in) != 0)
-            fprintf(stderr,
-                    "[GDSTK] Unable to read input file. End of file reached unexpectedly.\n");
+            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
         else
             fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
         return 0;
@@ -141,8 +140,7 @@ int32_t read_record(FILE* in, uint8_t* buffer) {
     read_length = fread(buffer + 4, sizeof(uint8_t), record_length - 4, in);
     if (read_length < (uint32_t)(record_length - 4)) {
         if (feof(in) != 0)
-            fprintf(stderr,
-                    "[GDSTK] Unable to read input file. End of file reached unexpectedly.\n");
+            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
         else
             fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
         return 0;
