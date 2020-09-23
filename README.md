@@ -63,29 +63,30 @@ They represent the best average time to run each function out of 32 sets of 32 r
 
 | Benchmark        |    Gdspy 1.6     |  Gdstk 0.1.dev0  |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
-| boolean-offset   |      409 μs      |      50 μs       |   8.18   |
-| bounding_box     |      625 μs      |     8.31 μs      |   75.2   |
-| curves           |     2.96 ms      |     66.1 μs      |   44.7   |
-| flatten          |     1.01 ms      |     9.72 μs      |   104    |
-| flexpath-param   |     7.15 ms      |      1.4 ms      |   5.11   |
-| flexpath         |     5.53 ms      |     24.9 μs      |   222    |
-| fracture         |      1.7 ms      |      851 μs      |    2     |
-| inside           |     38.6 μs      |     8.85 μs      |   4.36   |
-| read_gds         |     4.24 ms      |     72.5 μs      |   58.4   |
-| read_rawcells    |      342 μs      |     52.6 μs      |   6.49   |
-| robustpath       |      378 μs      |     13.1 μs      |   28.8   |
+| 10k_rectangles   |      221 ms      |     6.44 ms      |   34.3   |
+| boolean-offset   |      410 μs      |     49.6 μs      |   8.27   |
+| bounding_box     |      628 μs      |     8.56 μs      |   73.4   |
+| curves           |     2.94 ms      |     65.6 μs      |   44.8   |
+| flatten          |      995 μs      |     9.85 μs      |   101    |
+| flexpath-param   |      7.2 ms      |     1.42 ms      |   5.06   |
+| flexpath         |     5.45 ms      |     24.9 μs      |   219    |
+| fracture         |     1.69 ms      |      854 μs      |   1.97   |
+| inside           |     38.8 μs      |     8.92 μs      |   4.35   |
+| read_gds         |     4.21 ms      |     73.5 μs      |   57.2   |
+| read_rawcells    |      339 μs      |      53 μs       |   6.39   |
+| robustpath       |      369 μs      |     13.4 μs      |   27.5   |
 
 Memory usage per object for 100.000 objects using Python 3.8:
 
-| Object               |    Gdspy 1.6     |  Gdstk 0.1.dev0  |
-| :------------------- | :--------------: | :--------------: |
-| Rectangle            |      621 B       |      184 B       |
-| Circle (r = 10)      |     1.67 kB      |     1.23 kB      |
-| FlexPath segment     |     1.42 kB      |      392 B       |
-| FlexPath arc         |     2.23 kB      |     1.44 kB      |
-| RobustPath segment   |     2.79 kB      |      872 B       |
-| RobustPath arc       |     2.58 kB      |      872 B       |
-| Label                |      397 B       |      170 B       |
-| Reference            |      160 B       |      131 B       |
-| Reference (array)    |      187 B       |      138 B       |
-| Cell                 |      431 B       |      214 B       |
+| Object               |    Gdspy 1.6     |  Gdstk 0.1.dev0  | Reduction |
+| :------------------- | :--------------: | :--------------: | :-------: |
+| Rectangle            |      592 B       |      184 B       |    69%    |
+| Circle (r = 10)      |     1.67 kB      |     1.23 kB      |    27%    |
+| FlexPath segment     |     1.42 kB      |      394 B       |    73%    |
+| FlexPath arc         |     2.23 kB      |     1.45 kB      |    35%    |
+| RobustPath segment   |     2.78 kB      |      875 B       |    69%    |
+| RobustPath arc       |     2.58 kB      |      874 B       |    67%    |
+| Label                |      397 B       |      167 B       |    58%    |
+| Reference            |      160 B       |      133 B       |    17%    |
+| Reference (array)    |      187 B       |      135 B       |    28%    |
+| Cell                 |      434 B       |      214 B       |    51%    |

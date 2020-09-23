@@ -109,7 +109,7 @@ def memory_benchmark():
     print(f"\nMemory usage per object for {total} objects.")
 
     def print_row(*vals, hsep=False):
-        columns = [20, 16, 16]
+        columns = [20, 16, 16, 9]
         print(
             "|",
             vals[0].ljust(columns[0]),
@@ -130,6 +130,7 @@ def memory_benchmark():
         "Object",
         "Gdspy " + gdspy.__version__,
         "Gdstk " + gdstk.__version__,
+        "Reduction",
         hsep=True,
     )
 
@@ -137,15 +138,7 @@ def memory_benchmark():
         start_mem = proc.memory_info()
         r = [func(i) for i in range(total)]
         end_mem = proc.memory_info()
-        return (
-            prefix_format(
-                (end_mem.vms - start_mem.vms) / total,
-                0,
-                "{value:.3g} {prefix}B",
-                2 ** (10 / 3),
-            ),
-            r,
-        )
+        return (end_mem.vms - start_mem.vms) / total, r
 
     data = []
     gdspy_cell = gdspy.Cell("TEMP", exclude_from_current=True)
@@ -203,10 +196,14 @@ def memory_benchmark():
         ),
     ]:
         gdspy_mem, gdspy_data = mem_test(gdspy_func)
+        gdspy_fmt = prefix_format(gdspy_mem, 0, "{value:.3g} {prefix}B", 2 ** (10 / 3))
         data.append(gdspy_data)
         gdstk_mem, gdstk_data = mem_test(gdstk_func)
+        gdstk_fmt = prefix_format(gdstk_mem, 0, "{value:.3g} {prefix}B", 2 ** (10 / 3))
         data.append(gdstk_data)
-        print_row(obj, gdspy_mem, gdstk_mem)
+        print_row(
+            obj, gdspy_fmt, gdstk_fmt, f"{100 - 100 * gdstk_mem / gdspy_mem:.0f}%"
+        )
 
 
 if __name__ == "__main__":
