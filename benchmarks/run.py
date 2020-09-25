@@ -67,7 +67,7 @@ def timing_benchmark():
                 "|",
             )
 
-    repeats = 32
+    repeats = 8
     sets = 32
     print(f"\nBest average time out of {sets} sets of {repeats}.")
     print_row(
