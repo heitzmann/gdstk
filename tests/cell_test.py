@@ -69,6 +69,30 @@ def test_copy():
     assert deep_copy.references[0].cell is ref.cell
 
 
+def test_copy_transform(proof_cells):
+    ref_cell1 = gdstk.Cell("Reference 1")
+    ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
+
+    ref_cell2 = gdstk.Cell("Reference 2")
+    ref_cell2.add(*gdstk.text("^", 10, (0, 5), layer=1))
+    ref_cell2.add(gdstk.Reference(ref_cell1))
+
+    cell = gdstk.Cell("Original cell")
+    cell.add(gdstk.rectangle((-1, -0.5), (1, 0.5), layer=2))
+    cell.add(gdstk.Reference(ref_cell2))
+    cell.add(gdstk.Reference(ref_cell1, (10, 7), numpy.pi / 4, 0.5, True))
+    cell.add(
+        gdstk.Reference(ref_cell1, (-7, 15), -numpy.pi / 3, 0.5, True, 3, 2, (5, 4))
+    )
+    cell.add(
+        gdstk.Reference(ref_cell2, (-7, 23), numpy.pi / 3, 0.5, True, 3, 2, (5, 8))
+    )
+    cell_copy = cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True)
+    assert_same_shape(
+        proof_cells["Cell.copy"].polygons, cell_copy.flatten().polygons, 2e-3
+    )
+
+
 def test_remove(tree):
     c3, c2, c1 = tree
     p1 = c1.polygons[0]

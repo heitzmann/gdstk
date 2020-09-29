@@ -110,6 +110,26 @@ def make_proof_lib():
         path5.set_layers(5, 5)
         cell.add(path0, path1, path2, path3, path4, path5)
 
+    ref_cell1 = gdstk.Cell("Reference 1")
+    ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
+
+    ref_cell2 = gdstk.Cell("Reference 2")
+    ref_cell2.add(*gdstk.text("^", 10, (0, 5), layer=1))
+    ref_cell2.add(gdstk.Reference(ref_cell1))
+
+    cell = gdstk.Cell("Original cell")
+    cell.add(gdstk.rectangle((-1, -0.5), (1, 0.5), layer=2))
+    cell.add(gdstk.Reference(ref_cell2))
+    cell.add(gdstk.Reference(ref_cell1, (10, 7), numpy.pi / 4, 0.5, True))
+    cell.add(
+        gdstk.Reference(ref_cell1, (-7, 15), -numpy.pi / 3, 0.5, True, 3, 2, (5, 4))
+    )
+    cell.add(
+        gdstk.Reference(ref_cell2, (-7, 23), numpy.pi / 3, 0.5, True, 3, 2, (5, 8))
+    )
+
+    lib.add(cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten())
+
     lib.write_gds(outfile)
     print("Test library saved as %s" % outfile)
 

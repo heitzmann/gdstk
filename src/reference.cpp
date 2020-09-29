@@ -94,9 +94,7 @@ void Reference::transform(double mag, const Vec2 trans, bool x_refl, double rot,
     rotation = r1 * rotation + rot;
     magnification *= mag;
     x_reflection ^= x_refl;
-    // TODO: verify these:
     spacing *= mag;
-    if (x_refl) spacing.y = -spacing.y;
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
