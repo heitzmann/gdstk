@@ -23,7 +23,7 @@ $(DOCS): $(PY_MOD) $(DOCS_SRC) $(IMG_SRC)
 
 $(PY_MOD): $(PY_SRC) $(LIB_SRC)
 	-rm -rf build
-	python setup.py build
+	CMAKE_GENERATOR=Ninja python setup.py build
 
 $(IMG_SRC): $(PY_MOD)
 	python $@
