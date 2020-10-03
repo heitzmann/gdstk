@@ -1,5 +1,8 @@
 name: Tests Runner
-on: push
+on:
+  push:
+    tags-ignore:
+      - v*
 jobs:
   linux-test:
     runs-on: ubuntu-latest
