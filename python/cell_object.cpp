@@ -269,8 +269,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             Reference* reference = (*reference_array)[i];
             reference->owner = new_obj;
             new_obj->reference = reference;
-            if (reference->type == ReferenceType::Cell) Py_INCREF(reference->cell->owner);
-            else if (reference->type == ReferenceType::RawCell) Py_INCREF(reference->rawcell->owner);
+            if (reference->type == ReferenceType::Cell)
+                Py_INCREF(reference->cell->owner);
+            else if (reference->type == ReferenceType::RawCell)
+                Py_INCREF(reference->rawcell->owner);
             if (transform)
                 reference->transform(magnification, translation, x_reflection > 0, rotation,
                                      origin);
@@ -566,22 +568,25 @@ PyObject* cell_object_get_references(CellObject* self, void*) {
 PyObject* cell_object_get_paths(CellObject* self, void*) {
     Array<FlexPath*>* flexpath_array = &self->cell->flexpath_array;
     Array<RobustPath*>* robustpath_array = &self->cell->robustpath_array;
-    PyObject* result = PyList_New(flexpath_array->size + robustpath_array->size);
+    int64_t fp_size = flexpath_array->size;
+    int64_t rp_size = robustpath_array->size;
+
+    PyObject* result = PyList_New(fp_size + rp_size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         return NULL;
     }
     FlexPath** flexpath = flexpath_array->items;
-    for (int64_t i = 0; i < flexpath_array->size; i++, flexpath++) {
+    for (int64_t i = 0; i < fp_size; i++, flexpath++) {
         PyObject* flexpath_obj = (PyObject*)(*flexpath)->owner;
         Py_INCREF(flexpath_obj);
         PyList_SET_ITEM(result, i, flexpath_obj);
     }
     RobustPath** robustpath = robustpath_array->items;
-    for (int64_t i = 0; i < robustpath_array->size; i++, robustpath++) {
+    for (int64_t i = 0; i < rp_size; i++, robustpath++) {
         PyObject* robustpath_obj = (PyObject*)(*robustpath)->owner;
         Py_INCREF(robustpath_obj);
-        PyList_SET_ITEM(result, i, robustpath_obj);
+        PyList_SET_ITEM(result, fp_size + i, robustpath_obj);
     }
     return result;
 }
