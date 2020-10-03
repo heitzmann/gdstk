@@ -654,8 +654,8 @@ of them is curved.  If that condition cannot be met,
 :class:`gdstk.RobustPath` should be used instead.
 
 Args:
-    points: Sequence of points that make up the path. Each point can be
-      a pair of coordinates or a complex value.
+    points: Single point or sequence of points that make up the path.
+      Each point can be a pair of coordinates or a complex value.
     width (number or sequence): Width of the paths. If this is a
       sequence, its length defines the number of paths created.
     offset (number or sequence): If this is a number, it is treated as

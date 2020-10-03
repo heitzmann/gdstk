@@ -51,7 +51,7 @@ def racetrack_image():
 
 def text_image():
     text = gdstk.text(f"Created with\nGDSTK {gdstk.__version__}", 1, (0, 0))
-    rect = gdstk.rectangle((0, -5 / 4), (12 * 9 / 16, 1), datatype=1)
+    rect = gdstk.rectangle((0, -5 / 4), (5 * 9 / 16, -1 / 4), datatype=1)
     return gdstk.Cell("text").add(*text, rect)
 
 
@@ -92,7 +92,9 @@ def inside_example():
     print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any"))
     print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all"))
     # Point groups
-    print(gdstk.inside([[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect))
+    print(
+        gdstk.inside([[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect)
+    )
 
 
 def read_rawcells_example():
