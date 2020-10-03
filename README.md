@@ -61,7 +61,7 @@ If maximal performance is important, the library should be used directly from C+
 Timing results were obtained with Python 3.8 on an Intel Core i7-3820 with 8 cores and 64 GB of RAM.
 They represent the best average time to run each function out of 32 sets of 8 runs each.
 
-| Benchmark        |    Gdspy 1.6     |  Gdstk 0.1.dev0  |   Gain   |
+| Benchmark        |    Gdspy 1.6     |    Gdstk 0.1     |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
 | 10k_rectangles   |      221 ms      |     6.42 ms      |   34.4   |
 | 1k_circles       |      567 ms      |      359 ms      |   1.58   |
@@ -79,7 +79,7 @@ They represent the best average time to run each function out of 32 sets of 8 ru
 
 Memory usage per object for 100.000 objects using Python 3.8:
 
-| Object               |    Gdspy 1.6     |  Gdstk 0.1.dev0  | Reduction |
+| Object               |    Gdspy 1.6     |    Gdstk 0.1     | Reduction |
 | :------------------- | :--------------: | :--------------: | :-------: |
 | Rectangle            |      606 B       |      184 B       |    70%    |
 | Circle (r = 10)      |     1.67 kB      |     1.23 kB      |    27%    |
