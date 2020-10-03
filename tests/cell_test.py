@@ -72,6 +72,15 @@ def test_copy():
 def test_copy_transform(proof_cells):
     ref_cell1 = gdstk.Cell("Reference 1")
     ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
+    ref_cell1.add(gdstk.Label("LaBeL", (2.4, 8.7), "s"))
+    ref_cell1.add(
+        gdstk.FlexPath(8 + 4j, 1, gdsii_path=True, layer=3).arc(2, 0, numpy.pi / 2)
+    )
+    ref_cell1.add(
+        gdstk.RobustPath(7.5 + 7j, 1, gdsii_path=True, layer=4).bezier(
+            [-2 + 1j, -2 + 3j, 4j, 6j, -3 + 6j], relative=True
+        )
+    )
 
     ref_cell2 = gdstk.Cell("Reference 2")
     ref_cell2.add(*gdstk.text("^", 10, (0, 5), layer=1))
@@ -87,10 +96,10 @@ def test_copy_transform(proof_cells):
     cell.add(
         gdstk.Reference(ref_cell2, (-7, 23), numpy.pi / 3, 0.5, True, 3, 2, (5, 8))
     )
-    cell_copy = cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True)
-    assert_same_shape(
-        proof_cells["Cell.copy"].polygons, cell_copy.flatten().polygons, 2e-3
-    )
+    cell_copy = cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten()
+    for path in cell_copy.paths:
+        cell_copy.add(*path.to_polygons())
+    assert_same_shape(proof_cells["Cell.copy"].polygons, cell_copy.polygons, 3e-3)
 
 
 def test_remove(tree):

@@ -112,6 +112,13 @@ def make_proof_lib():
 
     ref_cell1 = gdstk.Cell("Reference 1")
     ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
+    ref_cell1.add(gdstk.Label("LaBeL", (2.4, 8.7), "s"))
+    ref_cell1.add(gdstk.FlexPath(8 + 4j, 1, layer=3).arc(2, 0, numpy.pi / 2))
+    ref_cell1.add(
+        gdstk.RobustPath(7.5 + 7j, 1, layer=4).bezier(
+            [-2 + 1j, -2 + 3j, 4j, 6j, -3 + 6j], relative=True
+        )
+    )
 
     ref_cell2 = gdstk.Cell("Reference 2")
     ref_cell2.add(*gdstk.text("^", 10, (0, 5), layer=1))
