@@ -26,6 +26,21 @@ jobs:
         run: conda install cmake openblas lapack numpy pytest
       - name: Build
         run: python setup.py bdist_wheel
+      - name: Upload binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-${{ matrix.python-version }}
+          path: dist/*.whl
+  release-draft:
+    needs: windows-binaries
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    name: Create draft release
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v2
       - name: Release
         uses: anton-yurchenko/git-release@master
         env:
@@ -36,5 +51,4 @@ jobs:
           ALLOW_TAG_PREFIX: "true"
           RELEASE_NAME_PREFIX: "Release "
         with:
-          args: |
-            dist/*.whl
+          args: dist-*/*.whl

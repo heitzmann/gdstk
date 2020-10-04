@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.0 - 2020-10-03
+## [0.1.0] - 2020-10-03
 ### Added
 - Initial release
 
