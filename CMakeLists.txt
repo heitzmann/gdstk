@@ -32,7 +32,6 @@ endforeach()
 
 add_library(gdstk STATIC
     src/cell.cpp
-    src/clipperlib
     src/clipper_tools.cpp
     src/curve.cpp
     src/flexpath.cpp
