@@ -14,6 +14,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstring>
 #include <ctime>
 
+#include "allocator.h"
 #include "cell.h"
 #include "rawcell.h"
 #include "utils.h"
@@ -51,7 +52,7 @@ void Cell::print(bool all) const {
 }
 
 void Cell::clear() {
-    if (name) free(name);
+    if (name) free_mem(name);
     name = NULL;
     polygon_array.clear();
     reference_array.clear();
@@ -94,7 +95,7 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
             if (pmax.x > max.x) max.x = pmax.x;
             if (pmax.y > max.y) max.y = pmax.y;
             array[j]->clear();
-            free(array[j]);
+            free_mem(array[j]);
         }
         array.clear();
     }
@@ -110,7 +111,7 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
             if (pmax.x > max.x) max.x = pmax.x;
             if (pmax.y > max.y) max.y = pmax.y;
             array[j]->clear();
-            free(array[j]);
+            free_mem(array[j]);
         }
         array.clear();
     }
@@ -118,62 +119,63 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
 
 void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
     if (new_name) {
-        name = (char*)malloc(sizeof(char) * (strlen(new_name) + 1));
+        name = (char*)allocate(sizeof(char) * (strlen(new_name) + 1));
         strcpy(name, new_name);
     } else {
-        name = (char*)malloc(sizeof(char) * (strlen(cell.name) + 1));
+        name = (char*)allocate(sizeof(char) * (strlen(cell.name) + 1));
         strcpy(name, cell.name);
     }
 
     if (deep_copy) {
         polygon_array.capacity = cell.polygon_array.capacity;
         polygon_array.size = cell.polygon_array.size;
-        polygon_array.items = (Polygon**)malloc(sizeof(Polygon*) * polygon_array.capacity);
+        polygon_array.items = (Polygon**)allocate(sizeof(Polygon*) * polygon_array.capacity);
         Polygon** psrc = cell.polygon_array.items;
         Polygon** pdst = polygon_array.items;
         for (int64_t i = 0; i < cell.polygon_array.size; i++, psrc++, pdst++) {
-            *pdst = (Polygon*)malloc(sizeof(Polygon));
+            *pdst = (Polygon*)allocate(sizeof(Polygon));
             (*pdst)->copy_from(**psrc);
         }
 
         reference_array.capacity = cell.reference_array.capacity;
         reference_array.size = cell.reference_array.size;
-        reference_array.items = (Reference**)malloc(sizeof(Reference*) * reference_array.capacity);
+        reference_array.items =
+            (Reference**)allocate(sizeof(Reference*) * reference_array.capacity);
         Reference** rsrc = cell.reference_array.items;
         Reference** rdst = reference_array.items;
         for (int64_t i = 0; i < cell.reference_array.size; i++, rsrc++, rdst++) {
-            *rdst = (Reference*)malloc(sizeof(Reference));
+            *rdst = (Reference*)allocate(sizeof(Reference));
             (*rdst)->copy_from(**rsrc);
         }
 
         flexpath_array.capacity = cell.flexpath_array.capacity;
         flexpath_array.size = cell.flexpath_array.size;
-        flexpath_array.items = (FlexPath**)malloc(sizeof(FlexPath*) * flexpath_array.capacity);
+        flexpath_array.items = (FlexPath**)allocate(sizeof(FlexPath*) * flexpath_array.capacity);
         FlexPath** fpsrc = cell.flexpath_array.items;
         FlexPath** fpdst = flexpath_array.items;
         for (int64_t i = 0; i < cell.flexpath_array.size; i++, fpsrc++, fpdst++) {
-            *fpdst = (FlexPath*)malloc(sizeof(FlexPath));
+            *fpdst = (FlexPath*)allocate(sizeof(FlexPath));
             (*fpdst)->copy_from(**fpsrc);
         }
 
         robustpath_array.capacity = cell.robustpath_array.capacity;
         robustpath_array.size = cell.robustpath_array.size;
         robustpath_array.items =
-            (RobustPath**)malloc(sizeof(RobustPath*) * robustpath_array.capacity);
+            (RobustPath**)allocate(sizeof(RobustPath*) * robustpath_array.capacity);
         RobustPath** rpsrc = cell.robustpath_array.items;
         RobustPath** rpdst = robustpath_array.items;
         for (int64_t i = 0; i < cell.robustpath_array.size; i++, rpsrc++, rpdst++) {
-            *rpdst = (RobustPath*)malloc(sizeof(RobustPath));
+            *rpdst = (RobustPath*)allocate(sizeof(RobustPath));
             (*rpdst)->copy_from(**rpsrc);
         }
 
         label_array.capacity = cell.label_array.capacity;
         label_array.size = cell.label_array.size;
-        label_array.items = (Label**)malloc(sizeof(Label*) * label_array.capacity);
+        label_array.items = (Label**)allocate(sizeof(Label*) * label_array.capacity);
         Label** lsrc = cell.label_array.items;
         Label** ldst = label_array.items;
         for (int64_t i = 0; i < cell.label_array.size; i++, lsrc++, ldst++) {
-            *ldst = (Label*)malloc(sizeof(Label));
+            *ldst = (Label*)allocate(sizeof(Label));
             (*ldst)->copy_from(**lsrc);
         }
     } else {
@@ -193,7 +195,7 @@ Array<Polygon*> Cell::get_polygons(bool include_paths, int64_t depth) const {
     Polygon** poly = result.items;
     Polygon** psrc = polygon_array.items;
     for (int64_t i = 0; i < polygon_array.size; i++, psrc++, poly++) {
-        *poly = (Polygon*)calloc(1, sizeof(Polygon));
+        *poly = (Polygon*)allocate_clear(sizeof(Polygon));
         (*poly)->copy_from(**psrc);
     }
     result.size = polygon_array.size;
@@ -236,7 +238,7 @@ Array<FlexPath*> Cell::get_flexpaths(int64_t depth) const {
     FlexPath** dst = result.items;
     FlexPath** src = flexpath_array.items;
     for (int64_t i = 0; i < flexpath_array.size; i++, src++, dst++) {
-        *dst = (FlexPath*)calloc(1, sizeof(FlexPath));
+        *dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
         (*dst)->copy_from(**src);
     }
     result.size = flexpath_array.size;
@@ -261,7 +263,7 @@ Array<RobustPath*> Cell::get_robustpaths(int64_t depth) const {
     RobustPath** dst = result.items;
     RobustPath** src = robustpath_array.items;
     for (int64_t i = 0; i < robustpath_array.size; i++, src++, dst++) {
-        *dst = (RobustPath*)calloc(1, sizeof(RobustPath));
+        *dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
         (*dst)->copy_from(**src);
     }
     result.size = robustpath_array.size;
@@ -286,7 +288,7 @@ Array<Label*> Cell::get_labels(int64_t depth) const {
     Label** dst = result.items;
     Label** src = label_array.items;
     for (int64_t i = 0; i < label_array.size; i++, src++, dst++) {
-        *dst = (Label*)calloc(1, sizeof(Label));
+        *dst = (Label*)allocate_clear(sizeof(Label));
         (*dst)->copy_from(**src);
     }
     result.size = label_array.size;
@@ -401,7 +403,7 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
             for (int64_t j = 0; j < array.size; j++, p++) {
                 (*p)->to_gds(out, scaling);
                 (*p)->clear();
-                free(*p);
+                free_mem(*p);
             }
             array.clear();
         } else {
@@ -423,14 +425,14 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
                     for (int64_t j = 0; j < array.size; j++, p++) {
                         (*p)->to_gds(out, scaling);
                         (*p)->clear();
-                        free(*p);
+                        free_mem(*p);
                     }
                     array.clear();
                 } else {
                     (*polygon)->to_gds(out, scaling);
                 }
                 (*polygon)->clear();
-                free(*polygon);
+                free_mem(*polygon);
             }
             fp_array.clear();
         }
@@ -450,14 +452,14 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
                     for (int64_t j = 0; j < array.size; j++, p++) {
                         (*p)->to_gds(out, scaling);
                         (*p)->clear();
-                        free(*p);
+                        free_mem(*p);
                     }
                     array.clear();
                 } else {
                     (*polygon)->to_gds(out, scaling);
                 }
                 (*polygon)->clear();
-                free(*polygon);
+                free_mem(*polygon);
             }
             rp_array.clear();
         }
@@ -476,7 +478,7 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
 }
 
 void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
-    char* buffer = (char*)malloc(sizeof(char) * (strlen(name) + 1));
+    char* buffer = (char*)allocate(sizeof(char) * (strlen(name) + 1));
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
     // strings, but who knows…
     char* d = buffer;
@@ -506,7 +508,7 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     for (int64_t i = 0; i < label_array.size; i++, label++) (*label)->to_svg(out, scaling);
 
     fputs("</g>\n", out);
-    free(buffer);
+    free_mem(buffer);
 }
 
 void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label_style,

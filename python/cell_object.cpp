@@ -29,7 +29,7 @@ static void cell_object_dealloc(CellObject* self) {
             Py_DECREF(cell->robustpath_array[i]->owner);
         for (int64_t i = 0; i < cell->label_array.size; i++) Py_DECREF(cell->label_array[i]->owner);
         cell->clear();
-        free(cell);
+        free_mem(cell);
     }
     PyObject_Del(self);
 }
@@ -53,10 +53,10 @@ static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {
             Py_XDECREF(cell->label_array[i]->owner);
         cell->clear();
     } else {
-        self->cell = (Cell*)calloc(1, sizeof(Cell));
+        self->cell = (Cell*)allocate_clear(sizeof(Cell));
         cell = self->cell;
     }
-    cell->name = (char*)malloc(sizeof(char) * len);
+    cell->name = (char*)allocate(sizeof(char) * len);
     memcpy(cell->name, name, len);
     cell->owner = self;
     return 0;
@@ -265,7 +265,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
 
     CellObject* result = PyObject_New(CellObject, &cell_object_type);
     result = (CellObject*)PyObject_Init((PyObject*)result, &cell_object_type);
-    result->cell = (Cell*)malloc(sizeof(Cell));
+    result->cell = (Cell*)allocate(sizeof(Cell));
     Cell* cell = result->cell;
     cell->owner = result;
     cell->copy_from(*self->cell, name, deep_copy > 0);
@@ -551,8 +551,8 @@ int cell_object_set_name(CellObject* self, PyObject* arg, void*) {
     }
 
     Cell* cell = self->cell;
-    if (cell->name) free(cell->name);
-    cell->name = (char*)malloc(sizeof(char) * (++len));
+    if (cell->name) free_mem(cell->name);
+    cell->name = (char*)allocate(sizeof(char) * (++len));
     memcpy(cell->name, src, len);
     return 0;
 }

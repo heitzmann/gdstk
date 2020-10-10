@@ -28,7 +28,7 @@ static void reference_object_dealloc(ReferenceObject* self) {
         else if (reference->type == ReferenceType::RawCell)
             Py_DECREF(reference->rawcell->owner);
         reference->clear();
-        free(reference);
+        free_mem(reference);
     }
     PyObject_Del(self);
 }
@@ -57,7 +57,7 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
     if (self->reference)
         self->reference->clear();
     else
-        self->reference = (Reference*)calloc(1, sizeof(Reference));
+        self->reference = (Reference*)allocate_clear(sizeof(Reference));
     Reference* reference = self->reference;
 
     if (CellObject_Check(cell_obj)) {
@@ -76,7 +76,7 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert cell argument to string.");
             return -1;
         }
-        reference->name = (char*)malloc(sizeof(char) * (++len));
+        reference->name = (char*)allocate(sizeof(char) * (++len));
         memcpy(reference->name, name, len);
     } else {
         PyErr_SetString(PyExc_TypeError, "Argument cell must be a Cell, RawCell, or string.");
@@ -99,7 +99,7 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
 static PyObject* reference_object_copy(ReferenceObject* self, PyObject* args) {
     ReferenceObject* result = PyObject_New(ReferenceObject, &reference_object_type);
     result = (ReferenceObject*)PyObject_Init((PyObject*)result, &reference_object_type);
-    result->reference = (Reference*)calloc(1, sizeof(Reference));
+    result->reference = (Reference*)allocate_clear(sizeof(Reference));
     result->reference->copy_from(*self->reference);
     result->reference->owner = result;
     return (PyObject*)result;

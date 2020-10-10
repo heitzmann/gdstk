@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdlib>
 #include <cstring>
 
+#include "allocator.h"
 #include "vec.h"
 
 namespace gdstk {
@@ -44,7 +45,7 @@ struct Array {
     }
 
     void clear() {
-        if (items) free(items);
+        if (items) free_mem(items);
         items = NULL;
         capacity = 0;
         size = 0;
@@ -60,7 +61,7 @@ struct Array {
     void append(T item) {
         if (size == capacity) {
             capacity += capacity > 0 ? capacity : 4;
-            items = (T*)realloc(items, sizeof(T) * capacity);
+            items = (T*)reallocate(items, sizeof(T) * capacity);
         }
         items[size++] = item;
     }
@@ -74,7 +75,7 @@ struct Array {
     void ensure_slots(int64_t free_slots) {
         if (capacity < size + free_slots) {
             capacity = size + free_slots;
-            items = (T*)realloc(items, sizeof(T) * capacity);
+            items = (T*)reallocate(items, sizeof(T) * capacity);
         }
     }
 
@@ -87,7 +88,7 @@ struct Array {
     void copy_from(const Array<T>& src) {
         capacity = src.capacity;
         size = src.size;
-        items = (T*)malloc(sizeof(T) * capacity);
+        items = (T*)allocate(sizeof(T) * capacity);
         memcpy(items, src.items, sizeof(T) * src.size);
     }
 };

@@ -15,7 +15,7 @@ static PyObject* label_object_str(LabelObject* self) {
 static void label_object_dealloc(LabelObject* self) {
     if (self->label) {
         self->label->clear();
-        free(self->label);
+        free_mem(self->label);
     }
     PyObject_Del(self);
 }
@@ -39,7 +39,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     if (self->label)
         self->label->clear();
     else
-        self->label = (Label*)calloc(1, sizeof(Label));
+        self->label = (Label*)allocate_clear(sizeof(Label));
 
     Label* label = self->label;
     label->layer = layer;
@@ -82,7 +82,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     label->rotation = rotation;
     label->magnification = magnification;
     label->x_reflection = x_reflection > 0;
-    label->text = (char*)malloc((strlen(s) + 1) * sizeof(char));
+    label->text = (char*)allocate((strlen(s) + 1) * sizeof(char));
     strcpy(label->text, s);
     properties_clear(label->properties);
     label->properties = NULL;
@@ -93,7 +93,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
 static PyObject* label_object_copy(LabelObject* self, PyObject* args) {
     LabelObject* result = PyObject_New(LabelObject, &label_object_type);
     result = (LabelObject*)PyObject_Init((PyObject*)result, &label_object_type);
-    result->label = (Label*)calloc(1, sizeof(Label));
+    result->label = (Label*)allocate_clear(sizeof(Label));
     result->label->copy_from(*self->label);
     result->label->owner = result;
     return (PyObject*)result;
@@ -182,8 +182,8 @@ int label_object_set_text(LabelObject* self, PyObject* arg, void*) {
     if (!src) return -1;
 
     Label* label = self->label;
-    if (label->text) free(label->text);
-    label->text = (char*)malloc(sizeof(char) * (++len));
+    if (label->text) free_mem(label->text);
+    label->text = (char*)allocate(sizeof(char) * (++len));
     memcpy(label->text, src, len);
     return 0;
 }

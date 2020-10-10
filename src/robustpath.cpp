@@ -13,6 +13,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 
+#include "allocator.h"
 #include "curve.h"
 #include "utils.h"
 
@@ -80,12 +81,12 @@ Vec2 SubPath::gradient(double u, const double *trafo) const {
         } break;
         case SubPathType::Bezier: {
             const int64_t size = ctrl.size - 1;
-            Vec2 *_ctrl = (Vec2 *)malloc(sizeof(Vec2) * size);
+            Vec2 *_ctrl = (Vec2 *)allocate(sizeof(Vec2) * size);
             Vec2 *dst = _ctrl;
             const Vec2 *src = ctrl.items;
             for (int64_t i = 0; i < size; i++, src++, dst++) *dst = size * (*(src + 1) - *src);
             grad = eval_bezier(u, _ctrl, size);
-            free(_ctrl);
+            free_mem(_ctrl);
         } break;
         case SubPathType::Bezier2: {
             const Vec2 dp0 = 2 * (p1 - p0);
@@ -401,7 +402,7 @@ void RobustPath::clear() {
         el->width_array.clear();
         el->offset_array.clear();
     }
-    free(elements);
+    free_mem(elements);
     elements = NULL;
     num_elements = 0;
     properties_clear(properties);
@@ -413,7 +414,7 @@ void RobustPath::copy_from(const RobustPath &path) {
     end_point = path.end_point;
     subpath_array.copy_from(path.subpath_array);
     num_elements = path.num_elements;
-    elements = (RobustPathElement *)calloc(num_elements, sizeof(RobustPathElement));
+    elements = (RobustPathElement *)allocate_clear(num_elements * sizeof(RobustPathElement));
     tolerance = path.tolerance;
     max_evals = path.max_evals;
     width_scale = path.width_scale;
@@ -1289,7 +1290,7 @@ Array<Polygon *> RobustPath::to_polygons() const {
         initial_cap.clear();
         right_side.size += num;
 
-        Polygon *result_polygon = (Polygon *)malloc(sizeof(Polygon));
+        Polygon *result_polygon = (Polygon *)allocate(sizeof(Polygon));
         result_polygon->layer = el->layer;
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_side;
@@ -1406,7 +1407,7 @@ void RobustPath::to_svg(FILE *out, double scaling) const {
     for (int64_t i = 0; i < array.size; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();
-        free(array[i]);
+        free_mem(array[i]);
     }
     array.clear();
 }

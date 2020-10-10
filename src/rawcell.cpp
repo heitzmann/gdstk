@@ -11,6 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstdio>
 
+#include "allocator.h"
 namespace gdstk {
 
 void RawCell::print(bool all) const {
@@ -33,7 +34,7 @@ void RawCell::print(bool all) const {
 
 void RawCell::clear() {
     if (name) {
-        free(name);
+        free_mem(name);
         name = NULL;
     }
     if (source) {
@@ -45,7 +46,7 @@ void RawCell::clear() {
         source = NULL;
         offset = 0;
     } else if (data) {
-        free(data);
+        free_mem(data);
         data = NULL;
     }
     size = 0;
@@ -110,7 +111,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                             dependencies->remove_unordered(i);
                             fprintf(stderr, "[GDSTK] Referenced cell %s not found.", name);
                         }
-                        free(name);
+                        free_mem(name);
                     }
                 }
                 if (source->uses == 0) {
@@ -120,7 +121,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                 return result;
                 break;
             case 0x05:  // BGNSTR
-                rawcell = (RawCell*)calloc(1, sizeof(RawCell));
+                rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
                 rawcell->source = source;
                 source->uses++;
                 rawcell->offset = ftell(in) - record_length;
@@ -130,7 +131,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                 if (rawcell) {
                     int32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
-                    rawcell->name = (char*)malloc(sizeof(char) * (data_length + 1));
+                    rawcell->name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(rawcell->name, str, data_length);
                     rawcell->name[data_length] = 0;
                     result.set(rawcell->name, rawcell);
@@ -147,7 +148,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                 if (rawcell) {
                     int32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
-                    char* name = (char*)malloc(sizeof(char) * (data_length + 1));
+                    char* name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(name, str, data_length);
                     name[data_length] = 0;
                     rawcell->dependencies.append((RawCell*)name);

@@ -31,7 +31,7 @@ struct Library {
     void print(bool all) const;
 
     void clear() {
-        if (name) free(name);
+        if (name) free_mem(name);
         name = NULL;
         cell_array.clear();
         rawcell_array.clear();

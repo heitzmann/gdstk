@@ -17,7 +17,7 @@ static void rawcell_object_dealloc(RawCellObject* self) {
     RawCell* rawcell = self->rawcell;
     if (rawcell) {
         rawcell->clear();
-        free(rawcell);
+        free_mem(rawcell);
     }
     PyObject_Del(self);
 }
@@ -31,10 +31,10 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
     if (rawcell) {
         rawcell->clear();
     } else {
-        self->rawcell = (RawCell*)calloc(1, sizeof(RawCell));
+        self->rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
         rawcell = self->rawcell;
     }
-    rawcell->name = (char*)malloc(sizeof(char) * len);
+    rawcell->name = (char*)allocate(sizeof(char) * len);
     memcpy(rawcell->name, name, len);
     rawcell->owner = self;
     return 0;

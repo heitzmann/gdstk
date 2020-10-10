@@ -12,6 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdlib>
 #include <cstring>
 
+#include "allocator.h"
 #include "utils.h"
 
 namespace gdstk {
@@ -19,15 +20,15 @@ namespace gdstk {
 void properties_clear(Property* properties) {
     while (properties) {
         Property* next = properties->next;
-        free(properties->value);
-        free(properties);
+        free_mem(properties->value);
+        free_mem(properties);
         properties = next;
     }
 }
 
 static void value_copy(const char* value, Property* dst) {
     int64_t len = strlen(value) + 1;
-    dst->value = (char*)malloc(sizeof(char) * len);
+    dst->value = (char*)allocate(sizeof(char) * len);
     memcpy(dst->value, value, len);
 }
 
@@ -36,10 +37,10 @@ Property* properties_copy(const Property* properties) {
     Property* dst;
     for (; properties; properties = properties->next) {
         if (result == NULL) {
-            result = (Property*)malloc(sizeof(Property));
+            result = (Property*)allocate(sizeof(Property));
             dst = result;
         } else {
-            dst->next = (Property*)malloc(sizeof(Property));
+            dst->next = (Property*)allocate(sizeof(Property));
             dst = dst->next;
         }
         dst->key = properties->key;
@@ -54,7 +55,7 @@ void set_property(Property*& properties, int16_t key, const char* value) {
     properties = &root;
     while (properties->next && properties->next->key < key) properties = properties->next;
     if (properties->next == NULL || properties->next->key > key) {
-        Property* p = (Property*)malloc(sizeof(Property));
+        Property* p = (Property*)allocate(sizeof(Property));
         p->key = key;
         value_copy(value, p);
         p->next = properties->next;
@@ -62,7 +63,7 @@ void set_property(Property*& properties, int16_t key, const char* value) {
     } else {
         // Same key: replace value
         properties = properties->next;
-        free(properties->value);
+        free_mem(properties->value);
         value_copy(value, properties);
     }
     properties = root.next;
@@ -83,8 +84,8 @@ void delete_property(Property*& properties, int16_t key) {
     if (properties->next && properties->next->key == key) {
         Property* p = properties->next;
         properties->next = p->next;
-        free(p->value);
-        free(p);
+        free_mem(p->value);
+        free_mem(p);
     }
     properties = root.next;
 }
@@ -103,7 +104,8 @@ void properties_to_gds(const Property* properties, FILE* out) {
     }
     if (size > 128)
         fputs(
-            "[GDSTK] Properties with size larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n", stderr);
+            "[GDSTK] Properties with size larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
+            stderr);
 }
 
 }  // namespace gdstk

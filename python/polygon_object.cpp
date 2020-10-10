@@ -15,7 +15,7 @@ static PyObject* polygon_object_str(PolygonObject* self) {
 static void polygon_object_dealloc(PolygonObject* self) {
     if (self->polygon) {
         self->polygon->clear();
-        free(self->polygon);
+        free_mem(self->polygon);
     }
     PyObject_Del(self);
 }
@@ -32,7 +32,7 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
     if (self->polygon)
         self->polygon->clear();
     else
-        self->polygon = (Polygon*)calloc(1, sizeof(Polygon));
+        self->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     Polygon* polygon = self->polygon;
     polygon->layer = layer;
     polygon->datatype = datatype;
@@ -46,7 +46,7 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
 static PyObject* polygon_object_copy(PolygonObject* self, PyObject* args) {
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
-    result->polygon = (Polygon*)calloc(1, sizeof(Polygon));
+    result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     result->polygon->copy_from(*self->polygon);
     result->polygon->owner = result;
     return (PyObject*)result;
@@ -133,7 +133,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
         if (num < self->polygon->point_array.size) {
             PyErr_Format(PyExc_TypeError, "Not enough items in sequence (expecting %" PRId64 ").",
                          self->polygon->point_array.size);
-            if (radii) free(radii);
+            if (radii) free_mem(radii);
             return NULL;
         }
     } else {
@@ -143,12 +143,12 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
             return NULL;
         }
         int64_t num = self->polygon->point_array.size;
-        radii = (double*)malloc(sizeof(double) * num);
+        radii = (double*)allocate(sizeof(double) * num);
         double* p = radii;
         for (int64_t j = 0; j < num; j++) *p++ = r;
     }
     self->polygon->fillet(radii, tol);
-    free(radii);
+    free_mem(radii);
     Py_INCREF(self);
     return (PyObject*)self;
 }

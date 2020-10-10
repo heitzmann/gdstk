@@ -14,7 +14,7 @@ static PyObject* gdswriter_object_str(GdsWriterObject* self) {
 }
 
 static void gdswriter_object_dealloc(GdsWriterObject* self) {
-    free(self->gdswriter);
+    free_mem(self->gdswriter);
     PyObject_Del(self);
 }
 
@@ -31,7 +31,7 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
                                      PyUnicode_FSConverter, &pybytes, &name, &unit, &precision,
                                      &max_points))
         return -1;
-    if (!self->gdswriter) self->gdswriter = (GdsWriter*)calloc(1, sizeof(GdsWriter));
+    if (!self->gdswriter) self->gdswriter = (GdsWriter*)allocate_clear(sizeof(GdsWriter));
 
     FILE* out = fopen(PyBytes_AS_STRING(pybytes), "wb");
     if (!out) {
