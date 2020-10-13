@@ -45,6 +45,7 @@ python setup.py install
 ```
 
 Windows users have the option to use a pre-compiled binary from the [releases](https://github.com/heitzmann/gdstk/releases) page.
+It depends on openBLAS, which is currently not included in the package, so the recommendation is to [install it](https://anaconda.org/anaconda/openblas) via [conda](https://www.anaconda.com/).
 
 
 ## Support

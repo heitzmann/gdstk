@@ -43,7 +43,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           channels: conda-forge
       - name: Install dependencies
-        run: conda install cmake openblas lapack numpy pytest
+        run: conda install cmake openblas numpy pytest
       - name: Build
         run: python setup.py install --user
       - name: Test
