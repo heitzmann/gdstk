@@ -117,7 +117,7 @@ setup(
     setup_requires=setup_requires,
     platforms="OS Independent",
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 3 - Alpha",
         "Environment :: Console",
         "Intended Audience :: Developers",
         "Intended Audience :: Manufacturing",
