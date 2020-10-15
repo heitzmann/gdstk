@@ -16,9 +16,89 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "utils.h"
 
+// TODO:
+// - Other OSs
+// - Thread safety
+
+#define ALLOC_INFO 1
+
 #define PAGE_SIZE 0x1000  // This should be default for all targeted systems.
 
 namespace gdstk {
+
+// Arena allocator.  Small allocations are incresed to powers of 2 and have a SmallAllocationHeader
+// with a pointer to a free list where they should be inserted when not in use.  This list is for a
+// specific allocation size, so no size information is required in the header.  Large allocations
+// include a LargeAllocationHeader with size information and a pointer, which is NULL while in use
+// (thus differentiatiog them from small allocations) and used to keep a free list otherwise.
+struct Arena {
+    uint64_t available_size;
+    uint8_t* cursor;
+    Arena* next;
+};
+
+struct SmallAllocationHeader {
+    SmallAllocationHeader* next;
+};
+
+struct LargeAllocationHeader {
+    uint64_t size;
+    LargeAllocationHeader* next;
+};
+
+static Arena arena = {0, NULL, NULL};
+
+// Sorted linked list
+static LargeAllocationHeader free_large = {0, NULL};
+static SmallAllocationHeader free_small[] = {{NULL},   // 8-byte allocations
+                                             {NULL},   // 16
+                                             {NULL},   // 32
+                                             {NULL},   // 64
+                                             {NULL},   // 128
+                                             {NULL},   // 256
+                                             {NULL},   // 512
+                                             {NULL},   // 1024
+                                             {NULL},   // 2048
+                                             {NULL}};  // 4096
+
+#ifdef ALLOC_INFO
+static uint64_t dbg_sys_alloc = 0;
+static uint64_t dbg_sys_free = 0;
+static uint64_t dbg_arena_alloc = 0;
+static uint64_t dbg_alloc[COUNT(free_small) + 1] = {0};
+static uint64_t dbg_realloc[COUNT(free_small) + 1] = {0};
+static uint64_t dbg_reuse[COUNT(free_small) + 1] = {0};
+static uint64_t dbg_free[COUNT(free_small) + 1] = {0};
+
+static void print_status() {
+    uint64_t t = 0;
+    printf("System allocations/free: %lu/%lu\nArena allocations: %lu\nAllocations:",
+           dbg_sys_alloc, dbg_sys_free, dbg_arena_alloc);
+    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
+        t += dbg_alloc[i];
+        printf(" %lu", dbg_alloc[i]);
+    }
+    printf("  (%lu)\nReallocations:", t);
+    t = 0;
+    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
+        t += dbg_realloc[i];
+        printf(" %lu", dbg_realloc[i]);
+    }
+    printf("  (%lu)\nReuses:", t);
+    t = 0;
+    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
+        t += dbg_reuse[i];
+        printf(" %lu", dbg_reuse[i]);
+    }
+    printf("  (%lu)\nFrees:", t);
+    t = 0;
+    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
+        t += dbg_free[i];
+        printf(" %lu", dbg_free[i]);
+    }
+    printf("  (%lu)\n", t);
+}
+#endif
 
 static uint8_t* system_allocate(uint64_t size) {
     void* result = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -27,12 +107,16 @@ static uint8_t* system_allocate(uint64_t size) {
         fprintf(stderr, "Error in mmap (errno %d).", err);
         return NULL;
     }
-    // printf("Allocating %lu bytes at %p.\n", size, result); fflush(stdout);
+#ifdef ALLOC_INFO
+    dbg_sys_alloc++;
+#endif
     return (uint8_t*)result;
 }
 
 static void system_deallocate(void* ptr, uint64_t size) {
-    // printf("Deallocating %lu bytes at %p.\n", size, ptr); fflush(stdout);
+#ifdef ALLOC_INFO
+    dbg_sys_free++;
+#endif
     munmap(ptr, size);
 }
 
@@ -182,21 +266,9 @@ static uint8_t log2_lookup(uint64_t pow2) {
         case 0x8000000000000000:
             return 63;
     }
+    fprintf(stderr, "%s:%d: Unreachable\n", __FILE__, __LINE__);
     return 0;
 }
-
-// Arena allocator.  Small allocations are incresed to powers of 2 and have a SmallAllocationHeader
-// with a pointer to a free list where they should be inserted when not in use.  This list is for a
-// specific allocation size, so no size information is required in the header.  Large allocations
-// include a LargeAllocationHeader with size information and a pointer, which is NULL while in use
-// (thus differentiatiog them from small allocations) and used to keep a free list otherwise.
-struct Arena {
-    uint64_t available_size;
-    uint8_t* cursor;
-    Arena* next;
-};
-
-static Arena arena = {0, NULL, NULL};
 
 static void* arena_allocate(uint64_t size) {
     static uint64_t next_arena_size = 1024 * 1024;
@@ -217,32 +289,15 @@ static void* arena_allocate(uint64_t size) {
         a->cursor = (uint8_t*)(a + 1);
         a->next = NULL;
         next_arena_size *= 2;
-        // printf("New arena: %p with %lu bytes.\n", a, a->available_size); fflush(stdout);
     }
     void* result = (void*)a->cursor;
     a->cursor += size;
     a->available_size -= size;
-    // printf("Arena allocation: %lu bytes at %p.\n", size, result); fflush(stdout);
+#ifdef ALLOC_INFO
+    dbg_arena_alloc++;
+#endif
     return result;
 }
-
-struct SmallAllocationHeader {
-    SmallAllocationHeader* next;
-};
-
-struct LargeAllocationHeader {
-    uint64_t size;
-    LargeAllocationHeader* next;
-};
-
-// Sorted linked list
-static LargeAllocationHeader free_large = {0, NULL};
-static SmallAllocationHeader free_small[] = {{NULL},   // 8-byte allocations
-                                             {NULL},   // 16
-                                             {NULL},   // 32
-                                             {NULL},   // 64
-                                             {NULL},   // 128
-                                             {NULL}};  // 256
 
 void* allocate(uint64_t size) {
     const uint64_t largest_small_size = 1 << (2 + COUNT(free_small));
@@ -255,12 +310,17 @@ void* allocate(uint64_t size) {
         if (free->next && free->next->size <= 2 * size) {
             result = free->next;
             free->next = result->next;
+#ifdef ALLOC_INFO
+            dbg_reuse[COUNT(free_small)]++;
+#endif
         } else {
             result = (LargeAllocationHeader*)arena_allocate(size + sizeof(LargeAllocationHeader));
             result->size = size;
+#ifdef ALLOC_INFO
+            dbg_alloc[COUNT(free_small)]++;
+#endif
         }
         result->next = NULL;
-        // printf("Large allocation: %lu bytes at %p (header: %p).\n", size, result + 1, result); fflush(stdout);
         return (void*)(result + 1);
     } else {
         SmallAllocationHeader* result = NULL;
@@ -273,12 +333,17 @@ void* allocate(uint64_t size) {
         if (free->next) {
             result = free->next;
             free->next = result->next;
+#ifdef ALLOC_INFO
+            dbg_reuse[small_index]++;
+#endif
         } else {
             result =
                 (SmallAllocationHeader*)arena_allocate(pow2_size + sizeof(SmallAllocationHeader));
+#ifdef ALLOC_INFO
+            dbg_alloc[small_index]++;
+#endif
         }
         result->next = free;
-        // printf("Small allocation: %lu/%lu bytes at %p (header: %p).\n", size, pow2_size, result + 1, result); fflush(stdout);
         return (void*)(result + 1);
     }
     return NULL;
@@ -295,10 +360,12 @@ void* reallocate(void* ptr, uint64_t size) {
         uint64_t ptr_size = 1 << (3 + small_index);
         if (size <= ptr_size) return ptr;
 
+#ifdef ALLOC_INFO
+        dbg_realloc[small_index]++;
+#endif
         void* new_ptr = allocate(size);
         memcpy(new_ptr, ptr, ptr_size);
         free_mem(ptr);
-        // printf("Small reallocation: %p (%lu bytes) -> %p (%lu bytes).\n", ptr, ptr_size, new_ptr, size); fflush(stdout);
         return new_ptr;
     } else {
         // Large allocation
@@ -306,6 +373,9 @@ void* reallocate(void* ptr, uint64_t size) {
             (LargeAllocationHeader*)((uint8_t*)ptr - sizeof(LargeAllocationHeader));
         if (size <= lh->size) return ptr;
 
+#ifdef ALLOC_INFO
+        dbg_realloc[COUNT(free_small)]++;
+#endif
         Arena* a = arena.next;
         // Find the arena to which this ptr belongs.
         while (a->cursor < (uint8_t*)lh || (uint8_t*)a > (uint8_t*)lh) a = a->next;
@@ -313,7 +383,6 @@ void* reallocate(void* ptr, uint64_t size) {
         // Check to see if this is the last allocation and there is enough space afterwards.
         uint64_t size_increase = size - lh->size;
         if (a->cursor == (uint8_t*)ptr + lh->size && a->available_size >= size_increase) {
-            // printf("Reallocation of %p: %lu -> %lu\n", ptr, lh->size, size); fflush(stdout);
             a->available_size -= size_increase;
             a->cursor += size_increase;
             lh->size += size_increase;
@@ -323,7 +392,6 @@ void* reallocate(void* ptr, uint64_t size) {
         void* new_ptr = allocate(size);
         memcpy(new_ptr, ptr, lh->size);
         free_mem(ptr);
-        // printf("Large reallocation: %p (%lu bytes) -> %p (%lu bytes).\n", ptr, lh->size, new_ptr, size); fflush(stdout);
         return new_ptr;
     }
     return NULL;
@@ -341,11 +409,17 @@ void free_mem(void* ptr) {
         (SmallAllocationHeader*)((uint8_t*)ptr - sizeof(SmallAllocationHeader));
     if (sh->next) {
         // Small allocation
+#ifdef ALLOC_INFO
+        uint8_t small_index = sh->next - free_small;
+        dbg_free[small_index]++;
+#endif
         SmallAllocationHeader* free = sh->next;
         sh->next = free->next;
         free->next = sh;
-        // printf("Free small allocation %p (header: %p).\n", ptr, sh); fflush(stdout);
     } else {
+#ifdef ALLOC_INFO
+        dbg_free[COUNT(free_small)]++;
+#endif
         LargeAllocationHeader* lh =
             (LargeAllocationHeader*)((uint8_t*)ptr - sizeof(LargeAllocationHeader));
         LargeAllocationHeader* free = &free_large;
@@ -354,7 +428,6 @@ void free_mem(void* ptr) {
         }
         lh->next = free->next;
         free->next = lh;
-        // printf("Free large allocation %p (header: %p).\n", ptr, lh); fflush(stdout);
     }
 }
 
@@ -365,6 +438,9 @@ void gdstk_finalize() {
         system_deallocate(a, a->cursor + a->available_size - (uint8_t*)a);
         a = b;
     }
+#ifdef ALLOC_INFO
+    print_status();
+#endif
 }
 
 }  // namespace gdstk
