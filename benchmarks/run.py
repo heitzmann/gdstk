@@ -20,7 +20,17 @@ import gdspy
 import gdstk
 
 
-def prefix_format(value, stdev, fmtstr, base=10):
+def prefix_format(value, stdev=None, unit="", fmtstr=None, base=10):
+    if fmtstr is None:
+        fmtstr = (
+            "{value:.3g} {prefix}{unit}"
+            if stdev == None
+            else "({value:.3g} ± {stdev:.3g}) {prefix}{unit}"
+        )
+    if stdev is None:
+        stdev = 0
+    if base == "bin":
+        base = 2 ** (10 / 3)
     if value == 0:
         m = 0
         prefix = ""
@@ -42,12 +52,11 @@ def prefix_format(value, stdev, fmtstr, base=10):
         }.get(m, f"× {base}^{m} ")
     value *= base ** -m
     stdev *= base ** -m
-    return fmtstr.format(value=value, stdev=stdev, prefix=prefix)
+    return fmtstr.format(value=value, stdev=stdev, prefix=prefix, unit=unit)
 
 
 def timing_benchmark():
-    path = pathlib.Path(__file__).absolute()
-    bench_files = sorted([f for f in path.parent.glob("*.py") if f != path])
+    namespace = dict(globals())
 
     def print_row(*vals, hsep=False):
         columns = [16, 16, 16, 8]
@@ -67,9 +76,34 @@ def timing_benchmark():
                 "|",
             )
 
-    repeats = 8
+    path = pathlib.Path(__file__).absolute()
+    modules = ("gdspy", "gdstk")
+    bench_names = sorted([f.stem for f in path.parent.glob("*.py") if f != path])
+
+    timers = {}
+    best_avg_time = {}
+    for name in bench_names:
+        bench_module = importlib.import_module(name)
+        for mod in modules:
+            func = f"{mod}_{name.replace('-', '')}"
+            namespace[func] = getattr(bench_module, f"bench_{mod}")
+            key = (name, mod)
+            timers[key] = timeit.Timer(f"{func}()", "gc.enable()", globals=namespace)
+            best_avg_time[key] = 1e300
+
     sets = 32
-    print(f"\nBest average time out of {sets} sets of {repeats}.")
+    repeats = 8
+    for s in range(1, 1 + sets):
+        print(f"\n{s}/{sets}:", end="")
+        for name in numpy.random.permutation(bench_names):
+            print(f" {name}", end="", flush=True)
+            for mod in numpy.random.permutation(modules):
+                key = (name, mod)
+                t = timers[key].timeit(repeats) / repeats
+                if t < best_avg_time[key]:
+                    best_avg_time[key] = t
+
+    print(f"\n\nBest average time out of {sets} sets of {repeats}.")
     print_row(
         "Benchmark",
         "Gdspy " + gdspy.__version__,
@@ -77,29 +111,14 @@ def timing_benchmark():
         "Gain",
         hsep=True,
     )
-    for fname in bench_files:
-        module = importlib.import_module(fname.stem)
-        best = {}
-        formated = {}
-        ns = globals()
-        for mod in ("gdspy", "gdstk"):
-            ns["func"] = getattr(module, f"bench_{mod}")
-            timer = timeit.Timer("func()", "gc.enable()", globals=ns)
-            elapsed = 1e300
-            for _ in range(sets):
-                t = timer.timeit(repeats)
-                elapsed = min(elapsed, t / repeats)
-            best[mod] = elapsed
-            formated[mod] = prefix_format(
-                best[mod],
-                0,
-                "{value:.3g} {prefix}s",
-            )
+    for name in bench_names:
+        gdspy_time = best_avg_time[(name, "gdspy")]
+        gdstk_time = best_avg_time[(name, "gdstk")]
         print_row(
-            fname.stem,
-            formated["gdspy"],
-            formated["gdstk"],
-            f"{best['gdspy'] / best['gdstk']:.3g}",
+            name,
+            prefix_format(gdspy_time, unit="s"),
+            prefix_format(gdstk_time, unit="s"),
+            f"{gdspy_time / gdstk_time:.3g}",
         )
 
 
@@ -196,13 +215,14 @@ def memory_benchmark():
         ),
     ]:
         gdspy_mem, gdspy_data = mem_test(gdspy_func)
-        gdspy_fmt = prefix_format(gdspy_mem, 0, "{value:.3g} {prefix}B", 2 ** (10 / 3))
         data.append(gdspy_data)
         gdstk_mem, gdstk_data = mem_test(gdstk_func)
-        gdstk_fmt = prefix_format(gdstk_mem, 0, "{value:.3g} {prefix}B", 2 ** (10 / 3))
         data.append(gdstk_data)
         print_row(
-            obj, gdspy_fmt, gdstk_fmt, f"{100 - 100 * gdstk_mem / gdspy_mem:.0f}%"
+            obj,
+            prefix_format(gdspy_mem, unit="B", base="bin"),
+            prefix_format(gdstk_mem, unit="B", base="bin"),
+            f"{100 - 100 * gdstk_mem / gdspy_mem:.0f}%",
         )
 
 
