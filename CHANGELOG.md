@@ -1,12 +1,16 @@
 # Change Log
 
-## [0.1.1] - 2010-11-13
+## Unreleased
+### Added
+- `Cell.add` and `Library.add` accept iterators
+
+## 0.1.1 - 2010-11-13
 ### Fixed
 - Add missing source files to MANIFEST.in
 - Remove directory from CMakeLists.txt
 - Remove unecessary dependency from conda
 
-## [0.1.0] - 2020-10-03
+## 0.1.0 - 2020-10-03
 ### Added
 - Initial release
 

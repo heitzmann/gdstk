@@ -63,14 +63,30 @@ static PyObject* library_object_add(LibraryObject* self, PyObject* args) {
     Library* library = self->library;
     for (Py_ssize_t i = 0; i < len; i++) {
         PyObject* arg = PyTuple_GET_ITEM(args, i);
+        Py_INCREF(arg);
         if (CellObject_Check(arg)) {
-            Py_INCREF(arg);
             library->cell_array.append(((CellObject*)arg)->cell);
         } else if (RawCellObject_Check(arg)) {
-            Py_INCREF(arg);
             library->rawcell_array.append(((RawCellObject*)arg)->rawcell);
+        } else if (PyIter_Check(arg)) {
+            PyObject* item = PyIter_Next(arg);
+            while (item) {
+                if (CellObject_Check(item)) {
+                    library->cell_array.append(((CellObject*)item)->cell);
+                } else if (RawCellObject_Check(item)) {
+                    library->rawcell_array.append(((RawCellObject*)item)->rawcell);
+                } else {
+                    PyErr_SetString(PyExc_TypeError, "Arguments must be of type Cell or RawCell.");
+                    Py_DECREF(item);
+                    Py_DECREF(arg);
+                    return NULL;
+                }
+                item = PyIter_Next(arg);
+            }
+            Py_DECREF(arg);
         } else {
             PyErr_SetString(PyExc_TypeError, "Arguments must be of type Cell or RawCell.");
+            Py_DECREF(arg);
             return NULL;
         }
     }

@@ -68,17 +68,41 @@ static PyObject* cell_object_add(CellObject* self, PyObject* args) {
     for (Py_ssize_t i = 0; i < len; i++) {
         PyObject* arg = PyTuple_GET_ITEM(args, i);
         Py_INCREF(arg);
-        if (PolygonObject_Check(arg))
+        if (PolygonObject_Check(arg)) {
             cell->polygon_array.append(((PolygonObject*)arg)->polygon);
-        else if (ReferenceObject_Check(arg))
+        } else if (ReferenceObject_Check(arg)) {
             cell->reference_array.append(((ReferenceObject*)arg)->reference);
-        else if (FlexPathObject_Check(arg))
+        } else if (FlexPathObject_Check(arg)) {
             cell->flexpath_array.append(((FlexPathObject*)arg)->flexpath);
-        else if (RobustPathObject_Check(arg))
+        } else if (RobustPathObject_Check(arg)) {
             cell->robustpath_array.append(((RobustPathObject*)arg)->robustpath);
-        else if (LabelObject_Check(arg))
+        } else if (LabelObject_Check(arg)) {
             cell->label_array.append(((LabelObject*)arg)->label);
-        else {
+        } else if (PyIter_Check(arg)) {
+            PyObject* item = PyIter_Next(arg);
+            while (item) {
+                if (PolygonObject_Check(item)) {
+                    cell->polygon_array.append(((PolygonObject*)item)->polygon);
+                } else if (ReferenceObject_Check(item)) {
+                    cell->reference_array.append(((ReferenceObject*)item)->reference);
+                } else if (FlexPathObject_Check(item)) {
+                    cell->flexpath_array.append(((FlexPathObject*)item)->flexpath);
+                } else if (RobustPathObject_Check(item)) {
+                    cell->robustpath_array.append(((RobustPathObject*)item)->robustpath);
+                } else if (LabelObject_Check(item)) {
+                    cell->label_array.append(((LabelObject*)item)->label);
+                } else {
+                    PyErr_SetString(
+                        PyExc_TypeError,
+                        "Arguments must be Polygon, FlexPath, RobustPath, Label or Reference.");
+                    Py_DECREF(item);
+                    Py_DECREF(arg);
+                    return NULL;
+                }
+                item = PyIter_Next(arg);
+            }
+            Py_DECREF(arg);
+        } else {
             PyErr_SetString(PyExc_TypeError,
                             "Arguments must be Polygon, FlexPath, RobustPath, Label or Reference.");
             Py_DECREF(arg);
