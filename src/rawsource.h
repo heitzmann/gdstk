@@ -11,9 +11,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __RAWSOURCE_H__
 
 #include <cstdint>
+#include <cstdio>
 
-// TODO: Windows, OSX, BSD, support.
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 namespace gdstk {
 
@@ -23,7 +25,14 @@ struct RawSource {
 
     // Read num_bytes into buffer from fd starting at offset
     ssize_t offset_read(void* buffer, size_t num_bytes, off_t offset) const {
+#ifdef _WIN32
+        // The POSIX version (pread) does not change the file cursor, this does.
+        // Furthermore, this is not thread-safe!
+        fseek(file, offset, SEEK_SET);
+        return fread(buffer, sizeof(uint8_t), num_bytes, file);
+#else
         return pread(fileno(file), buffer, num_bytes, offset);
+#endif
     };
 };
 
