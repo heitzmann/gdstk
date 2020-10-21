@@ -4,6 +4,8 @@
 ### Added
 - `Cell.add` and `Library.add` accept iterators
 - How-tos
+### Changed
+- `RawCell` doesn't copy the contents of its input file unless needed
 
 ## 0.1.1 - 2010-11-13
 ### Fixed

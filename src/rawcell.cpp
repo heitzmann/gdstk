@@ -14,8 +14,13 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void RawCell::print(bool all) const {
-    printf("RawCell <%p>, %s, size %" PRId64 ", data <%p>, owner <%p>\n", this, name, size, data,
-           owner);
+    if (source) {
+        printf("RawCell <%p>, %s, size %" PRIu64 ", source offset %" PRIu64 ", owner <%p>\n", this,
+               name, size, offset, owner);
+    } else {
+        printf("RawCell <%p>, %s, size %" PRIu64 ", data <%p>, owner <%p>\n", this, name, size,
+               data, owner);
+    }
     if (all) {
         printf("Dependencies (%" PRId64 "/%" PRId64 "):\n", dependencies.size,
                dependencies.capacity);
@@ -31,7 +36,15 @@ void RawCell::clear() {
         free(name);
         name = NULL;
     }
-    if (data) {
+    if (source) {
+        source->uses--;
+        if (source->uses == 0) {
+            fclose(source->file);
+            free(source);
+        }
+        source = NULL;
+        offset = 0;
+    } else if (data) {
         free(data);
         data = NULL;
     }
@@ -49,12 +62,31 @@ void RawCell::get_dependencies(bool recursive, Array<RawCell*>& result) const {
     }
 }
 
-void RawCell::to_gds(FILE* out) const { fwrite(data, sizeof(uint8_t), size, out); }
+void RawCell::to_gds(FILE* out) {
+    if (source) {
+        uint64_t off = offset;
+        data = (uint8_t*)malloc(sizeof(uint8_t) * size);
+        if (source->offset_read(data, size, off) != size) {
+            fputs("[GDSTK] Unable to read RawCell data form input file.\n", stderr);
+            size = 0;
+        }
+        source->uses--;
+        if (source->uses == 0) {
+            fclose(source->file);
+            free(source);
+        }
+        source = NULL;
+    }
+    fwrite(data, sizeof(uint8_t), size, out);
+}
 
 Map<RawCell*> read_rawcells(FILE* in) {
     int32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
+    RawSource* source = (RawSource*)malloc(sizeof(RawSource));
+    source->file = in;
+    source->uses = 0;
 
     Map<RawCell*> result = {0};
     RawCell* rawcell = NULL;
@@ -81,10 +113,17 @@ Map<RawCell*> read_rawcells(FILE* in) {
                         free(name);
                     }
                 }
+                if (source->uses == 0) {
+                    fclose(source->file);
+                    free(source);
+                }
                 return result;
                 break;
             case 0x05:  // BGNSTR
                 rawcell = (RawCell*)calloc(1, sizeof(RawCell));
+                rawcell->source = source;
+                source->uses++;
+                rawcell->offset = ftell(in) - record_length;
                 rawcell->size = record_length;
                 break;
             case 0x06:  // STRNAME
@@ -101,13 +140,6 @@ Map<RawCell*> read_rawcells(FILE* in) {
             case 0x07:  // ENDSTR
                 if (rawcell) {
                     rawcell->size += record_length;
-                    if (fseek(in, -rawcell->size, SEEK_CUR) != 0) {
-                        fputs(
-                            "[GDSTK] Unable to rewind the position on the input file. No data will be imported into the RawCell.\n", stderr);
-                        rawcell->size = 0;
-                    }
-                    rawcell->data = (uint8_t*)malloc(sizeof(uint8_t) * rawcell->size);
-                    fread(rawcell->data, sizeof(uint8_t), rawcell->size, in);
                     rawcell = NULL;
                 }
                 break;
@@ -127,6 +159,10 @@ Map<RawCell*> read_rawcells(FILE* in) {
         }
     }
 
+    if (source->uses == 0) {
+        fclose(source->file);
+        free(source);
+    }
     return Map<RawCell*>{0};
 }
 

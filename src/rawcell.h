@@ -15,12 +15,17 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.h"
 #include "map.h"
+#include "rawsource.h"
 
 namespace gdstk {
 
 struct RawCell {
     char* name;
-    uint8_t* data;
+    RawSource* source;
+    union {
+        uint8_t* data;
+        uint64_t offset;
+    };
     int64_t size;
     Array<RawCell*> dependencies;
     // Used by the python interface to store the associated PyObject* (if any).
@@ -30,7 +35,7 @@ struct RawCell {
     void print(bool all) const;
     void clear();
     void get_dependencies(bool recursive, Array<RawCell*>& result) const;
-    void to_gds(FILE* out) const;
+    void to_gds(FILE* out);
 };
 
 Map<RawCell*> read_rawcells(FILE* in);

@@ -1252,8 +1252,8 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
         return NULL;
     }
+    // The FILE pointer is stollen by read_rawcells and must not be closed.
     Map<RawCell*> map = read_rawcells(infile);
-    fclose(infile);
 
     PyObject* result = PyDict_New();
     if (!result) {
