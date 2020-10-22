@@ -489,7 +489,9 @@ static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
     Array<RawCell*> rawcell_array = {0};
     self->cell->get_dependencies(recursive > 0, cell_array);
     self->cell->get_raw_dependencies(recursive > 0, rawcell_array);
-    PyObject* result = PyList_New(cell_array.size + rawcell_array.size);
+    int64_t cell_array_size = cell_array.size;
+    int64_t rawcell_array_size = rawcell_array.size;
+    PyObject* result = PyList_New(cell_array_size + rawcell_array_size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         cell_array.clear();
@@ -497,17 +499,17 @@ static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
         return NULL;
     }
     Cell** cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, cell++) {
+    for (int64_t i = 0; i < cell_array_size; i++, cell++) {
         PyObject* cell_obj = (PyObject*)(*cell)->owner;
         Py_INCREF(cell_obj);
         PyList_SET_ITEM(result, i, cell_obj);
     }
     cell_array.clear();
     RawCell** rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) {
+    for (int64_t i = 0; i < rawcell_array_size; i++, rawcell++) {
         PyObject* rawcell_obj = (PyObject*)(*rawcell)->owner;
         Py_INCREF(rawcell_obj);
-        PyList_SET_ITEM(result, i, rawcell_obj);
+        PyList_SET_ITEM(result, cell_array_size + i, rawcell_obj);
     }
     rawcell_array.clear();
     return result;

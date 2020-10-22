@@ -358,6 +358,8 @@ void Cell::get_raw_dependencies(bool recursive, Array<RawCell*>& result) const {
             result.index((*reference)->rawcell) < 0) {
             result.append((*reference)->rawcell);
             if (recursive) (*reference)->rawcell->get_dependencies(true, result);
+        } else if (recursive && (*reference)->type == ReferenceType::Cell) {
+            (*reference)->cell->get_raw_dependencies(true, result);
         }
     }
 }
