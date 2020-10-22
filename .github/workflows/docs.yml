@@ -32,8 +32,8 @@ jobs:
           python docs/reference_images.py
           python docs/robustpath_images.py
           python docs/tutorial_images.py
-          python docs/_static/fonts.py
-          python docs/_static/photonics.py
+          python docs/photonics.py
+          python docs/fonts.py
       - name: Build docs
         run: python setup.py build_sphinx
       - name: Deploy

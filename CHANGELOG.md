@@ -3,6 +3,7 @@
 ## Unreleased
 ### Added
 - `Cell.add` and `Library.add` accept iterators
+- How-tos
 
 ## 0.1.1 - 2010-11-13
 ### Fixed

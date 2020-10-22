@@ -41,17 +41,17 @@ Let's create our first GDSII file:
    lib = gdstk.Library()
 
    # Geometry must be placed in cells.
-   cell = lib.new_cell('FIRST')
+   cell = lib.new_cell("FIRST")
 
    # Create the geometry (a single rectangle) and add it to the cell.
    rect = gdstk.rectangle((0, 0), (2, 1))
    cell.add(rect)
 
-   # Save the library in a file called 'first.gds'.
-   lib.write_gds('first.gds')
+   # Save the library in a file called "first.gds".
+   lib.write_gds("first.gds")
 
    # Optionally, save an image of the cell as SVG.
-   cell.write_svg('first.svg')
+   cell.write_svg("first.svg")
 
 After importing the ``gdstk`` module, we create a library ``lib`` to hold the design.
 
@@ -257,8 +257,7 @@ The class :class:`gdstk.FlexPath` is a mirror of :class:`gdstk.Curve` before, wi
 .. image:: _static/tutorial/flexible_paths.*
    :align: center
 
-The corner type 'circular bend' (together with the `bend_radius` argument) can be used to automatically curve the path.
-This feature is used in :ref:`example-integrated-photonics`.
+The corner type "circular bend" (together with the `bend_radius` argument) can be used to automatically curve the path.
 
 .. literalinclude:: tutorial_images.py
    :language: python
@@ -474,39 +473,3 @@ If the reason for loading a file is simply to re-use it's cells without any modi
    my_ref = gdstk.Reference(cells["SOME_CELL"], (0, 0))
 
 Note that the units are not changed in this process, so the current design must use the same ``unit`` and ``precision`` as the loaded cells.
-
-
-********
-Examples
-********
-
-.. _example-integrated-photonics:
-
-Integrated Photonics
-====================
-
-This example demonstrates the use of Gdstk primitives to create more complex structures.
-
-These structures are commonly used in the field of integrated photonics.
-
-:download:`photonics.py <_static/photonics.py>`
-
-:download:`photonics.gds <_static/photonics.gds>`
-
-.. literalinclude:: _static/photonics.py
-   :language: python
-   :linenos:
-
-Using System Fonts
-==================
-
-This example uses `matplotlib <https://matplotlib.org/>`_ to render text using any typeface present in the system.
-The glyph paths are then transformed into polygon arrays that can be used to create `gdstk.PolygonSet` objects.
-
-:download:`fonts.py <_static/fonts.py>`
-
-:download:`fonts.gds <_static/fonts.gds>`
-
-.. literalinclude:: _static/fonts.py
-   :language: python
-   :linenos:

@@ -8,12 +8,15 @@
 ######################################################################
 
 import pathlib
+from tutorial_images import draw
+
 import gdstk
 from matplotlib.font_manager import FontProperties
 from matplotlib.textpath import TextPath
 
 
 def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1):
+    tol = 0.1 * tolerance
     path = TextPath(position, text, size=size, prop=font_prop)
     polys = []
     xmax = position[0]
@@ -32,14 +35,14 @@ def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1)
                 if poly[:, 0].min() < xmax:
                     i = len(polys) - 1
                     while i >= 0:
-                        if gdstk.inside(poly[:1], [polys[i]], precision=0.1 * tolerance)[0]:
+                        if gdstk.inside(poly[:1], [polys[i]], precision=tol)[0]:
                             p = polys.pop(i)
-                            b = gdstk.boolean([p], [poly], "xor", precision=0.1 * tolerance)
+                            b = gdstk.boolean([p], [poly], "xor", tol)
                             poly = b[0].points
                             break
-                        elif gdstk.inside(polys[i][:1], [poly], precision=0.1 * tolerance)[0]:
+                        elif gdstk.inside(polys[i][:1], [poly], precision=tol)[0]:
                             p = polys.pop(i)
-                            b = gdstk.boolean([p], [poly], "xor", precision=0.1 * tolerance)
+                            b = gdstk.boolean([p], [poly], "xor", tol)
                             poly = b[0].points
                         i -= 1
                 xmax = max(xmax, poly[:, 0].max())
@@ -48,9 +51,9 @@ def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1)
 
 
 if __name__ == "__main__":
+    cell = gdstk.Cell("fonts")
     fp = FontProperties(family="serif", style="italic")
-    text = [gdstk.Polygon(pts, layer=1) for pts in render_text("Text rendering", 10, font_prop=fp)]
-    lib = gdstk.Library()
-    cell = lib.new_cell("TXT")
-    cell.add(*text)
-    lib.write_gds(pathlib.Path(__file__).parent / "fonts.gds")
+    point_list = render_text("Text rendering", 10, font_prop=fp)
+    cell.add(gdstk.Polygon(pts, layer=1) for pts in point_list)
+    path = pathlib.Path(__file__).parent.absolute() / "_static/how-tos"
+    draw(cell, path)

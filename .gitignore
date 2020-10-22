@@ -98,7 +98,7 @@ coverage.xml
 docs/_build/
 # Generated images
 docs/_static/*/*.svg
-docs/_static/*.gds
+docs/*.gds
 docs/geometry/
 docs/library/
 

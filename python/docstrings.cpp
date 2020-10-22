@@ -1472,7 +1472,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1500,7 +1500,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1528,7 +1528,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1579,7 +1579,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1620,7 +1620,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1658,7 +1658,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1689,7 +1689,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1719,7 +1719,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1782,7 +1782,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
@@ -1824,7 +1824,7 @@ Args:
     width (number, tuple, or callable): Width of this section. A tuple
       of 2 elements (number, str) can be used to define the width value
       and the interpolation type from the previous section to the end
-      point ("constant", "linear", or "smooth"). I only a number is
+      point ("constant", "linear", or "smooth"). If only a number is
       used, the interpolation defaults to "linear". A callable must
       accept a single number from 0 to 1 and return the desired width at
       the corresponding position along the section.
