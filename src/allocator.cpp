@@ -7,7 +7,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "allocator.h"
 
+#ifdef _WIN32
+// clang-format off
+#include <Windows.h>
+#include <Memoryapi.h>
+// clang-format on
+#else
 #include <sys/mman.h>
+#endif
 
 #include <cerrno>
 #include <cstdint>
@@ -16,9 +23,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "utils.h"
 
-// TODO:
-// - Other OSs
-// - Thread safety
+// TODO: Thread safety
 
 #define ALLOC_INFO 1
 
@@ -72,8 +77,8 @@ static uint64_t dbg_free[COUNT(free_small) + 1] = {0};
 
 static void print_status() {
     uint64_t t = 0;
-    printf("System allocations/free: %lu/%lu\nArena allocations: %lu\nAllocations:",
-           dbg_sys_alloc, dbg_sys_free, dbg_arena_alloc);
+    printf("System allocations/free: %lu/%lu\nArena allocations: %lu\nAllocations:", dbg_sys_alloc,
+           dbg_sys_free, dbg_arena_alloc);
     for (uint64_t i = 0; i <= COUNT(free_small); i++) {
         t += dbg_alloc[i];
         printf(" %lu", dbg_alloc[i]);
@@ -101,12 +106,20 @@ static void print_status() {
 #endif
 
 static uint8_t* system_allocate(uint64_t size) {
+#ifdef _WIN32
+    void* result = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (result == NULL) {
+        fprintf(stderr, "Error allocating memory.");
+        return NULL;
+    }
+#else
     void* result = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (result == MAP_FAILED) {
         int err = errno;
         fprintf(stderr, "Error in mmap (errno %d).", err);
         return NULL;
     }
+#endif
 #ifdef ALLOC_INFO
     dbg_sys_alloc++;
 #endif
@@ -117,7 +130,11 @@ static void system_deallocate(void* ptr, uint64_t size) {
 #ifdef ALLOC_INFO
     dbg_sys_free++;
 #endif
+#ifdef _WIN32
+    VirtualFree(ptr, 0, MEM_RELEASE);
+#else
     munmap(ptr, size);
+#endif
 }
 
 static uint64_t pow2_ceil(uint64_t n) {
