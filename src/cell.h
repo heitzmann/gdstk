@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "array.h"
 #include "flexpath.h"
 #include "label.h"
+#include "map.h"
 #include "polygon.h"
 #include "reference.h"
 #include "robustpath.h"
@@ -48,8 +49,8 @@ struct Cell {
     Array<RobustPath*> get_robustpaths(int64_t depth) const;
     Array<Label*> get_labels(int64_t depth) const;
 
-    void get_dependencies(bool recursive, Array<Cell*>& result) const;
-    void get_raw_dependencies(bool recursive, Array<RawCell*>& result) const;
+    void get_dependencies(bool recursive, Map<Cell*>& result) const;
+    void get_raw_dependencies(bool recursive, Map<RawCell*>& result) const;
 
     // Return old references (caller is responsible for clearing)
     Array<Reference*> flatten();

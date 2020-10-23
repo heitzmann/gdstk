@@ -341,23 +341,28 @@ Array<Reference*> Cell::flatten() {
     return result;
 }
 
-void Cell::get_dependencies(bool recursive, Array<Cell*>& result) const {
+void Cell::get_dependencies(bool recursive, Map<Cell*>& result) const {
     Reference** reference = reference_array.items;
     for (int64_t i = 0; i < reference_array.size; i++, reference++) {
-        if ((*reference)->type == ReferenceType::Cell && result.index((*reference)->cell) < 0) {
-            result.append((*reference)->cell);
-            if (recursive) (*reference)->cell->get_dependencies(true, result);
+        if ((*reference)->type == ReferenceType::Cell) {
+            Cell* cell = (*reference)->cell;
+            if (recursive && result.get(cell->name) != cell) {
+                cell->get_dependencies(true, result);
+            }
+            result.set(cell->name, cell);
         }
     }
 }
 
-void Cell::get_raw_dependencies(bool recursive, Array<RawCell*>& result) const {
+void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
     Reference** reference = reference_array.items;
     for (int64_t i = 0; i < reference_array.size; i++, reference++) {
-        if ((*reference)->type == ReferenceType::RawCell &&
-            result.index((*reference)->rawcell) < 0) {
-            result.append((*reference)->rawcell);
-            if (recursive) (*reference)->rawcell->get_dependencies(true, result);
+        if ((*reference)->type == ReferenceType::RawCell) {
+            RawCell* rawcell = (*reference)->rawcell;
+            if (recursive && result.get(rawcell->name) != rawcell) {
+                rawcell->get_dependencies(true, result);
+            }
+            result.set(rawcell->name, rawcell);
         } else if (recursive && (*reference)->type == ReferenceType::Cell) {
             (*reference)->cell->get_raw_dependencies(true, result);
         }
@@ -532,42 +537,55 @@ void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label
             "<style type=\"text/css\">\n",
             w, h, x, y, w, h);
 
-    Array<Cell*> array = {0};
-    get_dependencies(true, array);
-    for (int64_t j = -1; j < array.size; j++) {
-        const Array<Polygon*>* polygons = j < 0 ? &polygon_array : &array[j]->polygon_array;
+    for (int64_t i = 0; i < polygon_array.size; i++) {
+        style.set(polygon_array[i]->layer, polygon_array[i]->datatype, NULL);
+    }
+
+    for (int64_t i = 0; i < flexpath_array.size; i++) {
+        const FlexPath* flexpath = flexpath_array[i];
+        for (int64_t ne = 0; ne < flexpath->num_elements; ne++) {
+            style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
+        }
+    }
+
+    for (int64_t i = 0; i < robustpath_array.size; i++) {
+        const RobustPath* robustpath = robustpath_array[i];
+        for (int64_t ne = 0; ne < robustpath->num_elements; ne++) {
+            style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
+        }
+    }
+
+    for (int64_t i = 0; i < label_array.size; i++) {
+        style.set(label_array[i]->layer, label_array[i]->texttype, NULL);
+    }
+
+    Map<Cell*> cell_map = {0};
+    get_dependencies(true, cell_map);
+    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
+        const Array<Polygon*>* polygons = &item->value->polygon_array;
         for (int64_t i = 0; i < polygons->size; i++) {
-            int16_t layer = (*polygons)[i]->layer;
-            int16_t datatype = (*polygons)[i]->datatype;
-            style.set(layer, datatype, NULL);
+            style.set((*polygons)[i]->layer, (*polygons)[i]->datatype, NULL);
         }
 
-        const Array<FlexPath*>* flexpaths = j < 0 ? &flexpath_array : &array[j]->flexpath_array;
+        const Array<FlexPath*>* flexpaths = &item->value->flexpath_array;
         for (int64_t i = 0; i < flexpaths->size; i++) {
-            FlexPath* flexpath = flexpaths->items[i];
+            const FlexPath* flexpath = flexpaths->items[i];
             for (int64_t ne = 0; ne < flexpath->num_elements; ne++) {
-                int16_t layer = flexpath->elements[ne].layer;
-                int16_t datatype = flexpath->elements[ne].datatype;
-                style.set(layer, datatype, NULL);
+                style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
             }
         }
 
-        const Array<RobustPath*>* robustpaths =
-            j < 0 ? &robustpath_array : &array[j]->robustpath_array;
+        const Array<RobustPath*>* robustpaths = &item->value->robustpath_array;
         for (int64_t i = 0; i < robustpaths->size; i++) {
-            RobustPath* robustpath = robustpaths->items[i];
+            const RobustPath* robustpath = robustpaths->items[i];
             for (int64_t ne = 0; ne < robustpath->num_elements; ne++) {
-                int16_t layer = robustpath->elements[ne].layer;
-                int16_t datatype = robustpath->elements[ne].datatype;
-                style.set(layer, datatype, NULL);
+                style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
             }
         }
 
-        const Array<Label*>* labels = j < 0 ? &label_array : &array[j]->label_array;
+        const Array<Label*>* labels = &item->value->label_array;
         for (int64_t i = 0; i < labels->size; i++) {
-            int16_t layer = (*labels)[i]->layer;
-            int16_t texttype = (*labels)[i]->texttype;
-            label_style.set(layer, texttype, NULL);
+            style.set((*labels)[i]->layer, (*labels)[i]->texttype, NULL);
         }
     }
 
@@ -579,10 +597,10 @@ void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label
 
     fputs("</style>\n", out);
 
-    Cell** ref = array.items;
-    for (int64_t j = 0; j < array.size; j++, ref++) (*ref)->to_svg(out, scaling, NULL);
+    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item))
+        item->value->to_svg(out, scaling, NULL);
 
-    array.clear();
+    cell_map.clear();
 
     fputs("</defs>\n", out);
     if (background)

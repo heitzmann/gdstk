@@ -52,13 +52,13 @@ void RawCell::clear() {
     dependencies.clear();
 }
 
-void RawCell::get_dependencies(bool recursive, Array<RawCell*>& result) const {
+void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
     RawCell** item = dependencies.items;
     for (int64_t i = 0; i < dependencies.size; i++, item++) {
-        if (result.index(*item) < 0) {
-            result.append(*item);
-            if (recursive) (*item)->get_dependencies(true, result);
+        if (recursive && result.get((*item)->name) != (*item)) {
+            (*item)->get_dependencies(true, result);
         }
+        result.set((*item)->name, *item);
     }
 }
 

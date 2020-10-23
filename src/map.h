@@ -145,6 +145,17 @@ struct Map {
         }
     }
 
+    bool has_key(const char* key) const {
+        if (size == 0) return false;
+        int64_t h = hash(key) % capacity;
+        MapItem<T>* item = items + h;
+        if (item->key == NULL) return false;
+        for (; item != NULL; item = item->next) {
+            if (strcmp(item->key, key) == 0) return true;
+        }
+        return false;
+    }
+
     T get(const char* key) const {
         if (size == 0) return T{0};
         int64_t h = hash(key) % capacity;

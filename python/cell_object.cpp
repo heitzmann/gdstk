@@ -485,33 +485,31 @@ static PyObject* cell_object_remove(CellObject* self, PyObject* args) {
 static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
     int recursive;
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
-    Array<Cell*> cell_array = {0};
-    Array<RawCell*> rawcell_array = {0};
-    self->cell->get_dependencies(recursive > 0, cell_array);
-    self->cell->get_raw_dependencies(recursive > 0, rawcell_array);
-    int64_t cell_array_size = cell_array.size;
-    int64_t rawcell_array_size = rawcell_array.size;
-    PyObject* result = PyList_New(cell_array_size + rawcell_array_size);
+    Map<Cell*> cell_map = {0};
+    Map<RawCell*> rawcell_map = {0};
+    self->cell->get_dependencies(recursive > 0, cell_map);
+    self->cell->get_raw_dependencies(recursive > 0, rawcell_map);
+    PyObject* result = PyList_New(cell_map.size + rawcell_map.size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
-        cell_array.clear();
-        rawcell_array.clear();
+        cell_map.clear();
+        rawcell_map.clear();
         return NULL;
     }
-    Cell** cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array_size; i++, cell++) {
-        PyObject* cell_obj = (PyObject*)(*cell)->owner;
+    int64_t i = 0;
+    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
+        PyObject* cell_obj = (PyObject*)item->value->owner;
         Py_INCREF(cell_obj);
-        PyList_SET_ITEM(result, i, cell_obj);
+        PyList_SET_ITEM(result, i++, cell_obj);
     }
-    cell_array.clear();
-    RawCell** rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array_size; i++, rawcell++) {
-        PyObject* rawcell_obj = (PyObject*)(*rawcell)->owner;
+    cell_map.clear();
+    for (MapItem<RawCell*>* item = rawcell_map.next(NULL); item != NULL;
+         item = rawcell_map.next(item)) {
+        PyObject* rawcell_obj = (PyObject*)item->value->owner;
         Py_INCREF(rawcell_obj);
-        PyList_SET_ITEM(result, cell_array_size + i, rawcell_obj);
+        PyList_SET_ITEM(result, i++, rawcell_obj);
     }
-    rawcell_array.clear();
+    rawcell_map.clear();
     return result;
 }
 

@@ -43,21 +43,22 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
 static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args) {
     int recursive;
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
-    Array<RawCell*> rawcell_array = {0};
-    self->rawcell->get_dependencies(recursive > 0, rawcell_array);
-    PyObject* result = PyList_New(rawcell_array.size);
+    Map<RawCell*> rawcell_map = {0};
+    self->rawcell->get_dependencies(recursive > 0, rawcell_map);
+    PyObject* result = PyList_New(rawcell_map.size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create list.");
-        rawcell_array.clear();
+        rawcell_map.clear();
         return NULL;
     }
-    RawCell** rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) {
-        PyObject* rawcell_obj = (PyObject*)(*rawcell)->owner;
+    int64_t i = 0;
+    for (MapItem<RawCell*>* item = rawcell_map.next(NULL); item != NULL;
+         item = rawcell_map.next(item)) {
+        PyObject* rawcell_obj = (PyObject*)item->value->owner;
         Py_INCREF(rawcell_obj);
-        PyList_SET_ITEM(result, i, rawcell_obj);
+        PyList_SET_ITEM(result, i++, rawcell_obj);
     }
-    rawcell_array.clear();
+    rawcell_map.clear();
     return result;
 }
 
