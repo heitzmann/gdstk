@@ -39,13 +39,13 @@ void RawCell::clear() {
     dependencies.clear();
 }
 
-void RawCell::get_dependencies(bool recursive, Array<RawCell*>& result) const {
+void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
     RawCell** item = dependencies.items;
     for (int64_t i = 0; i < dependencies.size; i++, item++) {
-        if (result.index(*item) < 0) {
-            result.append(*item);
-            if (recursive) (*item)->get_dependencies(true, result);
+        if (recursive && result.get((*item)->name) != (*item)) {
+            (*item)->get_dependencies(true, result);
         }
+        result.set((*item)->name, *item);
     }
 }
 
@@ -103,7 +103,8 @@ Map<RawCell*> read_rawcells(FILE* in) {
                     rawcell->size += record_length;
                     if (fseek(in, -rawcell->size, SEEK_CUR) != 0) {
                         fputs(
-                            "[GDSTK] Unable to rewind the position on the input file. No data will be imported into the RawCell.\n", stderr);
+                            "[GDSTK] Unable to rewind the position on the input file. No data will be imported into the RawCell.\n",
+                            stderr);
                         rawcell->size = 0;
                     }
                     rawcell->data = (uint8_t*)malloc(sizeof(uint8_t) * rawcell->size);

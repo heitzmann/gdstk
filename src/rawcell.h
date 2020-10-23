@@ -29,7 +29,7 @@ struct RawCell {
 
     void print(bool all) const;
     void clear();
-    void get_dependencies(bool recursive, Array<RawCell*>& result) const;
+    void get_dependencies(bool recursive, Map<RawCell*>& result) const;
     void to_gds(FILE* out) const;
 };
 

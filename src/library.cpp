@@ -8,8 +8,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "library.h"
 
 #include <cfloat>
-#include <cmath>
 #include <cinttypes>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
@@ -66,10 +66,10 @@ void Library::copy_from(const Library& library, bool deep_copy) {
 }
 
 void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const {
-    Array<Cell*> cell_deps = {0};
-    Array<RawCell*> rawcell_deps = {0};
-    cell_deps.ensure_slots(cell_array.size * 2);
-    cell_deps.ensure_slots(rawcell_array.size * 2);
+    Map<Cell*> cell_deps = {0};
+    Map<RawCell*> rawcell_deps = {0};
+    cell_deps.resize(cell_array.size * 2);
+    rawcell_deps.resize(rawcell_array.size * 2);
 
     Cell** cell = cell_array.items;
     for (int64_t i = 0; i < cell_array.size; i++, cell++) {
@@ -78,16 +78,19 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     }
 
     RawCell** rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++)
+    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) {
         (*rawcell)->get_dependencies(false, rawcell_deps);
+    }
 
     cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, cell++)
-        if (cell_deps.index(*cell) < 0) top_cells.append(*cell);
+    for (int64_t i = 0; i < cell_array.size; i++, cell++) {
+        if (cell_deps.get((*cell)->name) != (*cell)) top_cells.append(*cell);
+    }
 
     rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++)
-        if (rawcell_deps.index(*rawcell) < 0) top_rawcells.append(*rawcell);
+    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) {
+        if (rawcell_deps.get((*rawcell)->name) != (*rawcell)) top_rawcells.append(*rawcell);
+    }
 }
 
 void Library::write_gds(FILE* out, int64_t max_points, std::tm* timestamp) const {
@@ -399,7 +402,9 @@ Library read_gds(FILE* in, double unit) {
                 else if (label)
                     label->x_reflection = (data16[0] & 0x8000) != 0;
                 if (data16[0] & 0x0006)
-                    fputs("[GDSTK] Absolute magnification and rotation of references is not supported.\n", stderr);
+                    fputs(
+                        "[GDSTK] Absolute magnification and rotation of references is not supported.\n",
+                        stderr);
                 break;
             case 0x1B:  // MAG
                 if (reference)
