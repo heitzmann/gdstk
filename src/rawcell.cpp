@@ -41,7 +41,7 @@ void RawCell::clear() {
         source->uses--;
         if (source->uses == 0) {
             fclose(source->file);
-            free(source);
+            free_mem(source);
         }
         source = NULL;
         offset = 0;
@@ -66,7 +66,7 @@ void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
 void RawCell::to_gds(FILE* out) {
     if (source) {
         uint64_t off = offset;
-        data = (uint8_t*)malloc(sizeof(uint8_t) * size);
+        data = (uint8_t*)allocate(sizeof(uint8_t) * size);
         if (source->offset_read(data, size, off) != size) {
             fputs("[GDSTK] Unable to read RawCell data form input file.\n", stderr);
             size = 0;
@@ -74,7 +74,7 @@ void RawCell::to_gds(FILE* out) {
         source->uses--;
         if (source->uses == 0) {
             fclose(source->file);
-            free(source);
+            free_mem(source);
         }
         source = NULL;
     }
@@ -85,7 +85,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
     int32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
-    RawSource* source = (RawSource*)malloc(sizeof(RawSource));
+    RawSource* source = (RawSource*)allocate(sizeof(RawSource));
     source->file = in;
     source->uses = 0;
 
@@ -116,7 +116,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                 }
                 if (source->uses == 0) {
                     fclose(source->file);
-                    free(source);
+                    free_mem(source);
                 }
                 return result;
                 break;
@@ -162,7 +162,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
 
     if (source->uses == 0) {
         fclose(source->file);
-        free(source);
+        free_mem(source);
     }
     return Map<RawCell*>{0};
 }
