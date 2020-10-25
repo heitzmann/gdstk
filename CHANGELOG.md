@@ -8,6 +8,8 @@
 ### Changed
 - `RawCell` doesn't copy the contents of its input file unless needed
 - Dependencies for `Cell` and `RawCell` are stored in maps, instead of arrays in the C++ API
+### Fixed
+- Incorrect scaling for `FlexPath` when `scale_width = False`.
 
 ## 0.1.1 - 2010-11-13
 ### Fixed
