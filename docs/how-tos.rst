@@ -16,16 +16,14 @@ Gdstk does not have a parameterized cell class, but since we are building the la
 
 In this example we define a function that returns a grating coupler based on user-defined parameters.
 
-.. literalinclude:: photonics.py
+.. literalinclude:: pcell.py
    :language: python
-   :linenos:
    :pyobject: grating
 
 This function can be used in the following manner:
 
-.. literalinclude:: photonics.py
+.. literalinclude:: pcell.py
    :language: python
-   :linenos:
    :start-at: if __name__
    :end-at: write_gds
 
@@ -46,9 +44,8 @@ Here we create a simple personal library with 3 components: an alignment mark, a
 All parts are added to a GDSII file and saved for later.
 Note that the interferometer already uses the directional coupler as a subcomponent.
 
-.. literalinclude:: library.py
+.. literalinclude:: photonics.py
    :language: python
-   :linenos:
    :start-at: import
    :end-at: write_gds
 
@@ -66,21 +63,48 @@ The grating example in :ref:`parametric-cell` can be saved in a file "photonics.
 
 .. literalinclude:: layout.py
    :language: python
-   :linenos:
-   :start-at: import
+   :start-after: from tutorial_images
+   :end-at: write_gds
+
+.. image:: _static/how-tos/layout.*
+   :align: center
 
 
 ***************
 Transformations
 ***************
 
-TODO: Transformations with references and from cell copies (photonic crystal cavity with small defect in the middle: transform the array + defect, or transform the whole cell).
+Geometry transformations can be accomplished in several ways.
+Individual polygons or paths can be transformed by their respective methods (:meth:`gdstk.Polygon.scale`, :meth:`gdstk.FlexPath.rotate`, :meth:`gdstk.RobustPath.translate`, etc.).
 
-************************
-Filter by Layer and Type
-************************
+In order to transform an entire :class:`gdstk.Cell`, we can use a :class:`gdstk.Reference` with the desired transformation or create a transformed copy with :meth:`gdstk.Cell.copy`.
+The former has the advantage of using less memory, because it does not create actual copies of the geometry or labels, so it is generally preferable.
+The latter is particularly useful when changes to the transformed cell contents are needed and the original should not be modified.
 
-Load photonic layout and filter out all/keep only heaters.
+.. literalinclude:: transforms.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-before: main.name
+
+.. image:: _static/how-tos/transforms.*
+   :align: center
+
+.. note::
+   The SVG output does not support the `scale_width` attribute of paths, that is why the width of the path in the referencer-scaled version of the geometry is wider that the original.
+   When using :meth:`gdstk.Cell.copy`, the attribute is respected.
+   This is also a problem for some GDSII viewers and editors.
+
+******************
+Geometry Filtering
+******************
+
+TODO
+
+*******************
+Points Along a Path
+*******************
+
+TODO
 
 ************
 System Fonts
@@ -91,7 +115,6 @@ The glyph paths are then transformed into polygon arrays that can be used to cre
 
 .. literalinclude:: fonts.py
    :language: python
-   :linenos:
    :start-at: import gdstk
    :end-at: cell.add
 

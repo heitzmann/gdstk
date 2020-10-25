@@ -32,7 +32,10 @@ jobs:
           python docs/reference_images.py
           python docs/robustpath_images.py
           python docs/tutorial_images.py
+          python docs/pcell.py
           python docs/photonics.py
+          python docs/layout.py
+          python docs/transforms.py
           python docs/fonts.py
       - name: Build docs
         run: python setup.py build_sphinx
