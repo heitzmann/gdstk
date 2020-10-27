@@ -137,10 +137,11 @@ void FlexPath::transform(double magnification, const Vec2 translation, bool x_re
         p->x = q.x * ca - q.y * sa + origin.x;
         p->y = q.x * sa + q.y * ca + origin.y;
     }
-    Vec2 wo_scale = {magnification, 1};
-    if (scale_width) wo_scale.y = magnification;
+    Vec2 wo_scale = {1, magnification};
+    if (scale_width) wo_scale.x = magnification;
     FlexPathElement* el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
+        el->end_extensions *= magnification;
         Vec2* wo = el->half_width_and_offset.items;
         for (int64_t num = spine.point_array.size; num > 0; num--) *wo++ *= wo_scale;
     }

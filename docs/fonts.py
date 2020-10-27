@@ -54,6 +54,6 @@ if __name__ == "__main__":
     cell = gdstk.Cell("fonts")
     fp = FontProperties(family="serif", style="italic")
     point_list = render_text("Text rendering", 10, font_prop=fp)
-    cell.add(gdstk.Polygon(pts, layer=1) for pts in point_list)
+    cell.add(gdstk.Polygon(pts) for pts in point_list)
     path = pathlib.Path(__file__).parent.absolute() / "_static/how-tos"
     draw(cell, path)

@@ -16,16 +16,14 @@ Gdstk does not have a parameterized cell class, but since we are building the la
 
 In this example we define a function that returns a grating coupler based on user-defined parameters.
 
-.. literalinclude:: photonics.py
+.. literalinclude:: pcell.py
    :language: python
-   :linenos:
    :pyobject: grating
 
 This function can be used in the following manner:
 
-.. literalinclude:: photonics.py
+.. literalinclude:: pcell.py
    :language: python
-   :linenos:
    :start-at: if __name__
    :end-at: write_gds
 
@@ -46,12 +44,13 @@ Here we create a simple personal library with 3 components: an alignment mark, a
 All parts are added to a GDSII file and saved for later.
 Note that the interferometer already uses the directional coupler as a subcomponent.
 
-.. literalinclude:: library.py
+.. literalinclude:: photonics.py
    :language: python
-   :linenos:
    :start-at: import
    :end-at: write_gds
 
+
+.. _using-a-library:
 
 Using a Library
 ===============
@@ -66,21 +65,79 @@ The grating example in :ref:`parametric-cell` can be saved in a file "photonics.
 
 .. literalinclude:: layout.py
    :language: python
-   :linenos:
-   :start-at: import
+   :start-after: from tutorial_images
+   :end-at: write_gds
+
+.. image:: _static/how-tos/layout.*
+   :align: center
 
 
 ***************
 Transformations
 ***************
 
-TODO: Transformations with references and from cell copies (photonic crystal cavity with small defect in the middle: transform the array + defect, or transform the whole cell).
+Geometry transformations can be accomplished in several ways.
+Individual polygons or paths can be transformed by their respective methods (:meth:`gdstk.Polygon.scale`, :meth:`gdstk.FlexPath.rotate`, :meth:`gdstk.RobustPath.translate`, etc.).
 
-************************
-Filter by Layer and Type
-************************
+In order to transform an entire :class:`gdstk.Cell`, we can use a :class:`gdstk.Reference` with the desired transformation or create a transformed copy with :meth:`gdstk.Cell.copy`.
+The former has the advantage of using less memory, because it does not create actual copies of the geometry or labels, so it is generally preferable.
+The latter is particularly useful when changes to the transformed cell contents are needed and the original should not be modified.
 
-Load photonic layout and filter out all/keep only heaters.
+.. literalinclude:: transforms.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-before: main.name
+
+.. image:: _static/how-tos/transforms.*
+   :align: center
+
+.. note::
+   The SVG output does not support the `scale_width` attribute of paths, that is why the width of the path in the referencer-scaled version of the geometry is wider that the original.
+   When using :meth:`gdstk.Cell.copy`, the attribute is respected.
+   This is also a problem for some GDSII viewers and editors.
+
+******************
+Geometry Filtering
+******************
+
+Filtering the geometry of a loaded library requires only iterating over the desired cells and objects, testing and removing those not wanted.
+In this example we load the layout created in :ref:`using-a-library` and remove the polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).
+
+.. literalinclude:: filtering.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-at: write_gds
+
+.. image:: _static/how-tos/filtering.*
+   :align: center
+
+Another common use of filtering is to remove geometry in a particular region.
+In this example we create a periodic background and remove all elements that overlap a particular shape using :func:`gdstk.inside` to test.
+
+.. literalinclude:: pos_filtering.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-at: write_gds
+
+.. image:: _static/how-tos/pos_filtering.*
+   :align: center
+
+
+*******************
+Points Along a Path
+*******************
+
+The following example shows how to add markers along a :class:`gdstk.RobustPath`.
+It uses the original parameterization of the path to locate the markers, following the construction sections.
+Markers positioned at a fixed distance must be calculated for each section independently.
+
+.. literalinclude:: path_markers.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-before: main.name
+
+.. image:: _static/how-tos/path_markers.*
+   :align: center
 
 ************
 System Fonts
@@ -91,7 +148,6 @@ The glyph paths are then transformed into polygon arrays that can be used to cre
 
 .. literalinclude:: fonts.py
    :language: python
-   :linenos:
    :start-at: import gdstk
    :end-at: cell.add
 

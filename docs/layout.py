@@ -7,10 +7,11 @@
 #                                                                    #
 ######################################################################
 
+from tutorial_images import draw
 import pathlib
 import numpy
 import gdstk
-import photonics
+import pcell
 
 
 if __name__ == "__main__":
@@ -28,8 +29,8 @@ if __name__ == "__main__":
     dev_cell.add(gdstk.Reference(pdk["MZI"], (-40, 0)))
 
     # Create a grating coupler using the function imported from the
-    # photonics module (photonics.py) created earlier.
-    grating = photonics.grating(0.62, layer=2)
+    # pcell module (pcell.py) created earlier.
+    grating = pcell.grating(0.62, layer=2)
     # Add 4 grating couplers to the device cell: one for each port.
     dev_cell.add(
         gdstk.Reference(
@@ -62,12 +63,30 @@ if __name__ == "__main__":
 
     # Main cell with 2 devices and lithography alignment marks
     main = gdstk.Cell("Main")
-    main.add(gdstk.Reference(dev_cell, (250, 250 - 75)))
-    main.add(gdstk.Reference(dev_cell, (750, 250 + 75)))
+    main.add(gdstk.Reference(dev_cell, (250, 250)))
+    main.add(gdstk.Reference(dev_cell, (250, 750)))
     main.add(
-        gdstk.Reference(pdk["Alignment Mark"], columns=3, rows=2, spacing=(500, 500))
+        gdstk.Reference(pdk["Alignment Mark"], columns=2, rows=3, spacing=(500, 500))
     )
 
     lib = gdstk.Library()
     lib.add(main, *main.dependencies(True))
     lib.write_gds(path / "layout.gds")
+
+    pdk_lib = gdstk.read_gds(path / "photonics.gds")
+    pdk = {c.name: c for c in pdk_lib.cells}
+    for cell in [dev_cell, main]:
+        for x in cell.references:
+            if isinstance(x.cell, gdstk.RawCell):
+                cell.remove(x)
+                cell.add(
+                    gdstk.Reference(
+                        pdk[x.cell.name],
+                        x.origin,
+                        columns=x.columns,
+                        rows=x.rows,
+                        spacing=x.spacing,
+                    )
+                )
+    main.name = "layout"
+    draw(main, path / "_static/how-tos")
