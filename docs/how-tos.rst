@@ -50,6 +50,8 @@ Note that the interferometer already uses the directional coupler as a subcompon
    :end-at: write_gds
 
 
+.. _using-a-library:
+
 Using a Library
 ===============
 
@@ -98,13 +100,44 @@ The latter is particularly useful when changes to the transformed cell contents 
 Geometry Filtering
 ******************
 
-TODO
+Filtering the geometry of a loaded library requires only iterating over the desired cells and objects, testing and removing those not wanted.
+In this example we load the layout created in :ref:`using-a-library` and remove the polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).
+
+.. literalinclude:: filtering.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-at: write_gds
+
+.. image:: _static/how-tos/filtering.*
+   :align: center
+
+Another common use of filtering is to remove geometry in a particular region.
+In this example we create a periodic background and remove all elements that overlap a particular shape using :func:`gdstk.inside` to test.
+
+.. literalinclude:: pos_filtering.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-at: write_gds
+
+.. image:: _static/how-tos/pos_filtering.*
+   :align: center
+
 
 *******************
 Points Along a Path
 *******************
 
-TODO
+The following example shows how to add markers along a :class:`gdstk.RobustPath`.
+It uses the original parameterization of the path to locate the markers, following the construction sections.
+Markers positioned at a fixed distance must be calculated for each section independently.
+
+.. literalinclude:: path_markers.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-before: main.name
+
+.. image:: _static/how-tos/path_markers.*
+   :align: center
 
 ************
 System Fonts

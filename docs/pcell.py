@@ -46,12 +46,12 @@ if __name__ == "__main__":
     lib = gdstk.Library()
 
     length = 20
-    grat1 = grating(3.5, length=length, layer=30, cell_name="Grating 1")
-    grat2 = grating(3.0, length=length, layer=30, cell_name="Grating 2")
+    grat1 = grating(3.5, length=length, layer=1, cell_name="Grating 1")
+    grat2 = grating(3.0, length=length, layer=1, cell_name="Grating 2")
     lib.add(grat1, grat2)
 
     main = lib.new_cell("Main")
-    main.add(gdstk.rectangle((0, -10), (150, 10), layer=20))
+    main.add(gdstk.rectangle((0, -10), (150, 10)))
     main.add(gdstk.Reference(grat1, (length, 0), rotation=numpy.pi / 2))
     main.add(gdstk.Reference(grat2, (150 - length, 0), rotation=-numpy.pi / 2))
 
