@@ -1552,8 +1552,23 @@ static PyObject* flexpath_object_commands(FlexPathObject* self, PyObject* args) 
 }
 
 static PyObject* flexpath_object_translate(FlexPathObject* self, PyObject* args) {
-    Vec2 v;
-    if (!PyArg_ParseTuple(args, "dd:translate", &v.x, &v.y)) return NULL;
+    Vec2 v = {0, 0};
+    PyObject* dx;
+    PyObject* dy = NULL;
+    if (!PyArg_ParseTuple(args, "O|O:translate", &dx, &dy)) return NULL;
+    if (parse_point(dx, v, "") < 0) {
+        PyErr_Clear();
+        v.x = PyFloat_AsDouble(dx);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert first argument to float.");
+            return NULL;
+        }
+        v.y = PyFloat_AsDouble(dy);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert second argument to float.");
+            return NULL;
+        }
+    }
     self->flexpath->translate(v);
     Py_INCREF(self);
     return (PyObject*)self;

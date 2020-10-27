@@ -8,6 +8,7 @@
 ### Changed
 - `RawCell` doesn't copy the contents of its input file unless needed
 - Dependencies for `Cell` and `RawCell` are stored in maps, instead of arrays in the C++ API
+- The `translate` method of polygons and paths accept a sequence of 2 coordinates or a complex
 ### Fixed
 - Incorrect scaling for `FlexPath` when `scale_width = False`.
 

@@ -400,12 +400,12 @@ Examples:
     .. image:: ../_static/polygon/bounding_box.*
        :align: center)!");
 
-PyDoc_STRVAR(polygon_object_translate_doc, R"!(translate(dx, dy) -> self
+PyDoc_STRVAR(polygon_object_translate_doc, R"!(translate(dx, dy=None) -> self
 
 Translate this polygon.
 
 Args:
-    dx: Translation in the x coordinate.
+    dx: Translation in the x coordinate or translation vector.
     dy: Translation in the y coordinate.)!");
 
 PyDoc_STRVAR(polygon_object_scale_doc, R"!(scale(sx, sy=0, center=(0, 0)) -> self
@@ -1225,12 +1225,12 @@ Examples:
     .. image:: ../_static/flexpath/commands.*
        :align: center)!");
 
-PyDoc_STRVAR(flexpath_object_translate_doc, R"!(translate(dx, dy) -> self
+PyDoc_STRVAR(flexpath_object_translate_doc, R"!(translate(dx, dy=None) -> self
 
 Translate this path.
 
 Args:
-    dx: Translation in the x coordinate.
+    dx: Translation in the x coordinate or translation vector.
     dy: Translation in the y coordinate.)!");
 
 PyDoc_STRVAR(flexpath_object_scale_doc, R"!(scale(s, center=(0, 0)) -> self
@@ -1931,12 +1931,12 @@ Examples:
     .. image:: ../_static/robustpath/commands.*
        :align: center)!");
 
-PyDoc_STRVAR(robustpath_object_translate_doc, R"!(translate(dx, dy) -> self
+PyDoc_STRVAR(robustpath_object_translate_doc, R"!(translate(dx, dy=None) -> self
 
 Translate this path.
 
 Args:
-    dx: Translation in the x coordinate.
+    dx: Translation in the x coordinate or translation vector.
     dy: Translation in the y coordinate.)!");
 
 PyDoc_STRVAR(robustpath_object_scale_doc, R"!(scale(s, center=(0, 0)) -> self
