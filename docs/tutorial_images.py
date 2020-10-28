@@ -26,7 +26,7 @@ def draw(cell, path):
 
 
 if __name__ == "__main__":
-    path = pathlib.Path(__file__).parent.absolute() / "_static/tutorial"
+    path = pathlib.Path(__file__).parent.absolute() / "tutorial"
     path.mkdir(parents=True, exist_ok=True)
 
     # Polygons

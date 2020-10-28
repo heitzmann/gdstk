@@ -38,7 +38,7 @@ def init_image():
 
 
 if __name__ == "__main__":
-    path = pathlib.Path(__file__).parent.absolute() / "_static/label"
+    path = pathlib.Path(__file__).parent.absolute() / "label"
     path.mkdir(parents=True, exist_ok=True)
 
     draw(init_image(), path)

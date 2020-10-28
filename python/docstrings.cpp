@@ -30,7 +30,7 @@ Examples:
     >>> curve.segment((1, -1), True)
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/init.*
+    .. image:: ../curve/init.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_points_doc, R"!(points() -> numpy.ndarray
@@ -78,7 +78,7 @@ Examples:
     >>> curve.segment([(0, -1), (2, -1)], True)
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/segment.*
+    .. image:: ../curve/segment.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_cubic_doc, R"!(cubic(xy, relative=False) -> self
@@ -97,7 +97,7 @@ Examples:
     ...              (1.3, -0.2), (0.3, -0.2), (0, 0)])
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/cubic.*
+    .. image:: ../curve/cubic.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_cubic_smooth_doc, R"!(cubic_smooth(xy, relative=False) -> self
@@ -119,7 +119,7 @@ Examples:
     >>> polygon = gdstk.Polygon(curve.points())
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/cubic_smooth.*
+    .. image:: ../curve/cubic_smooth.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_quadratic_doc, R"!(quadratic(xy, relative=False) -> self
@@ -166,7 +166,7 @@ Examples:
     >>> curve.bezier(points)
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/bezier.*
+    .. image:: ../curve/bezier.*
        :align: center)!");
 
 PyDoc_STRVAR(
@@ -221,7 +221,7 @@ Examples:
     >>> curve.interpolation(points, angles, cycle=True, relative=True)
     >>> polygon_2 = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/interpolation.*
+    .. image:: ../curve/interpolation.*
        :align: center
 
 .. [#] Hobby, J.D. "Smooth, easy to compute interpolating splines."
@@ -251,7 +251,7 @@ Examples:
     ...           -numpy.pi / 4)
     >>> polygon_2 = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/arc.*
+    .. image:: ../curve/arc.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_turn_doc, R"!(turn(radius, angle) -> self
@@ -290,7 +290,7 @@ Examples:
     ... )
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/parametric.*
+    .. image:: ../curve/parametric.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_commands_doc, R"!(commands(*args) -> self
@@ -328,7 +328,7 @@ Examples:
     ...                "S", 1, -2, 0, -2)
     >>> polygon = gdstk.Polygon(curve.points())
 
-    .. image:: ../_static/curve/commands.*
+    .. image:: ../curve/commands.*
        :align: center)!");
 
 PyDoc_STRVAR(curve_object_tolerance_doc,
@@ -346,7 +346,7 @@ Examples:
     >>> print(polygon_2.size)
     62
 
-    .. image:: ../_static/curve/tolerance.*
+    .. image:: ../curve/tolerance.*
        :align: center)!");
 
 // Polygon
@@ -365,7 +365,7 @@ Examples:
     >>> polygon_1 = gdstk.Polygon([(0, 0), (1, 0), 1 + 1.5j, 1j])
     >>> polygon_2 = gsdkt.Polygon([0j, (-1, 1), (-1, 0)], 2, 3)
 
-    .. image:: ../_static/polygon/init.*
+    .. image:: ../polygon/init.*
        :align: center)!");
 
 PyDoc_STRVAR(polygon_object_copy_doc, R"!(copy() -> gdstk.Polygon
@@ -397,7 +397,7 @@ Examples:
     ((0.0, -1.0), (3.0, 2.0))
     >>> polygon_bb = gdstk.rectangle(*bbox, datatype=1)
 
-    .. image:: ../_static/polygon/bounding_box.*
+    .. image:: ../polygon/bounding_box.*
        :align: center)!");
 
 PyDoc_STRVAR(polygon_object_translate_doc, R"!(translate(dx, dy=None) -> self
@@ -454,7 +454,7 @@ Examples:
     >>> polygon_1 = gdstk.Polygon(points, datatype=1)
     >>> polygon_2 = gdstk.Polygon(points).fillet(0.3, tolerance=1e-3)
 
-    .. image:: ../_static/polygon/fillet.*
+    .. image:: ../polygon/fillet.*
        :align: center)!");
 
 PyDoc_STRVAR(polygon_object_fracture_doc, R"!(fracture(max_points=199, precision=0.001) -> self
@@ -475,7 +475,7 @@ Examples:
     >>> print([p.size for p in poly_list])
     [102, 103, 103, 101, 101, 102, 102, 103, 103, 102]
 
-    .. image:: ../_static/polygon/fracture.*
+    .. image:: ../polygon/fracture.*
        :align: center)!");
 
 PyDoc_STRVAR(polygon_object_set_property_doc, R"!(set_property(attr, value) -> self
@@ -549,7 +549,7 @@ Examples:
     >>> array_ref = gdstk.Reference(f_cell, columns=3, rows=2,
     ...                             spacing=(8, 10))
 
-    .. image:: ../_static/reference/init.*
+    .. image:: ../reference/init.*
        :align: center
 
 Notes:
@@ -588,7 +588,7 @@ Examples:
      (11.313708498984761, 27.66555281392367))
     >>> polygon_bb = gdstk.rectangle(*bbox, datatype=1)
 
-    .. image:: ../_static/reference/bounding_box.*
+    .. image:: ../reference/bounding_box.*
        :align: center)!");
 
 PyDoc_STRVAR(reference_object_set_property_doc, R"!(set_property(attr, value) -> self
@@ -706,14 +706,14 @@ Examples:
     ...     layer=[0, 1, 2, 3],
     ... )
 
-    .. image:: ../_static/flexpath/init.*
+    .. image:: ../flexpath/init.*
        :align: center
 
     >>> points = [(0, 8), (0, 0), (8, 0), (18, 13), (18, -8)]
     >>> path_1 = gdstk.FlexPath(points , 1, datatype=1)
     >>> path_2 = gdstk.FlexPath(points , 1, bend_radius=3)
 
-    .. image:: ../_static/flexpath/init0.*
+    .. image:: ../flexpath/init0.*
        :align: center
 
     >>> def custom_broken_join(p0, v0, p1, v1, center, width):
@@ -758,7 +758,7 @@ Examples:
     ...     ends=custom_pointy_end,
     ... )
 
-    .. image:: ../_static/flexpath/init1.*
+    .. image:: ../flexpath/init1.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_copy_doc, R"!(copy() -> gdstk.FlexPath
@@ -842,7 +842,7 @@ Examples:
     ...  [4. 0.]
     ...  [6. 0.]]
 
-    .. image:: ../_static/flexpath/horizontal.*
+    .. image:: ../flexpath/horizontal.*
        :align: center
 
 See also:
@@ -901,7 +901,7 @@ Examples:
     >>> path_2 = gdstk.FlexPath((3, 0), [0.1, 0.1], 0.2)
     >>> path_2.segment(points, offset=0.6, relative=True)
 
-    .. image:: ../_static/flexpath/segment.*
+    .. image:: ../flexpath/segment.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_cubic_doc,
@@ -932,7 +932,7 @@ Examples:
     >>> path.cubic([(1, -1), (2, -1), (2.5, -0.5),
     ...             (3, 0), (3, 1), (2, 1)], width=0.5)
 
-    .. image:: ../_static/flexpath/cubic.*
+    .. image:: ../flexpath/cubic.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_cubic_smooth_doc,
@@ -966,7 +966,7 @@ Examples:
     >>> path.cubic_smooth([(2, -1), (2.5, -0.5), (3, 1), (2, 1)],
     ...                   width=0.5)
 
-    .. image:: ../_static/flexpath/cubic_smooth.*
+    .. image:: ../flexpath/cubic_smooth.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_quadratic_doc,
@@ -1043,7 +1043,7 @@ Examples:
     >>> path.bezier([(4, 1), (4, 3), (0, 5),
     ...              (-4, 3), (-4, -2), (0, -4)])
 
-    .. image:: ../_static/flexpath/bezier.*
+    .. image:: ../flexpath/bezier.*
        :align: center)!");
 
 PyDoc_STRVAR(
@@ -1097,7 +1097,7 @@ Examples:
     >>> path_2 = gdstk.FlexPath((6, -8), 0.2, tolerance=1e-3)
     >>> path_2.interpolation(points, angles, cycle=True, relative=True)
 
-    .. image:: ../_static/flexpath/interpolation.*
+    .. image:: ../flexpath/interpolation.*
        :align: center
 
 .. [#] Hobby, J.D. "Smooth, easy to compute interpolating splines."
@@ -1131,7 +1131,7 @@ Examples:
     >>> path.arc(2.5, numpy.pi, 0)
     >>> path.arc(5, -numpy.pi, -numpy.pi / 2)
 
-    .. image:: ../_static/flexpath/arc.*
+    .. image:: ../flexpath/arc.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_turn_doc, R"!(turn(radius, angle, width=None, offset=None) -> self
@@ -1182,7 +1182,7 @@ Examples:
     >>> path = gdstk.FlexPath((0, 0), 0.2, tolerance=1e-3)
     >>> path.parametric(spiral)
 
-    .. image:: ../_static/flexpath/parametric.*
+    .. image:: ../flexpath/parametric.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_commands_doc, R"!(commands(path_commands...) -> self
@@ -1222,7 +1222,7 @@ Examples:
     ...               "h", 0.5,
     ...               "a", 3, -numpy.pi)
 
-    .. image:: ../_static/flexpath/commands.*
+    .. image:: ../flexpath/commands.*
        :align: center)!");
 
 PyDoc_STRVAR(flexpath_object_translate_doc, R"!(translate(dx, dy=None) -> self
@@ -1358,7 +1358,7 @@ Examples:
     >>> rpath.arc(1, 0, numpy.pi/2)
     >>> rpath.arc(1, 0, -numpy.pi/2)
 
-    .. image:: ../_static/robustpath/init.*
+    .. image:: ../robustpath/init.*
        :align: center
 
     >>> path = gdstk.RobustPath((0, 0),
@@ -1370,7 +1370,7 @@ Examples:
     ... )
     >>> path.horizontal(5)
 
-    .. image:: ../_static/robustpath/init1.*
+    .. image:: ../robustpath/init1.*
        :align: center)!");
 
 PyDoc_STRVAR(robustpath_object_copy_doc, R"!(copy() -> gdstk.RobustPath
@@ -1553,7 +1553,7 @@ Examples:
     ...     lambda u: 0.2 + 0.8 * numpy.cos(2 * numpy.pi * u) ** 2
     ... )
 
-    .. image:: ../_static/robustpath/segment.*
+    .. image:: ../robustpath/segment.*
        :align: center
 
     >>> path = gdstk.RobustPath((0, 0), [0.2, 0.2], 0.3, tolerance=1e-3)
@@ -1565,7 +1565,7 @@ Examples:
     ...     lambda u: 0.2 + 0.8 * numpy.cos(2 * numpy.pi * u) ** 2
     ... ])
 
-    .. image:: ../_static/robustpath/segment1.*
+    .. image:: ../robustpath/segment1.*
        :align: center)!");
 
 PyDoc_STRVAR(robustpath_object_cubic_doc,
@@ -1600,7 +1600,7 @@ Examples:
     >>> path.cubic([(0.8, -0.5), (2.2, -0.5), (3, 0)], relative=True)
     >>> path.cubic([(-0.5, -0.8), (-0.5, -2.2), (0, -3)], relative=True)
 
-    .. image:: ../_static/robustpath/cubic.*
+    .. image:: ../robustpath/cubic.*
        :align: center
 
 See also:
@@ -1641,7 +1641,7 @@ Examples:
     >>> path.cubic_smooth([(3.5, 0.8), (3, 0)], relative=True)
     >>> path.cubic_smooth([(-0.5, -2.2), (0, -3)], relative=True)
 
-    .. image:: ../_static/robustpath/cubic_smooth.*
+    .. image:: ../robustpath/cubic_smooth.*
        :align: center
 
 See also:
@@ -1741,7 +1741,7 @@ Examples:
     ...     width=lambda u: 0.2 + 0.8 * u ** 2,
     ... )
 
-    .. image:: ../_static/robustpath/bezier.*
+    .. image:: ../robustpath/bezier.*
        :align: center
 
 See also:
@@ -1799,7 +1799,7 @@ Examples:
     >>> path_2 = gdstk.RobustPath((6, -8), 0.2, tolerance=1e-3)
     >>> path_2.interpolation(points, angles, cycle=True, relative=True)
 
-    .. image:: ../_static/robustpath/interpolation.*
+    .. image:: ../robustpath/interpolation.*
        :align: center
 
 See also:
@@ -1837,7 +1837,7 @@ Examples:
     >>> path.arc(2.5, numpy.pi, 0)
     >>> path.arc((3, 5), -numpy.pi, -numpy.pi / 2)
 
-    .. image:: ../_static/robustpath/arc.*
+    .. image:: ../robustpath/arc.*
        :align: center)!");
 
 PyDoc_STRVAR(robustpath_object_turn_doc, R"!(turn(radius, angle, width=None, offset=None) -> self
@@ -1888,7 +1888,7 @@ Examples:
     >>> path = gdstk.FlexPath((0, 0), 0.2, tolerance=1e-3)
     >>> path.parametric(spiral)
 
-    .. image:: ../_static/robustpath/parametric.*
+    .. image:: ../robustpath/parametric.*
        :align: center)!");
 
 PyDoc_STRVAR(robustpath_object_commands_doc, R"!(commands(path_commands...) -> self
@@ -1928,7 +1928,7 @@ Examples:
     ...               "h", 0.5,
     ...               "a", 3, -numpy.pi)
 
-    .. image:: ../_static/robustpath/commands.*
+    .. image:: ../robustpath/commands.*
        :align: center)!");
 
 PyDoc_STRVAR(robustpath_object_translate_doc, R"!(translate(dx, dy=None) -> self
@@ -2045,7 +2045,7 @@ Examples:
     >>> label_nw = gdstk.Label("Northwest", (-2, 1), "nw")
     >>> label_sw = gdstk.Label("Southwest", (-2, -1), "sw")
 
-    .. image:: ../_static/label/init.*
+    .. image:: ../label/init.*
        :align: center
 
     Note that this example can only be correctly displayed in browsers
@@ -2159,7 +2159,7 @@ Examples:
      (11.313708498984761, 27.66555281392367))
     >>> polygon_bb = gdstk.rectangle(*bbox, datatype=1)
 
-    .. image:: ../_static/cell/bounding_box.*
+    .. image:: ../cell/bounding_box.*
        :align: center
 
 Notes:
@@ -2186,7 +2186,7 @@ Examples:
     ...       len(cell2.dependencies(True)))
     5 0 0
 
-    .. image:: ../_static/cell/flatten.*
+    .. image:: ../cell/flatten.*
        :align: center)!");
 
 PyDoc_STRVAR(
@@ -2245,7 +2245,7 @@ Examples:
     ...                                "stroke-dasharray": "8,8"}},
     ...                pad="5%")
 
-    .. image:: ../_static/cell/write_svg.*
+    .. image:: ../cell/write_svg.*
        :align: center)!");
 
 PyDoc_STRVAR(cell_object_remove_doc, R"!(remove(*elements) -> self
@@ -2259,7 +2259,7 @@ Examples:
     >>> dots = [poly for poly in cell.polygons if poly.area() < 2]
     >>> cell.remove(*dots)
 
-    .. image:: ../_static/cell/remove.*
+    .. image:: ../cell/remove.*
        :align: center)!");
 
 PyDoc_STRVAR(cell_object_dependencies_doc, R"!(dependencies(recursive) -> list
@@ -2470,7 +2470,7 @@ Examples:
     >>> cross1 = gdstk.cross((0, 0), 10, 1)
     >>> cross2 = gdstk.cross((0.5, 0.5), 5, 0.75, layer=1)
 
-    .. image:: ../_static/function/cross.*
+    .. image:: ../function/cross.*
        :align: center)!");
 
 PyDoc_STRVAR(
@@ -2493,7 +2493,7 @@ Examples:
     >>> poly5 = gdstk.regular_polygon((0, 10), 5, 5, layer=2)
     >>> poly6 = gdstk.regular_polygon((10, 10), 4, 6, layer=3)
 
-    .. image:: ../_static/function/regular_polygon.*
+    .. image:: ../function/regular_polygon.*
        :align: center)!");
 
 PyDoc_STRVAR(
@@ -2527,7 +2527,7 @@ Examples:
     ...                         -3 * numpy.pi / 4, numpy.pi / 2,
     ...                         layer=4)
 
-    .. image:: ../_static/function/ellipse.*
+    .. image:: ../function/ellipse.*
        :align: center)!");
 
 PyDoc_STRVAR(
@@ -2551,7 +2551,7 @@ Examples:
     >>> racetrack1 = gdstk.racetrack((0, 0), 8, 5)
     >>> racetrack2 = gdstk.racetrack((18, 0), 8, 5, 3, True)
 
-    .. image:: ../_static/function/racetrack.*
+    .. image:: ../function/racetrack.*
        :align: center)!");
 
 PyDoc_STRVAR(text_function_doc,
@@ -2576,7 +2576,7 @@ Examples:
     >>> rect = gdstk.rectangle((0, -5 / 4), (12 * 9 / 16, 1), 
     ...                        datatype=1)
 
-    .. image:: ../_static/function/text.*
+    .. image:: ../function/text.*
        :align: center
 
 Notes:
@@ -2623,7 +2623,7 @@ Examples:
     >>> eroded = gdstk.offset(text + [circle, path], -0.4,
     ...                       use_union=True, layer=1)
 
-    .. image:: ../_static/function/offset.*
+    .. image:: ../function/offset.*
        :align: center)!");
 
 PyDoc_STRVAR(boolean_function_doc,
@@ -2656,7 +2656,7 @@ Examples:
     >>> text = gdstk.text("GDSTK", 40, (-2.5 * 40 * 9 / 16, -40 / 2))
     >>> result = gdstk.boolean(circle, text + [path], "not")
 
-    .. image:: ../_static/function/boolean.*
+    .. image:: ../function/boolean.*
        :align: center)!");
 
 PyDoc_STRVAR(slice_function_doc, R"!(slice(polygons, position, axis, precision=1e-3) -> list
@@ -2685,7 +2685,7 @@ Examples:
     >>> print([len(polys) for polys in result])
     [1, 1, 0, 1, 2, 1]
 
-    .. image:: ../_static/function/slice.*
+    .. image:: ../function/slice.*
        :align: center)!");
 
 PyDoc_STRVAR(inside_function_doc,

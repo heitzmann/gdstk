@@ -134,7 +134,7 @@ def commands_image():
 
 
 if __name__ == "__main__":
-    path = pathlib.Path(__file__).parent.absolute() / "_static/robustpath"
+    path = pathlib.Path(__file__).parent.absolute() / "robustpath"
     path.mkdir(parents=True, exist_ok=True)
 
     draw(init_image(), path)

@@ -68,6 +68,6 @@ if __name__ == "__main__":
         )
     )
     main.name = "transforms"
-    path = pathlib.Path(__file__).parent.absolute() / "_static/how-tos"
+    path = pathlib.Path(__file__).parent.absolute() / "how-tos"
     path.mkdir(parents=True, exist_ok=True)
     draw(main, path)

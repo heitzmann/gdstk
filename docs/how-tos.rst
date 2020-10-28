@@ -27,7 +27,7 @@ This function can be used in the following manner:
    :start-at: if __name__
    :end-at: write_gds
 
-.. image:: _static/how-tos/parametric_cell.*
+.. image:: how-tos/parametric_cell.*
    :align: center
 
 *************
@@ -68,7 +68,7 @@ The grating example in :ref:`parametric-cell` can be saved in a file "photonics.
    :start-after: from tutorial_images
    :end-at: write_gds
 
-.. image:: _static/how-tos/layout.*
+.. image:: how-tos/layout.*
    :align: center
 
 
@@ -88,7 +88,7 @@ The latter is particularly useful when changes to the transformed cell contents 
    :start-after: from tutorial_images import draw
    :end-before: main.name
 
-.. image:: _static/how-tos/transforms.*
+.. image:: how-tos/transforms.*
    :align: center
 
 .. note::
@@ -108,7 +108,7 @@ In this example we load the layout created in :ref:`using-a-library` and remove 
    :start-after: from tutorial_images import draw
    :end-at: write_gds
 
-.. image:: _static/how-tos/filtering.*
+.. image:: how-tos/filtering.*
    :align: center
 
 Another common use of filtering is to remove geometry in a particular region.
@@ -119,7 +119,7 @@ In this example we create a periodic background and remove all elements that ove
    :start-after: from tutorial_images import draw
    :end-at: write_gds
 
-.. image:: _static/how-tos/pos_filtering.*
+.. image:: how-tos/pos_filtering.*
    :align: center
 
 
@@ -136,7 +136,7 @@ Markers positioned at a fixed distance must be calculated for each section indep
    :start-after: from tutorial_images import draw
    :end-before: main.name
 
-.. image:: _static/how-tos/path_markers.*
+.. image:: how-tos/path_markers.*
    :align: center
 
 ************
@@ -151,6 +151,6 @@ The glyph paths are then transformed into polygon arrays that can be used to cre
    :start-at: import gdstk
    :end-at: cell.add
 
-.. image:: _static/how-tos/fonts.*
+.. image:: how-tos/fonts.*
    :align: center
 

@@ -77,7 +77,7 @@ The orientation of the vertices (clockwise/counter-clockwise) is not important: 
    :start-after: Polygons
    :end-before: draw
 
-.. image:: _static/tutorial/polygons.*
+.. image:: tutorial/polygons.*
    :align: center
 
 
@@ -92,7 +92,7 @@ As mentioned in :ref:`getting-started`, holes have to be connected to the outer 
    :start-after: Holes
    :end-before: draw
 
-.. image:: _static/tutorial/holes.*
+.. image:: tutorial/holes.*
    :align: center
 
 
@@ -110,7 +110,7 @@ When saving a library with :meth:`gdstk.Library.write_gds`, if the number of ver
    :start-after: Circles
    :end-before: draw
 
-.. image:: _static/tutorial/circles.*
+.. image:: tutorial/circles.*
    :align: center
 
 
@@ -127,7 +127,7 @@ The syntax is inspired by the `SVG path specification <https://www.w3.org/TR/SVG
    :start-after: Curves
    :end-before: draw
 
-.. image:: _static/tutorial/curves.*
+.. image:: tutorial/curves.*
    :align: center
 
 Coordinate pairs can be given as a complex number: real and imaginary parts are used as x and y coordinates, respectively.
@@ -141,7 +141,7 @@ Elliptical arcs have syntax similar to :func:`gdstk.ellipse`, but they allow for
    :start-after: Curves 1
    :end-before: draw
 
-.. image:: _static/tutorial/curves_1.*
+.. image:: tutorial/curves_1.*
    :align: center
 
 Curves sections can be constructed as cubic, quadratic and general-degree Bézier curves.
@@ -153,7 +153,7 @@ Additionally, a smooth interpolating curve can be calculated with the method :me
    :start-after: Curves 2
    :end-before: draw
 
-.. image:: _static/tutorial/curves_2.*
+.. image:: tutorial/curves_2.*
    :align: center
 
 Transformations
@@ -168,7 +168,7 @@ The transformations are applied in-place, i.e., no new polygons are created.
    :start-after: Transformations
    :end-before: draw
 
-.. image:: _static/tutorial/transformations.*
+.. image:: tutorial/transformations.*
    :align: center
 
 
@@ -192,7 +192,7 @@ Python dictionaries are used to simplify the assignment to each polygon.
    :start-after: Layer and Datatype
    :end-before: draw
 
-.. image:: _static/tutorial/layer_and_datatype.*
+.. image:: tutorial/layer_and_datatype.*
    :align: center
 
 .. _references:
@@ -215,7 +215,7 @@ Both uses are exemplified below.
    :start-after: References
    :end-before: draw
 
-.. image:: _static/tutorial/references.*
+.. image:: tutorial/references.*
    :align: center
 
 
@@ -254,7 +254,7 @@ The class :class:`gdstk.FlexPath` is a mirror of :class:`gdstk.Curve` before, wi
    :start-after: Flexible Paths
    :end-before: draw
 
-.. image:: _static/tutorial/flexible_paths.*
+.. image:: tutorial/flexible_paths.*
    :align: center
 
 The corner type "circular bend" (together with the `bend_radius` argument) can be used to automatically curve the path.
@@ -265,7 +265,7 @@ The corner type "circular bend" (together with the `bend_radius` argument) can b
    :start-after: Flexible Paths 1
    :end-before: draw
 
-.. image:: _static/tutorial/flexible_paths_2.*
+.. image:: tutorial/flexible_paths_2.*
    :align: center
 
 Width and offset variations are possible throughout the path.
@@ -278,7 +278,7 @@ Note that, because width changes are not possible for GDSII paths, they will be 
    :start-after: Flexible Paths 2
    :end-before: draw
 
-.. image:: _static/tutorial/flexible_paths_3.*
+.. image:: tutorial/flexible_paths_3.*
    :align: center
 
 
@@ -299,7 +299,7 @@ The advantages are, as mentioned earlier, more robustness when generating the fi
    :start-after: Robust Paths
    :end-before: draw
 
-.. image:: _static/tutorial/robust_paths.*
+.. image:: tutorial/robust_paths.*
    :align: center
 
 Note that, analogously to :class:`gdstk.FlexPath`, :class:`gdstk.RobustPath` can be stored as a GDSII path as long as its width is kept constant.
@@ -323,7 +323,7 @@ The font used to render the characters contains only horizontal and vertical edg
    :start-after: Text
    :end-before: draw
 
-.. image:: _static/tutorial/text.*
+.. image:: tutorial/text.*
    :align: center
 
 
@@ -349,7 +349,7 @@ If they are necessary, keeping the number of vertices is all polygons as low as 
    :start-after: Boolean Operations
    :end-before: draw
 
-.. image:: _static/tutorial/boolean_operations.*
+.. image:: tutorial/boolean_operations.*
    :align: center
 
 
@@ -364,7 +364,7 @@ As the name indicates, a slice operation subdivides a set of polygons along hori
    :start-after: Slice Operation
    :end-before: draw
 
-.. image:: _static/tutorial/slice_operation.*
+.. image:: tutorial/slice_operation.*
    :align: center
 
 
@@ -381,7 +381,7 @@ The same is valid for polygons with holes.
    :start-after: Offset Operation
    :end-before: draw
 
-.. image:: _static/tutorial/offset_operation.*
+.. image:: tutorial/offset_operation.*
    :align: center
 
 
@@ -396,7 +396,7 @@ The method :meth:`gdstk.Polygon.fillet` can be used to round polygon corners.
    :start-after: Fillet Operation
    :end-before: draw
 
-.. image:: _static/tutorial/fillet_operation.*
+.. image:: tutorial/fillet_operation.*
    :align: center
 
 

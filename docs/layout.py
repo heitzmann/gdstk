@@ -89,4 +89,4 @@ if __name__ == "__main__":
                     )
                 )
     main.name = "layout"
-    draw(main, path / "_static/how-tos")
+    draw(main, path / "how-tos")

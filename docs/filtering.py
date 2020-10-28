@@ -34,4 +34,4 @@ if __name__ == "__main__":
 
     main = lib.top_level()[0]
     main.name = "filtering"
-    draw(main, path / "_static/how-tos")
+    draw(main, path / "how-tos")
