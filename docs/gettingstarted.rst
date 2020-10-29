@@ -24,7 +24,6 @@ Gdstk follows the modern version of GDSII, but this is an important issue to kee
 The units used to represent shapes in the GDSII format are defined by the user.
 The default unit in Gdstk is 1 µm (10⁻⁶ m), but that can be easily changed by the user.
 
-
 .. _first-gdsii:
 
 ******************
@@ -53,6 +52,8 @@ Let's create our first GDSII file:
    # Optionally, save an image of the cell as SVG.
    cell.write_svg("first.svg")
 
+:download:`C++ version <cpp/first.cpp>`
+
 After importing the ``gdstk`` module, we create a library ``lib`` to hold the design.
 
 All layout elements must be added to cells, which can be though of pieces of papers where the geometry is drawn.
@@ -76,6 +77,8 @@ The orientation of the vertices (clockwise/counter-clockwise) is not important: 
    :dedent: 4
    :start-after: Polygons
    :end-before: draw
+
+:download:`C++ version <cpp/polygons.cpp>` (including all exemples in this section)
 
 .. image:: tutorial/polygons.*
    :align: center
