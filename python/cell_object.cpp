@@ -360,7 +360,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     PyObject* style_obj = NULL;
     PyObject* label_style_obj = NULL;
     PyObject* pad_obj = NULL;
-    const char* background = "#2222222";
+    const char* background = "#222222";
     const char* keywords[] = {"outfile",    "scaling", "style", "fontstyle",
                               "background", "pad",     NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dOOzO:write_svg", (char**)keywords,
