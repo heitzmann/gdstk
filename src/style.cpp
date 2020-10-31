@@ -22,7 +22,7 @@ const char* colors[] = {"F3C300", "875692", "F38400", "A1CAF1", "BE0032", "C2B28
 
 static const char* default_style(int16_t layer, int16_t type) {
     static char buffer[] = "stroke: #XXXXXX; fill: #XXXXXX; fill-opacity: 0.5;";
-    const char* c = colors[HASH2(layer, type) % COUNT(colors)];
+    const char* c = colors[(2 + layer + type * 13) % COUNT(colors)];
     memcpy(buffer + 9, c, sizeof(char) * 6);
     memcpy(buffer + 24, c, sizeof(char) * 6);
     return buffer;
