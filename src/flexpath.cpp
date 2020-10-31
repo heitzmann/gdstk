@@ -204,12 +204,12 @@ Array<Polygon*> FlexPath::to_polygons() {
                 right_curve.append(cap_l);
                 if (half_widths[2 * 0] != 0) right_curve.append(cap_r);
             } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
-                right_curve.append(cap_l);
                 const double extension =
                     el->end_type == EndType::Extended ? el->end_extensions.u : half_widths[2 * 0];
+                if (extension > 0) right_curve.append(cap_l);
                 right_curve.append(cap_l - extension * t0);
                 if (half_widths[2 * 0] != 0) right_curve.append(cap_r - extension * t0);
-                right_curve.append(cap_r);
+                if (extension > 0) right_curve.append(cap_r);
             } else if (el->end_type == EndType::Round) {
                 right_curve.append(cap_l);
                 double initial_angle = n0.angle();
@@ -518,13 +518,13 @@ Array<Polygon*> FlexPath::to_polygons() {
                 left_curve.append(cap_l);
                 if (half_widths[2 * (last)] != 0) left_curve.append(cap_r);
             } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
-                left_curve.append(cap_l);
                 const double extension = el->end_type == EndType::Extended
                                              ? el->end_extensions.v
                                              : half_widths[2 * (last)];
+                if (extension > 0) left_curve.append(cap_l);
                 left_curve.append(cap_l + extension * t0);
                 if (half_widths[2 * (last)] != 0) left_curve.append(cap_r + extension * t0);
-                left_curve.append(cap_r);
+                if (extension > 0) left_curve.append(cap_r);
             } else if (el->end_type == EndType::Round) {
                 left_curve.append(cap_l);
                 double initial_angle = n0.angle();
