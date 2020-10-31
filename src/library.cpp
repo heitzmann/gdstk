@@ -420,12 +420,19 @@ Library read_gds(FILE* in, double unit) {
                 break;
             case 0x21:  // PATHTYPE
                 if (path) {
-                    if (data16[0] == 0)
-                        path->elements[0].end_type = EndType::Flush;
-                    else if (data16[0] == 1)
-                        path->elements[0].end_type = EndType::Round;
-                    else
-                        path->elements[0].end_type = EndType::Extended;
+                    switch (data16[0]) {
+                        case 0:
+                            path->elements[0].end_type = EndType::Flush;
+                            break;
+                        case 1:
+                            path->elements[0].end_type = EndType::Round;
+                            break;
+                        case 2:
+                            path->elements[0].end_type = EndType::HalfWidth;
+                            break;
+                        default:
+                            path->elements[0].end_type = EndType::Extended;
+                    }
                 }
                 break;
             case 0x2B:  // PROPATTR

@@ -203,10 +203,10 @@ Array<Polygon*> FlexPath::to_polygons() {
             if (el->end_type == EndType::Flush) {
                 right_curve.append(cap_l);
                 if (half_widths[2 * 0] != 0) right_curve.append(cap_r);
-            } else if (el->end_type == EndType::Extended) {
+            } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
                 right_curve.append(cap_l);
                 const double extension =
-                    el->end_extensions.u >= 0 ? el->end_extensions.u : half_widths[2 * 0];
+                    el->end_type == EndType::Extended ? el->end_extensions.u : half_widths[2 * 0];
                 right_curve.append(cap_l - extension * t0);
                 if (half_widths[2 * 0] != 0) right_curve.append(cap_r - extension * t0);
                 right_curve.append(cap_r);
@@ -517,10 +517,11 @@ Array<Polygon*> FlexPath::to_polygons() {
             if (el->end_type == EndType::Flush) {
                 left_curve.append(cap_l);
                 if (half_widths[2 * (last)] != 0) left_curve.append(cap_r);
-            } else if (el->end_type == EndType::Extended) {
+            } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
                 left_curve.append(cap_l);
-                const double extension =
-                    el->end_extensions.v >= 0 ? el->end_extensions.v : half_widths[2 * (last)];
+                const double extension = el->end_type == EndType::Extended
+                                             ? el->end_extensions.v
+                                             : half_widths[2 * (last)];
                 left_curve.append(cap_l + extension * t0);
                 if (half_widths[2 * (last)] != 0) left_curve.append(cap_r + extension * t0);
                 left_curve.append(cap_r);
@@ -590,11 +591,11 @@ void FlexPath::to_gds(FILE* out, double scaling) {
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
         uint16_t end_type;
         switch (el->end_type) {
+            case EndType::HalfWidth:
+                end_type = 2;
+                break;
             case EndType::Extended:
-                if (el->end_extensions.u >= 0 || el->end_extensions.v >= 0)
-                    end_type = 4;
-                else
-                    end_type = 2;
+                end_type = 4;
                 break;
             case EndType::Round:
                 end_type = 1;

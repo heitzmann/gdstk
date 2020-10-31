@@ -12,8 +12,9 @@ namespace gdstk {
 
 enum struct EndType {
     Flush = 0,
-    Extended,  // Use end_extensions
     Round,
+    HalfWidth,
+    Extended,  // Use end_extensions
     Smooth,    // Becomes Round if simple_path
     Function,  // Uses end_function(...)
 };

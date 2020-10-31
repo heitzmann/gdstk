@@ -1127,13 +1127,13 @@ Array<Polygon *> RobustPath::to_polygons() const {
             if (el->end_type == EndType::Flush) {
                 initial_cap.append(cap_l);
                 if ((cap_l - cap_r).length_sq() > tolerance_sq) initial_cap.append(cap_r);
-            } else if (el->end_type == EndType::Extended) {
+            } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
                 initial_cap.append(cap_l);
                 Vec2 direction = center_gradient(subpath_array[0], el->offset_array[0], 0);
                 direction.normalize();
                 const double half_width = 0.5 * interp(el->width_array[0], 0) * width_scale;
                 const double extension =
-                    el->end_extensions.u >= 0 ? el->end_extensions.u : half_width;
+                    el->end_type == EndType::Extended ? el->end_extensions.u : half_width;
                 initial_cap.append(cap_l - extension * direction);
                 if (half_width != 0) initial_cap.append(cap_r - extension * direction);
                 initial_cap.append(cap_r);
@@ -1226,13 +1226,13 @@ Array<Polygon *> RobustPath::to_polygons() const {
             if (el->end_type == EndType::Flush) {
                 final_cap.append(cap_r);
                 if ((cap_l - cap_r).length_sq() > tolerance_sq) final_cap.append(cap_l);
-            } else if (el->end_type == EndType::Extended) {
+            } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
                 final_cap.append(cap_r);
                 Vec2 direction = center_gradient(subpath_array[last], el->offset_array[last], 1);
                 direction.normalize();
                 const double half_width = 0.5 * interp(el->width_array[last], 1) * width_scale;
                 const double extension =
-                    el->end_extensions.v >= 0 ? el->end_extensions.v : half_width;
+                    el->end_type == EndType::Extended ? el->end_extensions.v : half_width;
                 final_cap.append(cap_r + extension * direction);
                 if (half_width != 0) final_cap.append(cap_l + extension * direction);
                 final_cap.append(cap_l);
@@ -1310,11 +1310,11 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
         uint16_t end_type;
         switch (el->end_type) {
+            case EndType::HalfWidth:
+                end_type = 2;
+                break;
             case EndType::Extended:
-                if (el->end_extensions.u >= 0 || el->end_extensions.v >= 0)
-                    end_type = 4;
-                else
-                    end_type = 2;
+                end_type = 4;
                 break;
             case EndType::Round:
                 end_type = 1;
