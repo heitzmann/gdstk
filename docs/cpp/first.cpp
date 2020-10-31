@@ -13,11 +13,7 @@ using namespace gdstk;
 
 int main(int argc, char* argv[]) {
     char lib_name[] = "library";
-    Library lib = {
-        .name = lib_name,
-        .unit = 1e-6,
-        .precision = 1e-9,
-    };
+    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
 
     char cell_name[] = "FIRST";
     Cell cell = {.name = cell_name};

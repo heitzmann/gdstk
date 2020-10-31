@@ -296,5 +296,4 @@ if __name__ == "__main__":
     flexpath = gdstk.FlexPath([(-8, -4), (0, -4), (0, 4), (8, 4)], 4)
     filleted_path = flexpath.to_polygons()[0]
     filleted_path.fillet(1.5)
-
     draw(gdstk.Cell("fillet_operation").add(filleted_path), path)

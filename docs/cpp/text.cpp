@@ -1,0 +1,45 @@
+/*
+Copyright 2020-2020 Lucas Heitzmann Gabrielli.
+This file is part of gdstk, distributed under the terms of the
+Boost Software License - Version 1.0.  See the accompanying
+LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
+*/
+
+#include <cstdio>
+
+#include "gdstk.h"
+
+using namespace gdstk;
+
+int main(int argc, char* argv[]) {
+    char lib_name[] = "Text";
+    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+
+    char text_cell_name[] = "Text";
+    Cell text_cell = {.name = text_cell_name};
+    lib.cell_array.append(&text_cell);
+
+    char label_text[] = "Sample label";
+    Label label = {
+        .texttype = 2,
+        .text = label_text,
+        .origin = Vec2{5, 3},
+        .magnification = 1,
+    };
+    text_cell.label_array.append(&label);
+
+    Array<Polygon*> htext = text("12345", 2.25, Vec2{0.25, 6}, false, 0, 0);
+    text_cell.polygon_array.extend(htext);
+
+    Array<Polygon*> vtext = text("ABC", 1.5, Vec2{10.5, 4}, true, 0, 0);
+    text_cell.polygon_array.extend(vtext);
+
+    Polygon rect = rectangle(Vec2{0, 0}, Vec2{10, 6}, 10, 0);
+    text_cell.polygon_array.append(&rect);
+
+    FILE* output = fopen("text.gds", "wb");
+    lib.write_gds(output, 0, NULL);
+    fclose(output);
+
+    return 0;
+}

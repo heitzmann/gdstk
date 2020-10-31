@@ -103,10 +103,10 @@ void example_curves3(Cell& out_cell) {
     c4.quadratic_smooth(point_array4, true);
 
     Vec2 points5[] = {{4, -1}, {3, -2}, {2, -1.5}, {1, -2}, {0, -1}, {0, 0}};
+    const Array<Vec2> point_array5 = {.size = COUNT(points5), .items = points5};
     double angles[COUNT(points5) + 1] = {0};
     bool angle_constraints[COUNT(points5) + 1] = {0};
     Vec2 tension[COUNT(points5) + 1] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
-    const Array<Vec2> point_array5 = {.size = COUNT(points5), .items = points5};
 
     c4.interpolation(point_array5, angles, angle_constraints, tension, 1, 1, false, false);
 
@@ -149,11 +149,7 @@ void example_layerdatatype(Cell& out_cell) {
 
 int main(int argc, char* argv[]) {
     char lib_name[] = "Getting started";
-    Library lib = {
-        .name = lib_name,
-        .unit = 1e-6,
-        .precision = 1e-9,
-    };
+    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
 
     char polygons_cell_name[] = "Polygons";
     Cell polygons_cell = {.name = polygons_cell_name};

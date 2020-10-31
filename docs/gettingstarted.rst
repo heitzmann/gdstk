@@ -218,6 +218,8 @@ Both uses are exemplified below.
    :start-after: References
    :end-before: draw
 
+:download:`C++ version <cpp/references.cpp>`
+
 .. image:: tutorial/references.*
    :align: center
 
@@ -256,6 +258,8 @@ The class :class:`gdstk.FlexPath` is a mirror of :class:`gdstk.Curve` before, wi
    :dedent: 4
    :start-after: Flexible Paths
    :end-before: draw
+
+:download:`C++ version <cpp/flexpaths.cpp>`
 
 .. image:: tutorial/flexible_paths.*
    :align: center
@@ -302,6 +306,8 @@ The advantages are, as mentioned earlier, more robustness when generating the fi
    :start-after: Robust Paths
    :end-before: draw
 
+:download:`C++ version <cpp/robustpaths.cpp>`
+
 .. image:: tutorial/robust_paths.*
    :align: center
 
@@ -325,6 +331,8 @@ The font used to render the characters contains only horizontal and vertical edg
    :dedent: 4
    :start-after: Text
    :end-before: draw
+
+:download:`C++ version <cpp/text.cpp>`
 
 .. image:: tutorial/text.*
    :align: center
