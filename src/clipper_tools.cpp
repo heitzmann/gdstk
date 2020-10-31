@@ -223,10 +223,8 @@ Array<Polygon*> offset(const Array<Polygon*>& polygons, double distance, OffsetJ
     return result;
 }
 
-Array<Polygon*>* slice(const Polygon& polygon, const Array<double>& positions, bool x_axis,
-                       double scaling) {
-    Array<Polygon*>* result = (Array<Polygon*>*)calloc(positions.size + 1, sizeof(Array<Polygon*>));
-
+void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
+           Array<Polygon*>* result) {
     ClipperLib::Paths subj;
     subj.push_back(polygon_to_path(polygon, scaling));
 
@@ -262,8 +260,6 @@ Array<Polygon*>* slice(const Polygon& polygon, const Array<double>& positions, b
         ClipperLib::Paths result_paths = tree2paths(solution);
         paths_to_polygons(result_paths, scaling, result[i]);
     }
-
-    return result;
 }
 
 bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,

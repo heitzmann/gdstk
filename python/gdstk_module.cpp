@@ -26,11 +26,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define RobustPathObject_Check(o) PyObject_TypeCheck((o), &robustpath_object_type)
 
 #define __STDC_FORMAT_MACROS
-#include <cinttypes>
-
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include <structmember.h>
+
+#include <cinttypes>
 
 #include "docstrings.cpp"
 #include "gdstk.h"
@@ -1006,7 +1006,9 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     for (Py_ssize_t i = 0; i < polygon_array.size; i++) {
         int16_t layer = polygon_array[i]->layer;
         int16_t datatype = polygon_array[i]->datatype;
-        Array<Polygon*>* slices = slice(*polygon_array[i], positions, x_axis, 1 / precision);
+        Array<Polygon*>* slices =
+            (Array<Polygon*>*)calloc(positions.size + 1, sizeof(Array<Polygon*>));
+        slice(*polygon_array[i], positions, x_axis, 1 / precision, slices);
         Array<Polygon*>* slice_array = slices;
         for (int64_t s = 0; s <= positions.size; s++, slice_array++) {
             for (int64_t j = 0; j < slice_array->size; j++) {

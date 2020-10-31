@@ -247,7 +247,8 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
         }
         free(coords);
 
-        Array<Polygon*>* chopped = slice(*subj, cuts, x_axis, scaling);
+        Array<Polygon*>* chopped = (Array<Polygon*>*)calloc(cuts.size + 1, sizeof(Array<Polygon*>));
+        slice(*subj, cuts, x_axis, scaling, chopped);
         cuts.clear();
 
         subj->point_array.clear();
@@ -300,7 +301,8 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
     if (total > 8190)
         fputs(
-            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification.  This GDSII file might not be compatible with all readers.\n", stderr);
+            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification.  This GDSII file might not be compatible with all readers.\n",
+            stderr);
 
     int64_t i0 = 0;
     while (i0 < total) {
