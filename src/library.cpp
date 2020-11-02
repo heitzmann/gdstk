@@ -244,7 +244,7 @@ Library read_gds(FILE* in, double unit) {
                         reference = *ref;
                         Cell* cp = map.get(reference->name);
                         if (cp) {
-                            free_mem(reference->name);
+                            free_allocation(reference->name);
                             reference->type = ReferenceType::Cell;
                             reference->cell = cp;
                         }

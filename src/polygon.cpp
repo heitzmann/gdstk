@@ -246,14 +246,14 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
             py = cuts.items;
             for (int64_t j = 0; j < num_cuts; j++) (*py++) = y[(int64_t)((j + 1.0) * frac + 0.5)];
         }
-        free_mem(coords);
+        free_allocation(coords);
 
         Array<Polygon*>* chopped = slice(*subj, cuts, x_axis, scaling);
         cuts.clear();
 
         subj->point_array.clear();
         result.remove_unordered(i);
-        free_mem(subj);
+        free_allocation(subj);
 
         int64_t total = 0;
         for (int64_t j = 0; j <= num_cuts; j++) total += chopped[j].size;
@@ -264,7 +264,7 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
             chopped[j].clear();
         }
 
-        free_mem(chopped);
+        free_allocation(chopped);
     }
 
     for (int64_t i = 0; i < result.size; i++) {

@@ -46,7 +46,7 @@ void FlexPath::clear() {
     spine.clear();
     FlexPathElement* el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) el->half_width_and_offset.clear();
-    free_mem(elements);
+    free_allocation(elements);
     elements = NULL;
     num_elements = 0;
     properties_clear(properties);
@@ -805,7 +805,7 @@ void FlexPath::to_svg(FILE* out, double scaling) {
     for (int64_t i = 0; i < array.size; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();
-        free_mem(array[i]);
+        free_allocation(array[i]);
     }
     array.clear();
 }

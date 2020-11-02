@@ -15,7 +15,7 @@ static PyObject* label_object_str(LabelObject* self) {
 static void label_object_dealloc(LabelObject* self) {
     if (self->label) {
         self->label->clear();
-        free_mem(self->label);
+        free_allocation(self->label);
     }
     PyObject_Del(self);
 }
@@ -182,7 +182,7 @@ int label_object_set_text(LabelObject* self, PyObject* arg, void*) {
     if (!src) return -1;
 
     Label* label = self->label;
-    if (label->text) free_mem(label->text);
+    if (label->text) free_allocation(label->text);
     label->text = (char*)allocate(sizeof(char) * (++len));
     memcpy(label->text, src, len);
     return 0;

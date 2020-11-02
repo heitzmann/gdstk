@@ -39,7 +39,7 @@ void Reference::print() const {
 
 void Reference::clear() {
     if (type == ReferenceType::Name) {
-        free_mem(name);
+        free_allocation(name);
         name = NULL;
     }
     properties_clear(properties);
@@ -79,7 +79,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
         if (pmax.x > max.x) max.x = pmax.x;
         if (pmax.y > max.y) max.y = pmax.y;
         (*poly)->clear();
-        free_mem(*poly);
+        free_allocation(*poly);
     }
     array.clear();
 }
@@ -355,7 +355,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
             fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
         }
     }
-    free_mem(ref_name);
+    free_allocation(ref_name);
 }
 
 }  // namespace gdstk

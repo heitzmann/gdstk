@@ -21,7 +21,7 @@ static void library_object_dealloc(LibraryObject* self) {
         for (int64_t i = 0; i < library->rawcell_array.size; i++)
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
-        free_mem(library);
+        free_allocation(library);
     }
     PyObject_Del(self);
 }
@@ -223,7 +223,7 @@ int library_object_set_name(LibraryObject* self, PyObject* arg, void*) {
     if (!src) return -1;
 
     Library* library = self->library;
-    if (library->name) free_mem(library->name);
+    if (library->name) free_allocation(library->name);
     library->name = (char*)allocate(sizeof(char) * (++len));
     memcpy(library->name, src, len);
     return 0;

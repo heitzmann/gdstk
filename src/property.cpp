@@ -20,8 +20,8 @@ namespace gdstk {
 void properties_clear(Property* properties) {
     while (properties) {
         Property* next = properties->next;
-        free_mem(properties->value);
-        free_mem(properties);
+        free_allocation(properties->value);
+        free_allocation(properties);
         properties = next;
     }
 }
@@ -63,7 +63,7 @@ void set_property(Property*& properties, int16_t key, const char* value) {
     } else {
         // Same key: replace value
         properties = properties->next;
-        free_mem(properties->value);
+        free_allocation(properties->value);
         value_copy(value, properties);
     }
     properties = root.next;
@@ -84,8 +84,8 @@ void delete_property(Property*& properties, int16_t key) {
     if (properties->next && properties->next->key == key) {
         Property* p = properties->next;
         properties->next = p->next;
-        free_mem(p->value);
-        free_mem(p);
+        free_allocation(p->value);
+        free_allocation(p);
     }
     properties = root.next;
 }

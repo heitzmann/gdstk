@@ -751,7 +751,7 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
         array[i]->owner = obj;
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
-    free_mem(array.items);
+    free_allocation(array.items);
     return result;
 }
 
@@ -775,7 +775,7 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
                              "Unable to retrieve item %" PRId64 " from sequence %s.", i, name);
                 for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
                     polygon_array[j]->clear();
-                    free_mem(polygon_array[j]);
+                    free_allocation(polygon_array[j]);
                 }
                 polygon_array.clear();
                 return -1;
@@ -803,7 +803,7 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
                                  "Unable to parse item %" PRId64 " from sequence %s.", i, name);
                     for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
                         polygon_array[j]->clear();
-                        free_mem(polygon_array[j]);
+                        free_allocation(polygon_array[j]);
                     }
                     polygon_array.clear();
                     return -1;
@@ -873,7 +873,7 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
 
     for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
         polygon_array[j]->clear();
-        free_mem(polygon_array[j]);
+        free_allocation(polygon_array[j]);
     }
     polygon_array.clear();
     result_array.clear();
@@ -915,7 +915,7 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     if (parse_polygons(py_polygons2, polygon_array2, "operand2") < 0) {
         for (int64_t j = polygon_array1.size - 1; j >= 0; j--) {
             polygon_array1[j]->clear();
-            free_mem(polygon_array1[j]);
+            free_allocation(polygon_array1[j]);
         }
         polygon_array1.clear();
         return NULL;
@@ -936,11 +936,11 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
 
     for (int64_t j = polygon_array1.size - 1; j >= 0; j--) {
         polygon_array1[j]->clear();
-        free_mem(polygon_array1[j]);
+        free_allocation(polygon_array1[j]);
     }
     for (int64_t j = polygon_array2.size - 1; j >= 0; j--) {
         polygon_array2[j]->clear();
-        free_mem(polygon_array2[j]);
+        free_allocation(polygon_array2[j]);
     }
     polygon_array1.clear();
     polygon_array2.clear();
@@ -1027,8 +1027,8 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
             slice_array->clear();
         }
         polygon_array[i]->clear();
-        free_mem(polygon_array[i]);
-        free_mem(slices);
+        free_allocation(polygon_array[i]);
+        free_allocation(slices);
     }
     polygon_array.clear();
     if (positions.items != &single_position) positions.clear();
@@ -1065,7 +1065,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         points.size = 1;
         points[0] = (Polygon*)allocate_clear(sizeof(Polygon));
         if (parse_point_sequence(py_points, points[0]->point_array, "") < 0) {
-            free_mem(points[0]);
+            free_allocation(points[0]);
             points.clear();
             PyErr_SetString(PyExc_RuntimeError,
                             "Argument points must be a sequence of points or groups thereof.");
@@ -1086,7 +1086,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
                 Py_DECREF(item);
                 for (; j >= 0; j--) {
                     points[j]->clear();
-                    free_mem(points[j]);
+                    free_allocation(points[j]);
                 }
                 points.clear();
                 PyErr_SetString(PyExc_RuntimeError,
@@ -1109,7 +1109,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
                             "Argument short_circuit must be 'none', 'any' or 'all'.");
             for (int64_t j = points.size - 1; j >= 0; j--) {
                 points[j]->clear();
-                free_mem(points[j]);
+                free_allocation(points[j]);
             }
             points.clear();
             return NULL;
@@ -1120,7 +1120,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) {
         for (int64_t j = points.size - 1; j >= 0; j--) {
             points[j]->clear();
-            free_mem(points[j]);
+            free_allocation(points[j]);
         }
         points.clear();
         return NULL;
@@ -1146,17 +1146,17 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
 
     for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
         polygon_array[j]->clear();
-        free_mem(polygon_array[j]);
+        free_allocation(polygon_array[j]);
     }
     polygon_array.clear();
 
     for (int64_t j = points.size - 1; j >= 0; j--) {
         points[j]->clear();
-        free_mem(points[j]);
+        free_allocation(points[j]);
     }
     points.clear();
 
-    free_mem(result_items);
+    free_allocation(result_items);
 
     return result;
 }

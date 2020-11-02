@@ -98,18 +98,18 @@ struct Map {
             MapItem<T>* item = items;
             for (int64_t i = 0; i < capacity; i++, item++) {
                 if (item->key) {
-                    free_mem(item->key);
+                    free_allocation(item->key);
                     item->key = NULL;
                 }
                 MapItem<T>* it = item->next;
                 while (it) {
                     MapItem<T>* tmp = it->next;
-                    free_mem(it->key);
-                    free_mem(it);
+                    free_allocation(it->key);
+                    free_allocation(it);
                     it = tmp;
                 }
             }
-            free_mem(items);
+            free_allocation(items);
             items = NULL;
         }
         capacity = 0;
@@ -175,7 +175,7 @@ struct Map {
         MapItem<T>* item = items + h;
         if (item->key == NULL) return;
         if (strcmp(item->key, key) == 0) {
-            free_mem(item->key);
+            free_allocation(item->key);
             if (item->next) {
                 MapItem<T>* it = item;
                 while (it->next->next) it = it->next;
@@ -190,8 +190,8 @@ struct Map {
         while (item->next && strcmp(item->next->key, key) != 0) item = item->next;
         if (item->next) {
             MapItem<T>* it = item->next->next;
-            free_mem(item->next->key);
-            free_mem(item->next);
+            free_allocation(item->next->key);
+            free_allocation(item->next);
             item->next = it;
         }
     }

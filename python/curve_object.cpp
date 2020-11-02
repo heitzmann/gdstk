@@ -14,7 +14,7 @@ static PyObject* curve_object_str(CurveObject* self) {
 static void curve_object_dealloc(CurveObject* self) {
     if (self->curve) {
         self->curve->clear();
-        free_mem(self->curve);
+        free_allocation(self->curve);
     }
     PyObject_Del(self);
 }
@@ -64,7 +64,7 @@ static PyObject* curve_object_horizontal(CurveObject* self, PyObject* args, PyOb
         double* points = parse_sequence_double(x, size, "x");
         if (!points) return NULL;
         self->curve->horizontal(points, size, relative > 0);
-        free_mem(points);
+        free_allocation(points);
     } else {
         double point = PyFloat_AsDouble(x);
         if (PyErr_Occurred()) {
@@ -88,7 +88,7 @@ static PyObject* curve_object_vertical(CurveObject* self, PyObject* args, PyObje
         double* points = parse_sequence_double(y, size, "y");
         if (!points) return NULL;
         self->curve->vertical(points, size, relative > 0);
-        free_mem(points);
+        free_allocation(points);
     } else {
         double point = PyFloat_AsDouble(y);
         if (PyErr_Occurred()) {
@@ -255,7 +255,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         memset(angle_constraints, 0, sizeof(bool) * (size + 1));
     } else {
         if (PySequence_Length(py_angles) != size + 1) {
-            free_mem(tension);
+            free_allocation(tension);
             array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
@@ -265,7 +265,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         for (int64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_angles, i);
             if (!item) {
-                free_mem(tension);
+                free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to get item %" PRId64 " from angles sequence.", i);
@@ -277,7 +277,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                 angle_constraints[i] = true;
                 angles[i] = PyFloat_AsDouble(item);
                 if (PyErr_Occurred()) {
-                    free_mem(tension);
+                    free_allocation(tension);
                     array.clear();
                     Py_DECREF(item);
                     PyErr_Format(PyExc_RuntimeError,
@@ -295,7 +295,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
     } else if (!PySequence_Check(py_tension_in)) {
         double t_in = PyFloat_AsDouble(py_tension_in);
         if (PyErr_Occurred()) {
-            free_mem(tension);
+            free_allocation(tension);
             array.clear();
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert tension_in to float.");
             return NULL;
@@ -304,7 +304,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         for (int64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
     } else {
         if (PySequence_Length(py_tension_in) != size + 1) {
-            free_mem(tension);
+            free_allocation(tension);
             array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
@@ -314,7 +314,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         for (int64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_in, i);
             if (!item) {
-                free_mem(tension);
+                free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to get item %" PRId64 " from tension_in sequence.", i);
@@ -323,7 +323,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             tension[i].u = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
-                free_mem(tension);
+                free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to convert tension_in[%" PRId64 "] to float.", i);
@@ -338,7 +338,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
     } else if (!PySequence_Check(py_tension_out)) {
         double t_out = PyFloat_AsDouble(py_tension_out);
         if (PyErr_Occurred()) {
-            free_mem(tension);
+            free_allocation(tension);
             array.clear();
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert tension_out to float.");
             return NULL;
@@ -347,7 +347,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         for (int64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
     } else {
         if (PySequence_Length(py_tension_out) != size + 1) {
-            free_mem(tension);
+            free_allocation(tension);
             array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
@@ -357,7 +357,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         for (int64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_out, i);
             if (!item) {
-                free_mem(tension);
+                free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to get item %" PRId64 " from tension_out sequence.", i);
@@ -366,7 +366,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             tension[i].v = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
-                free_mem(tension);
+                free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to convert tension_out[%" PRId64 "] to float.", i);
@@ -379,7 +379,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                                cycle > 0, relative > 0);
 
     array.clear();
-    free_mem(tension);
+    free_allocation(tension);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -482,7 +482,7 @@ static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
             if (len != 1) {
                 PyErr_SetString(PyExc_RuntimeError,
                                 "Curve instructions must be single characters or numbers.");
-                free_mem(instructions);
+                free_allocation(instructions);
                 return NULL;
             }
             (instr++)->command = command[0];
@@ -496,7 +496,7 @@ static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
             if (PyErr_Occurred()) {
                 PyErr_SetString(PyExc_RuntimeError,
                                 "Curve instructions must be single characters or numbers.");
-                free_mem(instructions);
+                free_allocation(instructions);
                 return NULL;
             }
         }
@@ -507,11 +507,11 @@ static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
     if (processed < instr_size) {
         PyErr_Format(PyExc_RuntimeError,
                      "Error parsing argument %" PRId64 " in curve construction.", processed);
-        free_mem(instructions);
+        free_allocation(instructions);
         return NULL;
     }
 
-    free_mem(instructions);
+    free_allocation(instructions);
     Py_INCREF(self);
     return (PyObject*)self;
 }

@@ -30,7 +30,7 @@ static void robustpath_cleanup(RobustPathObject* self) {
             if (sub->path_gradient != NULL) Py_XDECREF(sub->grad_data);
         }
     self->robustpath->clear();
-    free_mem(self->robustpath);
+    free_allocation(self->robustpath);
     self->robustpath = NULL;
 }
 
@@ -841,7 +841,7 @@ static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* 
         parse_robustpath_width(*robustpath, py_width, width);
     }
     robustpath->horizontal(coord, width, offset, relative > 0);
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -871,7 +871,7 @@ static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* ar
         parse_robustpath_width(*robustpath, py_width, width);
     }
     robustpath->vertical(coord, width, offset, relative > 0);
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -902,7 +902,7 @@ static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* arg
         parse_robustpath_width(*robustpath, py_width, width);
     }
     robustpath->segment(end_point, width, offset, relative > 0);
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -938,7 +938,7 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
     }
     robustpath->cubic(point_array[0], point_array[1], point_array[2], width, offset, relative > 0);
     point_array.clear();
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -975,7 +975,7 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
     }
     robustpath->cubic_smooth(point_array[0], point_array[1], width, offset, relative > 0);
     point_array.clear();
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1012,7 +1012,7 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
     }
     robustpath->quadratic(point_array[0], point_array[1], width, offset, relative > 0);
     point_array.clear();
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1045,7 +1045,7 @@ static PyObject* robustpath_object_quadratic_smooth(RobustPathObject* self, PyOb
     }
     robustpath->quadratic_smooth(end_point, width, offset, relative > 0);
     Py_INCREF(self);
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     return (PyObject*)self;
 }
 
@@ -1080,7 +1080,7 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
     }
     robustpath->bezier(point_array, width, offset, relative > 0);
     point_array.clear();
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1125,7 +1125,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         memset(angle_constraints, 0, sizeof(bool) * (size + 1));
     } else {
         if (PySequence_Length(py_angles) != size + 1) {
-            free_mem(tension);
+            free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
@@ -1135,7 +1135,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         for (int64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_angles, i);
             if (!item) {
-                free_mem(tension);
+                free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to get item %" PRId64 " from angles sequence.", i);
@@ -1147,7 +1147,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                 angle_constraints[i] = true;
                 angles[i] = PyFloat_AsDouble(item);
                 if (PyErr_Occurred()) {
-                    free_mem(tension);
+                    free_allocation(tension);
                     point_array.clear();
                     Py_DECREF(item);
                     PyErr_Format(PyExc_RuntimeError,
@@ -1165,7 +1165,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
     } else if (!PySequence_Check(py_tension_in)) {
         double t_in = PyFloat_AsDouble(py_tension_in);
         if (PyErr_Occurred()) {
-            free_mem(tension);
+            free_allocation(tension);
             point_array.clear();
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert tension_in to float.");
             return NULL;
@@ -1174,7 +1174,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         for (int64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
     } else {
         if (PySequence_Length(py_tension_in) != size + 1) {
-            free_mem(tension);
+            free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
@@ -1184,7 +1184,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         for (int64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_in, i);
             if (!item) {
-                free_mem(tension);
+                free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to get item %" PRId64 " from tension_in sequence.", i);
@@ -1193,7 +1193,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
             tension[i].u = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
-                free_mem(tension);
+                free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to convert tension_in[%" PRId64 "] to float.", i);
@@ -1208,7 +1208,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
     } else if (!PySequence_Check(py_tension_out)) {
         double t_out = PyFloat_AsDouble(py_tension_out);
         if (PyErr_Occurred()) {
-            free_mem(tension);
+            free_allocation(tension);
             point_array.clear();
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert tension_out to float.");
             return NULL;
@@ -1217,7 +1217,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         for (int64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
     } else {
         if (PySequence_Length(py_tension_out) != size + 1) {
-            free_mem(tension);
+            free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
@@ -1227,7 +1227,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         for (int64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_out, i);
             if (!item) {
-                free_mem(tension);
+                free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to get item %" PRId64 " from tension_out sequence.", i);
@@ -1236,7 +1236,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
             tension[i].v = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
-                free_mem(tension);
+                free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to convert tension_out[%" PRId64 "] to float.", i);
@@ -1263,8 +1263,8 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                               final_curl, cycle > 0, width, offset, relative > 0);
 
     point_array.clear();
-    free_mem(tension);
-    free_mem(o_buffer);
+    free_allocation(tension);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1335,7 +1335,7 @@ static PyObject* robustpath_object_arc(RobustPathObject* self, PyObject* args, P
         parse_robustpath_width(*robustpath, py_width, width);
     }
     robustpath->arc(radius_x, radius_y, initial_angle, final_angle, rotation, width, offset);
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1364,7 +1364,7 @@ static PyObject* robustpath_object_turn(RobustPathObject* self, PyObject* args, 
         parse_robustpath_width(*robustpath, py_width, width);
     }
     robustpath->turn(radius, angle, width, offset);
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1413,7 +1413,7 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
                                (ParametricVec2)eval_parametric_vec2, (void*)py_gradient, width,
                                offset, relative > 0);
     }
-    free_mem(o_buffer);
+    free_allocation(o_buffer);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1432,7 +1432,7 @@ static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* ar
             if (len != 1) {
                 PyErr_SetString(PyExc_RuntimeError,
                                 "Path instructions must be single characters or numbers.");
-                free_mem(instructions);
+                free_allocation(instructions);
                 return NULL;
             }
             (instr++)->command = command[0];
@@ -1446,7 +1446,7 @@ static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* ar
             if (PyErr_Occurred()) {
                 PyErr_SetString(PyExc_RuntimeError,
                                 "Path instructions must be single characters or numbers.");
-                free_mem(instructions);
+                free_allocation(instructions);
                 return NULL;
             }
         }
@@ -1457,11 +1457,11 @@ static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* ar
     if (processed < instr_size) {
         PyErr_Format(PyExc_RuntimeError,
                      "Error parsing argument %" PRId64 " in curve construction.", processed);
-        free_mem(instructions);
+        free_allocation(instructions);
         return NULL;
     }
 
-    free_mem(instructions);
+    free_allocation(instructions);
     Py_INCREF(self);
     return (PyObject*)self;
 }

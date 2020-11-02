@@ -28,7 +28,7 @@ static void reference_object_dealloc(ReferenceObject* self) {
         else if (reference->type == ReferenceType::RawCell)
             Py_DECREF(reference->rawcell->owner);
         reference->clear();
-        free_mem(reference);
+        free_allocation(reference);
     }
     PyObject_Del(self);
 }

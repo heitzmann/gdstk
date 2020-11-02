@@ -41,7 +41,7 @@ struct Label {
 
     void clear() {
         if (text) {
-            free_mem(text);
+            free_allocation(text);
             text = NULL;
         }
         properties_clear(properties);

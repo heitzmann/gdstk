@@ -52,7 +52,7 @@ void Cell::print(bool all) const {
 }
 
 void Cell::clear() {
-    if (name) free_mem(name);
+    if (name) free_allocation(name);
     name = NULL;
     polygon_array.clear();
     reference_array.clear();
@@ -95,7 +95,7 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
             if (pmax.x > max.x) max.x = pmax.x;
             if (pmax.y > max.y) max.y = pmax.y;
             array[j]->clear();
-            free_mem(array[j]);
+            free_allocation(array[j]);
         }
         array.clear();
     }
@@ -111,7 +111,7 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
             if (pmax.x > max.x) max.x = pmax.x;
             if (pmax.y > max.y) max.y = pmax.y;
             array[j]->clear();
-            free_mem(array[j]);
+            free_allocation(array[j]);
         }
         array.clear();
     }
@@ -403,7 +403,7 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
             for (int64_t j = 0; j < array.size; j++, p++) {
                 (*p)->to_gds(out, scaling);
                 (*p)->clear();
-                free_mem(*p);
+                free_allocation(*p);
             }
             array.clear();
         } else {
@@ -425,14 +425,14 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
                     for (int64_t j = 0; j < array.size; j++, p++) {
                         (*p)->to_gds(out, scaling);
                         (*p)->clear();
-                        free_mem(*p);
+                        free_allocation(*p);
                     }
                     array.clear();
                 } else {
                     (*polygon)->to_gds(out, scaling);
                 }
                 (*polygon)->clear();
-                free_mem(*polygon);
+                free_allocation(*polygon);
             }
             fp_array.clear();
         }
@@ -452,14 +452,14 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
                     for (int64_t j = 0; j < array.size; j++, p++) {
                         (*p)->to_gds(out, scaling);
                         (*p)->clear();
-                        free_mem(*p);
+                        free_allocation(*p);
                     }
                     array.clear();
                 } else {
                     (*polygon)->to_gds(out, scaling);
                 }
                 (*polygon)->clear();
-                free_mem(*polygon);
+                free_allocation(*polygon);
             }
             rp_array.clear();
         }
@@ -508,7 +508,7 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     for (int64_t i = 0; i < label_array.size; i++, label++) (*label)->to_svg(out, scaling);
 
     fputs("</g>\n", out);
-    free_mem(buffer);
+    free_allocation(buffer);
 }
 
 void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label_style,

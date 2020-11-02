@@ -382,7 +382,7 @@ void* reallocate(void* ptr, uint64_t size) {
 #endif
         void* new_ptr = allocate(size);
         memcpy(new_ptr, ptr, ptr_size);
-        free_mem(ptr);
+        free_allocation(ptr);
         return new_ptr;
     } else {
         // Large allocation
@@ -408,7 +408,7 @@ void* reallocate(void* ptr, uint64_t size) {
 
         void* new_ptr = allocate(size);
         memcpy(new_ptr, ptr, lh->size);
-        free_mem(ptr);
+        free_allocation(ptr);
         return new_ptr;
     }
     return NULL;
@@ -420,7 +420,7 @@ void* allocate_clear(uint64_t size) {
     return result;
 }
 
-void free_mem(void* ptr) {
+void free_allocation(void* ptr) {
     if (ptr == NULL) return;
     SmallAllocationHeader* sh =
         (SmallAllocationHeader*)((uint8_t*)ptr - sizeof(SmallAllocationHeader));

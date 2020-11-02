@@ -86,7 +86,7 @@ Vec2 SubPath::gradient(double u, const double *trafo) const {
             const Vec2 *src = ctrl.items;
             for (int64_t i = 0; i < size; i++, src++, dst++) *dst = size * (*(src + 1) - *src);
             grad = eval_bezier(u, _ctrl, size);
-            free_mem(_ctrl);
+            free_allocation(_ctrl);
         } break;
         case SubPathType::Bezier2: {
             const Vec2 dp0 = 2 * (p1 - p0);
@@ -402,7 +402,7 @@ void RobustPath::clear() {
         el->width_array.clear();
         el->offset_array.clear();
     }
-    free_mem(elements);
+    free_allocation(elements);
     elements = NULL;
     num_elements = 0;
     properties_clear(properties);
@@ -1407,7 +1407,7 @@ void RobustPath::to_svg(FILE *out, double scaling) const {
     for (int64_t i = 0; i < array.size; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();
-        free_mem(array[i]);
+        free_allocation(array[i]);
     }
     array.clear();
 }

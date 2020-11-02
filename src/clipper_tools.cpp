@@ -314,7 +314,7 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                 result[k++] = in;
             }
         }
-        free_mem(paths_bb);
+        free_allocation(paths_bb);
         return result;
     } else if (short_circuit == ShortCircuit::Any) {
         num = num_groups;
@@ -337,7 +337,7 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                             in = true;
             result[j] = in;
         }
-        free_mem(paths_bb);
+        free_allocation(paths_bb);
         return result;
     } else if (short_circuit == ShortCircuit::All) {
         num = num_groups;
@@ -374,12 +374,12 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             }
             result[j] = in;
         }
-        free_mem(paths_bb);
+        free_allocation(paths_bb);
         return result;
     }
 
     num = 0;
-    free_mem(paths_bb);
+    free_allocation(paths_bb);
     return NULL;
 }
 

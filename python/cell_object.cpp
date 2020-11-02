@@ -29,7 +29,7 @@ static void cell_object_dealloc(CellObject* self) {
             Py_DECREF(cell->robustpath_array[i]->owner);
         for (int64_t i = 0; i < cell->label_array.size; i++) Py_DECREF(cell->label_array[i]->owner);
         cell->clear();
-        free_mem(cell);
+        free_allocation(cell);
     }
     PyObject_Del(self);
 }
@@ -551,7 +551,7 @@ int cell_object_set_name(CellObject* self, PyObject* arg, void*) {
     }
 
     Cell* cell = self->cell;
-    if (cell->name) free_mem(cell->name);
+    if (cell->name) free_allocation(cell->name);
     cell->name = (char*)allocate(sizeof(char) * (++len));
     memcpy(cell->name, src, len);
     return 0;

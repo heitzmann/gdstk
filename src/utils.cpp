@@ -177,7 +177,7 @@ Vec2 eval_bezier(double t, const Vec2* ctrl, int64_t size) {
     for (int64_t j = size - 1; j > 0; j--)
         for (int64_t i = 0; i < j; i++) p[i] = r * p[i] + t * p[i + 1];
     result = p[0];
-    free_mem(p);
+    free_allocation(p);
     return result;
 }
 
@@ -282,8 +282,8 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 v = v_next;
                 w = w_next;
             }
-            free_mem(ipiv);
-            free_mem(a);
+            free_allocation(ipiv);
+            free_allocation(a);
             return;
         }
 
@@ -448,17 +448,17 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
         }
 
         if (cycle) {
-            free_mem(pts);
-            free_mem(tens);
-            free_mem(ang);
-            free_mem(ang_c);
+            free_allocation(pts);
+            free_allocation(tens);
+            free_allocation(ang);
+            free_allocation(ang_c);
         }
 
-        free_mem(theta);
-        free_mem(phi);
+        free_allocation(theta);
+        free_allocation(phi);
     }
-    free_mem(ipiv);
-    free_mem(a);
+    free_allocation(ipiv);
+    free_allocation(a);
 }
 
 }  // namespace gdstk

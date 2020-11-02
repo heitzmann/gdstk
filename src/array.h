@@ -45,7 +45,7 @@ struct Array {
     }
 
     void clear() {
-        if (items) free_mem(items);
+        if (items) free_allocation(items);
         items = NULL;
         capacity = 0;
         size = 0;

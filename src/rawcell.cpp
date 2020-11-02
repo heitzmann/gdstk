@@ -34,19 +34,19 @@ void RawCell::print(bool all) const {
 
 void RawCell::clear() {
     if (name) {
-        free_mem(name);
+        free_allocation(name);
         name = NULL;
     }
     if (source) {
         source->uses--;
         if (source->uses == 0) {
             fclose(source->file);
-            free_mem(source);
+            free_allocation(source);
         }
         source = NULL;
         offset = 0;
     } else if (data) {
-        free_mem(data);
+        free_allocation(data);
         data = NULL;
     }
     size = 0;
@@ -74,7 +74,7 @@ void RawCell::to_gds(FILE* out) {
         source->uses--;
         if (source->uses == 0) {
             fclose(source->file);
-            free_mem(source);
+            free_allocation(source);
         }
         source = NULL;
     }
@@ -111,12 +111,12 @@ Map<RawCell*> read_rawcells(FILE* in) {
                             dependencies->remove_unordered(i);
                             fprintf(stderr, "[GDSTK] Referenced cell %s not found.", name);
                         }
-                        free_mem(name);
+                        free_allocation(name);
                     }
                 }
                 if (source->uses == 0) {
                     fclose(source->file);
-                    free_mem(source);
+                    free_allocation(source);
                 }
                 return result;
                 break;
@@ -162,7 +162,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
 
     if (source->uses == 0) {
         fclose(source->file);
-        free_mem(source);
+        free_allocation(source);
     }
     return Map<RawCell*>{0};
 }

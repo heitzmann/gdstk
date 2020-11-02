@@ -88,7 +88,7 @@ static double* parse_sequence_double(PyObject* sequence, int64_t& len, const cha
         *v++ = PyFloat_AsDouble(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            free_mem(values);
+            free_allocation(values);
             PyErr_Format(PyExc_RuntimeError, "Unable to convert item %" PRId64 " in %s to float.",
                          j, name);
             return NULL;

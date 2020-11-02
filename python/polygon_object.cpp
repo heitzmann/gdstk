@@ -15,7 +15,7 @@ static PyObject* polygon_object_str(PolygonObject* self) {
 static void polygon_object_dealloc(PolygonObject* self) {
     if (self->polygon) {
         self->polygon->clear();
-        free_mem(self->polygon);
+        free_allocation(self->polygon);
     }
     PyObject_Del(self);
 }
@@ -148,7 +148,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
         if (num < self->polygon->point_array.size) {
             PyErr_Format(PyExc_TypeError, "Not enough items in sequence (expecting %" PRId64 ").",
                          self->polygon->point_array.size);
-            if (radii) free_mem(radii);
+            if (radii) free_allocation(radii);
             return NULL;
         }
     } else {
@@ -163,7 +163,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
         for (int64_t j = 0; j < num; j++) *p++ = r;
     }
     self->polygon->fillet(radii, tol);
-    free_mem(radii);
+    free_allocation(radii);
     Py_INCREF(self);
     return (PyObject*)self;
 }

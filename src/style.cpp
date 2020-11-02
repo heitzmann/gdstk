@@ -35,12 +35,12 @@ void StyleMap::clear() {
             Style* s = style[i].next;
             while (s) {
                 Style* tmp = s->next;
-                free_mem(s->value);
-                free_mem(s);
+                free_allocation(s->value);
+                free_allocation(s);
                 s = tmp;
             }
         }
-        free_mem(style);
+        free_allocation(style);
         style = NULL;
     }
     capacity = 0;
@@ -70,7 +70,7 @@ void StyleMap::resize(int64_t new_capacity) {
             prop = slot;
         }
     }
-    free_mem(style);
+    free_allocation(style);
     style = new_map.style;
     capacity = new_map.capacity;
 }
@@ -94,7 +94,7 @@ void StyleMap::set(int16_t layer, int16_t type, const char* value) {
 
     if (s->value) {
         if (!value) return;
-        free_mem(s->value);
+        free_allocation(s->value);
     }
     if (value) {
         int64_t len = strlen(value) + 1;
@@ -128,8 +128,8 @@ void StyleMap::del(int16_t layer, int16_t type) {
 
     Style* rem = s->next;
     s->next = rem->next;
-    if (rem->value) free_mem(rem->value);
-    free_mem(rem);
+    if (rem->value) free_allocation(rem->value);
+    free_allocation(rem);
     size--;
 }
 

@@ -20,7 +20,7 @@ void* reallocate(void* ptr, uint64_t size);
 
 void* allocate_clear(uint64_t size);
 
-void free_mem(void* ptr);
+void free_allocation(void* ptr);
 
 void gdstk_finalize();
 

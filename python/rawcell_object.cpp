@@ -17,7 +17,7 @@ static void rawcell_object_dealloc(RawCellObject* self) {
     RawCell* rawcell = self->rawcell;
     if (rawcell) {
         rawcell->clear();
-        free_mem(rawcell);
+        free_allocation(rawcell);
     }
     PyObject_Del(self);
 }
