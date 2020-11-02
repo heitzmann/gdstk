@@ -278,7 +278,6 @@ if __name__ == "__main__":
     slices.add(*slices1[0])
     slices.add(*slices2[1])
     slices.add(*slices3[1])
-
     # draw
     slices.name = "slice_operation"
     draw(slices, path)

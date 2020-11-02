@@ -360,6 +360,8 @@ If they are necessary, keeping the number of vertices is all polygons as low as 
    :start-after: Boolean Operations
    :end-before: draw
 
+:download:`C++ version <cpp/geometry_operations.cpp>`
+
 .. image:: tutorial/boolean_operations.*
    :align: center
 

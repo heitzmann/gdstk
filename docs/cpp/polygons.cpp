@@ -58,6 +58,7 @@ void example_curves1(Cell& out_cell) {
     Polygon* p1 = (Polygon*)calloc(1, sizeof(Polygon));
     p1->point_array.extend(c1.point_array);
     out_cell.polygon_array.append(p1);
+    c1.clear();
 
     Curve c2 = {.tolerance = 0.01};
     c2.append(Vec2{3, 1});
@@ -66,6 +67,7 @@ void example_curves1(Cell& out_cell) {
     Polygon* p2 = (Polygon*)calloc(1, sizeof(Polygon));
     p2->point_array.extend(c2.point_array);
     out_cell.polygon_array.append(p2);
+    c2.clear();
 }
 
 void example_curves2(Cell& out_cell) {
@@ -80,6 +82,7 @@ void example_curves2(Cell& out_cell) {
     Polygon* p3 = (Polygon*)calloc(1, sizeof(Polygon));
     p3->point_array.extend(c3.point_array);
     out_cell.polygon_array.append(p3);
+    c3.clear();
 }
 
 void example_curves3(Cell& out_cell) {
@@ -118,6 +121,7 @@ void example_curves3(Cell& out_cell) {
     Polygon* p4 = (Polygon*)calloc(1, sizeof(Polygon));
     p4->point_array.extend(c4.point_array);
     out_cell.polygon_array.append(p4);
+    c4.clear();
 }
 
 void example_transformations(Cell& out_cell) {
