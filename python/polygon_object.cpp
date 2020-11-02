@@ -136,34 +136,28 @@ static PyObject* polygon_object_rotate(PolygonObject* self, PyObject* args, PyOb
 
 static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"radius", "tolerance", NULL};
-    double* radii;
+    bool free_items = false;
+    double radius = 0;
     double tol = 0.01;
-    PyObject* radius = NULL;
+    PyObject* radius_obj = NULL;
+    Array<double> radius_array = {0};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius, &tol))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj, &tol))
         return NULL;
-    if (PySequence_Check(radius)) {
-        int64_t num = 0;
-        radii = parse_sequence_double(radius, num, "radius");
-        if (num < self->polygon->point_array.size) {
-            PyErr_Format(PyExc_TypeError, "Not enough items in sequence (expecting %" PRId64 ").",
-                         self->polygon->point_array.size);
-            if (radii) free(radii);
-            return NULL;
-        }
+    if (PySequence_Check(radius_obj)) {
+        radius_array.items = parse_sequence_double(radius_obj, radius_array.size, "radius");
+        free_items = true;
     } else {
-        double r = PyFloat_AsDouble(radius);
+        radius = PyFloat_AsDouble(radius_obj);
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "Unable to convert radius to float.");
             return NULL;
         }
-        int64_t num = self->polygon->point_array.size;
-        radii = (double*)malloc(sizeof(double) * num);
-        double* p = radii;
-        for (int64_t j = 0; j < num; j++) *p++ = r;
+        radius_array.size = 1;
+        radius_array.items = &radius;
     }
-    self->polygon->fillet(radii, tol);
-    free(radii);
+    self->polygon->fillet(radius_array, tol);
+    if (free_items) free(radius_array.items);
     Py_INCREF(self);
     return (PyObject*)self;
 }
