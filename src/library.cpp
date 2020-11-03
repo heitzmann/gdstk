@@ -246,7 +246,8 @@ Library read_gds(const char* filename, double unit) {
             } break;
             case 0x04: {  // ENDLIB
                 Map<Cell*> map = {0};
-                map.resize((int64_t)(1.0 + 10.0 / MAP_CAP * library.cell_array.size));
+                map.resize(
+                    (int64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * library.cell_array.size));
                 for (int64_t i = library.cell_array.size - 1; i >= 0; i--)
                     map.set(library.cell_array[i]->name, library.cell_array[i]);
                 for (int64_t i = library.cell_array.size - 1; i >= 0; i--) {

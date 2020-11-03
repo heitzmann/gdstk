@@ -12,8 +12,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define _USE_MATH_DEFINES
 
-#define MAP_CAP 7
-
 #define MIN_POINTS 4
 
 #define PARALLEL_EPS 1e-8

@@ -11,7 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 
-#include "utils.h"
+#include "map.h"
 
 namespace gdstk {
 
@@ -76,7 +76,9 @@ void StyleMap::resize(int64_t new_capacity) {
 
 void StyleMap::set(int16_t layer, int16_t type, const char* value) {
     // Equallity is important for capacity == 0
-    if (size * 10 >= capacity * MAP_CAP) resize(capacity > 0 ? 2 * capacity : 4);
+    if (size * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
+        resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
+                                                : INITIAL_MAP_CAPACITY);
 
     int64_t idx = HASH2(layer, type) % capacity;
     Style* s = style + idx;
