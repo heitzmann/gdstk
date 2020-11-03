@@ -1007,7 +1007,9 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     for (Py_ssize_t i = 0; i < polygon_array.size; i++) {
         int16_t layer = polygon_array[i]->layer;
         int16_t datatype = polygon_array[i]->datatype;
-        Array<Polygon*>* slices = slice(*polygon_array[i], positions, x_axis, 1 / precision);
+        Array<Polygon*>* slices =
+            (Array<Polygon*>*)allocate_clear((positions.size + 1) * sizeof(Array<Polygon*>));
+        slice(*polygon_array[i], positions, x_axis, 1 / precision, slices);
         Array<Polygon*>* slice_array = slices;
         for (int64_t s = 0; s <= positions.size; s++, slice_array++) {
             for (int64_t j = 0; j < slice_array->size; j++) {
@@ -1168,14 +1170,11 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|d:read_gds", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &unit))
         return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
-    if (!infile) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
-        return NULL;
-    }
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
-    *library = read_gds(infile, unit);
-    fclose(infile);
+    *library = read_gds(filename, unit);
+    Py_DECREF(pybytes);
 
     LibraryObject* result = PyObject_New(LibraryObject, &library_object_type);
     result = (LibraryObject*)PyObject_Init((PyObject*)result, &library_object_type);
@@ -1248,13 +1247,9 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
 static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:read_rawcells", PyUnicode_FSConverter, &pybytes)) return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
-    if (!infile) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
-        return NULL;
-    }
-    // The FILE pointer is stollen by read_rawcells and must not be closed.
-    Map<RawCell*> map = read_rawcells(infile);
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    Map<RawCell*> map = read_rawcells(filename);
+    Py_DECREF(pybytes);
 
     PyObject* result = PyDict_New();
     if (!result) {
@@ -1282,19 +1277,14 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
 static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:gds_units", PyUnicode_FSConverter, &pybytes)) return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
-    if (!infile) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
-        return NULL;
-    }
+
     double unit = 0;
     double precision = 0;
-    if (gds_units(infile, unit, precision) < 0) {
-        fclose(infile);
-        PyErr_SetString(PyExc_RuntimeError, "Unable to get units from gds file.");
-        return NULL;
-    }
-    fclose(infile);
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    gds_units(filename, unit, precision);
+    Py_DECREF(pybytes);
+
     return Py_BuildValue("dd", unit, precision);
 }
 
@@ -1580,9 +1570,7 @@ static int gdstk_exec(PyObject* module) {
     return 0;
 }
 
-static void gdstk_free(void* _) {
-    gdstk_finalize();
-}
+static void gdstk_free(void* _) { gdstk_finalize(); }
 
 static PyModuleDef_Slot gdstk_slots[] = {{Py_mod_exec, (void*)gdstk_exec}, {0, NULL}};
 

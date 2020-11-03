@@ -418,8 +418,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                     EndType et = EndType::Flush;
                     if (PyUnicode_Check(item)) {
                         if (PyUnicode_CompareWithASCIIString(item, "extended") == 0) {
-                            et = EndType::Extended;
-                            el->end_extensions = Vec2{-1, -1};
+                            et = EndType::HalfWidth;
                         } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0)
                             et = EndType::Round;
                         else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0)
@@ -456,10 +455,10 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
             }
         } else {
             EndType et = EndType::Flush;
-            Vec2 ex = Vec2{-1, -1};
+            Vec2 ex = Vec2{0, 0};
             if (PyUnicode_Check(py_ends)) {
                 if (PyUnicode_CompareWithASCIIString(py_ends, "extended") == 0)
-                    et = EndType::Extended;
+                    et = EndType::HalfWidth;
                 else if (PyUnicode_CompareWithASCIIString(py_ends, "round") == 0)
                     et = EndType::Round;
                 else if (PyUnicode_CompareWithASCIIString(py_ends, "smooth") == 0)

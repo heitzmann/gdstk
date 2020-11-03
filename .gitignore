@@ -97,8 +97,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 # Generated images
-docs/_static/*/*.svg
-docs/*.gds
+*.svg
+*.gds
 docs/geometry/
 docs/library/
 

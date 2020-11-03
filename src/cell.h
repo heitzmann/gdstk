@@ -60,7 +60,7 @@ struct Cell {
 
     void to_svg(FILE* out, double scaling, const char* attributes) const;
 
-    void write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label_style,
+    void write_svg(const char* filename, double scaling, StyleMap& style, StyleMap& label_style,
                    const char* background, double pad, bool pad_as_percentage) const;
 };
 

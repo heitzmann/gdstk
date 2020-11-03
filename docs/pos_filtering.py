@@ -44,4 +44,4 @@ if __name__ == "__main__":
     gdstk.Library().add(main).write_gds(path / "pos_filtering.gds")
 
     main.name = "pos_filtering"
-    draw(main, path / "_static/how-tos")
+    draw(main, path / "how-tos")

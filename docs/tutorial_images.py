@@ -26,7 +26,7 @@ def draw(cell, path):
 
 
 if __name__ == "__main__":
-    path = pathlib.Path(__file__).parent.absolute() / "_static/tutorial"
+    path = pathlib.Path(__file__).parent.absolute() / "tutorial"
     path.mkdir(parents=True, exist_ok=True)
 
     # Polygons
@@ -278,7 +278,6 @@ if __name__ == "__main__":
     slices.add(*slices1[0])
     slices.add(*slices2[1])
     slices.add(*slices3[1])
-
     # draw
     slices.name = "slice_operation"
     draw(slices, path)
@@ -296,5 +295,4 @@ if __name__ == "__main__":
     flexpath = gdstk.FlexPath([(-8, -4), (0, -4), (0, 4), (8, 4)], 4)
     filleted_path = flexpath.to_polygons()[0]
     filleted_path.fillet(1.5)
-
     draw(gdstk.Cell("fillet_operation").add(filleted_path), path)

@@ -59,6 +59,6 @@ if __name__ == "__main__":
     lib.write_gds(path / "pcell.gds")
 
     main.name = "parametric_cell"
-    path = pathlib.Path(__file__).parent.absolute() / "_static/how-tos"
+    path = pathlib.Path(__file__).parent.absolute() / "how-tos"
     path.mkdir(parents=True, exist_ok=True)
     draw(main, path)

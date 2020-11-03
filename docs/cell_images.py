@@ -70,7 +70,7 @@ def remove_image():
 
 
 if __name__ == "__main__":
-    path = pathlib.Path(__file__).parent.absolute() / "_static/cell"
+    path = pathlib.Path(__file__).parent.absolute() / "cell"
     path.mkdir(parents=True, exist_ok=True)
 
     draw(bounding_box_image(), path)

@@ -88,13 +88,13 @@ def slice_image():
 
 def inside_example():
     rect = gdstk.rectangle((0, 0), (1, 1))
-    print(gdstk.inside([(0.5, 0.5), (2, 2)], rect))
-    print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any"))
-    print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all"))
+    assert gdstk.inside([(0.5, 0.5), (2, 2)], rect) == (True, False)
+    assert gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any") == (True,)
+    assert gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all") == (False,)
     # Point groups
-    print(
-        gdstk.inside([[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect)
-    )
+    assert gdstk.inside(
+        [[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect
+    ) == (True, True, False)
 
 
 def read_rawcells_example():
@@ -106,15 +106,15 @@ def read_rawcells_example():
     library.add(cell1, cell2)
     library.write_gds("test.gds")
     raw_cells = gdstk.read_rawcells("test.gds")
-    print(raw_cells.keys())
-    print(len(raw_cells["CELL_1"].dependencies(True)))
-    print(len(raw_cells["CELL_2"].dependencies(True)))
+    assert tuple(sorted(raw_cells.keys())) == ("CELL_1", "CELL_2")
+    assert len(raw_cells["CELL_1"].dependencies(True)) == 0
+    assert len(raw_cells["CELL_2"].dependencies(True)) == 1
     deps = raw_cells["CELL_2"].dependencies(True)
-    print(deps[0] is raw_cells["CELL_1"])
+    assert deps[0] is raw_cells["CELL_1"]
 
 
 if __name__ == "__main__":
-    path = pathlib.Path(__file__).parent.absolute() / "_static/function"
+    path = pathlib.Path(__file__).parent.absolute() / "function"
     path.mkdir(parents=True, exist_ok=True)
 
     draw(cross_image(), path)
@@ -125,5 +125,5 @@ if __name__ == "__main__":
     draw(offset_image(), path)
     draw(boolean_image(), path)
     draw(slice_image(), path)
-    # inside_example()
-    # read_rawcells_example()
+    inside_example()
+    read_rawcells_example()

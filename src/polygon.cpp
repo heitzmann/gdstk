@@ -115,8 +115,7 @@ void Polygon::transform(double magnification, const Vec2 translation, bool x_ref
     }
 }
 
-// radii must be an array of length polygon.size
-void Polygon::fillet(const double* radii, double tol) {
+void Polygon::fillet(const Array<double> radii, double tol) {
     if (point_array.size < 3) return;
 
     Array<Vec2> old_pts;
@@ -154,7 +153,7 @@ void Polygon::fillet(const double* radii, double tol) {
             const double fac = 1 / (cost * dv.length());
             dv *= fac;
 
-            double radius = radii[j];
+            double radius = radii[j % radii.size];
             double max_len = radius * tant;
             if (max_len > 0.5 * (len0 - tol)) {
                 max_len = 0.5 * (len0 - tol);
@@ -248,7 +247,8 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
         }
         free_allocation(coords);
 
-        Array<Polygon*>* chopped = slice(*subj, cuts, x_axis, scaling);
+        Array<Polygon*>* chopped = (Array<Polygon*>*)allocate_clear((cuts.size + 1) * sizeof(Array<Polygon*>));
+        slice(*subj, cuts, x_axis, scaling, chopped);
         cuts.clear();
 
         subj->point_array.clear();

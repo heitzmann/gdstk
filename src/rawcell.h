@@ -38,7 +38,7 @@ struct RawCell {
     void to_gds(FILE* out);
 };
 
-Map<RawCell*> read_rawcells(FILE* in);
+Map<RawCell*> read_rawcells(const char* filename);
 
 }  // namespace gdstk
 

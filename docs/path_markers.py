@@ -17,7 +17,7 @@ if __name__ == "__main__":
     main = gdstk.Cell("Main")
 
     # Create a path
-    path = gdstk.RobustPath((0, 0), 0.5, layer=2)
+    path = gdstk.RobustPath((0, 0), 0.5)
     path.segment((8, 0))
     path.interpolation(
         [(2, -4), (-2, -6), (-5, -8), (-4, -12)],
@@ -48,4 +48,4 @@ if __name__ == "__main__":
     main.add(major)
     main.name = "path_markers"
     path = pathlib.Path(__file__).parent.absolute()
-    draw(main, path / "_static/how-tos")
+    draw(main, path / "how-tos")

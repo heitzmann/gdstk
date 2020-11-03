@@ -511,7 +511,7 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     free_allocation(buffer);
 }
 
-void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label_style,
+void Cell::write_svg(const char* filename, double scaling, StyleMap& style, StyleMap& label_style,
                      const char* background, double pad, bool pad_as_percentage) const {
     Vec2 min, max;
     bounding_box(min, max);
@@ -530,6 +530,11 @@ void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label
     w += 2 * pad;
     h += 2 * pad;
 
+    FILE* out = fopen(filename, "w");
+    if (out == NULL) {
+        fputs("[GDSTK] Unable to open file for SVG output.\n", stderr);
+        return;
+    }
     fprintf(out,
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<svg xmlns=\"http://www.w3.org/2000/svg\" "
@@ -612,6 +617,7 @@ void Cell::write_svg(FILE* out, double scaling, StyleMap& style, StyleMap& label
             x, y, w, h, background);
     to_svg(out, scaling, "transform=\"scale(1 -1)\"");
     fputs("</svg>", out);
+    fclose(out);
 }
 
 }  // namespace gdstk

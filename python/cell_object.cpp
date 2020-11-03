@@ -360,7 +360,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     PyObject* style_obj = NULL;
     PyObject* label_style_obj = NULL;
     PyObject* pad_obj = NULL;
-    const char* background = "#2222222";
+    const char* background = "#222222";
     const char* keywords[] = {"outfile",    "scaling", "style", "fontstyle",
                               "background", "pad",     NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dOOzO:write_svg", (char**)keywords,
@@ -410,16 +410,9 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         return NULL;
     }
 
-    FILE* out = fopen(PyBytes_AS_STRING(pybytes), "w");
-    if (!out) {
-        PyErr_SetString(PyExc_TypeError, "Unable to open file for writing.");
-        style.clear();
-        label_style.clear();
-        return NULL;
-    }
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    self->cell->write_svg(filename, scaling, style, label_style, background, pad, pad_as_percentage);
     Py_DECREF(pybytes);
-    self->cell->write_svg(out, scaling, style, label_style, background, pad, pad_as_percentage);
-    fclose(out);
 
     style.clear();
     label_style.clear();

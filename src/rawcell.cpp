@@ -81,18 +81,23 @@ void RawCell::to_gds(FILE* out) {
     fwrite(data, sizeof(uint8_t), size, out);
 }
 
-Map<RawCell*> read_rawcells(FILE* in) {
+Map<RawCell*> read_rawcells(const char* filename) {
     int32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
-    RawSource* source = (RawSource*)allocate(sizeof(RawSource));
-    source->file = in;
-    source->uses = 0;
 
     Map<RawCell*> result = {0};
     RawCell* rawcell = NULL;
 
-    while ((record_length = read_record(in, buffer)) > 0) {
+    RawSource* source = (RawSource*)allocate(sizeof(RawSource));
+    source->file = fopen(filename, "rb");
+    source->uses = 0;
+    if (source->file == NULL) {
+        fputs("[GDSTK] Unable to open input GDSII file.\n", stderr);
+        return result;
+    }
+
+    while ((record_length = read_record(source->file, buffer)) > 0) {
         switch (buffer[2]) {
             case 0x04:  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
@@ -124,7 +129,7 @@ Map<RawCell*> read_rawcells(FILE* in) {
                 rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
                 rawcell->source = source;
                 source->uses++;
-                rawcell->offset = ftell(in) - record_length;
+                rawcell->offset = ftell(source->file) - record_length;
                 rawcell->size = record_length;
                 break;
             case 0x06:  // STRNAME

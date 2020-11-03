@@ -40,12 +40,12 @@ struct Library {
     void copy_from(const Library& library, bool deep_copy);
     void top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const;
 
-    void write_gds(FILE* out, int64_t max_points, std::tm* timestamp) const;
+    void write_gds(const char* filename, int64_t max_points, std::tm* timestamp) const;
 };
 
-Library read_gds(FILE* in, double unit);
+Library read_gds(const char* filename, double unit);
 
-int gds_units(FILE* in, double& unit, double& precision);
+int gds_units(const char* filename, double& unit, double& precision);
 
 }  // namespace gdstk
 
