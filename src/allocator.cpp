@@ -25,11 +25,27 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 // TODO: Thread safety
 
-#define ALLOC_INFO 1
+// #define USE_MALLOC
+
+// #define ALLOC_INFO
 
 #define PAGE_SIZE 0x1000  // This should be default for all targeted systems.
 
 namespace gdstk {
+
+#ifdef USE_MALLOC
+
+void* allocate(uint64_t size) { return malloc(size); }
+
+void* reallocate(void* ptr, uint64_t size) { return realloc(ptr, size); }
+
+void* allocate_clear(uint64_t size) { return calloc(1, size); }
+
+void free_allocation(void* ptr) { free(ptr); }
+
+void gdstk_finalize() {}
+
+#else  // USE_MALLOC
 
 // Arena allocator.  Small allocations are incresed to powers of 2 and have a SmallAllocationHeader
 // with a pointer to a free list where they should be inserted when not in use.  This list is for a
@@ -479,5 +495,7 @@ void gdstk_finalize() {
         a = b;
     }
 }
+
+#endif  // USE_MALLOC
 
 }  // namespace gdstk
