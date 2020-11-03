@@ -1169,14 +1169,11 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|d:read_gds", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &unit))
         return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
-    if (!infile) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
-        return NULL;
-    }
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)calloc(1, sizeof(Library));
-    *library = read_gds(infile, unit);
-    fclose(infile);
+    *library = read_gds(filename, unit);
+    Py_DECREF(pybytes);
 
     LibraryObject* result = PyObject_New(LibraryObject, &library_object_type);
     result = (LibraryObject*)PyObject_Init((PyObject*)result, &library_object_type);
@@ -1249,13 +1246,9 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
 static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:read_rawcells", PyUnicode_FSConverter, &pybytes)) return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
-    if (!infile) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
-        return NULL;
-    }
-    // The FILE pointer is stollen by read_rawcells and must not be closed.
-    Map<RawCell*> map = read_rawcells(infile);
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    Map<RawCell*> map = read_rawcells(filename);
+    Py_DECREF(pybytes);
 
     PyObject* result = PyDict_New();
     if (!result) {
@@ -1283,19 +1276,14 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
 static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:gds_units", PyUnicode_FSConverter, &pybytes)) return NULL;
-    FILE* infile = fopen(PyBytes_AS_STRING(pybytes), "rb");
-    if (!infile) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
-        return NULL;
-    }
+
     double unit = 0;
     double precision = 0;
-    if (gds_units(infile, unit, precision) < 0) {
-        fclose(infile);
-        PyErr_SetString(PyExc_RuntimeError, "Unable to get units from gds file.");
-        return NULL;
-    }
-    fclose(infile);
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    gds_units(filename, unit, precision);
+    Py_DECREF(pybytes);
+
     return Py_BuildValue("dd", unit, precision);
 }
 

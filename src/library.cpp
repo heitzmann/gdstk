@@ -93,7 +93,13 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     }
 }
 
-void Library::write_gds(FILE* out, int64_t max_points, std::tm* timestamp) const {
+void Library::write_gds(const char* filename, int64_t max_points, std::tm* timestamp) const {
+    FILE* out = fopen(filename, "wb");
+    if (out == NULL) {
+        fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);
+        return;
+    }
+
     int64_t len = strlen(name);
     if (len % 2) len++;
     if (!timestamp) {
@@ -142,9 +148,11 @@ void Library::write_gds(FILE* out, int64_t max_points, std::tm* timestamp) const
     uint16_t buffer_end[] = {4, 0x0400};
     swap16(buffer_end, COUNT(buffer_end));
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
+
+    fclose(out);
 }
 
-Library read_gds(FILE* in, double unit) {
+Library read_gds(const char* filename, double unit) {
     const char record_names[][13] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
         "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
@@ -176,6 +184,12 @@ Library read_gds(FILE* in, double unit) {
     double factor = 1;
     double width = 0;
     int16_t key = 0;
+
+    FILE* in = fopen(filename, "rb");
+    if (in == NULL) {
+        fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
+        return library;
+    }
 
     while ((record_length = read_record(in, buffer)) > 0) {
         int32_t data_length;
@@ -249,6 +263,7 @@ Library read_gds(FILE* in, double unit) {
                     }
                 }
                 map.clear();
+                fclose(in);
                 return library;
             } break;
             case 0x05:  // BGNSTR
@@ -491,21 +506,31 @@ Library read_gds(FILE* in, double unit) {
                     fprintf(stderr, "[GDSTK] Unknown record type 0x%02X.\n", buffer[2]);
         }
     }
+
+    fclose(in);
     return Library{0};
 }
 
-int gds_units(FILE* in, double& unit, double& precision) {
+int gds_units(const char* filename, double& unit, double& precision) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
+    FILE* in = fopen(filename, "rb");
+    if (in == NULL) {
+        fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
+        return -1;
+    }
+
     while (read_record(in, buffer) > 0) {
         if (buffer[2] == 0x03) {  // UNITS
             swap64(data64, 2);
             precision = gdsii_real_to_double(data64[1]);
             unit = precision / gdsii_real_to_double(data64[0]);
+            fclose(in);
             return 0;
         }
     }
     fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
+    fclose(in);
     return -1;
 }
 

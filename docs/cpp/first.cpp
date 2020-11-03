@@ -22,15 +22,11 @@ int main(int argc, char* argv[]) {
     Polygon rect = rectangle(Vec2{0, 0}, Vec2{2, 1}, 0, 0);
     cell.polygon_array.append(&rect);
 
-    FILE* output = fopen("first.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("first.gds", 0, NULL);
 
     StyleMap style = {0};
     StyleMap label_style = {0};
-    output = fopen("first.svg", "w");
-    cell.write_svg(output, 10, style, label_style, "#222222", 5, true);
-    fclose(output);
+    cell.write_svg("first.svg", 10, style, label_style, "#222222", 5, true);
 
     return 0;
 }

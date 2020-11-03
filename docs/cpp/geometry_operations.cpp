@@ -113,9 +113,7 @@ int main(int argc, char* argv[]) {
     example_fillet(fillet_cell);
     lib.cell_array.append(&fillet_cell);
 
-    FILE* output = fopen("geometry_operations.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("geometry_operations.gds", 0, NULL);
 
     return 0;
 }

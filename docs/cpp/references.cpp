@@ -86,9 +86,7 @@ int main(int argc, char* argv[]) {
 
     // Output
 
-    FILE* output = fopen("references.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("references.gds", 0, NULL);
 
     return 0;
 }

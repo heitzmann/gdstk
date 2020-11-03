@@ -119,9 +119,7 @@ int main(int argc, char* argv[]) {
     Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
     lib.cell_array.append(&robustpath_cell);
 
-    FILE* output = fopen("robustpaths.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("robustpaths.gds", 0, NULL);
 
     return 0;
 }

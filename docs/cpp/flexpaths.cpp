@@ -120,9 +120,7 @@ int main(int argc, char* argv[]) {
     example_flexpath3(flexpath3_cell);
     lib.cell_array.append(&flexpath3_cell);
 
-    FILE* output = fopen("flexpaths.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("flexpaths.gds", 0, NULL);
 
     return 0;
 }

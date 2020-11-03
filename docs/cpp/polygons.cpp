@@ -195,9 +195,7 @@ int main(int argc, char* argv[]) {
     example_layerdatatype(layerdatatype_cell);
     lib.cell_array.append(&layerdatatype_cell);
 
-    FILE* output = fopen("polygons.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("polygons.gds", 0, NULL);
 
     return 0;
 }

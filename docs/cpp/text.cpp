@@ -37,9 +37,7 @@ int main(int argc, char* argv[]) {
     Polygon rect = rectangle(Vec2{0, 0}, Vec2{10, 6}, 10, 0);
     text_cell.polygon_array.append(&rect);
 
-    FILE* output = fopen("text.gds", "wb");
-    lib.write_gds(output, 0, NULL);
-    fclose(output);
+    lib.write_gds("text.gds", 0, NULL);
 
     return 0;
 }
