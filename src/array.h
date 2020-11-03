@@ -10,6 +10,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __ARRAY_H__
 #define __ARRAY_H__
 
+#define ARRAY_GROWTH_FACTOR 2
+#define INITIAL_ARRAY_CAPACITY 4
+
 #include <cinttypes>
 #include <cstdint>
 #include <cstdio>
@@ -60,7 +63,8 @@ struct Array {
 
     void append(T item) {
         if (size == capacity) {
-            capacity += capacity > 0 ? capacity : 4;
+            capacity = capacity >= INITIAL_ARRAY_CAPACITY ? capacity * ARRAY_GROWTH_FACTOR
+                                                          : INITIAL_ARRAY_CAPACITY;
             items = (T*)reallocate(items, sizeof(T) * capacity);
         }
         items[size++] = item;

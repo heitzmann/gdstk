@@ -10,6 +10,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __MAP_H__
 #define __MAP_H__
 
+#define MAP_GROWTH_FACTOR 2
+#define INITIAL_MAP_CAPACITY 4
+#define MAP_CAPACITY_THRESHOLD 7  // in tenths
+
 #include <cinttypes>
 #include <cstdint>
 #include <cstdio>
@@ -118,7 +122,9 @@ struct Map {
 
     void set(const char* key, T value) {
         // Equallity is important for capacity == 0
-        if (size * 10 >= capacity * MAP_CAP) resize(capacity > 0 ? 2 * capacity : 4);
+        if (size * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
+            resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
+                                                    : INITIAL_MAP_CAPACITY);
 
         int64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;

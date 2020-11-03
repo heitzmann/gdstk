@@ -102,6 +102,26 @@ static void print_status() {
         printf(" %lu", dbg_free[i]);
     }
     printf("  (%lu)\n", t);
+
+    printf("Waste:");
+    uint64_t all_waste = 0;
+    uint64_t waste;
+    for (uint64_t i = 0; i < COUNT(free_small); i++) {
+        waste = 0;
+        for (SmallAllocationHeader* h = free_small + i; h; h = h->next) waste++;
+        waste *= 1 << (i + 3);
+        all_waste += waste;
+        printf(" %lu", waste);
+    }
+
+    waste = 0;
+    for (LargeAllocationHeader* h = &free_large; h; h = h->next) waste += h->size;
+    all_waste += waste;
+    printf(" %lu  (%lu)\n", waste, all_waste);
+
+    waste = 0;
+    for (Arena* a = &arena; a; a = a->next) waste += a->available_size;
+    printf("Arena waste: %lu\n", waste);
 }
 #endif
 
@@ -449,15 +469,15 @@ void free_allocation(void* ptr) {
 }
 
 void gdstk_finalize() {
+#ifdef ALLOC_INFO
+    print_status();
+#endif
     Arena* a = arena.next;
     while (a) {
         Arena* b = a->next;
         system_deallocate(a, a->cursor + a->available_size - (uint8_t*)a);
         a = b;
     }
-#ifdef ALLOC_INFO
-    print_status();
-#endif
 }
 
 }  // namespace gdstk
