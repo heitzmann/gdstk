@@ -78,7 +78,7 @@ The orientation of the vertices (clockwise/counter-clockwise) is not important: 
    :start-after: Polygons
    :end-before: draw
 
-:download:`C++ version <cpp/polygons.cpp>` (including all exemples in this section)
+:download:`C++ version <cpp/polygons.cpp>`
 
 .. image:: tutorial/polygons.*
    :align: center
@@ -94,6 +94,8 @@ As mentioned in :ref:`getting-started`, holes have to be connected to the outer 
    :dedent: 4
    :start-after: Holes
    :end-before: draw
+
+:download:`C++ version <cpp/polygons.cpp>`
 
 .. image:: tutorial/holes.*
    :align: center
@@ -113,6 +115,8 @@ When saving a library with :meth:`gdstk.Library.write_gds`, if the number of ver
    :start-after: Circles
    :end-before: draw
 
+:download:`C++ version <cpp/polygons.cpp>`
+
 .. image:: tutorial/circles.*
    :align: center
 
@@ -130,6 +134,8 @@ The syntax is inspired by the `SVG path specification <https://www.w3.org/TR/SVG
    :start-after: Curves
    :end-before: draw
 
+:download:`C++ version <cpp/polygons.cpp>`
+
 .. image:: tutorial/curves.*
    :align: center
 
@@ -144,6 +150,8 @@ Elliptical arcs have syntax similar to :func:`gdstk.ellipse`, but they allow for
    :start-after: Curves 1
    :end-before: draw
 
+:download:`C++ version <cpp/polygons.cpp>`
+
 .. image:: tutorial/curves_1.*
    :align: center
 
@@ -155,6 +163,8 @@ Additionally, a smooth interpolating curve can be calculated with the method :me
    :dedent: 4
    :start-after: Curves 2
    :end-before: draw
+
+:download:`C++ version <cpp/polygons.cpp>`
 
 .. image:: tutorial/curves_2.*
    :align: center
@@ -170,6 +180,8 @@ The transformations are applied in-place, i.e., no new polygons are created.
    :dedent: 4
    :start-after: Transformations
    :end-before: draw
+
+:download:`C++ version <cpp/polygons.cpp>`
 
 .. image:: tutorial/transformations.*
    :align: center
@@ -194,6 +206,8 @@ Python dictionaries are used to simplify the assignment to each polygon.
    :dedent: 4
    :start-after: Layer and Datatype
    :end-before: draw
+
+:download:`C++ version <cpp/polygons.cpp>`
 
 .. image:: tutorial/layer_and_datatype.*
    :align: center
@@ -272,6 +286,8 @@ The corner type "circular bend" (together with the `bend_radius` argument) can b
    :start-after: Flexible Paths 1
    :end-before: draw
 
+:download:`C++ version <cpp/flexpaths.cpp>`
+
 .. image:: tutorial/flexible_paths_2.*
    :align: center
 
@@ -284,6 +300,8 @@ Note that, because width changes are not possible for GDSII paths, they will be 
    :dedent: 4
    :start-after: Flexible Paths 2
    :end-before: draw
+
+:download:`C++ version <cpp/flexpaths.cpp>`
 
 .. image:: tutorial/flexible_paths_3.*
    :align: center
@@ -377,6 +395,8 @@ As the name indicates, a slice operation subdivides a set of polygons along hori
    :start-after: Slice Operation
    :end-before: draw
 
+:download:`C++ version <cpp/geometry_operations.cpp>`
+
 .. image:: tutorial/slice_operation.*
    :align: center
 
@@ -394,6 +414,8 @@ The same is valid for polygons with holes.
    :start-after: Offset Operation
    :end-before: draw
 
+:download:`C++ version <cpp/geometry_operations.cpp>`
+
 .. image:: tutorial/offset_operation.*
    :align: center
 
@@ -408,6 +430,8 @@ The method :meth:`gdstk.Polygon.fillet` can be used to round polygon corners.
    :dedent: 4
    :start-after: Fillet Operation
    :end-before: draw
+
+:download:`C++ version <cpp/geometry_operations.cpp>`
 
 .. image:: tutorial/fillet_operation.*
    :align: center
@@ -460,12 +484,23 @@ Loading a GDSII File
 The function :func:`gdstk.read_gds` loads an existing GDSII file into a new instance of :class:`gdstk.Library`.
 
 .. code-block:: python
+   :caption: Python example
 
    # Load a GDSII file into a new library
    lib1 = gdstk.read_gds("filename.gds")
 
    # Load the same file, but convert all units to nm
    lib2 = gdstk.read_gds("filename.gds", 1e-9)
+
+
+.. code-block:: c++
+   :caption: C++ example
+
+   // Use units from infile
+   Library lib1 = read_gds("filename.gds", 0);
+
+   // Convert to new unit
+   Library lib2 = read_gds("filename.gds", 1e-9);
 
 Access to the cells in the loaded library is provided through the list :attr:`gdstk.Library.cells`.
 The method :meth:`gdstk.Library.top_level` can be used to find the top-level cells in the library (cells on the top of the hierarchy, i.e., cell that are not referenced by any other cells).
@@ -478,11 +513,21 @@ This can be time-consuming for large layouts.
 If the reason for loading a file is simply to re-use it's cells without any modifications, the function :func:`gdstk.read_rawcells` is much more efficient.
 
 .. code-block:: python
+   :caption: Python example
 
    # Load all cells from a GDSII file without creating the actual geometry
    cells = gdstk.read_rawcells("filename.gds")
 
    # Use some loaded cell in the current design
    my_ref = gdstk.Reference(cells["SOME_CELL"], (0, 0))
+
+
+.. code-block:: c++
+   :caption: C++ example
+
+   Map<RawCell*> cells = read_rawcells("filename.gds");
+
+   Reference my_ref = {.type = ReferenceType::RawCell, .magnification = 1};
+   my_ref.rawcell = cells.get("SOME_CELL");
 
 Note that the units are not changed in this process, so the current design must use the same ``unit`` and ``precision`` as the loaded cells.
