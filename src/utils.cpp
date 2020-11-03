@@ -18,6 +18,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <intrin.h>
 #endif
 
+#include "allocator.h"
 #include "vec.h"
 
 extern "C" {
@@ -170,13 +171,13 @@ Vec2 eval_bezier3(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2, const V
 
 Vec2 eval_bezier(double t, const Vec2* ctrl, int64_t size) {
     Vec2 result;
-    Vec2* p = (Vec2*)malloc(sizeof(Vec2) * size);
+    Vec2* p = (Vec2*)allocate(sizeof(Vec2) * size);
     memcpy(p, ctrl, sizeof(Vec2) * size);
     const double r = 1 - t;
     for (int64_t j = size - 1; j > 0; j--)
         for (int64_t i = 0; i < j; i++) p[i] = r * p[i] + t * p[i + 1];
     result = p[0];
-    free(p);
+    free_allocation(p);
     return result;
 }
 
@@ -195,8 +196,8 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
     const double C = 0.5 * (3.0 - sqrt(5.0));
 
     int info = 0;
-    int* ipiv = (int*)malloc(sizeof(int) * 2 * size);
-    double* a = (double*)malloc(sizeof(double) * (4 * size * size + 2 * size));
+    int* ipiv = (int*)allocate(sizeof(int) * 2 * size);
+    double* a = (double*)allocate(sizeof(double) * (4 * size * size + 2 * size));
     double* b = a + 4 * size * size;
 
     Vec2* pts = points;
@@ -281,8 +282,8 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 v = v_next;
                 w = w_next;
             }
-            free(ipiv);
-            free(a);
+            free_allocation(ipiv);
+            free_allocation(a);
             return;
         }
 
@@ -291,19 +292,19 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
         // then use open curve solver.
         points_size++;
 
-        pts = (Vec2*)malloc(sizeof(Vec2) * 3 * points_size);
+        pts = (Vec2*)allocate(sizeof(Vec2) * 3 * points_size);
         memcpy(pts, points + 3 * rotate, sizeof(Vec2) * 3 * (size - rotate));
         memcpy(pts + 3 * (size - rotate), points, sizeof(Vec2) * 3 * (rotate + 1));
 
-        tens = (Vec2*)malloc(sizeof(Vec2) * points_size);
+        tens = (Vec2*)allocate(sizeof(Vec2) * points_size);
         memcpy(tens, tension + rotate, sizeof(Vec2) * (size - rotate));
         memcpy(tens + size - rotate, tension, sizeof(Vec2) * (rotate + 1));
 
-        ang = (double*)malloc(sizeof(double) * points_size);
+        ang = (double*)allocate(sizeof(double) * points_size);
         memcpy(ang, angles + rotate, sizeof(double) * (size - rotate));
         memcpy(ang + size - rotate, angles, sizeof(double) * (rotate + 1));
 
-        ang_c = (bool*)malloc(sizeof(bool) * points_size);
+        ang_c = (bool*)allocate(sizeof(bool) * points_size);
         memcpy(ang_c, angle_constraints + rotate, sizeof(bool) * (size - rotate));
         memcpy(ang_c + size - rotate, angle_constraints, sizeof(bool) * (rotate + 1));
     }
@@ -311,8 +312,8 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
     {
         // Open curve solver
         const int64_t n = points_size - 1;
-        double* theta = (double*)malloc(sizeof(double) * n);
-        double* phi = (double*)malloc(sizeof(double) * n);
+        double* theta = (double*)allocate(sizeof(double) * n);
+        double* phi = (double*)allocate(sizeof(double) * n);
         if (ang_c[0]) theta[0] = ang[0] - (pts[3] - pts[0]).angle();
 
         int64_t i = 0;
@@ -447,17 +448,17 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
         }
 
         if (cycle) {
-            free(pts);
-            free(tens);
-            free(ang);
-            free(ang_c);
+            free_allocation(pts);
+            free_allocation(tens);
+            free_allocation(ang);
+            free_allocation(ang_c);
         }
 
-        free(theta);
-        free(phi);
+        free_allocation(theta);
+        free_allocation(phi);
     }
-    free(ipiv);
-    free(a);
+    free_allocation(ipiv);
+    free_allocation(a);
 }
 
 }  // namespace gdstk

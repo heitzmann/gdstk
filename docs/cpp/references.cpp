@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
     Vec2 cutout_points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0},
                             {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
     const Array<Vec2> point_array = {.size = COUNT(cutout_points), .items = cutout_points};
-    Polygon* cutout_poly = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* cutout_poly = (Polygon*)allocate_clear(sizeof(Polygon));
     cutout_poly->point_array.extend(point_array);
     device_cell.polygon_array.append(cutout_poly);
 

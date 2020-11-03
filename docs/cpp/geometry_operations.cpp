@@ -21,7 +21,7 @@ void example_boolean(Cell& out_cell) {
     Array<Polygon*> result = boolean(rect_array, txt, Operation::Not, 1000);
     out_cell.polygon_array.extend(result);
 
-    for (int i = 0; i < txt.size; i++) free(txt[i]);
+    for (int i = 0; i < txt.size; i++) free_allocation(txt[i]);
     txt.clear();
     result.clear();
 }
@@ -56,7 +56,7 @@ void example_slice(Cell& out_cell) {
 }
 
 void example_offset(Cell& out_cell) {
-    Polygon* rect = (Polygon*)calloc(2, sizeof(Polygon));
+    Polygon* rect = (Polygon*)allocate_clear(2 * sizeof(Polygon));
     Polygon* rect_p[] = {rect, rect + 1};
     const Array<Polygon*> rect_array = {.size = 2, .items = rect_p};
     rect[0] = rectangle(Vec2{-4, -4}, Vec2{1, 1}, 0, 0);
@@ -70,7 +70,7 @@ void example_offset(Cell& out_cell) {
 void example_fillet(Cell& out_cell) {
     FlexPath flexpath = {.num_elements = 1};
     flexpath.spine.tolerance = 0.01;
-    flexpath.elements = (FlexPathElement*)calloc(1, sizeof(FlexPathElement));
+    flexpath.elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
 
     flexpath.spine.append(Vec2{-8, -4});
     flexpath.elements[0].half_width_and_offset.append(Vec2{2, 0});

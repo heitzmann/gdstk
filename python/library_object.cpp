@@ -21,7 +21,7 @@ static void library_object_dealloc(LibraryObject* self) {
         for (int64_t i = 0; i < library->rawcell_array.size; i++)
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
-        free(library);
+        free_allocation(library);
     }
     PyObject_Del(self);
 }
@@ -43,13 +43,13 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
     } else {
-        self->library = (Library*)calloc(1, sizeof(Library));
+        self->library = (Library*)allocate_clear(sizeof(Library));
         library = self->library;
     }
 
     if (!name) name = (char*)default_name;
     int64_t len = strlen(name) + 1;
-    library->name = (char*)malloc(sizeof(char) * len);
+    library->name = (char*)allocate(sizeof(char) * len);
     memcpy(library->name, name, len);
 
     library->unit = unit;
@@ -99,11 +99,11 @@ static PyObject* library_object_new_cell(LibraryObject* self, PyObject* args) {
     if (!PyArg_ParseTuple(args, "s:new_cell", &name)) return NULL;
     CellObject* result = PyObject_New(CellObject, &cell_object_type);
     result = (CellObject*)PyObject_Init((PyObject*)result, &cell_object_type);
-    result->cell = (Cell*)calloc(1, sizeof(Cell));
+    result->cell = (Cell*)allocate_clear(sizeof(Cell));
     Cell* cell = result->cell;
     cell->owner = result;
     int64_t len = strlen(name) + 1;
-    cell->name = (char*)malloc(sizeof(char) * len);
+    cell->name = (char*)allocate(sizeof(char) * len);
     memcpy(cell->name, name, len);
     self->library->cell_array.append(cell);
     Py_INCREF(result);
@@ -219,8 +219,8 @@ int library_object_set_name(LibraryObject* self, PyObject* arg, void*) {
     if (!src) return -1;
 
     Library* library = self->library;
-    if (library->name) free(library->name);
-    library->name = (char*)malloc(sizeof(char) * (++len));
+    if (library->name) free_allocation(library->name);
+    library->name = (char*)allocate(sizeof(char) * (++len));
     memcpy(library->name, src, len);
     return 0;
 }

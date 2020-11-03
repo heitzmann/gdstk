@@ -11,6 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 
+#include "allocator.h"
 #include "map.h"
 
 namespace gdstk {
@@ -34,12 +35,12 @@ void StyleMap::clear() {
             Style* s = style[i].next;
             while (s) {
                 Style* tmp = s->next;
-                free(s->value);
-                free(s);
+                free_allocation(s->value);
+                free_allocation(s);
                 s = tmp;
             }
         }
-        free(style);
+        free_allocation(style);
         style = NULL;
     }
     capacity = 0;
@@ -49,14 +50,14 @@ void StyleMap::clear() {
 void StyleMap::copy_from(const StyleMap& map) {
     size = 0;
     capacity = map.capacity;
-    style = (Style*)calloc(capacity, sizeof(Style));
+    style = (Style*)allocate_clear(capacity * sizeof(Style));
     for (Style* s = map.next(NULL); s; s = map.next(s)) set(s->layer, s->type, s->value);
 }
 
 void StyleMap::resize(int64_t new_capacity) {
     StyleMap new_map;
     new_map.capacity = new_capacity;
-    new_map.style = (Style*)calloc(new_capacity, sizeof(Style));
+    new_map.style = (Style*)allocate_clear(new_capacity * sizeof(Style));
     for (int64_t i = 0; i < capacity; i++) {
         Style* prop = style[i].next;
         while (prop != NULL) {
@@ -69,7 +70,7 @@ void StyleMap::resize(int64_t new_capacity) {
             prop = slot;
         }
     }
-    free(style);
+    free_allocation(style);
     style = new_map.style;
     capacity = new_map.capacity;
 }
@@ -84,7 +85,7 @@ void StyleMap::set(int16_t layer, int16_t type, const char* value) {
     Style* s = style + idx;
     while (!(s->next == NULL || (s->next->layer == layer && s->next->type == type))) s = s->next;
     if (!s->next) {
-        s->next = (Style*)malloc(sizeof(Style));
+        s->next = (Style*)allocate(sizeof(Style));
         s->next->layer = layer;
         s->next->type = type;
         s->next->value = NULL;
@@ -95,16 +96,16 @@ void StyleMap::set(int16_t layer, int16_t type, const char* value) {
 
     if (s->value) {
         if (!value) return;
-        free(s->value);
+        free_allocation(s->value);
     }
     if (value) {
         int64_t len = strlen(value) + 1;
-        s->value = (char*)malloc(sizeof(char) * len);
+        s->value = (char*)allocate(sizeof(char) * len);
         memcpy(s->value, value, len);
     } else {
         const char* default_value = default_style(layer, type);
         int64_t len = strlen(default_value) + 1;
-        s->value = (char*)malloc(sizeof(char) * len);
+        s->value = (char*)allocate(sizeof(char) * len);
         memcpy(s->value, default_value, len);
     }
 }
@@ -129,8 +130,8 @@ void StyleMap::del(int16_t layer, int16_t type) {
 
     Style* rem = s->next;
     s->next = rem->next;
-    if (rem->value) free(rem->value);
-    free(rem);
+    if (rem->value) free_allocation(rem->value);
+    free_allocation(rem);
     size--;
 }
 

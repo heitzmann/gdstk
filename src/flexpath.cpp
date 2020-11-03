@@ -13,6 +13,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 
+#include "allocator.h"
 #include "curve.h"
 #include "utils.h"
 
@@ -45,7 +46,7 @@ void FlexPath::clear() {
     spine.clear();
     FlexPathElement* el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) el->half_width_and_offset.clear();
-    free(elements);
+    free_allocation(elements);
     elements = NULL;
     num_elements = 0;
     properties_clear(properties);
@@ -58,7 +59,7 @@ void FlexPath::copy_from(const FlexPath& path) {
     scale_width = path.scale_width;
     gdsii_path = path.gdsii_path;
     num_elements = path.num_elements;
-    elements = (FlexPathElement*)calloc(num_elements, sizeof(FlexPathElement));
+    elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
 
     FlexPathElement* src = path.elements;
     FlexPathElement* dst = elements;
@@ -569,7 +570,7 @@ Array<Polygon*> FlexPath::to_polygons() {
 
         curve_size_guess = right_curve.point_array.size * 6 / 5;
 
-        Polygon* result_polygon = (Polygon*)malloc(sizeof(Polygon));
+        Polygon* result_polygon = (Polygon*)allocate(sizeof(Polygon));
         result_polygon->layer = el->layer;
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_curve.point_array;
@@ -805,7 +806,7 @@ void FlexPath::to_svg(FILE* out, double scaling) {
     for (int64_t i = 0; i < array.size; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();
-        free(array[i]);
+        free_allocation(array[i]);
     }
     array.clear();
 }

@@ -11,6 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstdio>
 
+#include "allocator.h"
 namespace gdstk {
 
 void RawCell::print(bool all) const {
@@ -33,19 +34,19 @@ void RawCell::print(bool all) const {
 
 void RawCell::clear() {
     if (name) {
-        free(name);
+        free_allocation(name);
         name = NULL;
     }
     if (source) {
         source->uses--;
         if (source->uses == 0) {
             fclose(source->file);
-            free(source);
+            free_allocation(source);
         }
         source = NULL;
         offset = 0;
     } else if (data) {
-        free(data);
+        free_allocation(data);
         data = NULL;
     }
     size = 0;
@@ -65,7 +66,7 @@ void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
 void RawCell::to_gds(FILE* out) {
     if (source) {
         uint64_t off = offset;
-        data = (uint8_t*)malloc(sizeof(uint8_t) * size);
+        data = (uint8_t*)allocate(sizeof(uint8_t) * size);
         if (source->offset_read(data, size, off) != size) {
             fputs("[GDSTK] Unable to read RawCell data form input file.\n", stderr);
             size = 0;
@@ -73,7 +74,7 @@ void RawCell::to_gds(FILE* out) {
         source->uses--;
         if (source->uses == 0) {
             fclose(source->file);
-            free(source);
+            free_allocation(source);
         }
         source = NULL;
     }
@@ -88,7 +89,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
     Map<RawCell*> result = {0};
     RawCell* rawcell = NULL;
 
-    RawSource* source = (RawSource*)malloc(sizeof(RawSource));
+    RawSource* source = (RawSource*)allocate(sizeof(RawSource));
     source->file = fopen(filename, "rb");
     source->uses = 0;
     if (source->file == NULL) {
@@ -115,17 +116,17 @@ Map<RawCell*> read_rawcells(const char* filename) {
                             dependencies->remove_unordered(i);
                             fprintf(stderr, "[GDSTK] Referenced cell %s not found.", name);
                         }
-                        free(name);
+                        free_allocation(name);
                     }
                 }
                 if (source->uses == 0) {
                     fclose(source->file);
-                    free(source);
+                    free_allocation(source);
                 }
                 return result;
                 break;
             case 0x05:  // BGNSTR
-                rawcell = (RawCell*)calloc(1, sizeof(RawCell));
+                rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
                 rawcell->source = source;
                 source->uses++;
                 rawcell->offset = ftell(source->file) - record_length;
@@ -135,7 +136,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                 if (rawcell) {
                     int32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
-                    rawcell->name = (char*)malloc(sizeof(char) * (data_length + 1));
+                    rawcell->name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(rawcell->name, str, data_length);
                     rawcell->name[data_length] = 0;
                     result.set(rawcell->name, rawcell);
@@ -152,7 +153,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                 if (rawcell) {
                     int32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
-                    char* name = (char*)malloc(sizeof(char) * (data_length + 1));
+                    char* name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(name, str, data_length);
                     name[data_length] = 0;
                     rawcell->dependencies.append((RawCell*)name);
@@ -166,7 +167,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
 
     if (source->uses == 0) {
         fclose(source->file);
-        free(source);
+        free_allocation(source);
     }
     return Map<RawCell*>{0};
 }

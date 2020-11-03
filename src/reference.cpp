@@ -13,6 +13,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 
+#include "allocator.h"
 #include "cell.h"
 #include "rawcell.h"
 #include "utils.h"
@@ -38,7 +39,7 @@ void Reference::print() const {
 
 void Reference::clear() {
     if (type == ReferenceType::Name) {
-        free(name);
+        free_allocation(name);
         name = NULL;
     }
     properties_clear(properties);
@@ -49,7 +50,7 @@ void Reference::copy_from(const Reference& reference) {
     type = reference.type;
     if (reference.type == ReferenceType::Name) {
         int64_t len = 1 + strlen(reference.name);
-        name = (char*)malloc(sizeof(char) * len);
+        name = (char*)allocate(sizeof(char) * len);
         memcpy(name, reference.name, len);
     } else {
         cell = reference.cell;
@@ -78,7 +79,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
         if (pmax.x > max.x) max.x = pmax.x;
         if (pmax.y > max.y) max.y = pmax.y;
         (*poly)->clear();
-        free(*poly);
+        free_allocation(*poly);
     }
     array.clear();
 }
@@ -119,7 +120,7 @@ Array<Polygon*> Reference::polygons(bool include_paths, int64_t depth) const {
                 if (r == 0 && c == 0)
                     *dst = *src;
                 else {
-                    *dst = (Polygon*)calloc(1, sizeof(Polygon));
+                    *dst = (Polygon*)allocate_clear(sizeof(Polygon));
                     (*dst)->copy_from(**src);
                 }
                 (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
@@ -152,7 +153,7 @@ Array<FlexPath*> Reference::flexpaths(int64_t depth) const {
                 if (r == 0 && c == 0)
                     *dst = *src;
                 else {
-                    *dst = (FlexPath*)calloc(1, sizeof(FlexPath));
+                    *dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
                     (*dst)->copy_from(**src);
                 }
                 (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
@@ -185,7 +186,7 @@ Array<RobustPath*> Reference::robustpaths(int64_t depth) const {
                 if (r == 0 && c == 0)
                     *dst = *src;
                 else {
-                    *dst = (RobustPath*)calloc(1, sizeof(RobustPath));
+                    *dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
                     (*dst)->copy_from(**src);
                 }
                 (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
@@ -218,7 +219,7 @@ Array<Label*> Reference::labels(int64_t depth) const {
                 if (r == 0 && c == 0)
                     *dst = *src;
                 else {
-                    *dst = (Label*)calloc(1, sizeof(Label));
+                    *dst = (Label*)allocate_clear(sizeof(Label));
                     (*dst)->copy_from(**src);
                 }
                 (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
@@ -333,7 +334,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
     const char* src_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
-    char* ref_name = (char*)malloc(sizeof(char) * (strlen(src_name) + 1));
+    char* ref_name = (char*)allocate(sizeof(char) * (strlen(src_name) + 1));
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
     // strings, but who knows…
     char* d = ref_name;
@@ -354,7 +355,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
             fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
         }
     }
-    free(ref_name);
+    free_allocation(ref_name);
 }
 
 }  // namespace gdstk

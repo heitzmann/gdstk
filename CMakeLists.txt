@@ -31,6 +31,7 @@ foreach(IT ${LAPACK_LIBRARIES})
 endforeach()
 
 add_library(gdstk STATIC
+    src/allocator.cpp
     src/cell.cpp
     src/clipper_tools.cpp
     src/curve.cpp

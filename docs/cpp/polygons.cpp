@@ -18,7 +18,7 @@ void example_polygons(Cell& out_cell) {
 
     // This has to be heap-allocated so that it doesn't go out of scope once the function returns.
     // We also don't worry about leaking it at the end of the program.  The OS will take care of it.
-    Polygon* poly = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     poly->point_array.extend(point_array);
     out_cell.polygon_array.append(poly);
 }
@@ -27,21 +27,21 @@ void example_holes(Cell& out_cell) {
     Vec2 points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0},
                      {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
     const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
-    Polygon* poly = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     poly->point_array.extend(point_array);
     out_cell.polygon_array.append(poly);
 }
 
 void example_circles(Cell& out_cell) {
-    Polygon* circle = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* circle = (Polygon*)allocate_clear(sizeof(Polygon));
     *circle = ellipse(Vec2{0, 0}, 2, 2, 0, 0, 0, 0, 0.01, 0, 0);
     out_cell.polygon_array.append(circle);
 
-    Polygon* ellipse_ = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* ellipse_ = (Polygon*)allocate_clear(sizeof(Polygon));
     *ellipse_ = ellipse(Vec2{4, 0}, 1, 2, 0, 0, 0, 0, 1e-4, 0, 0);
     out_cell.polygon_array.append(ellipse_);
 
-    Polygon* arc = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* arc = (Polygon*)allocate_clear(sizeof(Polygon));
     *arc = ellipse(Vec2{2, 4}, 2, 2, 1, 1, -0.2 * M_PI, 1.2 * M_PI, 0.01, 0, 0);
     out_cell.polygon_array.append(arc);
 }
@@ -55,7 +55,7 @@ void example_curves1(Cell& out_cell) {
     c1.append(Vec2{0, 0});
     c1.segment(point_array, false);
 
-    Polygon* p1 = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* p1 = (Polygon*)allocate_clear(sizeof(Polygon));
     p1->point_array.extend(c1.point_array);
     out_cell.polygon_array.append(p1);
     c1.clear();
@@ -64,7 +64,7 @@ void example_curves1(Cell& out_cell) {
     c2.append(Vec2{3, 1});
     c2.segment(point_array, true);
 
-    Polygon* p2 = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* p2 = (Polygon*)allocate_clear(sizeof(Polygon));
     p2->point_array.extend(c2.point_array);
     out_cell.polygon_array.append(p2);
     c2.clear();
@@ -79,7 +79,7 @@ void example_curves2(Cell& out_cell) {
     c3.segment(point_array, true);
     c3.arc(4, 2, M_PI / 2, -M_PI / 2, 0);
 
-    Polygon* p3 = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* p3 = (Polygon*)allocate_clear(sizeof(Polygon));
     p3->point_array.extend(c3.point_array);
     out_cell.polygon_array.append(p3);
     c3.clear();
@@ -118,14 +118,14 @@ void example_curves3(Cell& out_cell) {
     if (c4.closed()) {
         c4.remove(c4.point_array.size - 1);
     }
-    Polygon* p4 = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* p4 = (Polygon*)allocate_clear(sizeof(Polygon));
     p4->point_array.extend(c4.point_array);
     out_cell.polygon_array.append(p4);
     c4.clear();
 }
 
 void example_transformations(Cell& out_cell) {
-    Polygon* poly = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     *poly = rectangle(Vec2{-2, -2}, Vec2{2, 2}, 0, 0);
     poly->rotate(M_PI / 4, Vec2{0, 0});
     poly->scale(Vec2{1, 0.5}, Vec2{0, 0});
@@ -140,7 +140,7 @@ void example_layerdatatype(Cell& out_cell) {
     int16_t layer_lift_off = 0;
     int16_t dt_lift_off = 7;
 
-    Polygon* poly = (Polygon*)calloc(4, sizeof(Polygon));
+    Polygon* poly = (Polygon*)allocate_clear(4 * sizeof(Polygon));
     poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, layer_full_etch, dt_full_etch);
     poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, layer_partial_etch, dt_partial_etch);
     poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, layer_partial_etch, dt_partial_etch);

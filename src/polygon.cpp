@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 
+#include "allocator.h"
 #include "clipper_tools.h"
 #include "font.h"
 #include "utils.h"
@@ -201,7 +202,7 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
     Array<Polygon*> result = {0};
 
     if (max_points <= 4) return result;
-    Polygon* poly = (Polygon*)calloc(1, sizeof(Polygon));
+    Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     poly->point_array.copy_from(point_array);
     result.append(poly);
 
@@ -224,7 +225,7 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
         cuts.ensure_slots(num_cuts);
         cuts.size = num_cuts;
         bool x_axis;
-        double* coords = (double*)malloc(sizeof(double) * num_points);
+        double* coords = (double*)allocate(sizeof(double) * num_points);
         if (max.x - min.x > max.y - min.y) {
             double* x = coords;
             double* px = x;
@@ -244,15 +245,15 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
             py = cuts.items;
             for (int64_t j = 0; j < num_cuts; j++) (*py++) = y[(int64_t)((j + 1.0) * frac + 0.5)];
         }
-        free(coords);
+        free_allocation(coords);
 
-        Array<Polygon*>* chopped = (Array<Polygon*>*)calloc(cuts.size + 1, sizeof(Array<Polygon*>));
+        Array<Polygon*>* chopped = (Array<Polygon*>*)allocate_clear((cuts.size + 1) * sizeof(Array<Polygon*>));
         slice(*subj, cuts, x_axis, scaling, chopped);
         cuts.clear();
 
         subj->point_array.clear();
         result.remove_unordered(i);
-        free(subj);
+        free_allocation(subj);
 
         int64_t total = 0;
         for (int64_t j = 0; j <= num_cuts; j++) total += chopped[j].size;
@@ -263,7 +264,7 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
             chopped[j].clear();
         }
 
-        free(chopped);
+        free_allocation(chopped);
     }
 
     for (int64_t i = 0; i < result.size; i++) {
@@ -553,7 +554,7 @@ Array<Polygon*> text(const char* s, double size, const Vec2 position, bool verti
                 if (index >= 0 && index < (int64_t)(COUNT(_first_poly))) {
                     int16_t p_idx = _first_poly[index];
                     for (int16_t i = _num_polys[index] - 1; i >= 0; i--, p_idx++) {
-                        Polygon* p = (Polygon*)calloc(1, sizeof(Polygon));
+                        Polygon* p = (Polygon*)allocate_clear(sizeof(Polygon));
                         p->layer = layer;
                         p->datatype = datatype;
                         p->point_array.ensure_slots(_num_coords[p_idx]);

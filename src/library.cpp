@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstring>
 #include <ctime>
 
+#include "allocator.h"
 #include "cell.h"
 #include "flexpath.h"
 #include "label.h"
@@ -44,18 +45,18 @@ void Library::print(bool all) const {
 }
 
 void Library::copy_from(const Library& library, bool deep_copy) {
-    name = (char*)malloc(sizeof(char) * (strlen(library.name) + 1));
+    name = (char*)allocate(sizeof(char) * (strlen(library.name) + 1));
     strcpy(name, library.name);
     unit = library.unit;
     precision = library.precision;
     if (deep_copy) {
         cell_array.capacity = library.cell_array.capacity;
         cell_array.size = library.cell_array.size;
-        cell_array.items = (Cell**)malloc(sizeof(Cell*) * cell_array.capacity);
+        cell_array.items = (Cell**)allocate(sizeof(Cell*) * cell_array.capacity);
         Cell** src = library.cell_array.items;
         Cell** dst = cell_array.items;
         for (int64_t i = 0; i < library.cell_array.size; i++, src++, dst++) {
-            *dst = (Cell*)malloc(sizeof(Cell));
+            *dst = (Cell*)allocate(sizeof(Cell));
             (*dst)->copy_from(**src, NULL, true);
         }
     } else {
@@ -139,8 +140,9 @@ void Library::write_gds(const char* filename, int64_t max_points, std::tm* times
 
     double scaling = unit / precision;
     Cell** cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, cell++)
+    for (int64_t i = 0; i < cell_array.size; i++, cell++) {
         (*cell)->to_gds(out, scaling, max_points, precision, timestamp);
+    }
 
     RawCell** rawcell = rawcell_array.items;
     for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) (*rawcell)->to_gds(out);
@@ -228,7 +230,7 @@ Library read_gds(const char* filename, double unit) {
                 break;
             case 0x02:  // LIBNAME
                 if (str[data_length - 1] == 0) data_length--;
-                library.name = (char*)malloc(sizeof(char) * (data_length + 1));
+                library.name = (char*)allocate(sizeof(char) * (data_length + 1));
                 memcpy(library.name, str, data_length);
                 library.name[data_length] = 0;
                 break;
@@ -257,7 +259,7 @@ Library read_gds(const char* filename, double unit) {
                         reference = *ref;
                         Cell* cp = map.get(reference->name);
                         if (cp) {
-                            free(reference->name);
+                            free_allocation(reference->name);
                             reference->type = ReferenceType::Cell;
                             reference->cell = cp;
                         }
@@ -268,12 +270,12 @@ Library read_gds(const char* filename, double unit) {
                 return library;
             } break;
             case 0x05:  // BGNSTR
-                cell = (Cell*)calloc(1, sizeof(Cell));
+                cell = (Cell*)allocate_clear(sizeof(Cell));
                 break;
             case 0x06:  // STRNAME
                 if (cell) {
                     if (str[data_length - 1] == 0) data_length--;
-                    cell->name = (char*)malloc(sizeof(char) * (data_length + 1));
+                    cell->name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(cell->name, str, data_length);
                     cell->name[data_length] = 0;
                     library.cell_array.append(cell);
@@ -281,26 +283,26 @@ Library read_gds(const char* filename, double unit) {
                 break;
             case 0x08:  // BOUNDARY
             case 0x2D:  // BOX
-                polygon = (Polygon*)calloc(1, sizeof(Polygon));
+                polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (cell) cell->polygon_array.append(polygon);
                 break;
             case 0x09:  // PATH
-                path = (FlexPath*)calloc(1, sizeof(FlexPath));
+                path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                 path->num_elements = 1;
-                path->elements = (FlexPathElement*)calloc(1, sizeof(FlexPathElement));
+                path->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
                 path->gdsii_path = true;
                 if (cell) cell->flexpath_array.append(path);
                 break;
             case 0x0A:  // SREF
             case 0x0B:  // AREF
-                reference = (Reference*)calloc(1, sizeof(Reference));
+                reference = (Reference*)allocate_clear(sizeof(Reference));
                 reference->magnification = 1;
                 reference->columns = 1;
                 reference->rows = 1;
                 if (cell) cell->reference_array.append(reference);
                 break;
             case 0x0C:  // TEXT
-                label = (Label*)calloc(1, sizeof(Label));
+                label = (Label*)allocate_clear(sizeof(Label));
                 if (cell) cell->label_array.append(label);
                 break;
             case 0x0D:  // LAYER
@@ -386,7 +388,7 @@ Library read_gds(const char* filename, double unit) {
             case 0x12: {  // SNAME
                 if (reference) {
                     if (str[data_length - 1] == 0) data_length--;
-                    reference->name = (char*)malloc(sizeof(char) * (data_length + 1));
+                    reference->name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(reference->name, str, data_length);
                     reference->name[data_length] = 0;
                     reference->type = ReferenceType::Name;
@@ -407,7 +409,7 @@ Library read_gds(const char* filename, double unit) {
             case 0x19:  // STRING
                 if (label) {
                     if (str[data_length - 1] == 0) data_length--;
-                    label->text = (char*)malloc(sizeof(char) * (data_length + 1));
+                    label->text = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(label->text, str, data_length);
                     label->text[data_length] = 0;
                 }

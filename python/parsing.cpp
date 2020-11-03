@@ -81,14 +81,14 @@ static double* parse_sequence_double(PyObject* sequence, int64_t& len, const cha
                      "Argument %s is a sequence with invalid length (%" PRId64 ").", name, len);
         return NULL;
     }
-    double* values = (double*)malloc(sizeof(double) * len);
+    double* values = (double*)allocate(sizeof(double) * len);
     double* v = values;
     for (Py_ssize_t j = 0; j < len; j++) {
         PyObject* item = PySequence_ITEM(sequence, j);
         *v++ = PyFloat_AsDouble(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            free(values);
+            free_allocation(values);
             PyErr_Format(PyExc_RuntimeError, "Unable to convert item %" PRId64 " in %s to float.",
                          j, name);
             return NULL;

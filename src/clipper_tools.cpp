@@ -12,6 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstdio>
 
+#include "allocator.h"
 #include "array.h"
 #include "clipperlib/clipper.hpp"
 #include "polygon.h"
@@ -63,7 +64,7 @@ static void paths_to_polygons(const ClipperLib::Paths& paths, double scaling,
     polygon_array.ensure_slots(num);
     polygon_array.size = num;
     for (int64_t i = 0; i < num; i++) {
-        polygon_array[i] = (Polygon*)calloc(1, sizeof(Polygon));
+        polygon_array[i] = (Polygon*)allocate_clear(sizeof(Polygon));
         path_to_polygon(paths[i], scaling, *polygon_array[i]);
     }
 }
@@ -270,13 +271,14 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
     int64_t num_groups = groups.size;
     int64_t num_polygons = polygons.size;
 
-    ClipperLib::cInt *paths_bb = (ClipperLib::cInt*)malloc(sizeof(ClipperLib::cInt) * 4 * num_polygons);
+    ClipperLib::cInt* paths_bb =
+        (ClipperLib::cInt*)allocate(sizeof(ClipperLib::cInt) * 4 * num_polygons);
     for (int64_t p = 0; p < num_polygons; p++) bounding_box(paths[p], paths_bb + 4 * p);
 
     if (short_circuit == ShortCircuit::None) {
         num = 0;
         for (int64_t i = 0; i < num_groups; i++) num += groups[i]->point_array.size;
-        bool* result = (bool*)malloc(sizeof(bool) * num);
+        bool* result = (bool*)allocate(sizeof(bool) * num);
 
         ClipperLib::cInt all_bb[4];
         all_bb[0] = paths_bb[0 * 4 + 0];
@@ -307,11 +309,11 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                 result[k++] = in;
             }
         }
-        free(paths_bb);
+        free_allocation(paths_bb);
         return result;
     } else if (short_circuit == ShortCircuit::Any) {
         num = num_groups;
-        bool* result = (bool*)malloc(sizeof(bool) * num);
+        bool* result = (bool*)allocate(sizeof(bool) * num);
         for (int64_t j = 0; j < num_groups; j++) {
             ClipperLib::cInt group_bb[4];
             bool in = false;
@@ -330,11 +332,11 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                             in = true;
             result[j] = in;
         }
-        free(paths_bb);
+        free_allocation(paths_bb);
         return result;
     } else if (short_circuit == ShortCircuit::All) {
         num = num_groups;
-        bool* result = (bool*)malloc(sizeof(bool) * num);
+        bool* result = (bool*)allocate(sizeof(bool) * num);
 
         ClipperLib::cInt all_bb[4];
         all_bb[0] = paths_bb[0 * 4 + 0];
@@ -367,12 +369,12 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             }
             result[j] = in;
         }
-        free(paths_bb);
+        free_allocation(paths_bb);
         return result;
     }
 
     num = 0;
-    free(paths_bb);
+    free_allocation(paths_bb);
     return NULL;
 }
 

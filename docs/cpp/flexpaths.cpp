@@ -12,12 +12,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 void example_flexpath1(Cell& out_cell) {
-    FlexPath* fp = (FlexPath*)calloc(2, sizeof(FlexPath));
+    FlexPath* fp = (FlexPath*)allocate_clear(2 * sizeof(FlexPath));
     fp[0].gdsii_path = true;
     fp[0].spine.tolerance = 0.01;
     fp[0].spine.append(Vec2{0, 0});
     fp[0].num_elements = 1;
-    fp[0].elements = (FlexPathElement*)calloc(1, sizeof(FlexPathElement));
+    fp[0].elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
     fp[0].elements[0].half_width_and_offset.append({0.5, 0});
 
     Vec2 points1[] = {{3, 0}, {3, 2}, {5, 3}, {3, 4}, {0, 4}};
@@ -29,7 +29,7 @@ void example_flexpath1(Cell& out_cell) {
     fp[1].spine.tolerance = 0.01;
     fp[1].spine.append(Vec2{12, 0});
     fp[1].num_elements = 3;
-    fp[1].elements = (FlexPathElement*)calloc(3, sizeof(FlexPathElement));
+    fp[1].elements = (FlexPathElement*)allocate_clear(3 * sizeof(FlexPathElement));
 
     fp[1].elements[0].half_width_and_offset.append({0.15, -0.5});
     fp[1].elements[0].end_type = EndType::HalfWidth;
@@ -57,14 +57,14 @@ void example_flexpath2(Cell& out_cell) {
     Vec2 points[] = {{0, 10}, {20, 0}, {18, 15}, {8, 15}};
     const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
 
-    FlexPath* flexpath = (FlexPath*)calloc(2, sizeof(FlexPath));
+    FlexPath* flexpath = (FlexPath*)allocate_clear(2 * sizeof(FlexPath));
 
     for (FlexPath* fp = flexpath; fp < flexpath + 2; fp++) {
         fp->gdsii_path = true;
         fp->spine.tolerance = 0.01;
         fp->spine.append(Vec2{0, 0});
         fp->num_elements = 1;
-        fp->elements = (FlexPathElement*)calloc(1, sizeof(FlexPathElement));
+        fp->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
         fp->elements[0].half_width_and_offset.append({0.25, 0});
 
         fp->segment(point_array, NULL, NULL, false);
@@ -78,12 +78,12 @@ void example_flexpath2(Cell& out_cell) {
 }
 
 void example_flexpath3(Cell& out_cell) {
-    FlexPath* fp = (FlexPath*)calloc(1, sizeof(FlexPath));
+    FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
 
     fp->spine.tolerance = 0.01;
     fp->spine.append(Vec2{0, 0});
     fp->num_elements = 2;
-    fp->elements = (FlexPathElement*)calloc(2, sizeof(FlexPathElement));
+    fp->elements = (FlexPathElement*)allocate_clear(2 * sizeof(FlexPathElement));
     fp->elements[0].half_width_and_offset.append({0.25, -0.5});
     fp->elements[1].half_width_and_offset.append({0.25, 0.5});
 

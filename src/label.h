@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdlib>
 #include <cstring>
 
+#include "allocator.h"
 #include "property.h"
 #include "vec.h"
 
@@ -40,7 +41,7 @@ struct Label {
 
     void clear() {
         if (text) {
-            free(text);
+            free_allocation(text);
             text = NULL;
         }
         properties_clear(properties);
@@ -50,7 +51,7 @@ struct Label {
     void copy_from(const Label& label) {
         layer = label.layer;
         texttype = label.texttype;
-        text = (char*)malloc((strlen(label.text) + 1) * sizeof(char));
+        text = (char*)allocate((strlen(label.text) + 1) * sizeof(char));
         strcpy(text, label.text);
         origin = label.origin;
         anchor = label.anchor;

@@ -15,7 +15,7 @@ static PyObject* polygon_object_str(PolygonObject* self) {
 static void polygon_object_dealloc(PolygonObject* self) {
     if (self->polygon) {
         self->polygon->clear();
-        free(self->polygon);
+        free_allocation(self->polygon);
     }
     PyObject_Del(self);
 }
@@ -32,7 +32,7 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
     if (self->polygon)
         self->polygon->clear();
     else
-        self->polygon = (Polygon*)calloc(1, sizeof(Polygon));
+        self->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     Polygon* polygon = self->polygon;
     polygon->layer = layer;
     polygon->datatype = datatype;
@@ -46,7 +46,7 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
 static PyObject* polygon_object_copy(PolygonObject* self, PyObject* args) {
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
-    result->polygon = (Polygon*)calloc(1, sizeof(Polygon));
+    result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     result->polygon->copy_from(*self->polygon);
     result->polygon->owner = result;
     return (PyObject*)result;
@@ -157,7 +157,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
         radius_array.items = &radius;
     }
     self->polygon->fillet(radius_array, tol);
-    if (free_items) free(radius_array.items);
+    if (free_items) free_allocation(radius_array.items);
     Py_INCREF(self);
     return (PyObject*)self;
 }
