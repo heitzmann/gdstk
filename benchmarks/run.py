@@ -91,7 +91,7 @@ def timing_benchmark():
             timers[key] = timeit.Timer(f"{func}()", "gc.enable()", globals=namespace)
             best_avg_time[key] = 1e300
 
-    sets = 32
+    sets = 16
     repeats = 8
     for s in range(1, 1 + sets):
         print(f"\n{s}/{sets}:", end="")
