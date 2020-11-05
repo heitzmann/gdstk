@@ -55,10 +55,10 @@ struct Map {
         if (all) {
             MapItem<T>* item = items;
             for (int64_t i = 0; i < capacity; i++, item++) {
-                printf("(%" PRId64 ") Item <%p>, key <%p:%s>, value <%p>, next <%p>\n", i, item,
+                printf("(%" PRId64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, item,
                        item->key, item->key ? item->key : "", item->value, item->next);
                 for (MapItem<T>* it = item->next; it; it = it->next) {
-                    printf("(%" PRId64 ") Item <%p>, key <%p:%s>, value <%p>, next <%p>\n", i, it,
+                    printf("(%" PRId64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, it,
                            it->key, it->key ? it->key : "", it->value, it->next);
                 }
             }
@@ -95,6 +95,13 @@ struct Map {
         for (int64_t i = hash(current->key) % capacity + 1; i < capacity; i++)
             if (items[i].key) return items + i;
         return NULL;
+    }
+
+    Array<T> to_array() const {
+        Array<T> result = {0};
+        result.ensure_slots(size);
+        for (MapItem<T>* it = next(NULL); it; it = next(it)) result.append(it->value);
+        return result;
     }
 
     void clear() {
