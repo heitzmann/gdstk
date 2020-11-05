@@ -20,6 +20,8 @@ In this example we define a function that returns a grating coupler based on use
    :language: python
    :pyobject: grating
 
+:download:`C++ version <cpp/pcell.cpp>`
+
 This function can be used in the following manner:
 
 .. literalinclude:: pcell.py
@@ -49,6 +51,8 @@ Note that the interferometer already uses the directional coupler as a subcompon
    :start-at: import
    :end-at: write_gds
 
+:download:`C++ version <cpp/photonics.cpp>`
+
 
 .. _using-a-library:
 
@@ -67,6 +71,8 @@ The grating example in :ref:`parametric-cell` can be saved in a file "photonics.
    :language: python
    :start-after: from tutorial_images
    :end-at: write_gds
+
+:download:`C++ version <cpp/layout.cpp>`
 
 .. image:: how-tos/layout.*
    :align: center
