@@ -21,8 +21,7 @@ void example_flexpath1(Cell& out_cell) {
     fp[0].elements[0].half_width_and_offset.append({0.5, 0});
 
     Vec2 points1[] = {{3, 0}, {3, 2}, {5, 3}, {3, 4}, {0, 4}};
-    const Array<Vec2> point_array1 = {.size = COUNT(points1), .items = points1};
-    fp[0].segment(point_array1, NULL, NULL, false);
+    fp[0].segment({.size = COUNT(points1), .items = points1}, NULL, NULL, false);
 
     out_cell.flexpath_array.append(fp);
 
@@ -44,8 +43,7 @@ void example_flexpath1(Cell& out_cell) {
     fp[1].elements[2].join_type = JoinType::Round;
 
     Vec2 points2[] = {{8, 0}, {8, 3}, {10, 2}};
-    const Array<Vec2> point_array2 = {.size = COUNT(points2), .items = points2};
-    fp[1].segment(point_array2, NULL, NULL, false);
+    fp[1].segment({.size = COUNT(points2), .items = points2}, NULL, NULL, false);
 
     fp[1].arc(2, 2, -M_PI / 2, M_PI / 2, 0, NULL, NULL);
     fp[1].arc(1, 1, M_PI / 2, 1.5 * M_PI, 0, NULL, NULL);
@@ -55,7 +53,6 @@ void example_flexpath1(Cell& out_cell) {
 
 void example_flexpath2(Cell& out_cell) {
     Vec2 points[] = {{0, 10}, {20, 0}, {18, 15}, {8, 15}};
-    const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
 
     FlexPath* flexpath = (FlexPath*)allocate_clear(2 * sizeof(FlexPath));
 
@@ -67,7 +64,7 @@ void example_flexpath2(Cell& out_cell) {
         fp->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
         fp->elements[0].half_width_and_offset.append({0.25, 0});
 
-        fp->segment(point_array, NULL, NULL, false);
+        fp->segment({.size = COUNT(points), .items = points}, NULL, NULL, false);
 
         out_cell.flexpath_array.append(fp);
     }

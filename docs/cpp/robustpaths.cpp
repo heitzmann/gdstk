@@ -71,7 +71,6 @@ int main(int argc, char* argv[]) {
     rp.segment(Vec2{0, 0}, NULL, NULL, false);
 
     Vec2 point = {15, 5};
-    const Array<Vec2> point_array = {.size = 1, .items = &point};
     double angles[] = {0, M_PI / 2};
     bool angle_constraints[] = {true, true};
     Vec2 tension[] = {{1, 1}, {1, 1}};
@@ -96,8 +95,8 @@ int main(int argc, char* argv[]) {
     offset2[1].final_value = 0.25;
     offset2[2].final_value = -0.75;
     offset2[3].final_value = 0.75;
-    rp.interpolation(point_array, angles, angle_constraints, tension, 1, 1, false, width2, offset2,
-                     false);
+    rp.interpolation({.size = 1, .items = &point}, angles, angle_constraints, tension, 1, 1, false,
+                     width2, offset2, false);
 
     Interpolation offset3[] = {
         {.type = InterpolationType::Parametric},

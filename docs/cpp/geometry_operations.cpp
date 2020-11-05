@@ -16,9 +16,8 @@ void example_boolean(Cell& out_cell) {
 
     Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0, 0);
     Polygon* rectp = &rect;
-    const Array<Polygon*> rect_array = {.size = 1, .items = &rectp};
 
-    Array<Polygon*> result = boolean(rect_array, txt, Operation::Not, 1000);
+    Array<Polygon*> result = boolean({.size = 1, .items = &rectp}, txt, Operation::Not, 1000);
     out_cell.polygon_array.extend(result);
 
     for (int i = 0; i < txt.size; i++) free_allocation(txt[i]);
@@ -57,10 +56,10 @@ void example_slice(Cell& out_cell) {
 
 void example_offset(Cell& out_cell) {
     Polygon* rect = (Polygon*)allocate_clear(2 * sizeof(Polygon));
-    Polygon* rect_p[] = {rect, rect + 1};
-    const Array<Polygon*> rect_array = {.size = 2, .items = rect_p};
     rect[0] = rectangle(Vec2{-4, -4}, Vec2{1, 1}, 0, 0);
     rect[1] = rectangle(Vec2{-1, -1}, Vec2{4, 4}, 0, 0);
+    Polygon* rect_p[] = {rect, rect + 1};
+    const Array<Polygon*> rect_array = {.size = 2, .items = rect_p};
     Array<Polygon*> outer = offset(rect_array, -0.5, OffsetJoin::Miter, 2, 1000, true);
     out_cell.polygon_array.extend(rect_array);
     out_cell.polygon_array.extend(outer);
@@ -76,13 +75,11 @@ void example_fillet(Cell& out_cell) {
     flexpath.elements[0].half_width_and_offset.append(Vec2{2, 0});
 
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
-    const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
-    flexpath.segment(point_array, NULL, NULL, false);
+    flexpath.segment({.size = COUNT(points), .items = points}, NULL, NULL, false);
 
     Array<Polygon*> poly_array = flexpath.to_polygons();
     double r = 1.5;
-    const Array<double> radii = {.size = 1, .items = &r};
-    for (int i = 0; i < poly_array.size; i++) poly_array[i]->fillet(radii, 0.01);
+    for (int i = 0; i < poly_array.size; i++) poly_array[i]->fillet({.size = 1, .items = &r}, 0.01);
 
     out_cell.polygon_array.extend(poly_array);
     flexpath.clear();

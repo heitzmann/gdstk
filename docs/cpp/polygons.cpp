@@ -13,22 +13,19 @@ using namespace gdstk;
 
 void example_polygons(Cell& out_cell) {
     Vec2 points[] = {{0, 0}, {2, 2}, {2, 6}, {-6, 6}, {-6, -6}, {-4, -4}, {-4, 4}, {0, 4}};
-    // This array CANNOT be appended to!
-    const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
 
     // This has to be heap-allocated so that it doesn't go out of scope once the function returns.
     // We also don't worry about leaking it at the end of the program.  The OS will take care of it.
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    poly->point_array.extend(point_array);
+    poly->point_array.extend({.size = COUNT(points), .items = points});
     out_cell.polygon_array.append(poly);
 }
 
 void example_holes(Cell& out_cell) {
     Vec2 points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0},
                      {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
-    const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    poly->point_array.extend(point_array);
+    poly->point_array.extend({.size = COUNT(points), .items = points});
     out_cell.polygon_array.append(poly);
 }
 
@@ -48,12 +45,11 @@ void example_circles(Cell& out_cell) {
 
 void example_curves1(Cell& out_cell) {
     Vec2 points[] = {{1, 0}, {2, 1}, {2, 2}, {0, 2}};
-    const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
 
     // Curve points will be copied to the polygons, so allocating the curve on the stack is fine.
     Curve c1 = {.tolerance = 0.01};
     c1.append(Vec2{0, 0});
-    c1.segment(point_array, false);
+    c1.segment({.size = COUNT(points), .items = points}, false);
 
     Polygon* p1 = (Polygon*)allocate_clear(sizeof(Polygon));
     p1->point_array.extend(c1.point_array);
@@ -62,7 +58,7 @@ void example_curves1(Cell& out_cell) {
 
     Curve c2 = {.tolerance = 0.01};
     c2.append(Vec2{3, 1});
-    c2.segment(point_array, true);
+    c2.segment({.size = COUNT(points), .items = points}, true);
 
     Polygon* p2 = (Polygon*)allocate_clear(sizeof(Polygon));
     p2->point_array.extend(c2.point_array);
@@ -72,11 +68,10 @@ void example_curves1(Cell& out_cell) {
 
 void example_curves2(Cell& out_cell) {
     Vec2 points[] = {4 * cplx_from_angle(M_PI / 6)};
-    const Array<Vec2> point_array = {.size = COUNT(points), .items = points};
 
     Curve c3 = {.tolerance = 0.01};
     c3.append(Vec2{0, 2});
-    c3.segment(point_array, true);
+    c3.segment({.size = COUNT(points), .items = points}, true);
     c3.arc(4, 2, M_PI / 2, -M_PI / 2, 0);
 
     Polygon* p3 = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -90,28 +85,24 @@ void example_curves3(Cell& out_cell) {
     c4.append(Vec2{0, 0});
 
     Vec2 points1[] = {{0, 1}, {1, 1}, {1, 0}};
-    const Array<Vec2> point_array1 = {.size = COUNT(points1), .items = points1};
-    c4.cubic(point_array1, false);
+    c4.cubic({.size = COUNT(points1), .items = points1}, false);
 
     Vec2 points2[] = {{1, -1}, {1, 0}};
-    const Array<Vec2> point_array2 = {.size = COUNT(points2), .items = points2};
-    c4.cubic_smooth(point_array2, true);
+    c4.cubic_smooth({.size = COUNT(points2), .items = points2}, true);
 
     Vec2 points3[] = {{0.5, 1}, {1, 0}};
-    const Array<Vec2> point_array3 = {.size = COUNT(points3), .items = points3};
-    c4.quadratic(point_array3, true);
+    c4.quadratic({.size = COUNT(points3), .items = points3}, true);
 
     Vec2 points4[] = {{1, 0}};
-    const Array<Vec2> point_array4 = {.size = COUNT(points4), .items = points4};
-    c4.quadratic_smooth(point_array4, true);
+    c4.quadratic_smooth({.size = COUNT(points4), .items = points4}, true);
 
     Vec2 points5[] = {{4, -1}, {3, -2}, {2, -1.5}, {1, -2}, {0, -1}, {0, 0}};
-    const Array<Vec2> point_array5 = {.size = COUNT(points5), .items = points5};
     double angles[COUNT(points5) + 1] = {0};
     bool angle_constraints[COUNT(points5) + 1] = {0};
     Vec2 tension[COUNT(points5) + 1] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
 
-    c4.interpolation(point_array5, angles, angle_constraints, tension, 1, 1, false, false);
+    c4.interpolation({.size = COUNT(points5), .items = points5}, angles, angle_constraints, tension,
+                     1, 1, false, false);
 
     // The last point will coincide with the first (this can be checked at runtime with
     // the `closed` method), so we remove it.
@@ -147,8 +138,7 @@ void example_layerdatatype(Cell& out_cell) {
     poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, layer_lift_off, dt_lift_off);
 
     Polygon* p[] = {poly, poly + 1, poly + 2, poly + 3};
-    const Array<Polygon*> poly_array = {.size = 4, .items = p};
-    out_cell.polygon_array.extend(poly_array);
+    out_cell.polygon_array.extend({.size = 4, .items = p});
 }
 
 int main(int argc, char* argv[]) {
