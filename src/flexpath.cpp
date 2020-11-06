@@ -19,7 +19,38 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-void FlexPath::init(const Vec2 initial_position, const double* width, const double* offset) {
+void FlexPath::init(const Vec2 initial_position, double width, double offset, double tolerance) {
+    spine.tolerance = tolerance;
+    spine.append(initial_position);
+    width /= 2;
+    for (int64_t i = 0; i < num_elements; i++)
+        elements[i].half_width_and_offset.append(Vec2{width, offset});
+}
+
+void FlexPath::init(const Vec2 initial_position, const double* width, const double* offset,
+                    double tolerance) {
+    spine.tolerance = tolerance;
+    spine.append(initial_position);
+    for (int64_t i = 0; i < num_elements; i++)
+        elements[i].half_width_and_offset.append(Vec2{0.5 * width[i], offset[i]});
+}
+
+void FlexPath::init(const Vec2 initial_position, int64_t num_elements_, double width, double offset,
+                    double tolerance) {
+    num_elements = num_elements_;
+    elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
+    spine.tolerance = tolerance;
+    spine.append(initial_position);
+    width /= 2;
+    for (int64_t i = 0; i < num_elements; i++)
+        elements[i].half_width_and_offset.append(Vec2{width, offset});
+}
+
+void FlexPath::init(const Vec2 initial_position, int64_t num_elements_, const double* width,
+                    const double* offset, double tolerance) {
+    num_elements = num_elements_;
+    elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
+    spine.tolerance = tolerance;
     spine.append(initial_position);
     for (int64_t i = 0; i < num_elements; i++)
         elements[i].half_width_and_offset.append(Vec2{0.5 * width[i], offset[i]});
@@ -826,15 +857,30 @@ void FlexPath::fill_offsets_and_widths(const double* width, const double* offset
     }
 }
 
-void FlexPath::horizontal(const double* coord_x, int64_t size, const double* width,
-                          const double* offset, bool relative) {
-    spine.horizontal(coord_x, size, relative);
+void FlexPath::horizontal(double coord_x, const double* width, const double* offset,
+                          bool relative) {
+    spine.horizontal(coord_x, relative);
     fill_offsets_and_widths(width, offset);
 }
 
-void FlexPath::vertical(const double* coord_y, int64_t size, const double* width,
-                        const double* offset, bool relative) {
-    spine.vertical(coord_y, size, relative);
+void FlexPath::horizontal(const Array<double> coord_x, const double* width, const double* offset,
+                          bool relative) {
+    spine.horizontal(coord_x, relative);
+    fill_offsets_and_widths(width, offset);
+}
+
+void FlexPath::vertical(double coord_y, const double* width, const double* offset, bool relative) {
+    spine.vertical(coord_y, relative);
+    fill_offsets_and_widths(width, offset);
+}
+
+void FlexPath::vertical(Array<double> coord_y, const double* width, const double* offset, bool relative) {
+    spine.vertical(coord_y, relative);
+    fill_offsets_and_widths(width, offset);
+}
+
+void FlexPath::segment(Vec2 end_point, const double* width, const double* offset, bool relative) {
+    spine.segment(end_point, relative);
     fill_offsets_and_widths(width, offset);
 }
 
@@ -859,6 +905,12 @@ void FlexPath::cubic_smooth(const Array<Vec2> point_array, const double* width,
 void FlexPath::quadratic(const Array<Vec2> point_array, const double* width, const double* offset,
                          bool relative) {
     spine.quadratic(point_array, relative);
+    fill_offsets_and_widths(width, offset);
+}
+
+void FlexPath::quadratic_smooth(Vec2 end_point, const double* width,
+                                const double* offset, bool relative) {
+    spine.quadratic_smooth(end_point, relative);
     fill_offsets_and_widths(width, offset);
 }
 

@@ -67,11 +67,10 @@ void example_curves1(Cell& out_cell) {
 }
 
 void example_curves2(Cell& out_cell) {
-    Vec2 points[] = {4 * cplx_from_angle(M_PI / 6)};
 
     Curve c3 = {.tolerance = 0.01};
     c3.append(Vec2{0, 2});
-    c3.segment({.size = COUNT(points), .items = points}, true);
+    c3.segment(4 * cplx_from_angle(M_PI / 6), true);
     c3.arc(4, 2, M_PI / 2, -M_PI / 2, 0);
 
     Polygon* p3 = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -93,15 +92,14 @@ void example_curves3(Cell& out_cell) {
     Vec2 points3[] = {{0.5, 1}, {1, 0}};
     c4.quadratic({.size = COUNT(points3), .items = points3}, true);
 
-    Vec2 points4[] = {{1, 0}};
-    c4.quadratic_smooth({.size = COUNT(points4), .items = points4}, true);
+    c4.quadratic_smooth(Vec2{1, 0}, true);
 
-    Vec2 points5[] = {{4, -1}, {3, -2}, {2, -1.5}, {1, -2}, {0, -1}, {0, 0}};
-    double angles[COUNT(points5) + 1] = {0};
-    bool angle_constraints[COUNT(points5) + 1] = {0};
-    Vec2 tension[COUNT(points5) + 1] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
+    Vec2 points4[] = {{4, -1}, {3, -2}, {2, -1.5}, {1, -2}, {0, -1}, {0, 0}};
+    double angles[COUNT(points4) + 1] = {0};
+    bool angle_constraints[COUNT(points4) + 1] = {0};
+    Vec2 tension[COUNT(points4) + 1] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
 
-    c4.interpolation({.size = COUNT(points5), .items = points5}, angles, angle_constraints, tension,
+    c4.interpolation({.size = COUNT(points4), .items = points4}, angles, angle_constraints, tension,
                      1, 1, false, false);
 
     // The last point will coincide with the first (this can be checked at runtime with

@@ -247,7 +247,8 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
         }
         free_allocation(coords);
 
-        Array<Polygon*>* chopped = (Array<Polygon*>*)allocate_clear((cuts.size + 1) * sizeof(Array<Polygon*>));
+        Array<Polygon*>* chopped =
+            (Array<Polygon*>*)allocate_clear((cuts.size + 1) * sizeof(Array<Polygon*>));
         slice(*subj, cuts, x_axis, scaling, chopped);
         cuts.clear();
 
@@ -520,10 +521,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     return result;
 }
 
-// NOTE: s must be 0-terminated
-Array<Polygon*> text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
-                     int16_t datatype) {
-    Array<Polygon*> result = {0};
+void text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
+          int16_t datatype, Array<Polygon*>& result) {
     size /= 16;
     Vec2 cursor = position;
     for (; *s != 0; s++) {
@@ -571,7 +570,6 @@ Array<Polygon*> text(const char* s, double size, const Vec2 position, bool verti
             }
         }
     }
-    return result;
 }
 
 }  // namespace gdstk

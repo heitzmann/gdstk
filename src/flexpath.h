@@ -52,8 +52,15 @@ struct FlexPath {
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
-    // Note: width and offset must be NULL or arrays of size at least path.num_elements.
-    void init(const Vec2 initial_position, const double* width, const double* offset);
+    // No allocation of elements
+    void init(const Vec2 initial_position, double width, double offset, double tolerance);
+    void init(const Vec2 initial_position, const double* width, const double* offset,
+              double tolerance);
+    // elements will be allocated
+    void init(const Vec2 initial_position, int64_t num_elements_, double width, double offset,
+              double tolerance);
+    void init(const Vec2 initial_position, int64_t num_elements_, const double* width,
+              const double* offset, double tolerance);
 
     void print(bool all) const;
     void clear();
@@ -66,10 +73,13 @@ struct FlexPath {
                    const Vec2 origin);
 
     // Note: width and offset must be NULL or arrays of size at least path.num_elements.
-    void horizontal(const double* coord_x, int64_t size, const double* width, const double* offset,
+    void horizontal(double coord_x, const double* width, const double* offset, bool relative);
+    void horizontal(const Array<double> coord_x, const double* width, const double* offset,
                     bool relative);
-    void vertical(const double* coord_y, int64_t size, const double* width, const double* offset,
+    void vertical(double coord_y, const double* width, const double* offset, bool relative);
+    void vertical(const Array<double> coord_y, const double* width, const double* offset,
                   bool relative);
+    void segment(Vec2 end_point, const double* width, const double* offset, bool relative);
     void segment(const Array<Vec2> point_array, const double* width, const double* offset,
                  bool relative);
     void cubic(const Array<Vec2> point_array, const double* width, const double* offset,
@@ -78,6 +88,7 @@ struct FlexPath {
                       bool relative);
     void quadratic(const Array<Vec2> point_array, const double* width, const double* offset,
                    bool relative);
+    void quadratic_smooth(Vec2 end_point, const double* width, const double* offset, bool relative);
     void quadratic_smooth(const Array<Vec2> point_array, const double* width, const double* offset,
                           bool relative);
     void bezier(const Array<Vec2> point_array, const double* width, const double* offset,

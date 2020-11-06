@@ -91,15 +91,13 @@ void mach_zenhder_interferometer(Library& lib) {
     FlexPath* path = (FlexPath*)allocate_clear(4 * sizeof(FlexPath));
     FlexPathElement* element = (FlexPathElement*)allocate_clear(4 * sizeof(FlexPathElement));
     for (int64_t i = 0; i < 4; i++) {
-        path[i].spine.tolerance = 0.01;
+        element[i].layer = i < 2 ? 1 : 10;
+        element[i].bend_type = BendType::Circular;
+        element[i].bend_radius = 15;
         path[i].num_elements = 1;
         path[i].elements = element + i;
         path[i].gdsii_path = true;
-        path[i].spine.append(starting_points[i]);
-        element[i].layer = i < 2 ? 1 : 10;
-        element[i].half_width_and_offset.append(Vec2{i < 2 ? 0.25 : 1, 0});
-        element[i].bend_type = BendType::Circular;
-        element[i].bend_radius = 15;
+        path[i].init(starting_points[i], i < 2 ? 0.25 : 1, 0, 0.01);
     }
 
     Vec2 arm_points[] = {{25, 1}, {25, 40}, {55, 40}, {55, 1}, {75, 1}};
@@ -114,8 +112,8 @@ void mach_zenhder_interferometer(Library& lib) {
     for (int64_t i = 0; i < COUNT(heater_points); i++) heater_points[i].y = -heater_points[i].y;
     path[3].segment({.size = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
 
-    FlexPath* _paths[] = {path, path + 1, path + 2, path + 3};
-    cell->flexpath_array.extend({.size = 4, .items = _paths});
+    FlexPath* path_p[] = {path, path + 1, path + 2, path + 3};
+    cell->flexpath_array.extend({.size = 4, .items = path_p});
 }
 
 int main(int argc, char* argv[]) {

@@ -198,46 +198,77 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
     dp.clear();
 }
 
-void Curve::horizontal(const double* coord_x, int64_t size, bool relative) {
-    ensure_slots(size);
+void Curve::horizontal(double coord_x, bool relative) {
+    last_ctrl = point_array[point_array.size - 1];
+    if (relative) {
+        Vec2 v = last_ctrl;
+        v.x += coord_x;
+        point_array.append(v);
+    } else {
+        point_array.append(Vec2{coord_x, last_ctrl.y});
+    }
+}
+
+void Curve::horizontal(const Array<double> coord_x, bool relative) {
+    ensure_slots(coord_x.size);
     Vec2* dst = point_array.items + point_array.size;
-    const double* src_x = coord_x;
+    const double* src_x = coord_x.items;
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < size; i++, dst++) {
+        for (int64_t i = 0; i < coord_x.size; i++, dst++) {
             dst->x = ref.x + *src_x++;
             dst->y = ref.y;
         }
     } else {
         const double ref_y = point_array[point_array.size - 1].y;
-        for (int64_t i = 0; i < size; i++, dst++) {
+        for (int64_t i = 0; i < coord_x.size; i++, dst++) {
             dst->x = *src_x++;
             dst->y = ref_y;
         }
     }
-    point_array.size += size;
+    point_array.size += coord_x.size;
     last_ctrl = point_array[point_array.size - 2];
 }
 
-void Curve::vertical(const double* coord_y, int64_t size, bool relative) {
-    ensure_slots(size);
+void Curve::vertical(double coord_y, bool relative) {
+    last_ctrl = point_array[point_array.size - 1];
+    if (relative) {
+        Vec2 v = last_ctrl;
+        v.y += coord_y;
+        point_array.append(v);
+    } else {
+        point_array.append(Vec2{last_ctrl.x, coord_y});
+    }
+}
+
+void Curve::vertical(const Array<double> coord_y, bool relative) {
+    ensure_slots(coord_y.size);
     Vec2* dst = point_array.items + point_array.size;
-    const double* src_y = coord_y;
+    const double* src_y = coord_y.items;
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < size; i++, dst++) {
+        for (int64_t i = 0; i < coord_y.size; i++, dst++) {
             dst->x = ref.x;
             dst->y = ref.y + *src_y++;
         }
     } else {
         const double ref_x = point_array[point_array.size - 1].x;
-        for (int64_t i = 0; i < size; i++, dst++) {
+        for (int64_t i = 0; i < coord_y.size; i++, dst++) {
             dst->x = ref_x;
             dst->y = *src_y++;
         }
     }
-    point_array.size += size;
+    point_array.size += coord_y.size;
     last_ctrl = point_array[point_array.size - 2];
+}
+
+void Curve::segment(Vec2 end_point, bool relative) {
+    last_ctrl = point_array[point_array.size - 1];
+    if (relative) {
+        point_array.append(end_point + last_ctrl);
+    } else {
+        point_array.append(end_point);
+    }
 }
 
 void Curve::segment(const Array<Vec2> points, bool relative) {
@@ -314,6 +345,16 @@ void Curve::quadratic(const Array<Vec2> points, bool relative) {
             append_quad(first_point, points[i], last_point);
         }
         last_ctrl = points[points.size - 2];
+    }
+}
+
+void Curve::quadratic_smooth(Vec2 end_point, bool relative) {
+    const Vec2 first_point = point_array[point_array.size - 1];
+    last_ctrl = first_point * 2 - last_ctrl;
+    if (relative) {
+        append_quad(first_point, last_ctrl, first_point + end_point);
+    } else {
+        append_quad(first_point, last_ctrl, end_point);
     }
 }
 
@@ -463,21 +504,19 @@ int64_t Curve::commands(const CurveInstruction* items, int64_t size) {
             case 'h':
             case 'H':
                 if (end - item < 1) return item - items - 1;
-                horizontal((double*)item, 1, instruction == 'h');
+                horizontal(*(double*)item, instruction == 'h');
                 item += 1;
                 break;
             case 'v':
             case 'V':
                 if (end - item < 1) return item - items - 1;
-                vertical((double*)item, 1, instruction == 'v');
+                vertical(*(double*)item, instruction == 'v');
                 item += 1;
                 break;
             case 'l':
             case 'L':
                 if (end - item < 2) return item - items - 1;
-                points.items = (Vec2*)item;
-                points.size = 1;
-                segment(points, instruction == 'l');
+                segment(*(Vec2*)item, instruction == 'l');
                 item += 2;
                 break;
             case 'c':

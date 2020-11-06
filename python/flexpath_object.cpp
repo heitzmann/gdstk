@@ -819,14 +819,13 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
         }
     }
     if (PySequence_Check(py_coord)) {
-        int64_t size;
-        double* coord = parse_sequence_double(py_coord, size, "x");
-        if (coord == NULL) {
+        Array<double> coord = {0};
+        if (parse_sequence_double(py_coord, coord, "x") < 0) {
             free_allocation(buffer);
             return NULL;
         }
-        flexpath->horizontal(coord, size, width, offset, relative > 0);
-        free_allocation(coord);
+        flexpath->horizontal(coord, width, offset, relative > 0);
+        coord.clear();
     } else {
         double single = PyFloat_AsDouble(py_coord);
         if (PyErr_Occurred()) {
@@ -834,7 +833,7 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
             free_allocation(buffer);
             return NULL;
         }
-        flexpath->horizontal(&single, 1, width, offset, relative > 0);
+        flexpath->horizontal(single, width, offset, relative > 0);
     }
     free_allocation(buffer);
     Py_INCREF(self);
@@ -869,14 +868,13 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
         }
     }
     if (PySequence_Check(py_coord)) {
-        int64_t size;
-        double* coord = parse_sequence_double(py_coord, size, "y");
-        if (coord == NULL) {
+        Array<double> coord = {0};
+        if (parse_sequence_double(py_coord, coord, "y") < 0) {
             free_allocation(buffer);
             return NULL;
         }
-        flexpath->vertical(coord, size, width, offset, relative > 0);
-        free_allocation(coord);
+        flexpath->vertical(coord, width, offset, relative > 0);
+        coord.clear();
     } else {
         double single = PyFloat_AsDouble(py_coord);
         if (PyErr_Occurred()) {
@@ -884,7 +882,7 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
             free_allocation(buffer);
             return NULL;
         }
-        flexpath->vertical(&single, 1, width, offset, relative > 0);
+        flexpath->vertical(single, width, offset, relative > 0);
     }
     free_allocation(buffer);
     Py_INCREF(self);

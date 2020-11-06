@@ -60,18 +60,17 @@ static PyObject* curve_object_horizontal(CurveObject* self, PyObject* args, PyOb
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:horizontal", (char**)keywords, &x, &relative))
         return NULL;
     if (PySequence_Check(x)) {
-        int64_t size;
-        double* points = parse_sequence_double(x, size, "x");
-        if (!points) return NULL;
-        self->curve->horizontal(points, size, relative > 0);
-        free_allocation(points);
+        Array<double> points = {0};
+        if (parse_sequence_double(x, points, "x") < 0) return NULL;
+        self->curve->horizontal(points, relative > 0);
+        points.clear();
     } else {
         double point = PyFloat_AsDouble(x);
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "Unable to convert first argument to float.");
             return NULL;
         }
-        self->curve->horizontal(&point, 1, relative > 0);
+        self->curve->horizontal(point, relative > 0);
     }
     Py_INCREF(self);
     return (PyObject*)self;
@@ -84,18 +83,17 @@ static PyObject* curve_object_vertical(CurveObject* self, PyObject* args, PyObje
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:vertical", (char**)keywords, &y, &relative))
         return NULL;
     if (PySequence_Check(y)) {
-        int64_t size;
-        double* points = parse_sequence_double(y, size, "y");
-        if (!points) return NULL;
-        self->curve->vertical(points, size, relative > 0);
-        free_allocation(points);
+        Array<double> points = {0};
+        if (parse_sequence_double(y, points, "y") < 0) return NULL;
+        self->curve->vertical(points, relative > 0);
+        points.clear();
     } else {
         double point = PyFloat_AsDouble(y);
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_TypeError, "Unable to convert first argument to float.");
             return NULL;
         }
-        self->curve->vertical(&point, 1, relative > 0);
+        self->curve->vertical(point, relative > 0);
     }
     Py_INCREF(self);
     return (PyObject*)self;
@@ -108,13 +106,11 @@ static PyObject* curve_object_segment(CurveObject* self, PyObject* args, PyObjec
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:segment", (char**)keywords, &xy, &relative))
         return NULL;
     Vec2 point;
-    Array<Vec2> array = {0};
     if (parse_point(xy, point, "xy") == 0) {
-        array.items = &point;
-        array.size = 1;
-        self->curve->segment(array, relative > 0);
+        self->curve->segment(point, relative > 0);
     } else {
         PyErr_Clear();
+        Array<Vec2> array = {0};
         if (parse_point_sequence(xy, array, "xy") < 0) {
             array.clear();
             return NULL;
@@ -186,12 +182,10 @@ static PyObject* curve_object_quadratic_smooth(CurveObject* self, PyObject* args
                                      &relative))
         return NULL;
     Vec2 point;
-    Array<Vec2> array = {0};
     if (parse_point(xy, point, "xy") == 0) {
-        array.items = &point;
-        array.size = 1;
-        self->curve->quadratic_smooth(array, relative > 0);
+        self->curve->quadratic_smooth(point, relative > 0);
     } else {
+        Array<Vec2> array = {0};
         PyErr_Clear();
         if (parse_point_sequence(xy, array, "xy") < 0) {
             array.clear();

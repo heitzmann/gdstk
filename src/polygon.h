@@ -55,8 +55,8 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
                 int16_t layer, int16_t datatype);
 Polygon racetrack(const Vec2 center, double straight_length, double radius, double inner_radius,
                   bool vertical, double tolerance, int16_t layer, int16_t datatype);
-Array<Polygon*> text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
-                     int16_t datatype);
+void text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
+          int16_t datatype, Array<Polygon*>& result);
 
 }  // namespace gdstk
 

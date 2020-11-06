@@ -56,12 +56,16 @@ struct Curve {
         return v.length_sq() <= tolerance * tolerance;
     }
 
-    void horizontal(const double* coord_x, int64_t size, bool relative);
-    void vertical(const double* coord_y, int64_t size, bool relative);
+    void horizontal(double coord_x, bool relative);
+    void horizontal(const Array<double> coord_x, bool relative);
+    void vertical(double coord_y, bool relative);
+    void vertical(const Array<double> coord_y, bool relative);
+    void segment(Vec2 end_point, bool relative);
     void segment(const Array<Vec2> points, bool relative);
     void cubic(const Array<Vec2> points, bool relative);
     void cubic_smooth(const Array<Vec2> points, bool relative);
     void quadratic(const Array<Vec2> points, bool relative);
+    void quadratic_smooth(Vec2 end_point, bool relative);
     void quadratic_smooth(const Array<Vec2> points, bool relative);
     void bezier(const Array<Vec2> points, bool relative);
     void interpolation(const Array<Vec2> points, double* angles, bool* angle_constraints,

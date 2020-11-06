@@ -47,14 +47,13 @@ static int parse_point(PyObject* point, Vec2& v, const char* name) {
     return 0;
 }
 
-static Py_ssize_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, const char* name) {
+static int64_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, const char* name) {
     if (!PySequence_Check(py_polygon)) {
         PyErr_Format(PyExc_TypeError, "Argument %s must be a sequence of points.", name);
         return -1;
     }
 
-    const Py_ssize_t len = PySequence_Length(py_polygon);
-    dest.size = 0;
+    const int64_t len = PySequence_Length(py_polygon);
     dest.ensure_slots(len);
     Vec2* p = dest.items;
     for (Py_ssize_t j = 0; j < len; ++j) {
@@ -74,27 +73,27 @@ static Py_ssize_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, 
     return len;
 }
 
-static double* parse_sequence_double(PyObject* sequence, int64_t& len, const char* name) {
-    len = PySequence_Length(sequence);
+static int64_t parse_sequence_double(PyObject* sequence, Array<double>& dest, const char* name) {
+    const int64_t len = PySequence_Length(sequence);
     if (len <= 0) {
         PyErr_Format(PyExc_RuntimeError,
                      "Argument %s is a sequence with invalid length (%" PRId64 ").", name, len);
-        return NULL;
+        return -1;
     }
-    double* values = (double*)allocate(sizeof(double) * len);
-    double* v = values;
+    dest.ensure_slots(len);
+    double* v = dest.items;
     for (Py_ssize_t j = 0; j < len; j++) {
         PyObject* item = PySequence_ITEM(sequence, j);
         *v++ = PyFloat_AsDouble(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            free_allocation(values);
             PyErr_Format(PyExc_RuntimeError, "Unable to convert item %" PRId64 " in %s to float.",
                          j, name);
-            return NULL;
+            return -1;
         }
     }
-    return values;
+    dest.size = len;
+    return len;
 }
 
 int update_style(PyObject* dict, StyleMap& map, const char* name) {

@@ -12,7 +12,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 void example_boolean(Cell& out_cell) {
-    Array<Polygon*> txt = text("GDSTK", 4, Vec2{0, 0}, false, 0, 0);
+    Array<Polygon*> txt = {0};
+    text("GDSTK", 4, Vec2{0, 0}, false, 0, 0, txt);
 
     Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0, 0);
     Polygon* rectp = &rect;
@@ -67,13 +68,8 @@ void example_offset(Cell& out_cell) {
 }
 
 void example_fillet(Cell& out_cell) {
-    FlexPath flexpath = {.num_elements = 1};
-    flexpath.spine.tolerance = 0.01;
-    flexpath.elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
-
-    flexpath.spine.append(Vec2{-8, -4});
-    flexpath.elements[0].half_width_and_offset.append(Vec2{2, 0});
-
+    FlexPath flexpath = {0};
+    flexpath.init(Vec2{-8, -4}, 1, 4, 0, 0.01);
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
     flexpath.segment({.size = COUNT(points), .items = points}, NULL, NULL, false);
 

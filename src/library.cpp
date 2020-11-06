@@ -339,9 +339,9 @@ Library read_gds(const char* filename, double unit) {
                 } else if (path) {
                     Array<Vec2> point_array = {0};
                     if (path->spine.point_array.size == 0) {
-                        double offset = 0;
-                        Vec2 initial_position = Vec2{factor * data32[0], factor * data32[1]};
-                        path->init(initial_position, &width, &offset);
+                        path->spine.tolerance = 0.01;
+                        path->spine.append(Vec2{factor * data32[0], factor * data32[1]});
+                        path->elements[0].half_width_and_offset.append(Vec2{width / 2, 0});
                         point_array.ensure_slots(data_length / 2 - 1);
                         double* d = (double*)point_array.items;
                         int32_t* s = data32 + 2;

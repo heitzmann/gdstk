@@ -14,31 +14,23 @@ using namespace gdstk;
 void example_flexpath1(Cell& out_cell) {
     FlexPath* fp = (FlexPath*)allocate_clear(2 * sizeof(FlexPath));
     fp[0].gdsii_path = true;
-    fp[0].spine.tolerance = 0.01;
-    fp[0].spine.append(Vec2{0, 0});
-    fp[0].num_elements = 1;
-    fp[0].elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
-    fp[0].elements[0].half_width_and_offset.append({0.5, 0});
+    fp[0].init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
 
     Vec2 points1[] = {{3, 0}, {3, 2}, {5, 3}, {3, 4}, {0, 4}};
     fp[0].segment({.size = COUNT(points1), .items = points1}, NULL, NULL, false);
 
     out_cell.flexpath_array.append(fp);
 
-    fp[1].spine.tolerance = 0.01;
-    fp[1].spine.append(Vec2{12, 0});
-    fp[1].num_elements = 3;
-    fp[1].elements = (FlexPathElement*)allocate_clear(3 * sizeof(FlexPathElement));
+    const double widths[] = {0.3, 0.2, 0.4};
+    const double offsets[] = {-0.5, 0, 0.5};
+    fp[1].init(Vec2{12, 0}, 3, widths, offsets, 0.01);
 
-    fp[1].elements[0].half_width_and_offset.append({0.15, -0.5});
     fp[1].elements[0].end_type = EndType::HalfWidth;
     fp[1].elements[0].join_type = JoinType::Bevel;
 
-    fp[1].elements[1].half_width_and_offset.append({0.1, 0});
     fp[1].elements[1].end_type = EndType::Flush;
     fp[1].elements[1].join_type = JoinType::Miter;
 
-    fp[1].elements[2].half_width_and_offset.append({0.2, 0.5});
     fp[1].elements[2].end_type = EndType::Round;
     fp[1].elements[2].join_type = JoinType::Round;
 
@@ -58,14 +50,8 @@ void example_flexpath2(Cell& out_cell) {
 
     for (FlexPath* fp = flexpath; fp < flexpath + 2; fp++) {
         fp->gdsii_path = true;
-        fp->spine.tolerance = 0.01;
-        fp->spine.append(Vec2{0, 0});
-        fp->num_elements = 1;
-        fp->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
-        fp->elements[0].half_width_and_offset.append({0.25, 0});
-
+        fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
         fp->segment({.size = COUNT(points), .items = points}, NULL, NULL, false);
-
         out_cell.flexpath_array.append(fp);
     }
 
@@ -75,25 +61,20 @@ void example_flexpath2(Cell& out_cell) {
 }
 
 void example_flexpath3(Cell& out_cell) {
+    double widths[] = {0.5, 0.5};
+    double offsets[] = {-0.5, 0.5};
     FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
+    fp->init(Vec2{0, 0}, 2, widths, offsets, 0.01);
 
-    fp->spine.tolerance = 0.01;
-    fp->spine.append(Vec2{0, 0});
-    fp->num_elements = 2;
-    fp->elements = (FlexPathElement*)allocate_clear(2 * sizeof(FlexPathElement));
-    fp->elements[0].half_width_and_offset.append({0.25, -0.5});
-    fp->elements[1].half_width_and_offset.append({0.25, 0.5});
+    fp->horizontal(2, NULL, NULL, false);
 
-    double x = 2;
-    fp->horizontal(&x, 1, NULL, NULL, false);
+    widths[0] = 0.8;
+    widths[1] = 0.8;
+    offsets[0] = -0.9;
+    offsets[1] = 0.9;
+    fp->horizontal(4, widths, offsets, false);
 
-    x = 4;
-    double width[] = {0.8, 0.8};
-    double offset[] = {-0.9, 0.9};
-    fp->horizontal(&x, 1, width, offset, false);
-
-    x = 6;
-    fp->horizontal(&x, 1, NULL, NULL, false);
+    fp->horizontal(6, NULL, NULL, false);
 
     out_cell.flexpath_array.append(fp);
 }

@@ -28,11 +28,10 @@ int main(int argc, char* argv[]) {
     };
     text_cell.label_array.append(&label);
 
-    Array<Polygon*> htext = text("12345", 2.25, Vec2{0.25, 6}, false, 0, 0);
-    text_cell.polygon_array.extend(htext);
-
-    Array<Polygon*> vtext = text("ABC", 1.5, Vec2{10.5, 4}, true, 0, 0);
-    text_cell.polygon_array.extend(vtext);
+    Array<Polygon*> all_text = {0};
+    text("12345", 2.25, Vec2{0.25, 6}, false, 0, 0, all_text);
+    text("ABC", 1.5, Vec2{10.5, 4}, true, 0, 0, all_text);
+    text_cell.polygon_array.extend(all_text);
 
     Polygon rect = rectangle(Vec2{0, 0}, Vec2{10, 6}, 10, 0);
     text_cell.polygon_array.append(&rect);

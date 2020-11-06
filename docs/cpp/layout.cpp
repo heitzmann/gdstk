@@ -80,15 +80,15 @@ int main(int argc, char* argv[]) {
 
     FlexPathElement element = {.layer = 1, .bend_type = BendType::Circular, .bend_radius = 15};
     FlexPath waveguide = {.num_elements = 1, .elements = &element};
-    waveguide.spine.tolerance = 0.01;
-    waveguide.spine.append(Vec2{-220, -150});
-    element.half_width_and_offset.append(Vec2{10, 0});
+    waveguide.init(Vec2{-220, -150}, 20, 0, 0.01);
 
-    Vec2 p[] = {{20, 0}, {-100, -150}, {-70, -150}, {-70, -1}, {-40, -1}};
+    waveguide.segment(Vec2{20, 0}, NULL, NULL, true);
+
     const double w = 0.5;
-    waveguide.segment({.size = 1, .items = p}, NULL, NULL, true);
-    waveguide.segment({.size = 1, .items = p + 1}, &w, NULL, false);
-    waveguide.segment({.size = COUNT(p) - 2, .items = p + 2}, NULL, NULL, false);
+    waveguide.segment(Vec2{-100, -150}, &w, NULL, false);
+
+    Vec2 p[] = {{-70, -150}, {-70, -1}, {-40, -1}};
+    waveguide.segment({.size = COUNT(p), .items = p}, NULL, NULL, false);
 
     char wg_cell_name[] = "Waveguide";
     Cell wg_cell = {.name = wg_cell_name};

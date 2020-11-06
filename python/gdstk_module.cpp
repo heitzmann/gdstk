@@ -741,7 +741,8 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
                                      &py_position, &vertical, &layer, &datatype))
         return NULL;
     if (parse_point(py_position, position, "position") != 0) return NULL;
-    Array<Polygon*> array = text(s, size, position, vertical > 0, layer, datatype);
+    Array<Polygon*> array = {0};
+    text(s, size, position, vertical > 0, layer, datatype, array);
 
     PyObject* result = PyList_New(array.size);
     for (Py_ssize_t i = 0; i < array.size; i++) {
@@ -972,8 +973,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     double single_position;
     Array<double> positions = {0};
     if (PySequence_Check(py_position)) {
-        positions.items = parse_sequence_double(py_position, positions.size, "position");
-        if (positions.items == NULL) return NULL;
+        if (parse_sequence_double(py_position, positions, "position") < 0) return NULL;
     } else {
         single_position = PyFloat_AsDouble(py_position);
         if (PyErr_Occurred()) {
