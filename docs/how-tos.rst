@@ -77,7 +77,6 @@ The grating example in :ref:`parametric-cell` can be saved in a file "photonics.
 .. image:: how-tos/layout.*
    :align: center
 
-
 ***************
 Transformations
 ***************
@@ -93,6 +92,8 @@ The latter is particularly useful when changes to the transformed cell contents 
    :language: python
    :start-after: from tutorial_images import draw
    :end-before: main.name
+
+:download:`C++ version <cpp/transforms.cpp>`
 
 .. image:: how-tos/transforms.*
    :align: center
@@ -114,6 +115,8 @@ In this example we load the layout created in :ref:`using-a-library` and remove 
    :start-after: from tutorial_images import draw
    :end-at: write_gds
 
+:download:`C++ version <cpp/filtering.cpp>`
+
 .. image:: how-tos/filtering.*
    :align: center
 
@@ -124,6 +127,8 @@ In this example we create a periodic background and remove all elements that ove
    :language: python
    :start-after: from tutorial_images import draw
    :end-at: write_gds
+
+:download:`C++ version <cpp/pos_filtering.cpp>`
 
 .. image:: how-tos/pos_filtering.*
    :align: center
