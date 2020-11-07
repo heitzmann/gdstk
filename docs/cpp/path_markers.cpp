@@ -43,20 +43,29 @@ int main(int argc, char* argv[]) {
 
     Polygon major = regular_polygon(Vec2{0, 0}, 0.5, 6, 0, 1, 0);
     Polygon minor = rectangle(Vec2{-0.1, -0.5}, Vec2{0.1, 0.5}, 1, 0);
+
+    int64_t size = path.subpath_array.size;
+
+    // Allocate enough memory for all markers
+    Polygon* poly = (Polygon*)allocate_clear(4 * size * sizeof(Polygon));
+
+    // Reserve space for all markers in the main cell
+    main_cell.polygon_array.ensure_slots(1 + 4 * size);
+
     for (int64_t i = 0; i < path.subpath_array.size; i++) {
-        Polygon* p_maj = (Polygon*)allocate_clear(sizeof(Polygon));
-        p_maj->copy_from(major);
-        p_maj->translate(path.position(i, true));
-        main_cell.polygon_array.append(p_maj);
+        poly->copy_from(major);
+        poly->translate(path.position(i, true));
+        main_cell.polygon_array.append(poly++);
         for (int64_t j = 1; j < 4; j++) {
-            Polygon* p_min = (Polygon*)allocate_clear(sizeof(Polygon));
-            p_min->copy_from(minor);
+            poly->copy_from(minor);
             double u = i + j / 4.0;
-            p_min->rotate(path.gradient(u, true).angle(), Vec2{0, 0});
-            p_min->translate(path.position(u, true));
-            main_cell.polygon_array.append(p_min);
+            poly->rotate(path.gradient(u, true).angle(), Vec2{0, 0});
+            poly->translate(path.position(u, true));
+            main_cell.polygon_array.append(poly++);
         }
     }
+
+    // Last marker: we use the original major marker
     major.translate(path.end_point);
     main_cell.polygon_array.append(&major);
 
