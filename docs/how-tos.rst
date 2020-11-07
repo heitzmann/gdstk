@@ -147,6 +147,8 @@ Markers positioned at a fixed distance must be calculated for each section indep
    :start-after: from tutorial_images import draw
    :end-before: main.name
 
+:download:`C++ version <cpp/path_markers.cpp>`
+
 .. image:: how-tos/path_markers.*
    :align: center
 
