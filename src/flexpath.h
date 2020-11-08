@@ -106,7 +106,7 @@ struct FlexPath {
     // offset remain unchainged.
     int64_t commands(const CurveInstruction* items, int64_t size);
 
-    Array<Polygon*> to_polygons();
+    void to_polygons(Array<Polygon*>& result);
 
     // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
     // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce

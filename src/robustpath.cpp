@@ -1080,9 +1080,8 @@ void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &of
     fputs("[GDSTK] No intersection found in RobustPath right side construction.\n", stderr);
 }
 
-Array<Vec2> RobustPath::spine() const {
-    Array<Vec2> result = {0};
-    if (subpath_array.size == 0) return result;
+void RobustPath::spine(Array<Vec2> &result) const {
+    if (subpath_array.size == 0) return;
     result.ensure_slots(subpath_array.size + 1);
     double u0 = 0;
     SubPath *sub0 = subpath_array.items;
@@ -1099,12 +1098,10 @@ Array<Vec2> RobustPath::spine() const {
         }
     }
     spine_points(*sub0, u0, 1, result);
-    return result;
 }
 
-Array<Polygon *> RobustPath::to_polygons() const {
-    Array<Polygon *> result = {0};
-    if (num_elements == 0 || subpath_array.size == 0) return result;
+void RobustPath::to_polygons(Array<Polygon *> &result) const {
+    if (num_elements == 0 || subpath_array.size == 0) return;
 
     const double tolerance_sq = tolerance * tolerance;
     result.ensure_slots(num_elements);
@@ -1296,7 +1293,6 @@ Array<Polygon *> RobustPath::to_polygons() const {
         result_polygon->properties = properties_copy(properties);
         result.append_unsafe(result_polygon);
     }
-    return result;
 }
 
 void RobustPath::to_gds(FILE *out, double scaling) const {
@@ -1402,7 +1398,8 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
 }
 
 void RobustPath::to_svg(FILE *out, double scaling) const {
-    Array<Polygon *> array = to_polygons();
+    Array<Polygon *> array = {0};
+    to_polygons(array);
     for (int64_t i = 0; i < array.size; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();

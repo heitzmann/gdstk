@@ -13,6 +13,10 @@ using namespace gdstk;
 
 int main(int argc, char* argv[]) {
     Library lib = read_gds("layout.gds", 0);
+    if (lib.unit == 0) {
+        // File not found
+        exit(EXIT_FAILURE);
+    }
 
     for (int64_t i = 0; i < lib.cell_array.size; i++) {
         Cell* cell = lib.cell_array[i];

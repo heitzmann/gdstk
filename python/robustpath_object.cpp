@@ -414,10 +414,12 @@ static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject* args) 
 }
 
 static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args) {
-    Array<Vec2> point_array = self->robustpath->spine();
+    Array<Vec2> point_array = {0};
+    self->robustpath->spine(point_array);
     npy_intp dims[] = {(npy_intp)point_array.size, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
+        point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
         return NULL;
     }
@@ -502,11 +504,15 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
 }
 
 static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject* args) {
-    Array<Polygon*> array = self->robustpath->to_polygons();
+    Array<Polygon*> array = {0};
+    self->robustpath->to_polygons(array);
     PyObject* result = PyList_New(array.size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
-        for (int64_t i = 0; i < array.size; i++) array[i]->clear();
+        for (int64_t i = 0; i < array.size; i++) {
+            array[i]->clear();
+            free_allocation(array[i]);
+        }
         array.clear();
         return NULL;
     }

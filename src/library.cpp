@@ -72,25 +72,28 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     cell_deps.resize(cell_array.size * 2);
     rawcell_deps.resize(rawcell_array.size * 2);
 
-    Cell** cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, cell++) {
-        (*cell)->get_dependencies(false, cell_deps);
-        (*cell)->get_raw_dependencies(false, rawcell_deps);
+    Cell** c_item = cell_array.items;
+    for (int64_t i = 0; i < cell_array.size; i++, c_item++) {
+        Cell* cell = *c_item;
+        cell->get_dependencies(false, cell_deps);
+        cell->get_raw_dependencies(false, rawcell_deps);
     }
 
-    RawCell** rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) {
-        (*rawcell)->get_dependencies(false, rawcell_deps);
+    RawCell** r_item = rawcell_array.items;
+    for (int64_t i = 0; i < rawcell_array.size; i++) {
+        (*r_item++)->get_dependencies(false, rawcell_deps);
     }
 
-    cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, cell++) {
-        if (cell_deps.get((*cell)->name) != (*cell)) top_cells.append(*cell);
+    c_item = cell_array.items;
+    for (int64_t i = 0; i < cell_array.size; i++) {
+        Cell* cell = *c_item++;
+        if (cell_deps.get(cell->name) != cell) top_cells.append(cell);
     }
 
-    rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) {
-        if (rawcell_deps.get((*rawcell)->name) != (*rawcell)) top_rawcells.append(*rawcell);
+    r_item = rawcell_array.items;
+    for (int64_t i = 0; i < rawcell_array.size; i++) {
+        RawCell* rawcell = *r_item++;
+        if (rawcell_deps.get(rawcell->name) != rawcell) top_rawcells.append(rawcell);
     }
 }
 
@@ -248,15 +251,17 @@ Library read_gds(const char* filename, double unit) {
             } break;
             case 0x04: {  // ENDLIB
                 Map<Cell*> map = {0};
-                map.resize(
-                    (int64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * library.cell_array.size));
-                for (int64_t i = library.cell_array.size - 1; i >= 0; i--)
-                    map.set(library.cell_array[i]->name, library.cell_array[i]);
-                for (int64_t i = library.cell_array.size - 1; i >= 0; i--) {
-                    Reference** ref = library.cell_array[i]->reference_array.items;
-                    for (int64_t j = library.cell_array[i]->reference_array.size; j > 0;
-                         j--, ref++) {
-                        reference = *ref;
+                int64_t c_size = library.cell_array.size;
+                map.resize((int64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+                Cell** c_item = library.cell_array.items;
+                for (int64_t i = c_size - 1; i >= 0; i--, c_item++)
+                    map.set((*c_item)->name, *c_item);
+                c_item = library.cell_array.items;
+                for (int64_t i = c_size - 1; i >= 0; i--) {
+                    cell = *c_item++;
+                    Reference** ref = cell->reference_array.items;
+                    for (int64_t j = cell->reference_array.size - 1; j >= 0; j--) {
+                        reference = *ref++;
                         Cell* cp = map.get(reference->name);
                         if (cp) {
                             free_allocation(reference->name);

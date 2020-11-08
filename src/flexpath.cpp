@@ -192,11 +192,9 @@ void FlexPath::remove_overlapping_points() {
     }
 }
 
-Array<Polygon*> FlexPath::to_polygons() {
-    Array<Polygon*> result = {0};
-
+void FlexPath::to_polygons(Array<Polygon*>& result) {
     remove_overlapping_points();
-    if (spine.point_array.size < 2) return result;
+    if (spine.point_array.size < 2) return;
 
     const Array<Vec2> spine_points = spine.point_array;
     int64_t curve_size_guess = spine_points.size * 2 + 4;
@@ -608,7 +606,6 @@ Array<Polygon*> FlexPath::to_polygons() {
         result_polygon->properties = properties_copy(properties);
         result.append_unsafe(result_polygon);
     }
-    return result;
 }
 
 void FlexPath::to_gds(FILE* out, double scaling) {
@@ -833,7 +830,8 @@ void FlexPath::to_gds(FILE* out, double scaling) {
 }
 
 void FlexPath::to_svg(FILE* out, double scaling) {
-    Array<Polygon*> array = to_polygons();
+    Array<Polygon*> array = {0};
+    to_polygons(array);
     for (int64_t i = 0; i < array.size; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();

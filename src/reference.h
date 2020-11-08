@@ -52,10 +52,10 @@ struct Reference {
     void bounding_box(Vec2& min, Vec2& max) const;
     void transform(double mag, const Vec2 trans, bool x_refl, double rot, const Vec2 orig);
 
-    Array<Polygon*> polygons(bool include_paths, int64_t depth) const;
-    Array<FlexPath*> flexpaths(int64_t depth) const;
-    Array<RobustPath*> robustpaths(int64_t depth) const;
-    Array<Label*> labels(int64_t depth) const;
+    void polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const;
+    void flexpaths(int64_t depth, Array<FlexPath*>& result) const;
+    void robustpaths(int64_t depth, Array<RobustPath*>& result) const;
+    void labels(int64_t depth, Array<Label*>& result) const;
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };

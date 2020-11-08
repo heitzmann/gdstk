@@ -47,16 +47,19 @@ int main(int argc, char* argv[]) {
     };
     main_cell.reference_array.append(unit_refs);
     main_cell.reference_array.append(unit_refs + 1);
-    main_cell.flatten();
+
+    Array<Reference*> removed_references = {0};
+    main_cell.flatten(removed_references);
+    removed_references.clear();
 
     Array<Polygon*> txt = {0};
     text("PY", 8 * d, Vec2{0.5 * d, 0}, false, 1, 0, txt);
-    int64_t size;
-    bool* test = inside(main_cell.polygon_array, txt, ShortCircuit::Any, 1000, size);
-    for (int64_t i = 0, j = 0; i < size; i++, j++) {
+    Array<bool> test = {0};
+    inside(main_cell.polygon_array, txt, ShortCircuit::Any, 1000, test);
+    for (int64_t i = 0, j = 0; i < test.size; i++, j++) {
         if (test[i]) main_cell.polygon_array.remove(j--);
     }
-    free_allocation(test);
+    test.clear();
 
     main_cell.polygon_array.extend(txt);
 

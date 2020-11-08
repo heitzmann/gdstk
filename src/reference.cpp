@@ -69,17 +69,19 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     // This is expensive, but necessary for a precise bounding box
-    Array<Polygon*> array = polygons(true, -1);
-    Polygon** poly = array.items;
-    for (int64_t i = 0; i < array.size; i++, poly++) {
+    Array<Polygon*> array = {0};
+    polygons(true, -1, array);
+    Polygon** p_item = array.items;
+    for (int64_t i = 0; i < array.size; i++) {
+        Polygon* poly = *p_item++;
         Vec2 pmin, pmax;
-        (*poly)->bounding_box(pmin, pmax);
+        poly->bounding_box(pmin, pmax);
         if (pmin.x < min.x) min.x = pmin.x;
         if (pmin.y < min.y) min.y = pmin.y;
         if (pmax.x > max.x) max.x = pmax.x;
         if (pmax.y > max.y) max.y = pmax.y;
-        (*poly)->clear();
-        free_allocation(*poly);
+        poly->clear();
+        free_allocation(poly);
     }
     array.clear();
 }
@@ -99,137 +101,125 @@ void Reference::transform(double mag, const Vec2 trans, bool x_refl, double rot,
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
-Array<Polygon*> Reference::polygons(bool include_paths, int64_t depth) const {
-    Array<Polygon*> result = {0};
-    if (type != ReferenceType::Cell) return result;
+void Reference::polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const {
+    if (type != ReferenceType::Cell) return;
 
-    Array<Polygon*> array = cell->get_polygons(include_paths, depth);
+    Array<Polygon*> array = {0};
+    cell->get_polygons(include_paths, depth, array);
     uint32_t factor = rows * columns;
     result.ensure_slots(array.size * factor);
-    result.size = array.size * factor;
-
-    Polygon** src = array.items;
-    Polygon** dst = result.items;
     Vec2 translation;
-    for (int64_t i = 0; i < array.size; i++, src++) {
+    Polygon** a_item = array.items;
+    for (int64_t i = 0; i < array.size; i++) {
+        Polygon* src = *a_item++;
         for (int64_t r = rows - 1; r >= 0; r--) {
             translation.y = r * spacing.y;
             for (int64_t c = columns - 1; c >= 0; c--) {
                 translation.x = c * spacing.x;
+                Polygon* dst;
                 // Avoid an extra allocation by moving the last polygon.
-                if (r == 0 && c == 0)
-                    *dst = *src;
-                else {
-                    *dst = (Polygon*)allocate_clear(sizeof(Polygon));
-                    (*dst)->copy_from(**src);
+                if (r == 0 && c == 0) {
+                    dst = src;
+                } else {
+                    dst = (Polygon*)allocate_clear(sizeof(Polygon));
+                    dst->copy_from(*src);
                 }
-                (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
-                dst++;
+                dst->transform(magnification, translation, x_reflection, rotation, origin);
+                result.append_unsafe(dst);
             }
         }
     }
     array.clear();
-
-    return result;
 }
 
-Array<FlexPath*> Reference::flexpaths(int64_t depth) const {
-    Array<FlexPath*> result = {0};
-    if (type != ReferenceType::Cell) return result;
+void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
+    if (type != ReferenceType::Cell) return;
 
-    Array<FlexPath*> array = cell->get_flexpaths(depth);
+    Array<FlexPath*> array = {0};
+    cell->get_flexpaths(depth, array);
     uint32_t factor = rows * columns;
     result.ensure_slots(array.size * factor);
-    result.size = array.size * factor;
-
-    FlexPath** src = array.items;
-    FlexPath** dst = result.items;
     Vec2 translation;
-    for (int64_t i = 0; i < array.size; i++, src++) {
+    FlexPath** a_item = array.items;
+    for (int64_t i = 0; i < array.size; i++) {
+        FlexPath* src = *a_item++;
         for (int64_t r = rows - 1; r >= 0; r--) {
             translation.y = r * spacing.y;
             for (int64_t c = columns - 1; c >= 0; c--) {
                 translation.x = c * spacing.x;
-                if (r == 0 && c == 0)
-                    *dst = *src;
-                else {
-                    *dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
-                    (*dst)->copy_from(**src);
+                FlexPath* dst;
+                if (r == 0 && c == 0) {
+                    dst = src;
+                } else {
+                    dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
+                    dst->copy_from(*src);
                 }
-                (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
-                dst++;
+                dst->transform(magnification, translation, x_reflection, rotation, origin);
+                result.append_unsafe(dst);
             }
         }
     }
     array.clear();
-
-    return result;
 }
 
-Array<RobustPath*> Reference::robustpaths(int64_t depth) const {
-    Array<RobustPath*> result = {0};
-    if (type != ReferenceType::Cell) return result;
+void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
+    if (type != ReferenceType::Cell) return;
 
-    Array<RobustPath*> array = cell->get_robustpaths(depth);
+    Array<RobustPath*> array = {0};
+    cell->get_robustpaths(depth, array);
     uint32_t factor = rows * columns;
     result.ensure_slots(array.size * factor);
-    result.size = array.size * factor;
-
-    RobustPath** src = array.items;
-    RobustPath** dst = result.items;
     Vec2 translation;
-    for (int64_t i = 0; i < array.size; i++, src++) {
+    RobustPath** a_item = array.items;
+    for (int64_t i = 0; i < array.size; i++) {
+        RobustPath* src = *a_item++;
         for (int64_t r = rows - 1; r >= 0; r--) {
             translation.y = r * spacing.y;
             for (int64_t c = columns - 1; c >= 0; c--) {
                 translation.x = c * spacing.x;
-                if (r == 0 && c == 0)
-                    *dst = *src;
-                else {
-                    *dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
-                    (*dst)->copy_from(**src);
+                RobustPath* dst;
+                if (r == 0 && c == 0) {
+                    dst = src;
+                } else {
+                    dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
+                    dst->copy_from(*src);
                 }
-                (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
-                dst++;
+                dst->transform(magnification, translation, x_reflection, rotation, origin);
+                result.append_unsafe(dst);
             }
         }
     }
     array.clear();
-
-    return result;
 }
 
-Array<Label*> Reference::labels(int64_t depth) const {
-    Array<Label*> result = {0};
-    if (type != ReferenceType::Cell) return result;
+void Reference::labels(int64_t depth, Array<Label*>& result) const {
+    if (type != ReferenceType::Cell) return;
 
-    Array<Label*> array = cell->get_labels(depth);
+    Array<Label*> array = {0};
+    cell->get_labels(depth, array);
     uint32_t factor = rows * columns;
     result.ensure_slots(array.size * factor);
-    result.size = array.size * factor;
-
-    Label** src = array.items;
-    Label** dst = result.items;
     Vec2 translation;
-    for (int64_t i = 0; i < array.size; i++, src++) {
+    Label** a_item = array.items;
+    for (int64_t i = 0; i < array.size; i++) {
+        Label* src = *a_item++;
         for (int64_t r = rows - 1; r >= 0; r--) {
             translation.y = r * spacing.y;
             for (int64_t c = columns - 1; c >= 0; c--) {
                 translation.x = c * spacing.x;
-                if (r == 0 && c == 0)
-                    *dst = *src;
-                else {
-                    *dst = (Label*)allocate_clear(sizeof(Label));
-                    (*dst)->copy_from(**src);
+                Label* dst;
+                if (r == 0 && c == 0) {
+                    dst = src;
+                } else {
+                    dst = (Label*)allocate_clear(sizeof(Label));
+                    dst->copy_from(*src);
                 }
-                (*dst)->transform(magnification, translation, x_reflection, rotation, origin);
-                dst++;
+                dst->transform(magnification, translation, x_reflection, rotation, origin);
+                result.append_unsafe(dst);
             }
         }
     }
     array.clear();
-
-    return result;
 }
 
 void Reference::to_gds(FILE* out, double scaling) const {

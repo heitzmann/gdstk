@@ -97,11 +97,9 @@ struct Map {
         return NULL;
     }
 
-    Array<T> to_array() const {
-        Array<T> result = {0};
+    void to_array(Array<T>& result) const {
         result.ensure_slots(size);
-        for (MapItem<T>* it = next(NULL); it; it = next(it)) result.append(it->value);
-        return result;
+        for (MapItem<T>* it = next(NULL); it; it = next(it)) result.append_unsafe(it->value);
     }
 
     void clear() {

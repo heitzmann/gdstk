@@ -84,9 +84,10 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
         if (rmax.y > max.y) max.y = rmax.y;
     }
 
+    Array<Polygon*> array = {0};
     FlexPath** flexpath = flexpath_array.items;
     for (int64_t i = 0; i < flexpath_array.size; i++, flexpath++) {
-        Array<Polygon*> array = (*flexpath)->to_polygons();
+        (*flexpath)->to_polygons(array);
         for (int64_t j = 0; j < array.size; j++) {
             Vec2 pmin, pmax;
             array[j]->bounding_box(pmin, pmax);
@@ -97,12 +98,12 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
             array[j]->clear();
             free_allocation(array[j]);
         }
-        array.clear();
+        array.size = 0;
     }
 
     RobustPath** robustpath = robustpath_array.items;
     for (int64_t i = 0; i < robustpath_array.size; i++, robustpath++) {
-        Array<Polygon*> array = (*robustpath)->to_polygons();
+        (*robustpath)->to_polygons(array);
         for (int64_t j = 0; j < array.size; j++) {
             Vec2 pmin, pmax;
             array[j]->bounding_box(pmin, pmax);
@@ -113,8 +114,9 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
             array[j]->clear();
             free_allocation(array[j]);
         }
-        array.clear();
+        array.size = 0;
     }
+    array.clear();
 }
 
 void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
@@ -188,159 +190,114 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
 }
 
 // If depth < 0, goes through all references in the structure.
-Array<Polygon*> Cell::get_polygons(bool include_paths, int64_t depth) const {
-    Array<Polygon*> result = {0};
+void Cell::get_polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const {
     result.ensure_slots(polygon_array.size);
 
-    Polygon** poly = result.items;
+    Polygon** poly = result.items + result.size;
     Polygon** psrc = polygon_array.items;
     for (int64_t i = 0; i < polygon_array.size; i++, psrc++, poly++) {
         *poly = (Polygon*)allocate_clear(sizeof(Polygon));
         (*poly)->copy_from(**psrc);
     }
-    result.size = polygon_array.size;
+    result.size += polygon_array.size;
 
     if (include_paths) {
         FlexPath** flexpath = flexpath_array.items;
         for (int64_t i = 0; i < flexpath_array.size; i++, flexpath++) {
-            Array<Polygon*> array = (*flexpath)->to_polygons();
-            // Move allocated polygons from array to result
-            result.extend(array);
-            array.clear();
+            (*flexpath)->to_polygons(result);
         }
 
         RobustPath** robustpath = robustpath_array.items;
         for (int64_t i = 0; i < robustpath_array.size; i++, robustpath++) {
-            Array<Polygon*> array = (*robustpath)->to_polygons();
-            // Move allocated polygons from array to result
-            result.extend(array);
-            array.clear();
+            (*robustpath)->to_polygons(result);
         }
     }
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            Array<Polygon*> array = (*ref)->polygons(include_paths, depth > 0 ? depth - 1 : -1);
-            // Move allocated polygons from array to result
-            result.extend(array);
-            array.clear();
+            (*ref)->polygons(include_paths, depth > 0 ? depth - 1 : -1, result);
         }
     }
-
-    return result;
 }
 
-Array<FlexPath*> Cell::get_flexpaths(int64_t depth) const {
-    Array<FlexPath*> result = {0};
+void Cell::get_flexpaths(int64_t depth, Array<FlexPath*>& result) const {
     result.ensure_slots(flexpath_array.size);
 
-    FlexPath** dst = result.items;
+    FlexPath** dst = result.items + result.size;
     FlexPath** src = flexpath_array.items;
     for (int64_t i = 0; i < flexpath_array.size; i++, src++, dst++) {
         *dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
         (*dst)->copy_from(**src);
     }
-    result.size = flexpath_array.size;
+    result.size += flexpath_array.size;
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            Array<FlexPath*> array = (*ref)->flexpaths(depth > 0 ? depth - 1 : -1);
-            // Move allocated flexpaths from array to result
-            result.extend(array);
-            array.clear();
+            (*ref)->flexpaths(depth > 0 ? depth - 1 : -1, result);
         }
     }
-
-    return result;
 }
 
-Array<RobustPath*> Cell::get_robustpaths(int64_t depth) const {
-    Array<RobustPath*> result = {0};
+void Cell::get_robustpaths(int64_t depth, Array<RobustPath*>& result) const {
     result.ensure_slots(robustpath_array.size);
 
-    RobustPath** dst = result.items;
+    RobustPath** dst = result.items + result.size;
     RobustPath** src = robustpath_array.items;
     for (int64_t i = 0; i < robustpath_array.size; i++, src++, dst++) {
         *dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
         (*dst)->copy_from(**src);
     }
-    result.size = robustpath_array.size;
+    result.size += robustpath_array.size;
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            Array<RobustPath*> array = (*ref)->robustpaths(depth > 0 ? depth - 1 : -1);
-            // Move allocated robustpaths from array to result
-            result.extend(array);
-            array.clear();
+            (*ref)->robustpaths(depth > 0 ? depth - 1 : -1, result);
         }
     }
-
-    return result;
 }
 
-Array<Label*> Cell::get_labels(int64_t depth) const {
-    Array<Label*> result = {0};
+void Cell::get_labels(int64_t depth, Array<Label*>& result) const {
     result.ensure_slots(label_array.size);
 
-    Label** dst = result.items;
+    Label** dst = result.items + result.size;
     Label** src = label_array.items;
     for (int64_t i = 0; i < label_array.size; i++, src++, dst++) {
         *dst = (Label*)allocate_clear(sizeof(Label));
         (*dst)->copy_from(**src);
     }
-    result.size = label_array.size;
+    result.size += label_array.size;
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            Array<Label*> array = (*ref)->labels(depth > 0 ? depth - 1 : -1);
-            // Move allocated labels from array to result
-            result.extend(array);
-            array.clear();
+            (*ref)->labels(depth > 0 ? depth - 1 : -1, result);
         }
     }
-
-    return result;
 }
 
-Array<Reference*> Cell::flatten() {
-    Array<Reference*> result = {0};
-
-    Reference** ref = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-        if ((*ref)->type == ReferenceType::Cell) {
-            result.append(*ref);
-
-            // Move allocated items from arrays
-            Array<Polygon*> polygons = (*ref)->polygons(false, -1);
-            polygon_array.extend(polygons);
-            polygons.clear();
-
-            Array<FlexPath*> flexpaths = (*ref)->flexpaths(-1);
-            flexpath_array.extend(flexpaths);
-            flexpaths.clear();
-
-            Array<RobustPath*> robustpaths = (*ref)->robustpaths(-1);
-            robustpath_array.extend(robustpaths);
-            robustpaths.clear();
-
-            Array<Label*> labels = (*ref)->labels(-1);
-            label_array.extend(labels);
-            labels.clear();
+void Cell::flatten(Array<Reference*>& result) {
+    Reference** r_item = reference_array.items;
+    for (int64_t i = 0; i < reference_array.size; i++) {
+        Reference* ref = *r_item++;
+        if (ref->type == ReferenceType::Cell) {
+            result.append(ref);
+            ref->polygons(false, -1, polygon_array);
+            ref->flexpaths(-1, flexpath_array);
+            ref->robustpaths(-1, robustpath_array);
+            ref->labels(-1, label_array);
         }
     }
 
     for (int64_t i = 0; i < reference_array.size;) {
-        if (reference_array[i]->type == ReferenceType::Cell)
+        if (reference_array[i]->type == ReferenceType::Cell) {
             reference_array.remove_unordered(i);
-        else
+        } else {
             i++;
+        }
     }
-
-    return result;
 }
 
 void Cell::get_dependencies(bool recursive, Map<Cell*>& result) const {
@@ -359,14 +316,15 @@ void Cell::get_dependencies(bool recursive, Map<Cell*>& result) const {
 void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
     Reference** reference = reference_array.items;
     for (int64_t i = 0; i < reference_array.size; i++, reference++) {
-        if ((*reference)->type == ReferenceType::RawCell) {
-            RawCell* rawcell = (*reference)->rawcell;
+        Reference* ref = *reference;
+        if (ref->type == ReferenceType::RawCell) {
+            RawCell* rawcell = ref->rawcell;
             if (recursive && result.get(rawcell->name) != rawcell) {
                 rawcell->get_dependencies(true, result);
             }
             result.set(rawcell->name, rawcell);
-        } else if (recursive && (*reference)->type == ReferenceType::Cell) {
-            (*reference)->cell->get_raw_dependencies(true, result);
+        } else if (recursive && ref->type == ReferenceType::Cell) {
+            ref->cell->get_raw_dependencies(true, result);
         }
     }
 }
@@ -395,71 +353,84 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
     fwrite(name, sizeof(char), len, out);
 
-    Polygon** polygon = polygon_array.items;
-    for (int64_t i = 0; i < polygon_array.size; i++, polygon++) {
-        if (max_points > 4 && (*polygon)->point_array.size > max_points) {
-            Array<Polygon*> array = (*polygon)->fracture(max_points, precision);
-            Polygon** p = array.items;
-            for (int64_t j = 0; j < array.size; j++, p++) {
-                (*p)->to_gds(out, scaling);
-                (*p)->clear();
-                free_allocation(*p);
+    Polygon** p_item = polygon_array.items;
+    for (int64_t i = 0; i < polygon_array.size; i++, p_item++) {
+        Polygon* polygon = *p_item;
+        if (max_points > 4 && polygon->point_array.size > max_points) {
+            Array<Polygon*> array = {0};
+            polygon->fracture(max_points, precision, array);
+            Polygon** a_item = array.items;
+            for (int64_t j = 0; j < array.size; j++, a_item++) {
+                Polygon* p = *a_item;
+                p->to_gds(out, scaling);
+                p->clear();
+                free_allocation(p);
             }
             array.clear();
         } else {
-            (*polygon)->to_gds(out, scaling);
+            polygon->to_gds(out, scaling);
         }
     }
 
-    FlexPath** flexpath = flexpath_array.items;
-    for (int64_t k = 0; k < flexpath_array.size; k++, flexpath++) {
-        if ((*flexpath)->gdsii_path) {
-            (*flexpath)->to_gds(out, scaling);
+    FlexPath** fp_item = flexpath_array.items;
+    for (int64_t k = 0; k < flexpath_array.size; k++, fp_item++) {
+        FlexPath* flexpath = *fp_item;
+        if (flexpath->gdsii_path) {
+            flexpath->to_gds(out, scaling);
         } else {
-            Array<Polygon*> fp_array = (*flexpath)->to_polygons();
-            polygon = fp_array.items;
-            for (int64_t i = 0; i < fp_array.size; i++, polygon++) {
-                if (max_points > 4 && (*polygon)->point_array.size > max_points) {
-                    Array<Polygon*> array = (*polygon)->fracture(max_points, precision);
-                    Polygon** p = array.items;
-                    for (int64_t j = 0; j < array.size; j++, p++) {
-                        (*p)->to_gds(out, scaling);
-                        (*p)->clear();
-                        free_allocation(*p);
+            Array<Polygon*> fp_array = {0};
+            flexpath->to_polygons(fp_array);
+            p_item = fp_array.items;
+            for (int64_t i = 0; i < fp_array.size; i++, p_item++) {
+                Polygon* polygon = *p_item;
+                if (max_points > 4 && polygon->point_array.size > max_points) {
+                    Array<Polygon*> array = {0};
+                    polygon->fracture(max_points, precision, array);
+                    Polygon** a_item = array.items;
+                    for (int64_t j = 0; j < array.size; j++, a_item++) {
+                        Polygon* p = *a_item;
+                        p->to_gds(out, scaling);
+                        p->clear();
+                        free_allocation(p);
                     }
                     array.clear();
                 } else {
-                    (*polygon)->to_gds(out, scaling);
+                    polygon->to_gds(out, scaling);
                 }
-                (*polygon)->clear();
-                free_allocation(*polygon);
+                polygon->clear();
+                free_allocation(polygon);
             }
             fp_array.clear();
         }
     }
 
-    RobustPath** robustpath = robustpath_array.items;
-    for (int64_t k = 0; k < robustpath_array.size; k++, robustpath++) {
-        if ((*robustpath)->gdsii_path) {
-            (*robustpath)->to_gds(out, scaling);
+    RobustPath** rp_item = robustpath_array.items;
+    for (int64_t k = 0; k < robustpath_array.size; k++, rp_item++) {
+        RobustPath* robustpath = *rp_item;
+        if (robustpath->gdsii_path) {
+            robustpath->to_gds(out, scaling);
         } else {
-            Array<Polygon*> rp_array = (*robustpath)->to_polygons();
-            polygon = rp_array.items;
-            for (int64_t i = 0; i < rp_array.size; i++, polygon++) {
-                if (max_points > 4 && (*polygon)->point_array.size > max_points) {
-                    Array<Polygon*> array = (*polygon)->fracture(max_points, precision);
-                    Polygon** p = array.items;
-                    for (int64_t j = 0; j < array.size; j++, p++) {
-                        (*p)->to_gds(out, scaling);
-                        (*p)->clear();
-                        free_allocation(*p);
+            Array<Polygon*> rp_array = {0};
+            robustpath->to_polygons(rp_array);
+            p_item = rp_array.items;
+            for (int64_t i = 0; i < rp_array.size; i++, p_item++) {
+                Polygon* polygon = *p_item;
+                if (max_points > 4 && polygon->point_array.size > max_points) {
+                    Array<Polygon*> array = {0};
+                    polygon->fracture(max_points, precision, array);
+                    Polygon** a_item = array.items;
+                    for (int64_t j = 0; j < array.size; j++, a_item++) {
+                        Polygon* p = *a_item;
+                        p->to_gds(out, scaling);
+                        p->clear();
+                        free_allocation(p);
                     }
                     array.clear();
                 } else {
-                    (*polygon)->to_gds(out, scaling);
+                    polygon->to_gds(out, scaling);
                 }
-                (*polygon)->clear();
-                free_allocation(*polygon);
+                polygon->clear();
+                free_allocation(polygon);
             }
             rp_array.clear();
         }

@@ -198,10 +198,8 @@ void Polygon::fillet(const Array<double> radii, double tol) {
     old_pts.clear();
 }
 
-Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
-    Array<Polygon*> result = {0};
-
-    if (max_points <= 4) return result;
+void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& result) const {
+    if (max_points <= 4) return;
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     poly->point_array.copy_from(point_array);
     result.append(poly);
@@ -274,8 +272,6 @@ Array<Polygon*> Polygon::fracture(int64_t max_points, double precision) const {
         poly->datatype = datatype;
         poly->properties = properties_copy(properties);
     }
-
-    return result;
 }
 
 void Polygon::to_gds(FILE* out, double scaling) const {

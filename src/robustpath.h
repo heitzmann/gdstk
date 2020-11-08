@@ -172,8 +172,8 @@ struct RobustPath {
     void width(double u, bool from_below, double* result) const;
     void offset(double u, bool from_below, double* result) const;
 
-    Array<Vec2> spine() const;
-    Array<Polygon*> to_polygons() const;
+    void spine(Array<Vec2>& result) const;
+    void to_polygons(Array<Polygon*>& result) const;
 
     // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
     // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce

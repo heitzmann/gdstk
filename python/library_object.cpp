@@ -157,16 +157,18 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject* args) {
         return NULL;
     }
 
-    Cell** cell = top_cells.items;
-    for (int64_t i = 0; i < i0; i++, cell++) {
-        Py_INCREF((*cell)->owner);
-        PyList_SET_ITEM(result, i, (PyObject*)(*cell)->owner);
+    Cell** c_item = top_cells.items;
+    for (int64_t i = 0; i < i0; i++) {
+        PyObject* obj = (PyObject*)(*c_item++)->owner;
+        Py_INCREF(obj);
+        PyList_SET_ITEM(result, i, obj);
     }
 
-    RawCell** rawcell = top_rawcells.items;
-    for (int64_t i = 0; i < i1; i++, rawcell++) {
-        Py_INCREF((*rawcell)->owner);
-        PyList_SET_ITEM(result, i0 + i, (PyObject*)(*rawcell)->owner);
+    RawCell** r_item = top_rawcells.items;
+    for (int64_t i = 0; i < i1; i++) {
+        PyObject* obj = (PyObject*)(*r_item++)->owner;
+        Py_INCREF(obj);
+        PyList_SET_ITEM(result, i0 + i, obj);
     }
 
     top_cells.clear();

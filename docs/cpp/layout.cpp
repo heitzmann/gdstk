@@ -33,9 +33,15 @@ Cell grating(double period, double fill_frac, double length, double width, int16
 }
 
 int main(int argc, char* argv[]) {
-    double unit, precision;
+    double unit = 0;
+    double precision=0;
 
     gds_units("photonics.gds", unit, precision);
+    if (unit == 0) {
+        // File not found.
+        exit(EXIT_FAILURE);
+    }
+
     printf("Using unit = %.3g, precision = %.3g\n", unit, precision);
 
     Map<RawCell*> pdk = read_rawcells("photonics.gds");
@@ -157,11 +163,11 @@ int main(int argc, char* argv[]) {
 
     Map<Cell*> dependencies = {0};
     main_cell.get_dependencies(true, dependencies);
-    lib.cell_array.extend(dependencies.to_array());
+    dependencies.to_array(lib.cell_array);
 
     Map<RawCell*> raw_dependencies = {0};
     main_cell.get_raw_dependencies(true, raw_dependencies);
-    lib.rawcell_array.extend(raw_dependencies.to_array());
+    raw_dependencies.to_array(lib.rawcell_array);
 
     lib.write_gds("layout.gds", 0, NULL);
 

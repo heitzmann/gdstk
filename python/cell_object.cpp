@@ -117,23 +117,25 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
     PyObject* result;
     int by_spec = 0;
     if (!PyArg_ParseTuple(args, "|p:area", &by_spec)) return NULL;
-    Array<Polygon*> array = self->cell->get_polygons(true, -1);
+    Array<Polygon*> array = {0};
+    self->cell->get_polygons(true, -1, array);
     if (by_spec) {
         result = PyDict_New();
         if (!result) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create dictionary.");
             return NULL;
         }
-        Polygon** poly = array.items;
-        for (int64_t i = 0; i < array.size; i++, poly++) {
-            PyObject* area = PyFloat_FromDouble((*poly)->area());
+        Polygon** p_item = array.items;
+        for (int64_t i = 0; i < array.size; i++, p_item++) {
+            Polygon* poly = *p_item;
+            PyObject* area = PyFloat_FromDouble(poly->area());
             if (!area) {
                 PyErr_SetString(PyExc_RuntimeError, "Could not convert area to float.");
                 Py_DECREF(result);
                 array.clear();
                 return NULL;
             }
-            PyObject* key = Py_BuildValue("(hh)", (*poly)->layer, (*poly)->datatype);
+            PyObject* key = Py_BuildValue("(hh)", poly->layer, poly->datatype);
             if (!key) {
                 PyErr_SetString(PyExc_RuntimeError, "Unable to build key.");
                 Py_DECREF(area);
@@ -197,46 +199,55 @@ static PyObject* cell_object_bounding_box(CellObject* self, PyObject* args) {
 static PyObject* cell_object_flatten(CellObject* self, PyObject* args) {
     Cell* cell = self->cell;
 
-    Array<Reference*> reference_array = self->cell->flatten();
+    Array<Reference*> reference_array = {0};
+    self->cell->flatten(reference_array);
     Reference** ref = reference_array.items;
     for (int64_t i = reference_array.size - 1; i >= 0; i--, ref++) Py_XDECREF((*ref)->owner);
     reference_array.clear();
 
-    Polygon** poly = cell->polygon_array.items;
-    for (int64_t i = cell->polygon_array.size - 1; i >= 0; i--, poly++)
-        if (!(*poly)->owner) {
+    Polygon** p_item = cell->polygon_array.items;
+    for (int64_t i = cell->polygon_array.size - 1; i >= 0; i--, p_item++) {
+        Polygon* poly = *p_item;
+        if (!poly->owner) {
             PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
             obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
-            obj->polygon = *poly;
+            obj->polygon = poly;
             obj->polygon->owner = obj;
         }
+    }
 
-    FlexPath** flexpath = cell->flexpath_array.items;
-    for (int64_t i = cell->flexpath_array.size - 1; i >= 0; i--, flexpath++)
-        if (!(*flexpath)->owner) {
+    FlexPath** fp_item = cell->flexpath_array.items;
+    for (int64_t i = cell->flexpath_array.size - 1; i >= 0; i--, fp_item++) {
+        FlexPath* flexpath = *fp_item;
+        if (!flexpath->owner) {
             FlexPathObject* obj = PyObject_New(FlexPathObject, &flexpath_object_type);
             obj = (FlexPathObject*)PyObject_Init((PyObject*)obj, &flexpath_object_type);
-            obj->flexpath = *flexpath;
+            obj->flexpath = flexpath;
             obj->flexpath->owner = obj;
         }
+    }
 
-    RobustPath** robustpath = cell->robustpath_array.items;
-    for (int64_t i = cell->robustpath_array.size - 1; i >= 0; i--, robustpath++)
-        if (!(*robustpath)->owner) {
+    RobustPath** rp_item = cell->robustpath_array.items;
+    for (int64_t i = cell->robustpath_array.size - 1; i >= 0; i--, rp_item++) {
+        RobustPath* robustpath = *rp_item;
+        if (!robustpath->owner) {
             RobustPathObject* obj = PyObject_New(RobustPathObject, &robustpath_object_type);
             obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
-            obj->robustpath = *robustpath;
+            obj->robustpath = robustpath;
             obj->robustpath->owner = obj;
         }
+    }
 
-    Label** label = cell->label_array.items;
-    for (int64_t i = cell->label_array.size - 1; i >= 0; i--, label++)
-        if (!(*label)->owner) {
+    Label** l_item = cell->label_array.items;
+    for (int64_t i = cell->label_array.size - 1; i >= 0; i--, l_item++) {
+        Label* label = *l_item;
+        if (!label->owner) {
             LabelObject* obj = PyObject_New(LabelObject, &label_object_type);
             obj = (LabelObject*)PyObject_Init((PyObject*)obj, &label_object_type);
-            obj->label = *label;
+            obj->label = label;
             obj->label->owner = obj;
         }
+    }
 
     Py_INCREF(self);
     return (PyObject*)self;
@@ -265,7 +276,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
 
     CellObject* result = PyObject_New(CellObject, &cell_object_type);
     result = (CellObject*)PyObject_Init((PyObject*)result, &cell_object_type);
-    result->cell = (Cell*)allocate(sizeof(Cell));
+    result->cell = (Cell*)allocate_clear(sizeof(Cell));
     Cell* cell = result->cell;
     cell->owner = result;
     cell->copy_from(*self->cell, name, deep_copy > 0);
@@ -411,7 +422,8 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     }
 
     const char* filename = PyBytes_AS_STRING(pybytes);
-    self->cell->write_svg(filename, scaling, style, label_style, background, pad, pad_as_percentage);
+    self->cell->write_svg(filename, scaling, style, label_style, background, pad,
+                          pad_as_percentage);
     Py_DECREF(pybytes);
 
     style.clear();
@@ -558,8 +570,8 @@ PyObject* cell_object_get_polygons(CellObject* self, void*) {
         return NULL;
     }
     Polygon** poly = array->items;
-    for (int64_t i = 0; i < array->size; i++, poly++) {
-        PyObject* poly_obj = (PyObject*)(*poly)->owner;
+    for (int64_t i = array->size - 1; i >= 0; i--) {
+        PyObject* poly_obj = (PyObject*)(*poly++)->owner;
         Py_INCREF(poly_obj);
         PyList_SET_ITEM(result, i, poly_obj);
     }
@@ -574,8 +586,8 @@ PyObject* cell_object_get_references(CellObject* self, void*) {
         return NULL;
     }
     Reference** ref = array->items;
-    for (int64_t i = 0; i < array->size; i++, ref++) {
-        PyObject* ref_obj = (PyObject*)(*ref)->owner;
+    for (int64_t i = array->size - 1; i >= 0; i--) {
+        PyObject* ref_obj = (PyObject*)(*ref++)->owner;
         Py_INCREF(ref_obj);
         PyList_SET_ITEM(result, i, ref_obj);
     }
@@ -594,14 +606,14 @@ PyObject* cell_object_get_paths(CellObject* self, void*) {
         return NULL;
     }
     FlexPath** flexpath = flexpath_array->items;
-    for (int64_t i = 0; i < fp_size; i++, flexpath++) {
-        PyObject* flexpath_obj = (PyObject*)(*flexpath)->owner;
+    for (int64_t i = fp_size - 1; i >= 0; i--) {
+        PyObject* flexpath_obj = (PyObject*)(*flexpath++)->owner;
         Py_INCREF(flexpath_obj);
         PyList_SET_ITEM(result, i, flexpath_obj);
     }
     RobustPath** robustpath = robustpath_array->items;
-    for (int64_t i = 0; i < rp_size; i++, robustpath++) {
-        PyObject* robustpath_obj = (PyObject*)(*robustpath)->owner;
+    for (int64_t i = rp_size - 1; i >= 0; i--) {
+        PyObject* robustpath_obj = (PyObject*)(*robustpath++)->owner;
         Py_INCREF(robustpath_obj);
         PyList_SET_ITEM(result, fp_size + i, robustpath_obj);
     }
@@ -616,8 +628,8 @@ PyObject* cell_object_get_labels(CellObject* self, void*) {
         return NULL;
     }
     Label** label = array->items;
-    for (int64_t i = 0; i < array->size; i++, label++) {
-        PyObject* label_obj = (PyObject*)(*label)->owner;
+    for (int64_t i = array->size - 1; i >= 0; i--) {
+        PyObject* label_obj = (PyObject*)(*label++)->owner;
         Py_INCREF(label_obj);
         PyList_SET_ITEM(result, i, label_obj);
     }

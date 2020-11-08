@@ -763,11 +763,11 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
         polygon->copy_from(*((PolygonObject*)py_polygons)->polygon);
         polygon_array.append(polygon);
     } else if (FlexPathObject_Check(py_polygons)) {
-        polygon_array = ((FlexPathObject*)py_polygons)->flexpath->to_polygons();
+        ((FlexPathObject*)py_polygons)->flexpath->to_polygons(polygon_array);
     } else if (RobustPathObject_Check(py_polygons)) {
-        polygon_array = ((RobustPathObject*)py_polygons)->robustpath->to_polygons();
+        ((RobustPathObject*)py_polygons)->robustpath->to_polygons(polygon_array);
     } else if (ReferenceObject_Check(py_polygons)) {
-        polygon_array = ((ReferenceObject*)py_polygons)->reference->polygons(true, -1);
+        ((ReferenceObject*)py_polygons)->reference->polygons(true, -1, polygon_array);
     } else if (PySequence_Check(py_polygons)) {
         for (int64_t i = PySequence_Length(py_polygons) - 1; i >= 0; i--) {
             PyObject* arg = PySequence_ITEM(py_polygons, i);
@@ -786,27 +786,16 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
                 polygon->copy_from(*((PolygonObject*)arg)->polygon);
                 polygon_array.append(polygon);
             } else if (FlexPathObject_Check(arg)) {
-                Array<Polygon*> polys = ((FlexPathObject*)arg)->flexpath->to_polygons();
-                polygon_array.extend(polys);
-                polys.clear();
+                ((FlexPathObject*)arg)->flexpath->to_polygons(polygon_array);
             } else if (RobustPathObject_Check(arg)) {
-                Array<Polygon*> polys = ((RobustPathObject*)arg)->robustpath->to_polygons();
-                polygon_array.extend(polys);
-                polys.clear();
+                ((RobustPathObject*)arg)->robustpath->to_polygons(polygon_array);
             } else if (ReferenceObject_Check(arg)) {
-                Array<Polygon*> polys = ((ReferenceObject*)arg)->reference->polygons(true, -1);
-                polygon_array.extend(polys);
-                polys.clear();
+                ((ReferenceObject*)arg)->reference->polygons(true, -1, polygon_array);
             } else {
                 Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (parse_point_sequence(arg, polygon->point_array, "") < 0) {
                     PyErr_Format(PyExc_RuntimeError,
                                  "Unable to parse item %" PRId64 " from sequence %s.", i, name);
-                    for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
-                        polygon_array[j]->clear();
-                        free_allocation(polygon_array[j]);
-                    }
-                    polygon_array.clear();
                     return -1;
                 }
                 polygon_array.append(polygon);
@@ -858,8 +847,9 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     Array<Polygon*> polygon_array = {0};
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) return NULL;
 
-    Array<Polygon*> result_array =
-        offset(polygon_array, distance, offset_join, tolerance, 1 / precision, use_union > 0);
+    Array<Polygon*> result_array = {0};
+    offset(polygon_array, distance, offset_join, tolerance, 1 / precision, use_union > 0,
+           result_array);
 
     PyObject* result = PyList_New(result_array.size);
     for (Py_ssize_t i = 0; i < result_array.size; i++) {
@@ -922,7 +912,8 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
         return NULL;
     }
 
-    Array<Polygon*> result_array = boolean(polygon_array1, polygon_array2, oper, 1 / precision);
+    Array<Polygon*> result_array = {0};
+    boolean(polygon_array1, polygon_array2, oper, 1 / precision, result_array);
 
     PyObject* result = PyList_New(result_array.size);
     for (Py_ssize_t i = 0; i < result_array.size; i++) {
@@ -1128,16 +1119,17 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         return NULL;
     }
 
-    int64_t result_len = 0;
-    bool* result_items = inside(points, polygon_array, sc, 1 / precision, result_len);
+    Array<bool> result_array = {0};
+    inside(points, polygon_array, sc, 1 / precision, result_array);
 
-    PyObject* result = PyTuple_New(result_len);
+    PyObject* result = PyTuple_New(result_array.size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
         return NULL;
     }
-    for (int64_t i = 0; i < result_len; i++) {
-        if (result_items[i]) {
+    bool* r_item = result_array.items;
+    for (int64_t i = 0; i < result_array.size; i++) {
+        if (*r_item++) {
             Py_INCREF(Py_True);
             PyTuple_SET_ITEM(result, i, Py_True);
         } else {
@@ -1145,6 +1137,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
             PyTuple_SET_ITEM(result, i, Py_False);
         }
     }
+    result_array.clear();
 
     for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
         polygon_array[j]->clear();
@@ -1157,8 +1150,6 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         free_allocation(points[j]);
     }
     points.clear();
-
-    free_allocation(result_items);
 
     return result;
 }

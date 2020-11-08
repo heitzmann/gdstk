@@ -151,8 +151,8 @@ static void bounding_box(ClipperLib::Path& points, ClipperLib::cInt* bb) {
     }
 }
 
-Array<Polygon*> boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2,
-                        Operation operation, double scaling) {
+void boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
+             double scaling, Array<Polygon*>& result) {
     ClipperLib::ClipType ct_operation = ClipperLib::ctUnion;
     switch (operation) {
         case Operation::Or:
@@ -179,13 +179,11 @@ Array<Polygon*> boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& po
     clpr.Execute(ct_operation, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
     ClipperLib::Paths result_paths = tree2paths(solution);
 
-    Array<Polygon*> result = {0};
     paths_to_polygons(result_paths, scaling, result);
-    return result;
 }
 
-Array<Polygon*> offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join,
-                       double tol, double scaling, bool use_union) {
+void offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join, double tol,
+            double scaling, bool use_union, Array<Polygon*>& result) {
     ClipperLib::JoinType jt_join = ClipperLib::jtSquare;
     ClipperLib::ClipperOffset clprof;
     switch (join) {
@@ -219,9 +217,7 @@ Array<Polygon*> offset(const Array<Polygon*>& polygons, double distance, OffsetJ
     clprof.Execute(solution, distance * scaling);
     ClipperLib::Paths result_paths = tree2paths(solution);
 
-    Array<Polygon*> result = {0};
     paths_to_polygons(result_paths, scaling, result);
-    return result;
 }
 
 void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
@@ -263,8 +259,8 @@ void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, 
     }
 }
 
-bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
-             ShortCircuit short_circuit, double scaling, int64_t& num) {
+void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
+            ShortCircuit short_circuit, double scaling, Array<bool>& result) {
     ClipperLib::Paths groups_paths = polygons_to_paths(groups, scaling);
     ClipperLib::Paths paths = polygons_to_paths(polygons, scaling);
 
@@ -276,9 +272,9 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
     for (int64_t p = 0; p < num_polygons; p++) bounding_box(paths[p], paths_bb + 4 * p);
 
     if (short_circuit == ShortCircuit::None) {
-        num = 0;
+        int64_t num = 0;
         for (int64_t i = 0; i < num_groups; i++) num += groups[i]->point_array.size;
-        bool* result = (bool*)allocate(sizeof(bool) * num);
+        result.ensure_slots(num);
 
         ClipperLib::cInt all_bb[4];
         all_bb[0] = paths_bb[0 * 4 + 0];
@@ -292,7 +288,6 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             if (all_bb[3] < paths_bb[p * 4 + 3]) all_bb[3] = paths_bb[p * 4 + 3];
         }
 
-        int64_t k = 0;
         for (int64_t i = 0; i < num_groups; i++) {
             int64_t num_points = groups[i]->point_array.size;
             for (int64_t j = 0; j < num_points; j++) {
@@ -306,14 +301,12 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                             groups_paths[i][j].Y <= paths_bb[p * 4 + 3] &&
                             PointInPolygon(groups_paths[i][j], paths[p]) != 0)
                             in = true;
-                result[k++] = in;
+                result.append_unsafe(in);
             }
         }
-        free_allocation(paths_bb);
-        return result;
     } else if (short_circuit == ShortCircuit::Any) {
-        num = num_groups;
-        bool* result = (bool*)allocate(sizeof(bool) * num);
+        int64_t num = num_groups;
+        result.ensure_slots(num);
         for (int64_t j = 0; j < num_groups; j++) {
             ClipperLib::cInt group_bb[4];
             bool in = false;
@@ -330,13 +323,11 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                             groups_paths[j][i].Y <= paths_bb[p * 4 + 3] &&
                             PointInPolygon(groups_paths[j][i], paths[p]) != 0)
                             in = true;
-            result[j] = in;
+            result.append_unsafe(in);
         }
-        free_allocation(paths_bb);
-        return result;
     } else if (short_circuit == ShortCircuit::All) {
-        num = num_groups;
-        bool* result = (bool*)allocate(sizeof(bool) * num);
+        int64_t num = num_groups;
+        result.ensure_slots(num);
 
         ClipperLib::cInt all_bb[4];
         all_bb[0] = paths_bb[0 * 4 + 0];
@@ -367,15 +358,10 @@ bool* inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
                             this_in = true;
                 in = this_in;
             }
-            result[j] = in;
+            result.append_unsafe(in);
         }
-        free_allocation(paths_bb);
-        return result;
     }
-
-    num = 0;
     free_allocation(paths_bb);
-    return NULL;
 }
 
 }  // namespace gdstk

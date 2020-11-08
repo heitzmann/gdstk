@@ -170,8 +170,9 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|ld:fracture", (char**)keywords, &max_points,
                                      &precision))
         return NULL;
-    Array<Polygon*> array = self->polygon->fracture(max_points, precision);
 
+    Array<Polygon*> array = {0};
+    self->polygon->fracture(max_points, precision, array);
     PyObject* result = PyList_New(array.size);
     for (Py_ssize_t i = 0; i < array.size; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);

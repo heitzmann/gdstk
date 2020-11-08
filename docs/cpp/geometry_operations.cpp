@@ -18,12 +18,13 @@ void example_boolean(Cell& out_cell) {
     Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0, 0);
     Polygon* rectp = &rect;
 
-    Array<Polygon*> result = boolean({.size = 1, .items = &rectp}, txt, Operation::Not, 1000);
-    out_cell.polygon_array.extend(result);
+    boolean({.size = 1, .items = &rectp}, txt, Operation::Not, 1000, out_cell.polygon_array);
 
-    for (int i = 0; i < txt.size; i++) free_allocation(txt[i]);
+    for (int i = 0; i < txt.size; i++) {
+        txt[i]->clear();
+        free_allocation(txt[i]);
+    }
     txt.clear();
-    result.clear();
 }
 
 void example_slice(Cell& out_cell) {
@@ -61,10 +62,8 @@ void example_offset(Cell& out_cell) {
     rect[1] = rectangle(Vec2{-1, -1}, Vec2{4, 4}, 0, 0);
     Polygon* rect_p[] = {rect, rect + 1};
     const Array<Polygon*> rect_array = {.size = 2, .items = rect_p};
-    Array<Polygon*> outer = offset(rect_array, -0.5, OffsetJoin::Miter, 2, 1000, true);
     out_cell.polygon_array.extend(rect_array);
-    out_cell.polygon_array.extend(outer);
-    outer.clear();
+    offset(rect_array, -0.5, OffsetJoin::Miter, 2, 1000, true, out_cell.polygon_array);
 }
 
 void example_fillet(Cell& out_cell) {
@@ -73,8 +72,9 @@ void example_fillet(Cell& out_cell) {
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
     flexpath.segment({.size = COUNT(points), .items = points}, NULL, NULL, false);
 
-    Array<Polygon*> poly_array = flexpath.to_polygons();
     double r = 1.5;
+    Array<Polygon*> poly_array = {0};
+    flexpath.to_polygons(poly_array);
     for (int i = 0; i < poly_array.size; i++) poly_array[i]->fillet({.size = 1, .items = &r}, 0.01);
 
     out_cell.polygon_array.extend(poly_array);
