@@ -36,23 +36,15 @@ static void reference_object_dealloc(ReferenceObject* self) {
 static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject* kwds) {
     PyObject* cell_obj = NULL;
     PyObject* origin_obj = NULL;
-    PyObject* spacing_obj = NULL;
     double rotation = 0;
     double magnification = 1;
     int x_reflection = 0;
-    uint16_t columns = 1;
-    uint16_t rows = 1;
     Vec2 origin = {0, 0};
-    Vec2 spacing = {0, 0};
-    const char* keywords[] = {"cell",          "origin",       "rotation",
-                              "magnification", "x_reflection", "columns",
-                              "rows",          "spacing",      NULL};
+    const char* keywords[] = {"cell", "origin", "rotation", "magnification", "x_reflection", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OddpHHO:Reference", (char**)keywords, &cell_obj,
-                                     &origin_obj, &rotation, &magnification, &x_reflection,
-                                     &columns, &rows, &spacing_obj))
+                                     &origin_obj, &rotation, &magnification, &x_reflection))
         return -1;
     if (parse_point(origin_obj, origin, "origin") < 0) return -1;
-    if (parse_point(spacing_obj, spacing, "spacing") < 0) return -1;
 
     if (self->reference)
         self->reference->clear();
@@ -87,9 +79,6 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
     reference->rotation = rotation;
     reference->magnification = magnification;
     reference->x_reflection = x_reflection > 0;
-    reference->columns = columns;
-    reference->rows = rows;
-    reference->spacing = spacing;
     properties_clear(reference->properties);
     reference->properties = NULL;
     reference->owner = self;
@@ -210,14 +199,6 @@ int reference_object_set_origin(ReferenceObject* self, PyObject* arg, void*) {
     return 0;
 }
 
-static PyObject* reference_object_get_spacing(ReferenceObject* self, void*) {
-    return Py_BuildValue("(dd)", self->reference->spacing.x, self->reference->spacing.y);
-}
-
-int reference_object_set_spacing(ReferenceObject* self, PyObject* arg, void*) {
-    return parse_point(arg, self->reference->spacing, "spacing");
-}
-
 static PyObject* reference_object_get_rotation(ReferenceObject* self, void*) {
     PyObject* result = PyFloat_FromDouble(self->reference->rotation);
     if (!result) PyErr_SetString(PyExc_RuntimeError, "Unable to create float.");
@@ -263,36 +244,6 @@ int reference_object_set_x_reflection(ReferenceObject* self, PyObject* arg, void
     return 0;
 }
 
-static PyObject* reference_object_get_columns(ReferenceObject* self, void*) {
-    PyObject* result = PyLong_FromUnsignedLong(self->reference->columns);
-    if (!result) PyErr_SetString(PyExc_RuntimeError, "Unable to create long.");
-    return result;
-}
-
-int reference_object_set_columns(ReferenceObject* self, PyObject* arg, void*) {
-    self->reference->columns = PyLong_AsUnsignedLong(arg);
-    if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to convert value to unsigned long.");
-        return -1;
-    }
-    return 0;
-}
-
-static PyObject* reference_object_get_rows(ReferenceObject* self, void*) {
-    PyObject* result = PyLong_FromUnsignedLong(self->reference->rows);
-    if (!result) PyErr_SetString(PyExc_RuntimeError, "Unable to create long.");
-    return result;
-}
-
-int reference_object_set_rows(ReferenceObject* self, PyObject* arg, void*) {
-    self->reference->rows = PyLong_AsUnsignedLong(arg);
-    if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to convert value to unsigned long.");
-        return -1;
-    }
-    return 0;
-}
-
 static PyGetSetDef reference_object_getset[] = {
     {"cell", (getter)reference_object_get_cell, NULL, reference_object_cell_doc, NULL},
     {"origin", (getter)reference_object_get_origin, (setter)reference_object_set_origin,
@@ -303,10 +254,4 @@ static PyGetSetDef reference_object_getset[] = {
      (setter)reference_object_set_magnification, reference_object_magnification_doc, NULL},
     {"x_reflection", (getter)reference_object_get_x_reflection,
      (setter)reference_object_set_x_reflection, reference_object_x_reflection_doc, NULL},
-    {"columns", (getter)reference_object_get_columns, (setter)reference_object_set_columns,
-     reference_object_columns_doc, NULL},
-    {"rows", (getter)reference_object_get_rows, (setter)reference_object_set_rows,
-     reference_object_rows_doc, NULL},
-    {"spacing", (getter)reference_object_get_spacing, (setter)reference_object_set_spacing,
-     reference_object_spacing_doc, NULL},
     {NULL}};

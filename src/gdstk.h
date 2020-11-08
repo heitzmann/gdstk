@@ -25,6 +25,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "polygon.h"
 #include "rawcell.h"
 #include "reference.h"
+#include "repetition.h"
 #include "robustpath.h"
 #include "style.h"
 #include "utils.h"

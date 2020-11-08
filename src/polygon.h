@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.h"
 #include "property.h"
+#include "repetition.h"
 #include "vec.h"
 
 namespace gdstk {
@@ -24,6 +25,7 @@ struct Polygon {
     int16_t datatype;
     Array<Vec2> point_array;
     Property* properties;
+    Repetition* repetition;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -37,10 +39,10 @@ struct Polygon {
     void scale(const Vec2 scale, const Vec2 center);
     void mirror(const Vec2 p0, const Vec2 p1);
     void rotate(double angle, const Vec2 center);
-    void transform(double magnification, const Vec2 translation, bool x_reflection, double rotation,
-                   const Vec2 origin);
+    void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
     void fillet(const Array<double> radii, double tol);
     void fracture(int64_t max_points, double precision, Array<Polygon*>& result) const;
+    void apply_repetition(Array<Polygon*>& result);
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };

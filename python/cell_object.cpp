@@ -254,7 +254,6 @@ static PyObject* cell_object_flatten(CellObject* self, PyObject* args) {
 }
 
 static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kwds) {
-    const Vec2 origin = {0, 0};
     char* name = NULL;
     int deep_copy = 1;
     PyObject* py_trans = NULL;
@@ -290,7 +289,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             polygon->owner = new_obj;
             new_obj->polygon = polygon;
             if (transform)
-                polygon->transform(magnification, translation, x_reflection > 0, rotation, origin);
+                polygon->transform(magnification, x_reflection > 0, rotation, translation);
         }
     } else {
         for (int64_t i = 0; i < polygon_array->size; i++) Py_INCREF((*polygon_array)[i]->owner);
@@ -309,8 +308,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             else if (reference->type == ReferenceType::RawCell)
                 Py_INCREF(reference->rawcell->owner);
             if (transform)
-                reference->transform(magnification, translation, x_reflection > 0, rotation,
-                                     origin);
+                reference->transform(magnification, x_reflection > 0, rotation, translation);
         }
     } else {
         for (int64_t i = 0; i < reference_array->size; i++) Py_INCREF((*reference_array)[i]->owner);
@@ -324,8 +322,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             FlexPath* path = (*flexpath_array)[i];
             path->owner = new_obj;
             new_obj->flexpath = path;
-            if (transform)
-                path->transform(magnification, translation, x_reflection > 0, rotation, origin);
+            if (transform) path->transform(magnification, x_reflection > 0, rotation, translation);
         }
     } else {
         for (int64_t i = 0; i < flexpath_array->size; i++) Py_INCREF((*flexpath_array)[i]->owner);
@@ -339,8 +336,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             RobustPath* path = (*robustpath_array)[i];
             path->owner = new_obj;
             new_obj->robustpath = path;
-            if (transform)
-                path->transform(magnification, translation, x_reflection > 0, rotation, origin);
+            if (transform) path->transform(magnification, x_reflection > 0, rotation, translation);
         }
     } else {
         for (int64_t i = 0; i < robustpath_array->size; i++)
@@ -355,8 +351,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             Label* label = (*label_array)[i];
             label->owner = new_obj;
             new_obj->label = label;
-            if (transform)
-                label->transform(magnification, translation, x_reflection > 0, rotation, origin);
+            if (transform) label->transform(magnification, x_reflection > 0, rotation, translation);
         }
     } else {
         for (int64_t i = 0; i < label_array->size; i++) Py_INCREF((*label_array)[i]->owner);

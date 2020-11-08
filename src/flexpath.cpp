@@ -58,8 +58,9 @@ void FlexPath::init(const Vec2 initial_position, int64_t num_elements_, const do
 
 void FlexPath::print(bool all) const {
     printf("FlexPath <%p>, size %" PRId64 ", %" PRId64
-           " elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
-           this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties, owner);
+           " elements, gdsii %d, width scaling %d, properties <%p>, repetition <%p>, owner <%p>\n",
+           this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties,
+           repetition, owner);
     if (all) {
         FlexPathElement* el = elements;
         for (int64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -82,11 +83,16 @@ void FlexPath::clear() {
     num_elements = 0;
     properties_clear(properties);
     properties = NULL;
+    if (repetition) {
+        repetition->clear();
+        repetition = NULL;
+    }
 }
 
 void FlexPath::copy_from(const FlexPath& path) {
     spine.copy_from(path.spine);
     properties = properties_copy(path.properties);
+    repetition = repetition_copy(path.repetition);
     scale_width = path.scale_width;
     gdsii_path = path.gdsii_path;
     num_elements = path.num_elements;
@@ -157,13 +163,34 @@ void FlexPath::rotate(double angle, const Vec2 center) {
     }
 }
 
-void FlexPath::transform(double magnification, const Vec2 translation, bool x_reflection,
-                         double rotation, const Vec2 origin) {
+void FlexPath::apply_repetition(Array<FlexPath*>& result) {
+    if (repetition == NULL) return;
+
+    Array<Vec2> offsets = {0};
+    repetition->get_offsets(offsets);
+    repetition->clear();
+    repetition = NULL;  // Clear before copying
+
+    // Skip first offset (0, 0)
+    Vec2* offset_p = offsets.items + 1;
+    result.ensure_slots(offsets.size - 1);
+    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        FlexPath* path = (FlexPath*)allocate_clear(sizeof(FlexPath));
+        path->copy_from(*this);
+        path->translate(*offset_p++);
+        result.append_unsafe(path);
+    }
+
+    offsets.clear();
+}
+
+void FlexPath::transform(double magnification, bool x_reflection, double rotation,
+                         const Vec2 origin) {
     double ca = cos(rotation);
     double sa = sin(rotation);
     Vec2* p = spine.point_array.items;
     for (int64_t num = spine.point_array.size; num > 0; num--, p++) {
-        Vec2 q = *p * magnification + translation;
+        Vec2 q = *p * magnification;
         if (x_reflection) q.y = -q.y;
         p->x = q.x * ca - q.y * sa + origin.x;
         p->y = q.x * sa + q.y * ca + origin.y;
@@ -604,6 +631,7 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_curve.point_array;
         result_polygon->properties = properties_copy(properties);
+        result_polygon->repetition = repetition_copy(repetition);
         result.append_unsafe(result_polygon);
     }
 }
@@ -612,9 +640,22 @@ void FlexPath::to_gds(FILE* out, double scaling) {
     remove_overlapping_points();
     if (spine.point_array.size < 2) return;
 
+    uint16_t buffer_end[] = {4, 0x1100};
+    swap16(buffer_end, COUNT(buffer_end));
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+
     const Array<Vec2> spine_points = spine.point_array;
     Array<int32_t> coords = {0};
-    coords.ensure_slots(spine_points.size);
+    Array<Vec2> point_array = {0};
+    point_array.ensure_slots(spine_points.size);
 
     FlexPathElement* el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -635,6 +676,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             default:
                 end_type = 0;
         }
+
         uint16_t buffer_start[] = {
             4,      0x0900,   6, 0x0D02, (uint16_t)el->layer, 6, 0x0E02, (uint16_t)el->datatype, 6,
             0x2102, end_type, 8, 0x0F03};
@@ -642,45 +684,38 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
         swap16(buffer_start, COUNT(buffer_start));
         swap32((uint32_t*)&width, 1);
-        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-        fwrite(&width, sizeof(int32_t), 1, out);
 
+        uint16_t buffer_ext1[] = {8, 0x3003};
+        uint16_t buffer_ext2[] = {8, 0x3103};
+        int32_t ext_size[] = {0, 0};
         if (end_type == 4) {
-            uint16_t buffer_ext[] = {8, 0x3003};
-            width = (int32_t)lround(el->end_extensions.u * scaling);
-            swap16(buffer_ext, COUNT(buffer_ext));
-            swap32((uint32_t*)&width, 1);
-            fwrite(buffer_ext, sizeof(uint16_t), COUNT(buffer_ext), out);
-            fwrite(&width, sizeof(int32_t), 1, out);
-            buffer_ext[1] = 0x3103;
-            width = (int32_t)lround(el->end_extensions.v * scaling);
-            swap16(buffer_ext + 1, 1);
-            swap32((uint32_t*)&width, 1);
-            fwrite(buffer_ext, sizeof(uint16_t), COUNT(buffer_ext), out);
-            fwrite(&width, sizeof(int32_t), 1, out);
+            ext_size[0] = (int32_t)lround(el->end_extensions.u * scaling);
+            ext_size[1] = (int32_t)lround(el->end_extensions.v * scaling);
+            swap16(buffer_ext1, COUNT(buffer_ext1));
+            swap16(buffer_ext2, COUNT(buffer_ext2));
+            swap32((uint32_t*)ext_size, COUNT(buffer_ext2));
         }
 
         {  // Calculate path coordinates (analogous to to_polygons)
             const BendType bend_type = el->bend_type;
             const double bend_radius = el->bend_radius;
-            const double* offsets = ((double*)el->half_width_and_offset.items) + 1;
+            const double* path_offsets = ((double*)el->half_width_and_offset.items) + 1;
             Vec2 spine_normal = (spine_points[1] - spine_points[0]).ortho();
             spine_normal.normalize();
-            Vec2 p0 = spine_points[0] + spine_normal * offsets[2 * 0];
-            Vec2 p1 = spine_points[1] + spine_normal * offsets[2 * 1];
+            Vec2 p0 = spine_points[0] + spine_normal * path_offsets[2 * 0];
+            Vec2 p1 = spine_points[1] + spine_normal * path_offsets[2 * 1];
             Vec2 t0 = p1 - p0;
             t0.normalize();
             Vec2 n0 = t0.ortho();
-            coords.append((int32_t)lround(p0.x * scaling));
-            coords.append((int32_t)lround(p0.y * scaling));
+            point_array.append(p0);
 
             if (spine_points.size > 2) {
                 Curve arc = {0};
                 arc.tolerance = spine.tolerance;
                 spine_normal = (spine_points[2] - spine_points[1]).ortho();
                 spine_normal.normalize();
-                Vec2 p2 = spine_points[1] + spine_normal * offsets[2 * 1];
-                Vec2 p3 = spine_points[2] + spine_normal * offsets[2 * 2];
+                Vec2 p2 = spine_points[1] + spine_normal * path_offsets[2 * 1];
+                Vec2 p3 = spine_points[2] + spine_normal * path_offsets[2 * 2];
                 Vec2 t1 = p3 - p2;
                 t1.normalize();
                 Vec2 n1 = t1.ortho();
@@ -704,8 +739,8 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                     } else {
                         spine_normal = (spine_points[i + 2] - spine_points[i + 1]).ortho();
                         spine_normal.normalize();
-                        p2 = spine_points[i + 1] + spine_normal * offsets[2 * (i + 1)];
-                        p3 = spine_points[i + 2] + spine_normal * offsets[2 * (i + 2)];
+                        p2 = spine_points[i + 1] + spine_normal * path_offsets[2 * (i + 1)];
+                        p3 = spine_points[i + 2] + spine_normal * path_offsets[2 * (i + 2)];
                         t2 = p3 - p2;
                         t2.normalize();
                         n2 = t2.ortho();
@@ -719,7 +754,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                         const double len_sq_prev = len_sq_next;
                         len_sq_next = (p_next - p).length_sq();
                         if (t0.cross(t1) > 0) {
-                            radius = bend_radius - offsets[2 * i];
+                            radius = bend_radius - path_offsets[2 * i];
                             const double min_len_sq = 4 * radius * radius;
                             if ((len_sq_prev >= min_len_sq ||
                                  (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
@@ -727,7 +762,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                                  (i == spine_points.size - 2 && len_sq_next >= min_len_sq / 4)))
                                 bend_dir = 1;  // Left
                         } else {
-                            radius = bend_radius + offsets[2 * i];
+                            radius = bend_radius + path_offsets[2 * i];
                             const double min_len_sq = 4 * radius * radius;
                             if ((len_sq_prev >= min_len_sq ||
                                  (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
@@ -749,20 +784,13 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                             const Vec2 arc_start = center + n0 * radius;
                             arc.append(arc_start);
                             arc.arc(radius, radius, initial_angle, final_angle, 0);
-                            double* c = (double*)arc.point_array.items;
-                            for (; arc.point_array.size > 0; arc.point_array.size--) {
-                                coords.append((int32_t)lround(*c++ * scaling));
-                                coords.append((int32_t)lround(*c++ * scaling));
-                            }
+                            point_array.extend(arc.point_array);
+                            arc.point_array.size = 0;
                         } else if (bend_type == BendType::Function) {
-                            Array<Vec2> point_array = (*el->bend_function)(
+                            Array<Vec2> bend_array = (*el->bend_function)(
                                 radius, initial_angle, final_angle, center, el->bend_function_data);
-                            double* c = (double*)point_array.items;
-                            for (; point_array.size > 0; point_array.size--) {
-                                coords.append((int32_t)lround(*c++ * scaling));
-                                coords.append((int32_t)lround(*c++ * scaling));
-                            }
-                            point_array.clear();
+                            point_array.extend(bend_array);
+                            bend_array.clear();
                         }
                     } else if (bend_dir > 0) {
                         const Vec2 sum_t = t0 + t1;
@@ -776,24 +804,16 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                             const Vec2 arc_start = center - n0 * radius;
                             arc.append(arc_start);
                             arc.arc(radius, radius, initial_angle, final_angle, 0);
-                            double* c = (double*)arc.point_array.items;
-                            for (; arc.point_array.size > 0; arc.point_array.size--) {
-                                coords.append((int32_t)lround(*c++ * scaling));
-                                coords.append((int32_t)lround(*c++ * scaling));
-                            }
+                            point_array.extend(arc.point_array);
+                            arc.point_array.size = 0;
                         } else if (bend_type == BendType::Function) {
-                            Array<Vec2> point_array = (*el->bend_function)(
+                            Array<Vec2> bend_array = (*el->bend_function)(
                                 radius, initial_angle, final_angle, center, el->bend_function_data);
-                            double* c = (double*)point_array.items;
-                            for (; point_array.size > 0; point_array.size--) {
-                                coords.append((int32_t)lround(*c++ * scaling));
-                                coords.append((int32_t)lround(*c++ * scaling));
-                            }
-                            point_array.clear();
+                            point_array.extend(bend_array);
+                            bend_array.clear();
                         }
                     } else {
-                        coords.append((int32_t)lround(p.x * scaling));
-                        coords.append((int32_t)lround(p.y * scaling));
+                        point_array.append(p);
                     }
 
                     t0 = t1;
@@ -803,30 +823,57 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                 }
                 arc.clear();
             }
-            coords.append((int32_t)lround(p1.x * scaling));
-            coords.append((int32_t)lround(p1.y * scaling));
+            point_array.append(p1);
         }
 
-        swap32((uint32_t*)coords.items, coords.size);
-        int64_t total = coords.size / 2;
-        int64_t i0 = 0;
-        while (i0 < total) {
-            int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
-            uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
-            swap16(buffer_pts, COUNT(buffer_pts));
-            fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
-            fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
-            i0 = i1;
+        coords.ensure_slots(point_array.size * 2);
+        coords.size = point_array.size * 2;
+
+        double *offset_p = (double *)offsets.items;
+        for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+            fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+            fwrite(&width, sizeof(int32_t), 1, out);
+            if (end_type == 4) {
+                fwrite(buffer_ext1, sizeof(uint16_t), COUNT(buffer_ext1), out);
+                fwrite(ext_size, sizeof(int32_t), 1, out);
+                fwrite(buffer_ext2, sizeof(uint16_t), COUNT(buffer_ext2), out);
+                fwrite(ext_size + 1, sizeof(int32_t), 1, out);
+            }
+
+            int32_t *c = coords.items;
+            double *p = (double *)point_array.items;
+            double offset_x = *offset_p++;
+            double offset_y = *offset_p++;
+            for (int64_t i = coords.size; i > 0; i--) {
+                *c++ = (int32_t)lround((*p++ + offset_x) * scaling);
+                *c++ = (int32_t)lround((*p++ + offset_y) * scaling);
+            }
+            swap32((uint32_t*)coords.items, coords.size);
+
+            int64_t total = point_array.size;
+            int64_t i0 = 0;
+            while (i0 < total) {
+                int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
+                uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
+                swap16(buffer_pts, COUNT(buffer_pts));
+                fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
+                fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
+                i0 = i1;
+            }
+
+
+            properties_to_gds(properties, out);
+
+            fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
         }
+
+        point_array.size = 0;
         coords.size = 0;
-
-        properties_to_gds(properties, out);
-
-        uint16_t buffer_end[] = {4, 0x1100};
-        swap16(buffer_end, COUNT(buffer_end));
-        fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
+
     coords.clear();
+    point_array.clear();
+    if (repetition) offsets.clear();
 }
 
 void FlexPath::to_svg(FILE* out, double scaling) {

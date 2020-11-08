@@ -380,9 +380,10 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
 
 void RobustPath::print(bool all) const {
     printf("RobustPath <%p> at (%lg, %lg), size %" PRId64 ", %" PRId64
-           " elements, tol %lg, max_evals %" PRId64 ", properties <%p>, owner <%p>\n",
+           " elements, tol %lg, max_evals %" PRId64
+           ", properties <%p>, repetition <%p>, owner <%p>\n",
            this, end_point.x, end_point.y, subpath_array.size, num_elements, tolerance, max_evals,
-           properties, owner);
+           properties, repetition, owner);
     if (all) {
         for (int64_t ns = 0; ns < subpath_array.size; ns++) {
             printf("(%" PRId64 ") ", ns);
@@ -407,10 +408,15 @@ void RobustPath::clear() {
     num_elements = 0;
     properties_clear(properties);
     properties = NULL;
+    if (repetition) {
+        repetition->clear();
+        repetition = NULL;
+    }
 }
 
 void RobustPath::copy_from(const RobustPath &path) {
     properties = properties_copy(path.properties);
+    repetition = repetition_copy(path.repetition);
     end_point = path.end_point;
     subpath_array.copy_from(path.subpath_array);
     num_elements = path.num_elements;
@@ -515,13 +521,32 @@ void RobustPath::x_reflection() {
     offset_scale *= -1;
 }
 
-void RobustPath::transform(double magnification, const Vec2 translation, bool x_refl,
-                           double rotation, const Vec2 origin) {
+void RobustPath::transform(double magnification, bool x_refl, double rotation, const Vec2 origin) {
     simple_scale(magnification);
-    translate(translation);
     if (x_refl) x_reflection();
     simple_rotate(rotation);
     translate(origin);
+}
+
+void RobustPath::apply_repetition(Array<RobustPath*>& result) {
+    if (repetition == NULL) return;
+
+    Array<Vec2> offsets = {0};
+    repetition->get_offsets(offsets);
+    repetition->clear();
+    repetition = NULL;  // Clear before copying
+
+    // Skip first offset (0, 0)
+    Vec2* offset_p = offsets.items + 1;
+    result.ensure_slots(offsets.size - 1);
+    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        RobustPath* path = (RobustPath*)allocate_clear(sizeof(RobustPath));
+        path->copy_from(*this);
+        path->translate(*offset_p++);
+        result.append_unsafe(path);
+    }
+
+    offsets.clear();
 }
 
 void RobustPath::fill_widths_and_offsets(const Interpolation *width, const Interpolation *offset) {
@@ -1291,12 +1316,25 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_side;
         result_polygon->properties = properties_copy(properties);
+        result_polygon->repetition = repetition_copy(repetition);
         result.append_unsafe(result_polygon);
     }
 }
 
 void RobustPath::to_gds(FILE *out, double scaling) const {
     if (num_elements == 0 || subpath_array.size == 0) return;
+
+    uint16_t buffer_end[] = {4, 0x1100};
+    swap16(buffer_end, COUNT(buffer_end));
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
 
     Array<int32_t> coords = {0};
     Array<Vec2> point_array = {0};
@@ -1321,6 +1359,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             default:
                 end_type = 0;
         }
+
         uint16_t buffer_start[] = {
             4,      0x0900,   6, 0x0D02, (uint16_t)el->layer, 6, 0x0E02, (uint16_t)el->datatype, 6,
             0x2102, end_type, 8, 0x0F03};
@@ -1328,22 +1367,16 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
                         (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
         swap16(buffer_start, COUNT(buffer_start));
         swap32((uint32_t *)&width, 1);
-        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-        fwrite(&width, sizeof(int32_t), 1, out);
 
+        uint16_t buffer_ext1[] = {8, 0x3003};
+        uint16_t buffer_ext2[] = {8, 0x3103};
+        int32_t ext_size[] = {0, 0};
         if (end_type == 4) {
-            uint16_t buffer_ext[] = {8, 0x3003};
-            width = (int32_t)lround(el->end_extensions.u * scaling);
-            swap16(buffer_ext, COUNT(buffer_ext));
-            swap32((uint32_t *)&width, 1);
-            fwrite(buffer_ext, sizeof(uint16_t), COUNT(buffer_ext), out);
-            fwrite(&width, sizeof(int32_t), 1, out);
-            buffer_ext[1] = 0x3103;
-            width = (int32_t)lround(el->end_extensions.v * scaling);
-            swap16(buffer_ext + 1, 1);
-            swap32((uint32_t *)&width, 1);
-            fwrite(buffer_ext, sizeof(uint16_t), COUNT(buffer_ext), out);
-            fwrite(&width, sizeof(int32_t), 1, out);
+            ext_size[0] = (int32_t)lround(el->end_extensions.u * scaling);
+            ext_size[1] = (int32_t)lround(el->end_extensions.v * scaling);
+            swap16(buffer_ext1, COUNT(buffer_ext1));
+            swap16(buffer_ext2, COUNT(buffer_ext2));
+            swap32((uint32_t*)ext_size, COUNT(buffer_ext2));
         }
 
         {  // Calculate path coordinates (analogous to RobustPath::to_polygons)
@@ -1369,32 +1402,51 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
 
         coords.ensure_slots(point_array.size * 2);
         coords.size = point_array.size * 2;
-        int32_t *c = coords.items;
-        double *p = (double *)point_array.items;
-        for (int64_t i = coords.size; i > 0; i--) *c++ = (int32_t)lround((*p++) * scaling);
-        swap32((uint32_t *)coords.items, coords.size);
 
-        int64_t total = point_array.size;
-        int64_t i0 = 0;
-        while (i0 < total) {
-            int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
-            uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
-            swap16(buffer_pts, COUNT(buffer_pts));
-            fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
-            fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
-            i0 = i1;
+        double *offset_p = (double *)offsets.items;
+        for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+            fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+            fwrite(&width, sizeof(int32_t), 1, out);
+            if (end_type == 4) {
+                fwrite(buffer_ext1, sizeof(uint16_t), COUNT(buffer_ext1), out);
+                fwrite(ext_size, sizeof(int32_t), 1, out);
+                fwrite(buffer_ext2, sizeof(uint16_t), COUNT(buffer_ext2), out);
+                fwrite(ext_size + 1, sizeof(int32_t), 1, out);
+            }
+
+            int32_t *c = coords.items;
+            double *p = (double *)point_array.items;
+            double offset_x = *offset_p++;
+            double offset_y = *offset_p++;
+            for (int64_t i = coords.size; i > 0; i--) {
+                *c++ = (int32_t)lround((*p++ + offset_x) * scaling);
+                *c++ = (int32_t)lround((*p++ + offset_y) * scaling);
+            }
+            swap32((uint32_t *)coords.items, coords.size);
+
+            int64_t total = point_array.size;
+            int64_t i0 = 0;
+            while (i0 < total) {
+                int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
+                uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
+                swap16(buffer_pts, COUNT(buffer_pts));
+                fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
+                fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
+                i0 = i1;
+            }
+
+            properties_to_gds(properties, out);
+
+            fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
         }
+
         point_array.size = 0;
         coords.size = 0;
-
-        properties_to_gds(properties, out);
-
-        uint16_t buffer_end[] = {4, 0x1100};
-        swap16(buffer_end, COUNT(buffer_end));
-        fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
+
     coords.clear();
     point_array.clear();
+    if (repetition) offsets.clear();
 }
 
 void RobustPath::to_svg(FILE *out, double scaling) const {

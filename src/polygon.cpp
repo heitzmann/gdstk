@@ -18,14 +18,16 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "allocator.h"
 #include "clipper_tools.h"
 #include "font.h"
+#include "repetition.h"
 #include "utils.h"
 #include "vec.h"
 
 namespace gdstk {
 
 void Polygon::print(bool all) const {
-    printf("Polygon <%p>, size %" PRId64 ", layer %hd, datatype %hd, properties <%p>, owner <%p>\n",
-           this, point_array.size, layer, datatype, properties, owner);
+    printf("Polygon <%p>, size %" PRId64
+           ", layer %hd, datatype %hd, properties <%p>, repetition <%p>, owner <%p>\n",
+           this, point_array.size, layer, datatype, properties, repetition, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);
@@ -36,6 +38,10 @@ void Polygon::clear() {
     point_array.clear();
     properties_clear(properties);
     properties = NULL;
+    if (repetition) {
+        repetition->clear();
+        repetition = NULL;
+    }
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
@@ -43,6 +49,7 @@ void Polygon::copy_from(const Polygon& polygon) {
     datatype = polygon.datatype;
     point_array.copy_from(polygon.point_array);
     properties = properties_copy(polygon.properties);
+    repetition = repetition_copy(polygon.repetition);
 }
 
 double Polygon::area() const {
@@ -56,6 +63,7 @@ double Polygon::area() const {
         result += v1.cross(v2);
         v1 = v2;
     }
+    if (repetition) result *= repetition->get_size();
     return 0.5 * fabs(result);
 }
 
@@ -68,6 +76,20 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
         if (p->x > max.x) max.x = p->x;
         if (p->y < min.y) min.y = p->y;
         if (p->y > max.y) max.y = p->y;
+    }
+    if (repetition) {
+        Array<Vec2> offsets = {0};
+        repetition->get_offsets(offsets);
+        Vec2* off = offsets.items;
+        Vec2 min0 = min;
+        Vec2 max0 = max;
+        for (int64_t i = offsets.size; i > 0; i--, off++) {
+            if (min0.x + off->x < min.x) min.x = min0.x + off->x;
+            if (max0.x + off->x > max.x) max.x = max0.x + off->x;
+            if (min0.y + off->y < min.y) min.y = min0.y + off->y;
+            if (max0.y + off->y > max.y) max.y = max0.y + off->y;
+        }
+        offsets.clear();
     }
 }
 
@@ -102,13 +124,13 @@ void Polygon::rotate(double angle, const Vec2 center) {
     }
 }
 
-void Polygon::transform(double magnification, const Vec2 translation, bool x_reflection,
-                        double rotation, const Vec2 origin) {
+void Polygon::transform(double magnification, bool x_reflection, double rotation,
+                        const Vec2 origin) {
     double ca = cos(rotation);
     double sa = sin(rotation);
     Vec2* p = point_array.items;
     for (int64_t num = point_array.size; num > 0; num--, p++) {
-        Vec2 q = *p * magnification + translation;
+        Vec2 q = *p * magnification;
         if (x_reflection) q.y = -q.y;
         p->x = q.x * ca - q.y * sa + origin.x;
         p->y = q.x * sa + q.y * ca + origin.y;
@@ -271,63 +293,116 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
         poly->layer = layer;
         poly->datatype = datatype;
         poly->properties = properties_copy(properties);
+        poly->repetition = repetition_copy(repetition);
     }
+}
+
+void Polygon::apply_repetition(Array<Polygon*>& result) {
+    if (repetition == NULL) return;
+
+    Array<Vec2> offsets = {0};
+    repetition->get_offsets(offsets);
+    repetition->clear();
+    repetition = NULL;  // Clear before copying
+
+    // Skip first offset (0, 0)
+    Vec2* offset_p = offsets.items + 1;
+    result.ensure_slots(offsets.size - 1);
+    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
+        poly->copy_from(*this);
+        poly->translate(*offset_p++);
+        result.append_unsafe(poly);
+    }
+
+    offsets.clear();
 }
 
 void Polygon::to_gds(FILE* out, double scaling) const {
     if (point_array.size < 3) return;
+
     uint16_t buffer_start[] = {
         4, 0x0800, 6, 0x0D02, (uint16_t)layer, 6, 0x0E02, (uint16_t)datatype};
+    uint16_t buffer_end[] = {4, 0x1100};
     swap16(buffer_start, COUNT(buffer_start));
-    fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+    swap16(buffer_end, COUNT(buffer_end));
 
     int64_t total = point_array.size + 1;
-    Array<int32_t> coords = {0};
-    coords.ensure_slots(2 * total);
-    coords.size = 2 * total;
-    int32_t* c = coords.items;
-    Vec2* p = point_array.items;
-    for (int64_t j = point_array.size; j > 0; j--) {
-        *c++ = (int32_t)lround(p->x * scaling);
-        *c++ = (int32_t)lround(p->y * scaling);
-        p++;
-    }
-    *c++ = coords[0];
-    *c++ = coords[1];
-    swap32((uint32_t*)coords.items, coords.size);
-
-    if (total > 8190)
+    if (total > 8190) {
         fputs(
             "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification.  This GDSII file might not be compatible with all readers.\n",
             stderr);
-
-    int64_t i0 = 0;
-    while (i0 < total) {
-        int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
-        uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
-        swap16(buffer_pts, COUNT(buffer_pts));
-        fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
-        fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
-        i0 = i1;
     }
+    Array<int32_t> coords = {0};
+    coords.ensure_slots(2 * total);
+    coords.size = 2 * total;
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+
+    double* offset_p = (double*)offsets.items;
+    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+
+        double offset_x = *offset_p++;
+        double offset_y = *offset_p++;
+        int32_t* c = coords.items;
+        Vec2* p = point_array.items;
+        for (int64_t j = point_array.size; j > 0; j--) {
+            *c++ = (int32_t)lround((offset_x + p->x) * scaling);
+            *c++ = (int32_t)lround((offset_y + p->y) * scaling);
+            p++;
+        }
+        *c++ = coords[0];
+        *c++ = coords[1];
+        swap32((uint32_t*)coords.items, coords.size);
+
+        int64_t i0 = 0;
+        while (i0 < total) {
+            int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
+            uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
+            swap16(buffer_pts, COUNT(buffer_pts));
+            fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
+            fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
+            i0 = i1;
+        }
+
+        properties_to_gds(properties, out);
+
+        fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
+    }
+
+    if (repetition) offsets.clear();
     coords.clear();
-
-    properties_to_gds(properties, out);
-
-    uint16_t buffer_end[] = {4, 0x1100};
-    swap16(buffer_end, COUNT(buffer_end));
-    fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 }
 
 void Polygon::to_svg(FILE* out, double scaling) const {
     if (point_array.size < 3) return;
-    fprintf(out, "<polygon class=\"l%hdd%hd\" points=\"", layer, datatype);
+    fprintf(out, "<polygon id=\"%p\" class=\"l%hdd%hd\" points=\"", this, layer, datatype);
     Vec2* p = point_array.items;
     for (int64_t j = 0; j < point_array.size - 1; j++) {
         fprintf(out, "%lf,%lf ", p->x * scaling, p->y * scaling);
         p++;
     }
     fprintf(out, "%lf,%lf\"/>\n", p->x * scaling, p->y * scaling);
+    if (repetition) {
+        Array<Vec2> offsets = {0};
+        repetition->get_offsets(offsets);
+        double* offset_p = (double*)(offsets.items + 1);
+        for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+            double offset_x = *offset_p++;
+            double offset_y = *offset_p++;
+            fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,
+                    offset_y * scaling);
+        }
+        offsets.clear();
+    }
 }
 
 Polygon rectangle(const Vec2 corner1, const Vec2 corner2, int16_t layer, int16_t datatype) {

@@ -302,8 +302,6 @@ Library read_gds(const char* filename, double unit) {
             case 0x0B:  // AREF
                 reference = (Reference*)allocate_clear(sizeof(Reference));
                 reference->magnification = 1;
-                reference->columns = 1;
-                reference->rows = 1;
                 if (cell) cell->reference_array.append(reference);
                 break;
             case 0x0C:  // TEXT
@@ -364,16 +362,24 @@ Library read_gds(const char* filename, double unit) {
                 } else if (reference) {
                     Vec2 origin = Vec2{factor * data32[0], factor * data32[1]};
                     reference->origin = origin;
-                    if (reference->columns > 1 || reference->rows > 1) {
-                        double sa = -sin(reference->rotation);
-                        double ca = cos(reference->rotation);
-                        double x2 = ((factor * data32[2] - origin.x) * ca -
-                                     (factor * data32[3] - origin.y) * sa + origin.x);
-                        double y3 = ((factor * data32[4] - origin.x) * sa +
-                                     (factor * data32[5] - origin.y) * ca + origin.y);
-                        if (reference->x_reflection) y3 = 2 * factor * data32[1] - y3;
-                        reference->spacing.x = (x2 - origin.x) / reference->columns;
-                        reference->spacing.y = (y3 - origin.y) / reference->rows;
+                    if (reference->repetition) {
+                        Repetition* repetition = reference->repetition;
+                        if (reference->rotation == 0 && !reference->x_reflection) {
+                            repetition->spacing.x =
+                                (factor * data32[2] - origin.x) / repetition->columns;
+                            repetition->spacing.y =
+                                (factor * data32[5] - origin.y) / repetition->rows;
+                        } else {
+                            repetition->type = RepetitionType::Regular;
+                            repetition->v1.x =
+                                (factor * data32[2] - origin.x) / repetition->columns;
+                            repetition->v1.y =
+                                (factor * data32[3] - origin.y) / repetition->columns;
+                            repetition->v2.x =
+                                (factor * data32[4] - origin.x) / repetition->rows;
+                            repetition->v2.y =
+                                (factor * data32[5] - origin.y) / repetition->rows;
+                        }
                     }
                 } else if (label) {
                     label->origin.x = factor * data32[0];
@@ -401,8 +407,11 @@ Library read_gds(const char* filename, double unit) {
             } break;
             case 0x13:  // COLROW
                 if (reference) {
-                    reference->columns = data16[0];
-                    reference->rows = data16[1];
+                    Repetition* repetition = (Repetition*)allocate(sizeof(Repetition));
+                    repetition->type = RepetitionType::Rectangular;
+                    repetition->columns = data16[0];
+                    repetition->rows = data16[1];
+                    reference->repetition = repetition;
                 }
                 break;
             case 0x16:  // TEXTTYPE

@@ -32,9 +32,8 @@ void Reference::print() const {
             printf("Reference <%p> to %s", this, name);
     }
     printf(
-        ", at (%lg, %lg), %lg rad, mag %lg, reflection %d, array %hd x %hd (%lg x %lg), properties <%p>, owner <%p>\n",
-        origin.x, origin.y, rotation, magnification, x_reflection, columns, rows, spacing.x,
-        spacing.y, properties, owner);
+        ", at (%lg, %lg), %lg rad, mag %lg, reflection %d, properties <%p>, repetition <%p>, owner <%p>\n",
+        origin.x, origin.y, rotation, magnification, x_reflection, properties, repetition, owner);
 }
 
 void Reference::clear() {
@@ -44,6 +43,10 @@ void Reference::clear() {
     }
     properties_clear(properties);
     properties = NULL;
+    if (repetition) {
+        repetition->clear();
+        repetition = NULL;
+    }
 }
 
 void Reference::copy_from(const Reference& reference) {
@@ -59,17 +62,17 @@ void Reference::copy_from(const Reference& reference) {
     rotation = reference.rotation;
     magnification = reference.magnification;
     x_reflection = reference.x_reflection;
-    columns = reference.columns;
-    rows = reference.rows;
-    spacing = reference.spacing;
     properties = properties_copy(reference.properties);
+    repetition = repetition_copy(reference.repetition);
 }
 
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
-    // This is expensive, but necessary for a precise bounding box
     Array<Polygon*> array = {0};
+    // TODO: We could get all polygons by this reference without processing its repetition.
+    // This reference's repetiton could be applyed to the calculated bounding box (similar to
+    // Polygon.bounding_box).
     polygons(true, -1, array);
     Polygon** p_item = array.items;
     for (int64_t i = 0; i < array.size; i++) {
@@ -86,18 +89,39 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
     array.clear();
 }
 
-void Reference::transform(double mag, const Vec2 trans, bool x_refl, double rot, const Vec2 orig) {
+void Reference::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
     const int r1 = x_refl ? -1 : 1;
     const double crot = cos(rot);
     const double srot = sin(rot);
     const double x = origin.x;
     const double y = origin.y;
-    origin.x = orig.x + mag * (x * crot - r1 * y * srot) + trans.x * crot - r1 * trans.y * srot;
-    origin.y = orig.y + mag * (x * srot + r1 * y * crot) + trans.x * srot + r1 * trans.y * crot;
+    origin.x = orig.x + mag * (x * crot - r1 * y * srot);
+    origin.y = orig.y + mag * (x * srot + r1 * y * crot);
     rotation = r1 * rotation + rot;
     magnification *= mag;
     x_reflection ^= x_refl;
-    spacing *= mag;
+}
+
+void Reference::apply_repetition(Array<Reference*>& result) {
+    if (repetition == NULL) return;
+
+    Array<Vec2> offsets = {0};
+    repetition->get_offsets(offsets);
+    repetition->clear();
+    repetition = NULL;  // Clear before copying
+
+    // Skip first offset (0, 0)
+    double* offset_p = (double*)(offsets.items + 1);
+    result.ensure_slots(offsets.size - 1);
+    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        Reference* reference = (Reference*)allocate_clear(sizeof(Reference));
+        reference->copy_from(*this);
+        reference->origin.x += *offset_p++;
+        reference->origin.y += *offset_p++;
+        result.append_unsafe(reference);
+    }
+
+    offsets.clear();
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
@@ -106,30 +130,36 @@ void Reference::polygons(bool include_paths, int64_t depth, Array<Polygon*>& res
 
     Array<Polygon*> array = {0};
     cell->get_polygons(include_paths, depth, array);
-    uint32_t factor = rows * columns;
-    result.ensure_slots(array.size * factor);
-    Vec2 translation;
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+    result.ensure_slots(array.size * offsets.size);
+
     Polygon** a_item = array.items;
     for (int64_t i = 0; i < array.size; i++) {
         Polygon* src = *a_item++;
-        for (int64_t r = rows - 1; r >= 0; r--) {
-            translation.y = r * spacing.y;
-            for (int64_t c = columns - 1; c >= 0; c--) {
-                translation.x = c * spacing.x;
-                Polygon* dst;
-                // Avoid an extra allocation by moving the last polygon.
-                if (r == 0 && c == 0) {
-                    dst = src;
-                } else {
-                    dst = (Polygon*)allocate_clear(sizeof(Polygon));
-                    dst->copy_from(*src);
-                }
-                dst->transform(magnification, translation, x_reflection, rotation, origin);
-                result.append_unsafe(dst);
+        Vec2* offset_p = offsets.items;
+        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+            Polygon* dst;
+            // Avoid an extra allocation by moving the last polygon.
+            if (offset_count == 0) {
+                dst = src;
+            } else {
+                dst = (Polygon*)allocate_clear(sizeof(Polygon));
+                dst->copy_from(*src);
             }
+            dst->transform(magnification, x_reflection, rotation, origin + *offset_p++);
+            result.append_unsafe(dst);
         }
     }
     array.clear();
+    if (repetition) offsets.clear();
 }
 
 void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
@@ -137,29 +167,35 @@ void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
 
     Array<FlexPath*> array = {0};
     cell->get_flexpaths(depth, array);
-    uint32_t factor = rows * columns;
-    result.ensure_slots(array.size * factor);
-    Vec2 translation;
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+    result.ensure_slots(array.size * offsets.size);
+
     FlexPath** a_item = array.items;
     for (int64_t i = 0; i < array.size; i++) {
         FlexPath* src = *a_item++;
-        for (int64_t r = rows - 1; r >= 0; r--) {
-            translation.y = r * spacing.y;
-            for (int64_t c = columns - 1; c >= 0; c--) {
-                translation.x = c * spacing.x;
-                FlexPath* dst;
-                if (r == 0 && c == 0) {
-                    dst = src;
-                } else {
-                    dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
-                    dst->copy_from(*src);
-                }
-                dst->transform(magnification, translation, x_reflection, rotation, origin);
-                result.append_unsafe(dst);
+        Vec2* offset_p = offsets.items;
+        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+            FlexPath* dst;
+            if (offset_count == 0) {
+                dst = src;
+            } else {
+                dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
+                dst->copy_from(*src);
             }
+            dst->transform(magnification, x_reflection, rotation, origin + *offset_p++);
+            result.append_unsafe(dst);
         }
     }
     array.clear();
+    if (repetition) offsets.clear();
 }
 
 void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
@@ -167,29 +203,35 @@ void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
 
     Array<RobustPath*> array = {0};
     cell->get_robustpaths(depth, array);
-    uint32_t factor = rows * columns;
-    result.ensure_slots(array.size * factor);
-    Vec2 translation;
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+    result.ensure_slots(array.size * offsets.size);
+
     RobustPath** a_item = array.items;
     for (int64_t i = 0; i < array.size; i++) {
         RobustPath* src = *a_item++;
-        for (int64_t r = rows - 1; r >= 0; r--) {
-            translation.y = r * spacing.y;
-            for (int64_t c = columns - 1; c >= 0; c--) {
-                translation.x = c * spacing.x;
-                RobustPath* dst;
-                if (r == 0 && c == 0) {
-                    dst = src;
-                } else {
-                    dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
-                    dst->copy_from(*src);
-                }
-                dst->transform(magnification, translation, x_reflection, rotation, origin);
-                result.append_unsafe(dst);
+        Vec2* offset_p = offsets.items;
+        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+            RobustPath* dst;
+            if (offset_count == 0) {
+                dst = src;
+            } else {
+                dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
+                dst->copy_from(*src);
             }
+            dst->transform(magnification, x_reflection, rotation, origin + *offset_p++);
+            result.append_unsafe(dst);
         }
     }
     array.clear();
+    if (repetition) offsets.clear();
 }
 
 void Reference::labels(int64_t depth, Array<Label*>& result) const {
@@ -197,127 +239,172 @@ void Reference::labels(int64_t depth, Array<Label*>& result) const {
 
     Array<Label*> array = {0};
     cell->get_labels(depth, array);
-    uint32_t factor = rows * columns;
-    result.ensure_slots(array.size * factor);
-    Vec2 translation;
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+    result.ensure_slots(array.size * offsets.size);
+
     Label** a_item = array.items;
     for (int64_t i = 0; i < array.size; i++) {
         Label* src = *a_item++;
-        for (int64_t r = rows - 1; r >= 0; r--) {
-            translation.y = r * spacing.y;
-            for (int64_t c = columns - 1; c >= 0; c--) {
-                translation.x = c * spacing.x;
-                Label* dst;
-                if (r == 0 && c == 0) {
-                    dst = src;
-                } else {
-                    dst = (Label*)allocate_clear(sizeof(Label));
-                    dst->copy_from(*src);
-                }
-                dst->transform(magnification, translation, x_reflection, rotation, origin);
-                result.append_unsafe(dst);
+        Vec2* offset_p = offsets.items;
+        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+            Label* dst;
+            if (offset_count == 0) {
+                dst = src;
+            } else {
+                dst = (Label*)allocate_clear(sizeof(Label));
+                dst->copy_from(*src);
             }
+            dst->transform(magnification, x_reflection, rotation, origin + *offset_p++);
+            result.append_unsafe(dst);
         }
     }
     array.clear();
+    if (repetition) offsets.clear();
 }
 
+#define REFERENCE_REPETITION_TOLERANCE 1e-12
 void Reference::to_gds(FILE* out, double scaling) const {
-    bool array = (columns > 1 || rows > 1);
-    double x2 = 0;
-    double y2 = 0;
-    double x3 = 0;
-    double y3 = 0;
+    bool array = false;
+    double x2, y2, x3, y3;
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {.size = 1, .items = &zero};
+
+    uint16_t buffer_array[] = {8, 0x1302, 0, 0, 28, 0x1003};
+    int32_t buffer_coord[6];
+    uint16_t buffer_single[] = {12, 0x1003};
+    swap16(buffer_single, COUNT(buffer_single));
+
+    if (repetition) {
+        if (repetition->type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
+            puts("AREF (simple): ");  // DEBUG
+            print();                  // DEBUG
+            array = true;
+            x2 = origin.x + repetition->columns * repetition->spacing.x;
+            y2 = origin.y;
+            x3 = origin.x;
+            y3 = origin.y + repetition->rows * repetition->spacing.y;
+        } else if (repetition->type == RepetitionType::Regular) {
+            puts("AREF (complex): ");  // DEBUG
+            print();                   // DEBUG
+            Vec2 u1 = repetition->v1;
+            Vec2 u2 = repetition->v2;
+            u1.normalize();
+            u2.normalize();
+            if (x_reflection) u2 = -u2;
+            double sa = sin(rotation);
+            double ca = cos(rotation);
+            if (fabs(u1.x - ca) < REFERENCE_REPETITION_TOLERANCE &&
+                fabs(u1.y - sa) < REFERENCE_REPETITION_TOLERANCE &&
+                fabs(u2.x + sa) < REFERENCE_REPETITION_TOLERANCE &&
+                fabs(u2.y - ca) < REFERENCE_REPETITION_TOLERANCE) {
+                array = true;
+                x2 = origin.x + repetition->columns * repetition->v1.x;
+                y2 = origin.y + repetition->columns * repetition->v1.y;
+                x3 = origin.x + repetition->rows * repetition->v2.x;
+                y3 = origin.y + repetition->rows * repetition->v2.y;
+            }
+        }
+
+        if (array) {
+            buffer_array[2] = repetition->columns;
+            buffer_array[3] = repetition->rows;
+            swap16(buffer_array, COUNT(buffer_array));
+            buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
+            buffer_coord[1] = (int32_t)(lround(origin.y * scaling));
+            buffer_coord[2] = (int32_t)(lround(x2 * scaling));
+            buffer_coord[3] = (int32_t)(lround(y2 * scaling));
+            buffer_coord[4] = (int32_t)(lround(x3 * scaling));
+            buffer_coord[5] = (int32_t)(lround(y3 * scaling));
+            swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
+        } else {
+            offsets.size = 0;
+            offsets.items = NULL;
+            repetition->get_offsets(offsets);
+        }
+    }
+
+    if (!array) {  // DEBUG
+        puts("SREF: ");
+        print();
+    }
 
     const char* ref_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
     int64_t len = strlen(ref_name);
     if (len % 2) len++;
-    uint16_t buffer[] = {4, 0x0A00, (uint16_t)(4 + len), 0x1206};
-    if (array) buffer[1] = 0x0B00;
-    swap16(buffer, COUNT(buffer));
-    fwrite(buffer, sizeof(uint16_t), COUNT(buffer), out);
-    fwrite(ref_name, sizeof(char), len, out);
-
-    if (array) {
-        x2 = origin.x + columns * spacing.x;
-        y2 = origin.y;
-        x3 = origin.x;
-        y3 = origin.y + rows * spacing.y;
-    }
-
-    if (rotation != 0 || magnification != 1 || x_reflection) {
-        uint16_t buffer_flags[] = {6, 0x1A01, 0};
-        if (x_reflection) {
-            buffer_flags[2] |= 0x8000;
-            if (array) y3 = 2 * origin.y - y3;
-        }
-        if (magnification != 1) {
-            // Unsuported flag
-            // if("absolute magnification") buffer_flags[2] |= 0x0004;
-        }
-        if (rotation != 0) {
-            // Unsuported flag
-            // if("absolute rotation") buffer_flags[2] |= 0x0002;
-            if (array) {
-                double sa = sin(rotation);
-                double ca = cos(rotation);
-                double dx = x2 - origin.x;
-                double dy = y2 - origin.y;
-                x2 = dx * ca - dy * sa + origin.x;
-                y2 = dx * sa + dy * ca + origin.y;
-                dx = x3 - origin.x;
-                dy = y3 - origin.y;
-                x3 = dx * ca - dy * sa + origin.x;
-                y3 = dx * sa + dy * ca + origin.y;
-            }
-        }
-        swap16(buffer_flags, COUNT(buffer_flags));
-        fwrite(buffer_flags, sizeof(uint16_t), COUNT(buffer_flags), out);
-        if (magnification != 1) {
-            uint16_t buffer_mag[] = {12, 0x1B05};
-            swap16(buffer_mag, COUNT(buffer_mag));
-            fwrite(buffer_mag, sizeof(uint16_t), COUNT(buffer_mag), out);
-            uint64_t mag_real = gdsii_real_from_double(magnification);
-            swap64(&mag_real, 1);
-            fwrite(&mag_real, sizeof(uint64_t), 1, out);
-        }
-        if (rotation != 0) {
-            uint16_t buffer_rot[] = {12, 0x1C05};
-            swap16(buffer_rot, COUNT(buffer_rot));
-            fwrite(buffer_rot, sizeof(uint16_t), COUNT(buffer_rot), out);
-            uint64_t rot_real = gdsii_real_from_double(rotation * (180.0 / M_PI));
-            swap64(&rot_real, 1);
-            fwrite(&rot_real, sizeof(uint64_t), 1, out);
-        }
-    }
-
-    if (array) {
-        uint16_t buffer_array[] = {8, 0x1302, columns, rows, 28, 0x1003};
-        int32_t buffer_coord[] = {
-            (int32_t)(lround(origin.x * scaling)), (int32_t)(lround(origin.y * scaling)),
-            (int32_t)(lround(x2 * scaling)),       (int32_t)(lround(y2 * scaling)),
-            (int32_t)(lround(x3 * scaling)),       (int32_t)(lround(y3 * scaling))};
-        swap16(buffer_array, COUNT(buffer_array));
-        swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
-        fwrite(buffer_array, sizeof(uint16_t), COUNT(buffer_array), out);
-        fwrite(buffer_coord, sizeof(int32_t), COUNT(buffer_coord), out);
-    } else {
-        uint16_t buffer_single[] = {12, 0x1003};
-        int32_t buffer_coord[] = {(int32_t)(lround(origin.x * scaling)),
-                                  (int32_t)(lround(origin.y * scaling))};
-        swap16(buffer_single, COUNT(buffer_single));
-        swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
-        fwrite(buffer_single, sizeof(uint16_t), COUNT(buffer_single), out);
-        fwrite(buffer_coord, sizeof(int32_t), COUNT(buffer_coord), out);
-    }
-
-    properties_to_gds(properties, out);
+    uint16_t buffer_start[] = {4, 0x0A00, (uint16_t)(4 + len), 0x1206};
+    if (array) buffer_start[1] = 0x0B00;
+    swap16(buffer_start, COUNT(buffer_start));
 
     uint16_t buffer_end[] = {4, 0x1100};
     swap16(buffer_end, COUNT(buffer_end));
-    fwrite(buffer_end, sizeof(int16_t), COUNT(buffer_end), out);
+
+    bool transform = rotation != 0 || magnification != 1 || x_reflection;
+    uint16_t buffer_flags[] = {6, 0x1A01, 0};
+    uint16_t buffer_mag[] = {12, 0x1B05};
+    uint16_t buffer_rot[] = {12, 0x1C05};
+    uint64_t mag_real, rot_real;
+    if (transform) {
+        if (x_reflection) {
+            buffer_flags[2] |= 0x8000;
+        }
+        if (magnification != 1) {
+            // if("absolute magnification") buffer_flags[2] |= 0x0004; UNSUPPORTED
+            swap16(buffer_mag, COUNT(buffer_mag));
+            mag_real = gdsii_real_from_double(magnification);
+            swap64(&mag_real, 1);
+        }
+        if (rotation != 0) {
+            // if("absolute rotation") buffer_flags[2] |= 0x0002; UNSUPPORTED
+            swap16(buffer_rot, COUNT(buffer_rot));
+            rot_real = gdsii_real_from_double(rotation * (180.0 / M_PI));
+            swap64(&rot_real, 1);
+        }
+        swap16(buffer_flags, COUNT(buffer_flags));
+    }
+
+    Vec2* offset_p = offsets.items;
+    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
+        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+        fwrite(ref_name, sizeof(char), len, out);
+
+        if (transform) {
+            fwrite(buffer_flags, sizeof(uint16_t), COUNT(buffer_flags), out);
+            if (magnification != 1) {
+                fwrite(buffer_mag, sizeof(uint16_t), COUNT(buffer_mag), out);
+                fwrite(&mag_real, sizeof(uint64_t), 1, out);
+            }
+            if (rotation != 0) {
+                fwrite(buffer_rot, sizeof(uint16_t), COUNT(buffer_rot), out);
+                fwrite(&rot_real, sizeof(uint64_t), 1, out);
+            }
+        }
+
+        if (array) {
+            fwrite(buffer_array, sizeof(uint16_t), COUNT(buffer_array), out);
+            fwrite(buffer_coord, sizeof(int32_t), COUNT(buffer_coord), out);
+        } else {
+            fwrite(buffer_single, sizeof(uint16_t), COUNT(buffer_single), out);
+            int32_t buffer_single_coord[] = {(int32_t)(lround((origin.x + offset_p->x) * scaling)),
+                                             (int32_t)(lround((origin.y + offset_p->y) * scaling))};
+            swap32((uint32_t*)buffer_single_coord, COUNT(buffer_single_coord));
+            fwrite(buffer_single_coord, sizeof(int32_t), COUNT(buffer_single_coord), out);
+        }
+
+        properties_to_gds(properties, out);
+        fwrite(buffer_end, sizeof(int16_t), COUNT(buffer_end), out);
+    }
+
+    if (repetition && !array) offsets.clear();
 }
 
 void Reference::to_svg(FILE* out, double scaling) const {
@@ -325,27 +412,33 @@ void Reference::to_svg(FILE* out, double scaling) const {
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
     char* ref_name = (char*)allocate(sizeof(char) * (strlen(src_name) + 1));
-    // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
-    // strings, but who knows…
+    // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only
+    // for strings, but who knows…
     char* d = ref_name;
     for (const char* c = src_name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
 
-    double px = scaling * origin.x;
-    double py = scaling * origin.y;
-    double dx = scaling * spacing.x;
-    double dy = scaling * spacing.y;
-    for (int64_t r = 0; r < rows; r++) {
-        for (int64_t c = 0; c < columns; c++) {
-            fprintf(out, "<use transform=\"translate(%lf %lf)", px, py);
-            if (rotation != 0) fprintf(out, " rotate(%lf)", rotation * (180.0 / M_PI));
-            if (x_reflection) fputs(" scale(1 -1)", out);
-            if (c > 0 || r > 0) fprintf(out, " translate(%lf %lf)", dx * c, dy * r);
-            if (magnification != 1) fprintf(out, " scale(%lf)", magnification);
-            fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
-        }
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+    if (repetition) {
+        repetition->get_offsets(offsets);
+    } else {
+        offsets.size = 1;
+        offsets.items = &zero;
+    }
+
+    double* offset_p = (double*)offsets.items;
+    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        double offset_x = scaling * (origin.x + *offset_p++);
+        double offset_y = scaling * (origin.y + *offset_p++);
+        fprintf(out, "<use transform=\"translate(%lf %lf)", offset_x, offset_y);
+        if (rotation != 0) fprintf(out, " rotate(%lf)", rotation * (180.0 / M_PI));
+        if (x_reflection) fputs(" scale(1 -1)", out);
+        if (magnification != 1) fprintf(out, " scale(%lf)", magnification);
+        fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
     }
     free_allocation(ref_name);
+    if (repetition) offsets.clear();
 }
 
 }  // namespace gdstk

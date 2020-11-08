@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "allocator.h"
 #include "property.h"
+#include "repetition.h"
 #include "vec.h"
 
 namespace gdstk {
@@ -33,47 +34,16 @@ struct Label {
     double magnification;
     bool x_reflection;
     Property* properties;
+    Repetition* repetition;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
     void print();
-
-    void clear() {
-        if (text) {
-            free_allocation(text);
-            text = NULL;
-        }
-        properties_clear(properties);
-        properties = NULL;
-    }
-
-    void copy_from(const Label& label) {
-        layer = label.layer;
-        texttype = label.texttype;
-        text = (char*)allocate((strlen(label.text) + 1) * sizeof(char));
-        strcpy(text, label.text);
-        origin = label.origin;
-        anchor = label.anchor;
-        rotation = label.rotation;
-        magnification = label.magnification;
-        x_reflection = label.x_reflection;
-        properties = properties_copy(label.properties);
-    }
-
-    void transform(double mag, const Vec2 trans, bool x_refl, double rot, const Vec2 orig) {
-        const int r1 = x_refl ? -1 : 1;
-        const double crot = cos(rot);
-        const double srot = sin(rot);
-        const double x = origin.x;
-        const double y = origin.y;
-        origin.x = orig.x + mag * (x * crot - r1 * y * srot) + trans.x * crot - r1 * trans.y * srot;
-        origin.y = orig.y + mag * (x * srot + r1 * y * crot) + trans.x * srot + r1 * trans.y * crot;
-        rotation = r1 * rotation + rot;
-        magnification *= mag;
-        x_reflection ^= x_refl;
-    }
-
+    void clear();
+    void copy_from(const Label& label);
+    void transform(double mag, bool x_refl, double rot, const Vec2 orig);
+    void apply_repetition(Array<Label*>& result);
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };
