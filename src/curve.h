@@ -46,6 +46,8 @@ struct Curve {
 
     void append(const Vec2 v) { point_array.append(v); }
 
+    void append_unsafe(const Vec2 v) { point_array.append_unsafe(v); }
+
     void remove(int64_t index) { point_array.remove(index); }
 
     void ensure_slots(int64_t free_slots) { point_array.ensure_slots(free_slots); }

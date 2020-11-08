@@ -665,10 +665,11 @@ void RobustPath::interpolation(const Array<Vec2> point_array, double *angles,
     const Vec2 *src = point_array.items;
     Vec2 *dst = hobby_vec.items + 3;
     hobby_vec[0] = ref;
-    if (relative)
+    if (relative) {
         for (int64_t i = 0; i < point_array.size; i++, dst += 3) *dst = ref + *src++;
-    else
+    } else {
         for (int64_t i = 0; i < point_array.size; i++, dst += 3) *dst = *src++;
+    }
     hobby_interpolation(point_array.size + 1, hobby_vec.items, angles, angle_constraints, tension,
                         initial_curl, final_curl, cycle);
     dst = hobby_vec.items + 1;
@@ -1117,8 +1118,6 @@ Array<Polygon *> RobustPath::to_polygons() const {
         Curve final_cap = {0};
         initial_cap.tolerance = tolerance;
         final_cap.tolerance = tolerance;
-        initial_cap.ensure_slots(2);
-        final_cap.ensure_slots(2);
 
         {  // Initial cap
             const Vec2 cap_l =
@@ -1295,7 +1294,7 @@ Array<Polygon *> RobustPath::to_polygons() const {
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_side;
         result_polygon->properties = properties_copy(properties);
-        result.append(result_polygon);
+        result.append_unsafe(result_polygon);
     }
     return result;
 }

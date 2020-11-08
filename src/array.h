@@ -70,6 +70,8 @@ struct Array {
         items[size++] = item;
     }
 
+    void append_unsafe(T item) { items[size++] = item; }
+
     void remove_unordered(int64_t index) { items[index] = items[--size]; }
 
     void remove(int64_t index) {

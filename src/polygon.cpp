@@ -175,12 +175,12 @@ void Polygon::fillet(const Array<double> radii, double tol) {
 
             point_array.ensure_slots(n);
             if (n == 1) {
-                point_array.append(p1);
+                point_array.append_unsafe(p1);
             } else {
                 for (int64_t l = 0; l < n; l++) {
                     const double a = a0 + l * (a1 - a0) / (n - 1.0);
                     Vec2 cosi = {cos(a), sin(a)};
-                    point_array.append(p1 + (dv + cosi) * radius);
+                    point_array.append_unsafe(p1 + (dv + cosi) * radius);
                 }
             }
         } else {
@@ -559,7 +559,7 @@ void text(const char* s, double size, const Vec2 position, bool vertical, int16_
                         p->point_array.ensure_slots(_num_coords[p_idx]);
                         int16_t c_idx = _first_coord[p_idx];
                         for (int16_t j = _num_coords[p_idx] - 1; j >= 0; j--, c_idx++)
-                            p->point_array.append(cursor + size * _all_coords[c_idx]);
+                            p->point_array.append_unsafe(cursor + size * _all_coords[c_idx]);
                         result.append(p);
                     }
                     if (vertical)

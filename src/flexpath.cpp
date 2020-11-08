@@ -606,7 +606,7 @@ Array<Polygon*> FlexPath::to_polygons() {
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_curve.point_array;
         result_polygon->properties = properties_copy(properties);
-        result.append(result_polygon);
+        result.append_unsafe(result_polygon);
     }
     return result;
 }
@@ -853,7 +853,8 @@ void FlexPath::fill_offsets_and_widths(const double* width, const double* offset
         const Vec2 widoff_change = Vec2{wid, off};
         half_width_and_offset->ensure_slots(num_pts);
         for (int64_t i = 1; i <= num_pts; i++)
-            half_width_and_offset->append(initial_widoff + widoff_change * ((double)i / num_pts));
+            half_width_and_offset->append_unsafe(initial_widoff +
+                                                 widoff_change * ((double)i / num_pts));
     }
 }
 
@@ -874,7 +875,8 @@ void FlexPath::vertical(double coord_y, const double* width, const double* offse
     fill_offsets_and_widths(width, offset);
 }
 
-void FlexPath::vertical(Array<double> coord_y, const double* width, const double* offset, bool relative) {
+void FlexPath::vertical(Array<double> coord_y, const double* width, const double* offset,
+                        bool relative) {
     spine.vertical(coord_y, relative);
     fill_offsets_and_widths(width, offset);
 }
@@ -908,8 +910,8 @@ void FlexPath::quadratic(const Array<Vec2> point_array, const double* width, con
     fill_offsets_and_widths(width, offset);
 }
 
-void FlexPath::quadratic_smooth(Vec2 end_point, const double* width,
-                                const double* offset, bool relative) {
+void FlexPath::quadratic_smooth(Vec2 end_point, const double* width, const double* offset,
+                                bool relative) {
     spine.quadratic_smooth(end_point, relative);
     fill_offsets_and_widths(width, offset);
 }
