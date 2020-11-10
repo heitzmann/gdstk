@@ -1,0 +1,41 @@
+{% set name = "gdstk" %}
+{% set version = "0.1.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/gdstk-{{ version }}.tar.gz
+  sha256: d5ed69fce359c25d65f9e61fe302496931ae32bca925b9cb6b359dddc5db03d1
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - numpy
+    - pip
+    - python
+  run:
+    - python
+    - {{ pin_compatible('numpy') }}
+
+test:
+  imports:
+    - gdstk
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/heitzmann/gdstk
+  summary: Python module for creation and manipulation of GDSII files.
+  license: MIT
+  license_file: LICENSE
+
