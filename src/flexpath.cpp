@@ -163,7 +163,7 @@ void FlexPath::rotate(double angle, const Vec2 center) {
 Repetition* FlexPath::apply_repetition(Array<FlexPath*>& result) {
     if (repetition == NULL) return NULL;
 
-    Repetition* result = repetition;
+    Repetition* old_repetition = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
     repetition = NULL;  // Clear before copying
@@ -179,7 +179,7 @@ Repetition* FlexPath::apply_repetition(Array<FlexPath*>& result) {
     }
 
     offsets.clear();
-    return result;
+    return old_repetition;
 }
 
 void FlexPath::transform(double magnification, bool x_reflection, double rotation,

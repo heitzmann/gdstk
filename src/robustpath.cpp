@@ -528,7 +528,7 @@ void RobustPath::transform(double magnification, bool x_refl, double rotation, c
 Repetition *RobustPath::apply_repetition(Array<RobustPath *> &result) {
     if (repetition == NULL) return NULL;
 
-    Repetition *result = repetition;
+    Repetition *old_repetition = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
     repetition = NULL;  // Clear before copying
@@ -544,7 +544,7 @@ Repetition *RobustPath::apply_repetition(Array<RobustPath *> &result) {
     }
 
     offsets.clear();
-    return result;
+    return old_repetition;
 }
 
 void RobustPath::fill_widths_and_offsets(const Interpolation *width, const Interpolation *offset) {

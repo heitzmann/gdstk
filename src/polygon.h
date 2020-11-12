@@ -42,7 +42,7 @@ struct Polygon {
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
     void fillet(const Array<double> radii, double tol);
     void fracture(int64_t max_points, double precision, Array<Polygon*>& result) const;
-    void apply_repetition(Array<Polygon*>& result);
+    Repetition* apply_repetition(Array<Polygon*>& result);
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };

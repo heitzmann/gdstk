@@ -62,7 +62,7 @@ void Label::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
 Repetition* Label::apply_repetition(Array<Label*>& result) {
     if (repetition == NULL) return NULL;
 
-    Repetition* result = repetition;
+    Repetition* old_repetition = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
     repetition = NULL;  // Clear before copying
@@ -79,7 +79,7 @@ Repetition* Label::apply_repetition(Array<Label*>& result) {
     }
 
     offsets.clear();
-    return result;
+    return old_repetition;
 }
 
 void Label::to_gds(FILE* out, double scaling) const {

@@ -135,7 +135,7 @@ struct RobustPath {
     void mirror(const Vec2 p0, const Vec2 p1);
     void rotate(double angle, const Vec2 center);
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
-    void apply_repetition(Array<RobustPath*>& result);
+    Repetition* apply_repetition(Array<RobustPath*>& result);
 
     // Note: width and offset must be NULL or arrays of size at least path.num_elements.
     void horizontal(double coord_x, const Interpolation* width, const Interpolation* offset,

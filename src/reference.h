@@ -50,7 +50,7 @@ struct Reference {
     void bounding_box(Vec2& min, Vec2& max) const;
     // Arguments are in order of application to the coordinates
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
-    void apply_repetition(Array<Reference*>& result);
+    Repetition* apply_repetition(Array<Reference*>& result);
 
     void polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const;
     void flexpaths(int64_t depth, Array<FlexPath*>& result) const;
