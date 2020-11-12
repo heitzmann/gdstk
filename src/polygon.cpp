@@ -38,10 +38,7 @@ void Polygon::clear() {
     point_array.clear();
     properties_clear(properties);
     properties = NULL;
-    if (repetition) {
-        repetition->clear();
-        repetition = NULL;
-    }
+    repetition = NULL;
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
@@ -297,12 +294,12 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
     }
 }
 
-void Polygon::apply_repetition(Array<Polygon*>& result) {
-    if (repetition == NULL) return;
+Repetition* Polygon::apply_repetition(Array<Polygon*>& result) {
+    if (repetition == NULL) return NULL;
 
+    Repetition* result = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
-    repetition->clear();
     repetition = NULL;  // Clear before copying
 
     // Skip first offset (0, 0)
@@ -316,6 +313,7 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
     }
 
     offsets.clear();
+    return result;
 }
 
 void Polygon::to_gds(FILE* out, double scaling) const {

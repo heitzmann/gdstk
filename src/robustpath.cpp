@@ -408,10 +408,7 @@ void RobustPath::clear() {
     num_elements = 0;
     properties_clear(properties);
     properties = NULL;
-    if (repetition) {
-        repetition->clear();
-        repetition = NULL;
-    }
+    repetition = NULL;
 }
 
 void RobustPath::copy_from(const RobustPath &path) {
@@ -528,25 +525,26 @@ void RobustPath::transform(double magnification, bool x_refl, double rotation, c
     translate(origin);
 }
 
-void RobustPath::apply_repetition(Array<RobustPath*>& result) {
-    if (repetition == NULL) return;
+Repetition *RobustPath::apply_repetition(Array<RobustPath *> &result) {
+    if (repetition == NULL) return NULL;
 
+    Repetition *result = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
-    repetition->clear();
     repetition = NULL;  // Clear before copying
 
     // Skip first offset (0, 0)
-    Vec2* offset_p = offsets.items + 1;
+    Vec2 *offset_p = offsets.items + 1;
     result.ensure_slots(offsets.size - 1);
     for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
-        RobustPath* path = (RobustPath*)allocate_clear(sizeof(RobustPath));
+        RobustPath *path = (RobustPath *)allocate_clear(sizeof(RobustPath));
         path->copy_from(*this);
         path->translate(*offset_p++);
         result.append_unsafe(path);
     }
 
     offsets.clear();
+    return result;
 }
 
 void RobustPath::fill_widths_and_offsets(const Interpolation *width, const Interpolation *offset) {
@@ -1376,7 +1374,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             ext_size[1] = (int32_t)lround(el->end_extensions.v * scaling);
             swap16(buffer_ext1, COUNT(buffer_ext1));
             swap16(buffer_ext2, COUNT(buffer_ext2));
-            swap32((uint32_t*)ext_size, COUNT(buffer_ext2));
+            swap32((uint32_t *)ext_size, COUNT(buffer_ext2));
         }
 
         {  // Calculate path coordinates (analogous to RobustPath::to_polygons)

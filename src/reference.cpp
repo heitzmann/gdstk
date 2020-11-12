@@ -43,10 +43,7 @@ void Reference::clear() {
     }
     properties_clear(properties);
     properties = NULL;
-    if (repetition) {
-        repetition->clear();
-        repetition = NULL;
-    }
+    repetition = NULL;
 }
 
 void Reference::copy_from(const Reference& reference) {
@@ -102,12 +99,12 @@ void Reference::transform(double mag, bool x_refl, double rot, const Vec2 orig) 
     x_reflection ^= x_refl;
 }
 
-void Reference::apply_repetition(Array<Reference*>& result) {
-    if (repetition == NULL) return;
+Repetition* Reference::apply_repetition(Array<Reference*>& result) {
+    if (repetition == NULL) return NULL;
 
+    Repetition* result = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
-    repetition->clear();
     repetition = NULL;  // Clear before copying
 
     // Skip first offset (0, 0)
@@ -122,6 +119,7 @@ void Reference::apply_repetition(Array<Reference*>& result) {
     }
 
     offsets.clear();
+    return result;
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.

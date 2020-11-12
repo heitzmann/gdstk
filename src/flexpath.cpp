@@ -83,10 +83,7 @@ void FlexPath::clear() {
     num_elements = 0;
     properties_clear(properties);
     properties = NULL;
-    if (repetition) {
-        repetition->clear();
-        repetition = NULL;
-    }
+    repetition = NULL;
 }
 
 void FlexPath::copy_from(const FlexPath& path) {
@@ -163,12 +160,12 @@ void FlexPath::rotate(double angle, const Vec2 center) {
     }
 }
 
-void FlexPath::apply_repetition(Array<FlexPath*>& result) {
-    if (repetition == NULL) return;
+Repetition* FlexPath::apply_repetition(Array<FlexPath*>& result) {
+    if (repetition == NULL) return NULL;
 
+    Repetition* result = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
-    repetition->clear();
     repetition = NULL;  // Clear before copying
 
     // Skip first offset (0, 0)
@@ -182,6 +179,7 @@ void FlexPath::apply_repetition(Array<FlexPath*>& result) {
     }
 
     offsets.clear();
+    return result;
 }
 
 void FlexPath::transform(double magnification, bool x_reflection, double rotation,
@@ -829,7 +827,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
         coords.ensure_slots(point_array.size * 2);
         coords.size = point_array.size * 2;
 
-        double *offset_p = (double *)offsets.items;
+        double* offset_p = (double*)offsets.items;
         for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
             fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
             fwrite(&width, sizeof(int32_t), 1, out);
@@ -840,8 +838,8 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                 fwrite(ext_size + 1, sizeof(int32_t), 1, out);
             }
 
-            int32_t *c = coords.items;
-            double *p = (double *)point_array.items;
+            int32_t* c = coords.items;
+            double* p = (double*)point_array.items;
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
             for (int64_t i = coords.size; i > 0; i--) {
@@ -860,7 +858,6 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                 fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
                 i0 = i1;
             }
-
 
             properties_to_gds(properties, out);
 

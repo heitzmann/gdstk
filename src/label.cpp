@@ -29,10 +29,7 @@ void Label::clear() {
     }
     properties_clear(properties);
     properties = NULL;
-    if (repetition) {
-        repetition->clear();
-        repetition = NULL;
-    }
+    repetition = NULL;
 }
 
 void Label::copy_from(const Label& label) {
@@ -62,12 +59,12 @@ void Label::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
     x_reflection ^= x_refl;
 }
 
-void Label::apply_repetition(Array<Label*>& result) {
-    if (repetition == NULL) return;
+Repetition* Label::apply_repetition(Array<Label*>& result) {
+    if (repetition == NULL) return NULL;
 
+    Repetition* result = repetition;
     Array<Vec2> offsets = {0};
     repetition->get_offsets(offsets);
-    repetition->clear();
     repetition = NULL;  // Clear before copying
 
     // Skip first offset (0, 0)
@@ -82,6 +79,7 @@ void Label::apply_repetition(Array<Label*>& result) {
     }
 
     offsets.clear();
+    return result;
 }
 
 void Label::to_gds(FILE* out, double scaling) const {
