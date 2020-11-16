@@ -58,9 +58,9 @@ void FlexPath::init(const Vec2 initial_position, int64_t num_elements_, const do
 
 void FlexPath::print(bool all) const {
     printf("FlexPath <%p>, size %" PRId64 ", %" PRId64
-           " elements, gdsii %d, width scaling %d, properties <%p>, repetition <%p>, owner <%p>\n",
+           " elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
            this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties,
-           repetition, owner);
+           owner);
     if (all) {
         FlexPathElement* el = elements;
         for (int64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -72,6 +72,7 @@ void FlexPath::print(bool all) const {
         printf("Spine: ");
         spine.print(true);
     }
+    repetition.print();
 }
 
 void FlexPath::clear() {
@@ -81,15 +82,15 @@ void FlexPath::clear() {
     free_allocation(elements);
     elements = NULL;
     num_elements = 0;
+    repetition.clear();
     properties_clear(properties);
     properties = NULL;
-    repetition = NULL;
 }
 
 void FlexPath::copy_from(const FlexPath& path) {
     spine.copy_from(path.spine);
     properties = properties_copy(path.properties);
-    repetition = repetition_copy(path.repetition);
+    repetition = path.repetition;
     scale_width = path.scale_width;
     gdsii_path = path.gdsii_path;
     num_elements = path.num_elements;
@@ -160,13 +161,12 @@ void FlexPath::rotate(double angle, const Vec2 center) {
     }
 }
 
-Repetition* FlexPath::apply_repetition(Array<FlexPath*>& result) {
-    if (repetition == NULL) return NULL;
+void FlexPath::apply_repetition(Array<FlexPath*>& result) {
+    if (repetition.type == RepetitionType::None) return;
 
-    Repetition* old_repetition = repetition;
     Array<Vec2> offsets = {0};
-    repetition->get_offsets(offsets);
-    repetition = NULL;  // Clear before copying
+    repetition.get_offsets(offsets);
+    repetition.clear();
 
     // Skip first offset (0, 0)
     Vec2* offset_p = offsets.items + 1;
@@ -179,7 +179,7 @@ Repetition* FlexPath::apply_repetition(Array<FlexPath*>& result) {
     }
 
     offsets.clear();
-    return old_repetition;
+    return;
 }
 
 void FlexPath::transform(double magnification, bool x_reflection, double rotation,
@@ -624,12 +624,12 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
 
         curve_size_guess = right_curve.point_array.size * 6 / 5;
 
-        Polygon* result_polygon = (Polygon*)allocate(sizeof(Polygon));
+        Polygon* result_polygon = (Polygon*)allocate_clear(sizeof(Polygon));
         result_polygon->layer = el->layer;
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_curve.point_array;
+        result_polygon->repetition = repetition;
         result_polygon->properties = properties_copy(properties);
-        result_polygon->repetition = repetition_copy(repetition);
         result.append_unsafe(result_polygon);
     }
 }
@@ -643,8 +643,8 @@ void FlexPath::to_gds(FILE* out, double scaling) {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -691,7 +691,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             ext_size[1] = (int32_t)lround(el->end_extensions.v * scaling);
             swap16(buffer_ext1, COUNT(buffer_ext1));
             swap16(buffer_ext2, COUNT(buffer_ext2));
-            swap32((uint32_t*)ext_size, COUNT(buffer_ext2));
+            swap32((uint32_t*)ext_size, COUNT(ext_size));
         }
 
         {  // Calculate path coordinates (analogous to to_polygons)
@@ -842,7 +842,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             double* p = (double*)point_array.items;
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
-            for (int64_t i = coords.size; i > 0; i--) {
+            for (int64_t i = point_array.size; i > 0; i--) {
                 *c++ = (int32_t)lround((*p++ + offset_x) * scaling);
                 *c++ = (int32_t)lround((*p++ + offset_y) * scaling);
             }
@@ -870,7 +870,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
 
     coords.clear();
     point_array.clear();
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 void FlexPath::to_svg(FILE* out, double scaling) {

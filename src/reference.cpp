@@ -31,9 +31,9 @@ void Reference::print() const {
         default:
             printf("Reference <%p> to %s", this, name);
     }
-    printf(
-        ", at (%lg, %lg), %lg rad, mag %lg, reflection %d, properties <%p>, repetition <%p>, owner <%p>\n",
-        origin.x, origin.y, rotation, magnification, x_reflection, properties, repetition, owner);
+    printf(", at (%lg, %lg), %lg rad, mag %lg, reflection %d, properties <%p>, owner <%p>\n",
+           origin.x, origin.y, rotation, magnification, x_reflection, properties, owner);
+    repetition.print();
 }
 
 void Reference::clear() {
@@ -41,9 +41,9 @@ void Reference::clear() {
         free_allocation(name);
         name = NULL;
     }
+    repetition.clear();
     properties_clear(properties);
     properties = NULL;
-    repetition = NULL;
 }
 
 void Reference::copy_from(const Reference& reference) {
@@ -59,8 +59,8 @@ void Reference::copy_from(const Reference& reference) {
     rotation = reference.rotation;
     magnification = reference.magnification;
     x_reflection = reference.x_reflection;
+    repetition = reference.repetition;
     properties = properties_copy(reference.properties);
-    repetition = repetition_copy(reference.repetition);
 }
 
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
@@ -99,13 +99,12 @@ void Reference::transform(double mag, bool x_refl, double rot, const Vec2 orig) 
     x_reflection ^= x_refl;
 }
 
-Repetition* Reference::apply_repetition(Array<Reference*>& result) {
-    if (repetition == NULL) return NULL;
+void Reference::apply_repetition(Array<Reference*>& result) {
+    if (repetition.type == RepetitionType::None) return;
 
-    Repetition* old_repetition = repetition;
     Array<Vec2> offsets = {0};
-    repetition->get_offsets(offsets);
-    repetition = NULL;  // Clear before copying
+    repetition.get_offsets(offsets);
+    repetition.clear();
 
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
@@ -119,7 +118,7 @@ Repetition* Reference::apply_repetition(Array<Reference*>& result) {
     }
 
     offsets.clear();
-    return old_repetition;
+    return;
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
@@ -131,8 +130,8 @@ void Reference::polygons(bool include_paths, int64_t depth, Array<Polygon*>& res
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -157,7 +156,7 @@ void Reference::polygons(bool include_paths, int64_t depth, Array<Polygon*>& res
         }
     }
     array.clear();
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
@@ -168,8 +167,8 @@ void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -193,7 +192,7 @@ void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
         }
     }
     array.clear();
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
@@ -204,8 +203,8 @@ void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -229,7 +228,7 @@ void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
         }
     }
     array.clear();
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 void Reference::labels(int64_t depth, Array<Label*>& result) const {
@@ -240,8 +239,8 @@ void Reference::labels(int64_t depth, Array<Label*>& result) const {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -265,7 +264,7 @@ void Reference::labels(int64_t depth, Array<Label*>& result) const {
         }
     }
     array.clear();
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 #define REFERENCE_REPETITION_TOLERANCE 1e-12
@@ -280,20 +279,18 @@ void Reference::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_single[] = {12, 0x1003};
     swap16(buffer_single, COUNT(buffer_single));
 
-    if (repetition) {
-        if (repetition->type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
-            puts("AREF (simple): ");  // DEBUG
-            print();                  // DEBUG
+    if (repetition.type != RepetitionType::None) {
+        if (repetition.type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
+            printf("AREF (simple): ");  // DEBUG
+            print();                    // DEBUG
             array = true;
-            x2 = origin.x + repetition->columns * repetition->spacing.x;
+            x2 = origin.x + repetition.columns * repetition.spacing.x;
             y2 = origin.y;
             x3 = origin.x;
-            y3 = origin.y + repetition->rows * repetition->spacing.y;
-        } else if (repetition->type == RepetitionType::Regular) {
-            puts("AREF (complex): ");  // DEBUG
-            print();                   // DEBUG
-            Vec2 u1 = repetition->v1;
-            Vec2 u2 = repetition->v2;
+            y3 = origin.y + repetition.rows * repetition.spacing.y;
+        } else if (repetition.type == RepetitionType::Regular) {
+            Vec2 u1 = repetition.v1;
+            Vec2 u2 = repetition.v2;
             u1.normalize();
             u2.normalize();
             if (x_reflection) u2 = -u2;
@@ -303,17 +300,19 @@ void Reference::to_gds(FILE* out, double scaling) const {
                 fabs(u1.y - sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.x + sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.y - ca) < REFERENCE_REPETITION_TOLERANCE) {
+                printf("AREF (complex): ");  // DEBUG
+                print();                     // DEBUG
                 array = true;
-                x2 = origin.x + repetition->columns * repetition->v1.x;
-                y2 = origin.y + repetition->columns * repetition->v1.y;
-                x3 = origin.x + repetition->rows * repetition->v2.x;
-                y3 = origin.y + repetition->rows * repetition->v2.y;
+                x2 = origin.x + repetition.columns * repetition.v1.x;
+                y2 = origin.y + repetition.columns * repetition.v1.y;
+                x3 = origin.x + repetition.rows * repetition.v2.x;
+                y3 = origin.y + repetition.rows * repetition.v2.y;
             }
         }
 
         if (array) {
-            buffer_array[2] = repetition->columns;
-            buffer_array[3] = repetition->rows;
+            buffer_array[2] = repetition.columns;
+            buffer_array[3] = repetition.rows;
             swap16(buffer_array, COUNT(buffer_array));
             buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
             buffer_coord[1] = (int32_t)(lround(origin.y * scaling));
@@ -325,13 +324,10 @@ void Reference::to_gds(FILE* out, double scaling) const {
         } else {
             offsets.size = 0;
             offsets.items = NULL;
-            repetition->get_offsets(offsets);
+            repetition.get_offsets(offsets);
+            printf("Repeated SREF: ");  // DEBUG
+            print();                    // DEBUG
         }
-    }
-
-    if (!array) {  // DEBUG
-        puts("SREF: ");
-        print();
     }
 
     const char* ref_name = type == ReferenceType::Cell
@@ -402,7 +398,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
         fwrite(buffer_end, sizeof(int16_t), COUNT(buffer_end), out);
     }
 
-    if (repetition && !array) offsets.clear();
+    if (repetition.type != RepetitionType::None && !array) offsets.clear();
 }
 
 void Reference::to_svg(FILE* out, double scaling) const {
@@ -418,8 +414,8 @@ void Reference::to_svg(FILE* out, double scaling) const {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -436,7 +432,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
         fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
     }
     free_allocation(ref_name);
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 }  // namespace gdstk

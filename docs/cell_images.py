@@ -23,7 +23,10 @@ def bounding_box_image():
     main_cell = gdstk.Cell("MAIN")
     main_cell.add(array_ref, path)
     bbox = main_cell.bounding_box()
-    # print(bbox)
+    assert bbox == (
+        (-12.816310409006173, -5.707106781186548),
+        (11.313708498984761, 27.66555281392367),
+    )
     polygon_bb = gdstk.rectangle(*bbox, datatype=1)
     main_cell.name = "bounding_box"
     return main_cell.add(polygon_bb)
@@ -37,16 +40,20 @@ def flatten_image():
     ref = gdstk.Reference(cell1, columns=2, rows=2, spacing=(1, 1))
     cell2 = gdstk.Cell("CELL_2")
     cell2.add(poly2, ref)
-    # print(len(cell2.polygons), len(cell2.references), len(cell2.dependencies(True)))
+    assert len(cell2.polygons) == 1
+    assert len(cell2.references) == 1
+    assert len(cell2.dependencies(True)) == 1
     cell2.flatten()
-    # print(len(cell2.polygons), len(cell2.references), len(cell2.dependencies(True)))
+    assert len(cell2.polygons) == 5
+    assert len(cell2.references) == 0
+    assert len(cell2.dependencies(True)) == 0
     cell2.name = "flatten"
     return cell2
 
 
 def write_svg_image():
     poly1 = gdstk.ellipse((0, 0), (13, 10), datatype=1)  # (layer, datatype) = (0, 1)
-    poly2 = gdstk.ellipse((0, 0), (10, 7), layer=1)      # (layer, datatype) = (1, 0)
+    poly2 = gdstk.ellipse((0, 0), (10, 7), layer=1)  # (layer, datatype) = (1, 0)
     cell = gdstk.Cell("SVG")
     cell.add(poly1, poly2)
     # cell.write_svg(

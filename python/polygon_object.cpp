@@ -185,6 +185,21 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
     return result;
 }
 
+static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject* args) {
+    Array<Polygon*> array = {0};
+    self->polygon->apply_repetition(array);
+    PyObject* result = PyList_New(array.size);
+    for (int64_t i = 0; i < array.size; i++) {
+        PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
+        obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
+        obj->polygon = array[i];
+        array[i]->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+    array.clear();
+    return result;
+}
+
 static PyObject* polygon_object_set_property(PolygonObject* self, PyObject* args) {
     int16_t attr;
     char* value;
@@ -255,6 +270,8 @@ static PyMethodDef polygon_object_methods[] = {
      polygon_object_fillet_doc},
     {"fracture", (PyCFunction)polygon_object_fracture, METH_VARARGS | METH_KEYWORDS,
      polygon_object_fracture_doc},
+    {"apply_repetition", (PyCFunction)polygon_object_apply_repetition, METH_NOARGS,
+     polygon_object_apply_repetition_doc},
     {"set_property", (PyCFunction)polygon_object_set_property, METH_VARARGS,
      polygon_object_set_property_doc},
     {"get_property", (PyCFunction)polygon_object_get_property, METH_VARARGS,
@@ -306,6 +323,28 @@ static PyObject* polygon_object_get_size(PolygonObject* self, void*) {
     return PyLong_FromLong(self->polygon->point_array.size);
 }
 
+static PyObject* polygon_object_get_repetition(PolygonObject* self, void*) {
+    RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
+    obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
+    obj->repetition = self->polygon->repetition;
+    return (PyObject*)obj;
+}
+
+int polygon_object_set_repetition(PolygonObject* self, PyObject* arg, void*) {
+    if (arg == Py_None) {
+        self->polygon->repetition.clear();
+        return 0;
+    }
+    else if (!RepetitionObject_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
+        return -1;
+    }
+    RepetitionObject* repetition_obj = (RepetitionObject*)arg;
+    self->polygon->repetition.clear();
+    self->polygon->repetition = repetition_obj->repetition;
+    return 0;
+}
+
 static PyGetSetDef polygon_object_getset[] = {
     {"points", (getter)polygon_object_get_points, NULL, polygon_object_points_doc},
     {"layer", (getter)polygon_object_get_layer, (setter)polygon_object_set_layer,
@@ -313,4 +352,6 @@ static PyGetSetDef polygon_object_getset[] = {
     {"datatype", (getter)polygon_object_get_datatype, (setter)polygon_object_set_datatype,
      polygon_object_datatype_doc, NULL},
     {"size", (getter)polygon_object_get_size, NULL, polygon_object_size_doc, NULL},
+    {"repetition", (getter)polygon_object_get_repetition, (setter)polygon_object_set_repetition,
+     polygon_object_repetition_doc, NULL},
     {NULL}};

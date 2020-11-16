@@ -22,16 +22,11 @@ if __name__ == "__main__":
 
     # Create repeating pattern using references
     d = 2
-    main.add(gdstk.Reference(unit, columns=11, rows=6, spacing=(d, d * 3 ** 0.5)))
-    main.add(
-        gdstk.Reference(
-            unit,
-            (d / 2, d * 3 ** 0.5 / 2),
-            columns=10,
-            rows=5,
-            spacing=(d, d * 3 ** 0.5),
-        )
+    ref1 = gdstk.Reference(unit, columns=11, rows=6, spacing=(d, d * 3 ** 0.5))
+    ref2 = gdstk.Reference(
+        unit, (d / 2, d * 3 ** 0.5 / 2), columns=10, rows=5, spacing=(d, d * 3 ** 0.5)
     )
+    main.add(ref1, ref2)
     main.flatten()
 
     hole = gdstk.text("PY", 8 * d, (0.5 * d, 0), layer=1)

@@ -40,7 +40,7 @@ def mach_zehnder_interferometer(lib):
     heater1 = gdstk.FlexPath(points, 2, bend_radius=15, gdsii_path=True, layer=10)
     points[:, 1] *= -1
     heater2 = gdstk.FlexPath(points, 2, bend_radius=15, gdsii_path=True, layer=10)
-    cell.add(arm1, arm2, heater1, heater2)
+    #cell.add(arm1, arm2, heater1, heater2)
 
 
 if __name__ == "__main__":

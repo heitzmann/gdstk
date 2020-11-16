@@ -99,6 +99,21 @@ static PyObject* label_object_copy(LabelObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
+static PyObject* label_object_apply_repetition(LabelObject* self, PyObject* args) {
+    Array<Label*> array = {0};
+    self->label->apply_repetition(array);
+    PyObject* result = PyList_New(array.size);
+    for (int64_t i = 0; i < array.size; i++) {
+        LabelObject* obj = PyObject_New(LabelObject, &label_object_type);
+        obj = (LabelObject*)PyObject_Init((PyObject*)obj, &label_object_type);
+        obj->label = array[i];
+        array[i]->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+    array.clear();
+    return result;
+}
+
 static PyObject* label_object_set_property(LabelObject* self, PyObject* args) {
     int16_t attr;
     char* value;
@@ -154,6 +169,8 @@ static PyObject* label_object_delete_property(LabelObject* self, PyObject* args)
 
 static PyMethodDef label_object_methods[] = {
     {"copy", (PyCFunction)label_object_copy, METH_NOARGS, label_object_copy_doc},
+    {"apply_repetition", (PyCFunction)label_object_apply_repetition, METH_NOARGS,
+     label_object_apply_repetition_doc},
     {"set_property", (PyCFunction)label_object_set_property, METH_VARARGS,
      label_object_set_property_doc},
     {"get_property", (PyCFunction)label_object_get_property, METH_VARARGS,
@@ -339,6 +356,28 @@ static int label_object_set_texttype(LabelObject* self, PyObject* arg, void*) {
     return 0;
 }
 
+static PyObject* label_object_get_repetition(LabelObject* self, void*) {
+    RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
+    obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
+    obj->repetition = self->label->repetition;
+    return (PyObject*)obj;
+}
+
+int label_object_set_repetition(LabelObject* self, PyObject* arg, void*) {
+    if (arg == Py_None) {
+        self->label->repetition.clear();
+        return 0;
+    }
+    else if (!RepetitionObject_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
+        return -1;
+    }
+    RepetitionObject* repetition_obj = (RepetitionObject*)arg;
+    self->label->repetition.clear();
+    self->label->repetition = repetition_obj->repetition;
+    return 0;
+}
+
 static PyGetSetDef label_object_getset[] = {
     {"text", (getter)label_object_get_text, (setter)label_object_set_text, label_object_text_doc,
      NULL},
@@ -356,4 +395,6 @@ static PyGetSetDef label_object_getset[] = {
      label_object_layer_doc, NULL},
     {"texttype", (getter)label_object_get_texttype, (setter)label_object_set_texttype,
      label_object_texttype_doc, NULL},
+    {"repetition", (getter)label_object_get_repetition, (setter)label_object_set_repetition,
+     label_object_repetition_doc, NULL},
     {NULL}};

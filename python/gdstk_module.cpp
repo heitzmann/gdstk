@@ -23,6 +23,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define PolygonObject_Check(o) PyObject_TypeCheck((o), &polygon_object_type)
 #define RawCellObject_Check(o) PyObject_TypeCheck((o), &rawcell_object_type)
 #define ReferenceObject_Check(o) PyObject_TypeCheck((o), &reference_object_type)
+#define RepetitionObject_Check(o) PyObject_TypeCheck((o), &repetition_object_type)
 #define RobustPathObject_Check(o) PyObject_TypeCheck((o), &robustpath_object_type)
 
 #define __STDC_FORMAT_MACROS
@@ -86,6 +87,11 @@ struct LibraryObject {
 struct GdsWriterObject {
     PyObject_HEAD;
     GdsWriter* gdswriter;
+};
+
+struct RepetitionObject {
+    PyObject_HEAD;
+    Repetition repetition;
 };
 
 static PyTypeObject curve_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.Curve",
@@ -308,6 +314,46 @@ static PyTypeObject label_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.L
                                          0,
                                          Py_TPFLAGS_DEFAULT,
                                          label_object_type_doc,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         PyType_GenericNew,
+                                         0,
+                                         0};
+
+static PyTypeObject repetition_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.Repetition",
+                                         sizeof(RepetitionObject),
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         0,
+                                         Py_TPFLAGS_DEFAULT,
+                                         repetition_object_type_doc,
                                          0,
                                          0,
                                          0,
@@ -588,6 +634,7 @@ static Array<Vec2> custom_bend_function(double radius, double initial_angle, dou
 #include "polygon_object.cpp"
 #include "rawcell_object.cpp"
 #include "reference_object.cpp"
+#include "repetition_object.cpp"
 #include "robustpath_object.cpp"
 
 static PyObject* rectangle_function(PyObject* mod, PyObject* args, PyObject* kwds) {
@@ -1554,6 +1601,42 @@ static int gdstk_exec(PyObject* module) {
         Py_DECREF(&rawcell_object_type);
         Py_DECREF(&library_object_type);
         Py_DECREF(&gdswriter_object_type);
+        Py_XDECREF(module);
+        return -1;
+    }
+
+    repetition_object_type.tp_dealloc = (destructor)repetition_object_dealloc;
+    repetition_object_type.tp_init = (initproc)repetition_object_init;
+    repetition_object_type.tp_methods = repetition_object_methods;
+    repetition_object_type.tp_getset = repetition_object_getset;
+    repetition_object_type.tp_str = (reprfunc)repetition_object_str;
+    if (PyType_Ready(&repetition_object_type) < 0) {
+        Py_DECREF(&curve_object_type);
+        Py_DECREF(&polygon_object_type);
+        Py_DECREF(&reference_object_type);
+        Py_DECREF(&flexpath_object_type);
+        Py_DECREF(&robustpath_object_type);
+        Py_DECREF(&label_object_type);
+        Py_DECREF(&cell_object_type);
+        Py_DECREF(&rawcell_object_type);
+        Py_DECREF(&library_object_type);
+        Py_DECREF(&gdswriter_object_type);
+        Py_XDECREF(module);
+        return -1;
+    }
+    Py_INCREF(&repetition_object_type);
+    if (PyModule_AddObject(module, "Repetition", (PyObject*)&repetition_object_type) < 0) {
+        Py_DECREF(&curve_object_type);
+        Py_DECREF(&polygon_object_type);
+        Py_DECREF(&reference_object_type);
+        Py_DECREF(&flexpath_object_type);
+        Py_DECREF(&robustpath_object_type);
+        Py_DECREF(&label_object_type);
+        Py_DECREF(&cell_object_type);
+        Py_DECREF(&rawcell_object_type);
+        Py_DECREF(&library_object_type);
+        Py_DECREF(&gdswriter_object_type);
+        Py_DECREF(&repetition_object_type);
         Py_XDECREF(module);
         return -1;
     }

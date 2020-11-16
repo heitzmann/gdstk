@@ -14,10 +14,10 @@ import gdstk
 
 
 if __name__ == "__main__":
-    n = 3     # Number of unit cells around defect
-    d = 0.2   # Unit cell size
+    n = 3  # Number of unit cells around defect
+    d = 0.2  # Unit cell size
     r = 0.05  # Circle radius
-    s = 1.5   # Scaling factor
+    s = 1.5  # Scaling factor
 
     # Create a simple unit cell
     unit_cell = gdstk.Cell("Unit Cell")

@@ -13,8 +13,9 @@ static PyObject* robustpath_object_str(RobustPathObject* self) {
 }
 
 static void robustpath_cleanup(RobustPathObject* self) {
-    RobustPathElement* el = self->robustpath->elements;
-    for (int64_t j = self->robustpath->num_elements - 1; j >= 0; j--, el++) {
+    RobustPath* path = self->robustpath;
+    RobustPathElement* el = path->elements;
+    for (int64_t j = path->num_elements - 1; j >= 0; j--, el++) {
         Py_XDECREF(el->end_function_data);
         Interpolation* interp = el->width_array.items;
         for (int64_t i = el->width_array.size - 1; i >= 0; i--, interp++)
@@ -23,14 +24,14 @@ static void robustpath_cleanup(RobustPathObject* self) {
         for (int64_t i = el->offset_array.size - 1; i >= 0; i--, interp++)
             if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
     }
-    SubPath* sub = self->robustpath->subpath_array.items;
-    for (int64_t j = self->robustpath->subpath_array.size - 1; j >= 0; j--, sub++)
+    SubPath* sub = path->subpath_array.items;
+    for (int64_t j = path->subpath_array.size - 1; j >= 0; j--, sub++)
         if (sub->type == SubPathType::Parametric) {
             Py_XDECREF(sub->func_data);
             if (sub->path_gradient != NULL) Py_XDECREF(sub->grad_data);
         }
-    self->robustpath->clear();
-    free_allocation(self->robustpath);
+    path->clear();
+    free_allocation(path);
     self->robustpath = NULL;
 }
 
@@ -1537,6 +1538,21 @@ static PyObject* robustpath_object_rotate(RobustPathObject* self, PyObject* args
     return (PyObject*)self;
 }
 
+static PyObject* robustpath_object_apply_repetition(RobustPathObject* self, PyObject* args) {
+    Array<RobustPath*> array = {0};
+    self->robustpath->apply_repetition(array);
+    PyObject* result = PyList_New(array.size);
+    for (int64_t i = 0; i < array.size; i++) {
+        RobustPathObject* obj = PyObject_New(RobustPathObject, &robustpath_object_type);
+        obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
+        obj->robustpath = array[i];
+        array[i]->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+    array.clear();
+    return result;
+}
+
 static PyObject* robustpath_object_set_property(RobustPathObject* self, PyObject* args) {
     int16_t attr;
     char* value;
@@ -1641,6 +1657,8 @@ static PyMethodDef robustpath_object_methods[] = {
      robustpath_object_mirror_doc},
     {"rotate", (PyCFunction)robustpath_object_rotate, METH_VARARGS | METH_KEYWORDS,
      robustpath_object_rotate_doc},
+    {"apply_repetition", (PyCFunction)robustpath_object_apply_repetition, METH_NOARGS,
+     robustpath_object_apply_repetition_doc},
     {"set_property", (PyCFunction)robustpath_object_set_property, METH_VARARGS,
      robustpath_object_set_property_doc},
     {"get_property", (PyCFunction)robustpath_object_get_property, METH_VARARGS,
@@ -1695,6 +1713,28 @@ static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
     return PyLong_FromLong(self->robustpath->subpath_array.size);
 }
 
+static PyObject* robustpath_object_get_repetition(RobustPathObject* self, void*) {
+    RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
+    obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
+    obj->repetition = self->robustpath->repetition;
+    return (PyObject*)obj;
+}
+
+int robustpath_object_set_repetition(RobustPathObject* self, PyObject* arg, void*) {
+    if (arg == Py_None) {
+        self->robustpath->repetition.clear();
+        return 0;
+    }
+    else if (!RepetitionObject_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
+        return -1;
+    }
+    RepetitionObject* repetition_obj = (RepetitionObject*)arg;
+    self->robustpath->repetition.clear();
+    self->robustpath->repetition = repetition_obj->repetition;
+    return 0;
+}
+
 static PyGetSetDef robustpath_object_getset[] = {
     {"layers", (getter)robustpath_object_get_layers, NULL, robustpath_object_layers_doc, NULL},
     {"datatypes", (getter)robustpath_object_get_datatypes, NULL, robustpath_object_datatypes_doc,
@@ -1702,4 +1742,6 @@ static PyGetSetDef robustpath_object_getset[] = {
     {"num_paths", (getter)robustpath_object_get_num_paths, NULL, robustpath_object_num_paths_doc,
      NULL},
     {"size", (getter)robustpath_object_get_size, NULL, robustpath_object_size_doc, NULL},
+    {"repetition", (getter)robustpath_object_get_repetition, (setter)robustpath_object_set_repetition,
+     robustpath_object_repetition_doc, NULL},
     {NULL}};

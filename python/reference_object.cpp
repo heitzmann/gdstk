@@ -36,13 +36,19 @@ static void reference_object_dealloc(ReferenceObject* self) {
 static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject* kwds) {
     PyObject* cell_obj = NULL;
     PyObject* origin_obj = NULL;
+    PyObject* spacing_obj = NULL;
     double rotation = 0;
     double magnification = 1;
     int x_reflection = 0;
     Vec2 origin = {0, 0};
-    const char* keywords[] = {"cell", "origin", "rotation", "magnification", "x_reflection", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OddpHHO:Reference", (char**)keywords, &cell_obj,
-                                     &origin_obj, &rotation, &magnification, &x_reflection))
+    int64_t columns = 1;
+    int64_t rows = 1;
+    const char* keywords[] = {"cell",          "origin",       "rotation",
+                              "magnification", "x_reflection", "columns",
+                              "rows",          "spacing",      NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OddpLLO:Reference", (char**)keywords, &cell_obj,
+                                     &origin_obj, &rotation, &magnification, &x_reflection,
+                                     &columns, &rows, &spacing_obj))
         return -1;
     if (parse_point(origin_obj, origin, "origin") < 0) return -1;
 
@@ -75,6 +81,43 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
         return -1;
     }
 
+    if (spacing_obj != NULL && spacing_obj != Py_None && columns > 0 && rows > 0) {
+        Repetition* repetition = &reference->repetition;
+        Vec2 spacing;
+        if (parse_point(spacing_obj, spacing, "spacing") < 0) return -1;
+        // If any of these are zero, we won't be able to detect the AREF construction in to_gds().
+        if (columns == 1 && spacing.x == 0) spacing.x = 1;
+        if (rows == 1 && spacing.y == 0) spacing.y = 1;
+        if (rotation != 0 && x_reflection) {
+            double ca = cos(rotation);
+            double sa = sin(rotation);
+            repetition->type = RepetitionType::Regular;
+            repetition->v1.x = spacing.x * ca;
+            repetition->v1.y = spacing.x * sa;
+            repetition->v2.x = spacing.y * sa;
+            repetition->v2.y = -spacing.y * ca;
+        } else if (rotation != 0) {
+            double ca = cos(rotation);
+            double sa = sin(rotation);
+            repetition->type = RepetitionType::Regular;
+            repetition->v1.x = spacing.x * ca;
+            repetition->v1.y = spacing.x * sa;
+            repetition->v2.x = -spacing.y * sa;
+            repetition->v2.y = spacing.y * ca;
+        }else if(x_reflection){
+            repetition->type = RepetitionType::Regular;
+            repetition->v1.x = spacing.x;
+            repetition->v1.y = 0;
+            repetition->v2.x = 0;
+            repetition->v2.y = -spacing.y;
+        } else {
+            repetition->type = RepetitionType::Rectangular;
+            repetition->spacing = spacing;
+        }
+        repetition->columns = columns;
+        repetition->rows = rows;
+    }
+
     reference->origin = origin;
     reference->rotation = rotation;
     reference->magnification = magnification;
@@ -102,6 +145,21 @@ static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject* 
         return Py_None;
     }
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
+}
+
+static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject* args) {
+    Array<Reference*> array = {0};
+    self->reference->apply_repetition(array);
+    PyObject* result = PyList_New(array.size);
+    for (int64_t i = 0; i < array.size; i++) {
+        ReferenceObject* obj = PyObject_New(ReferenceObject, &reference_object_type);
+        obj = (ReferenceObject*)PyObject_Init((PyObject*)obj, &reference_object_type);
+        obj->reference = array[i];
+        array[i]->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+    array.clear();
+    return result;
 }
 
 static PyObject* reference_object_set_property(ReferenceObject* self, PyObject* args) {
@@ -161,6 +219,8 @@ static PyMethodDef reference_object_methods[] = {
     {"copy", (PyCFunction)reference_object_copy, METH_NOARGS, reference_object_copy_doc},
     {"bounding_box", (PyCFunction)reference_object_bounding_box, METH_NOARGS,
      reference_object_bounding_box_doc},
+    {"apply_repetition", (PyCFunction)reference_object_apply_repetition, METH_NOARGS,
+     reference_object_apply_repetition_doc},
     {"set_property", (PyCFunction)reference_object_set_property, METH_VARARGS,
      reference_object_set_property_doc},
     {"get_property", (PyCFunction)reference_object_get_property, METH_VARARGS,
@@ -239,8 +299,30 @@ int reference_object_set_x_reflection(ReferenceObject* self, PyObject* arg, void
     if (test < 0) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to determine truth value.");
         return -1;
-    } else if (test > 0)
+    } else if (test > 0) {
         self->reference->x_reflection = test > 0;
+    }
+    return 0;
+}
+
+static PyObject* reference_object_get_repetition(ReferenceObject* self, void*) {
+    RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
+    obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
+    obj->repetition = self->reference->repetition;
+    return (PyObject*)obj;
+}
+
+int reference_object_set_repetition(ReferenceObject* self, PyObject* arg, void*) {
+    if (arg == Py_None) {
+        self->reference->repetition.clear();
+        return 0;
+    } else if (!RepetitionObject_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
+        return -1;
+    }
+    RepetitionObject* repetition_obj = (RepetitionObject*)arg;
+    self->reference->repetition.clear();
+    self->reference->repetition = repetition_obj->repetition;
     return 0;
 }
 
@@ -254,4 +336,6 @@ static PyGetSetDef reference_object_getset[] = {
      (setter)reference_object_set_magnification, reference_object_magnification_doc, NULL},
     {"x_reflection", (getter)reference_object_get_x_reflection,
      (setter)reference_object_set_x_reflection, reference_object_x_reflection_doc, NULL},
+    {"repetition", (getter)reference_object_get_repetition, (setter)reference_object_set_repetition,
+     reference_object_repetition_doc, NULL},
     {NULL}};

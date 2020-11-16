@@ -34,7 +34,7 @@ Cell grating(double period, double fill_frac, double length, double width, int16
 
 int main(int argc, char* argv[]) {
     double unit = 0;
-    double precision=0;
+    double precision = 0;
 
     gds_units("photonics.gds", unit, precision);
     if (unit == 0) {
@@ -60,15 +60,17 @@ int main(int argc, char* argv[]) {
     char grating_cell_name[] = "Grating";
     Cell grating_cell = grating(0.62, 0.5, 20, 25, 2, 0, grating_cell_name);
 
+    // We set type of these references to Regular so that we can apply the rotation to the
+    // translation vectors v1 and v2 of the repetition. This way, the GDSII writer will create and
+    // AREF element instead of multiple SREFs. If x_reflection was set to true, that would also have
+    // to be applied to v2 for an AREF to be created.
     Reference grating_ref1 = {
         .type = ReferenceType::Cell,
         .cell = &grating_cell,
         .origin = Vec2{-200, -150},
         .rotation = M_PI / 2,
         .magnification = 1,
-        .columns = 2,
-        .rows = 1,
-        .spacing = Vec2{300, 0},
+        .repetition = {RepetitionType::Regular, 2, 1, Vec2{0, 300}, Vec2{1, 0}},
     };
     dev_cell.reference_array.append(&grating_ref1);
 
@@ -78,9 +80,7 @@ int main(int argc, char* argv[]) {
         .origin = Vec2{200, 150},
         .rotation = -M_PI / 2,
         .magnification = 1,
-        .columns = 2,
-        .rows = 1,
-        .spacing = Vec2{300, 0},
+        .repetition = {RepetitionType::Regular, 2, 1, Vec2{0, -300}, Vec2{1, 0}},
     };
     dev_cell.reference_array.append(&grating_ref2);
 
@@ -149,9 +149,7 @@ int main(int argc, char* argv[]) {
             .type = ReferenceType::RawCell,
             .rawcell = pdk.get("Alignment Mark"),
             .magnification = 1,
-            .columns = 2,
-            .rows = 3,
-            .spacing = Vec2{500, 500},
+            .repetition = {RepetitionType::Rectangular, 2, 3, Vec2{500, 500}},
         },
     };
     Reference* dev_ref_p[] = {dev_ref, dev_ref + 1, dev_ref + 2};

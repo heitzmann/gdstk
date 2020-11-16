@@ -56,7 +56,7 @@ void Library::copy_from(const Library& library, bool deep_copy) {
         Cell** src = library.cell_array.items;
         Cell** dst = cell_array.items;
         for (int64_t i = 0; i < library.cell_array.size; i++, src++, dst++) {
-            *dst = (Cell*)allocate(sizeof(Cell));
+            *dst = (Cell*)allocate_clear(sizeof(Cell));
             (*dst)->copy_from(**src, NULL, true);
         }
     } else {
@@ -362,8 +362,8 @@ Library read_gds(const char* filename, double unit) {
                 } else if (reference) {
                     Vec2 origin = Vec2{factor * data32[0], factor * data32[1]};
                     reference->origin = origin;
-                    if (reference->repetition) {
-                        Repetition* repetition = reference->repetition;
+                    if (reference->repetition.type != RepetitionType::None) {
+                        Repetition* repetition = &reference->repetition;
                         if (reference->rotation == 0 && !reference->x_reflection) {
                             repetition->spacing.x =
                                 (factor * data32[2] - origin.x) / repetition->columns;
@@ -407,11 +407,10 @@ Library read_gds(const char* filename, double unit) {
             } break;
             case 0x13:  // COLROW
                 if (reference) {
-                    Repetition* repetition = (Repetition*)allocate(sizeof(Repetition));
+                    Repetition* repetition = &reference->repetition;
                     repetition->type = RepetitionType::Rectangular;
                     repetition->columns = data16[0];
                     repetition->rows = data16[1];
-                    reference->repetition = repetition;
                 }
                 break;
             case 0x16:  // TEXTTYPE

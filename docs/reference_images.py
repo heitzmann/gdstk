@@ -29,7 +29,10 @@ def bounding_box_image():
         f_cell, rotation=numpy.pi / 4, columns=3, rows=2, spacing=(8, 10)
     )
     bbox = array_ref.bounding_box()
-    # print(bbox)
+    assert bbox == (
+        (-12.816310409006173, 1.7677669529663689),
+        (11.313708498984761, 27.66555281392367),
+    )
     polygon_bb = gdstk.rectangle(*bbox, datatype=1)
     return gdstk.Cell("bounding_box").add(array_ref, polygon_bb)
 

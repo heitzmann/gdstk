@@ -81,8 +81,8 @@ def slice_image():
     triangle = gdstk.regular_polygon((-10, 0), 8, 3)
     ring = gdstk.ellipse((10, 0), 8, 5, layer=1)
     result = gdstk.slice([triangle, ring], (-10, -5, 0, 6, 14), "x")
-    # print(len(result))
-    # print([len(polys) for polys in result])
+    assert len(result) == 6
+    assert all(len(polys) == s for polys, s in zip(result, [1, 1, 0, 1, 2, 1]))
     return gdstk.Cell("slice").add(*[p for polys in result for p in polys])
 
 

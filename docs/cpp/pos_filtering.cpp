@@ -31,18 +31,14 @@ int main(int argc, char* argv[]) {
             .type = ReferenceType::Cell,
             .cell = &unit_cell,
             .magnification = 1,
-            .columns = 11,
-            .rows = 6,
-            .spacing = Vec2{d, d * sqrt(3)},
+            .repetition = {RepetitionType::Rectangular, 11, 6, Vec2{d, d * sqrt(3)}},
         },
         {
             .type = ReferenceType::Cell,
             .cell = &unit_cell,
             .origin = Vec2{d / 2, d * sqrt(3) / 2},
             .magnification = 1,
-            .columns = 10,
-            .rows = 5,
-            .spacing = Vec2{d, d * sqrt(3)},
+            .repetition = {RepetitionType::Rectangular, 10, 5, Vec2{d, d * sqrt(3)}},
         },
     };
     main_cell.reference_array.append(unit_refs);

@@ -121,8 +121,8 @@ struct RobustPath {
     double trafo[6];  // Look at apply_transform for the meaning of each coefficient
     bool gdsii_path;
     bool scale_width;
+    Repetition repetition;
     Property* properties;
-    Repetition* repetition;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -135,7 +135,7 @@ struct RobustPath {
     void mirror(const Vec2 p0, const Vec2 p1);
     void rotate(double angle, const Vec2 center);
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
-    Repetition* apply_repetition(Array<RobustPath*>& result);
+    void apply_repetition(Array<RobustPath*>& result);
 
     // Note: width and offset must be NULL or arrays of size at least path.num_elements.
     void horizontal(double coord_x, const Interpolation* width, const Interpolation* offset,

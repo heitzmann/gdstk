@@ -116,12 +116,12 @@ def tolerance_image():
     curve = gdstk.Curve((-2.5, 0), tolerance=1e-1)
     curve.arc((2, 3), 0, numpy.pi)
     polygon_1 = gdstk.Polygon(curve.points())
-    # print(polygon_1.size)
+    assert polygon_1.size == 7
 
     curve = gdstk.Curve((2.5, 0), tolerance=1e-3)
     curve.arc((2, 3), 0, numpy.pi)
     polygon_2 = gdstk.Polygon(curve.points())
-    # print(polygon_2.size)
+    assert polygon_2.size == 62
     return gdstk.Cell("tolerance").add(polygon_1, polygon_2)
 
 

@@ -38,8 +38,8 @@ struct Reference {
     double rotation;  // in RADIANS
     double magnification;
     bool x_reflection;
+    Repetition repetition;
     Property* properties;
-    Repetition* repetition;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -50,7 +50,7 @@ struct Reference {
     void bounding_box(Vec2& min, Vec2& max) const;
     // Arguments are in order of application to the coordinates
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
-    Repetition* apply_repetition(Array<Reference*>& result);
+    void apply_repetition(Array<Reference*>& result);
 
     void polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const;
     void flexpaths(int64_t depth, Array<FlexPath*>& result) const;

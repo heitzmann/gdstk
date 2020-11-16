@@ -26,27 +26,28 @@ namespace gdstk {
 
 void Polygon::print(bool all) const {
     printf("Polygon <%p>, size %" PRId64
-           ", layer %hd, datatype %hd, properties <%p>, repetition <%p>, owner <%p>\n",
-           this, point_array.size, layer, datatype, properties, repetition, owner);
+           ", layer %hd, datatype %hd, properties <%p>, owner <%p>\n",
+           this, point_array.size, layer, datatype, properties, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);
     }
+    repetition.print();
 }
 
 void Polygon::clear() {
     point_array.clear();
+    repetition.clear();
     properties_clear(properties);
     properties = NULL;
-    repetition = NULL;
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
     layer = polygon.layer;
     datatype = polygon.datatype;
     point_array.copy_from(polygon.point_array);
+    repetition = polygon.repetition;
     properties = properties_copy(polygon.properties);
-    repetition = repetition_copy(polygon.repetition);
 }
 
 double Polygon::area() const {
@@ -60,7 +61,7 @@ double Polygon::area() const {
         result += v1.cross(v2);
         v1 = v2;
     }
-    if (repetition) result *= repetition->get_size();
+    if (repetition.type != RepetitionType::None) result *= repetition.get_size();
     return 0.5 * fabs(result);
 }
 
@@ -74,9 +75,9 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
         if (p->y < min.y) min.y = p->y;
         if (p->y > max.y) max.y = p->y;
     }
-    if (repetition) {
+    if (repetition.type != RepetitionType::None) {
         Array<Vec2> offsets = {0};
-        repetition->get_offsets(offsets);
+        repetition.get_offsets(offsets);
         Vec2* off = offsets.items;
         Vec2 min0 = min;
         Vec2 max0 = max;
@@ -289,18 +290,17 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
         poly = result[i];
         poly->layer = layer;
         poly->datatype = datatype;
+        poly->repetition = repetition;
         poly->properties = properties_copy(properties);
-        poly->repetition = repetition_copy(repetition);
     }
 }
 
-Repetition* Polygon::apply_repetition(Array<Polygon*>& result) {
-    if (repetition == NULL) return NULL;
+void Polygon::apply_repetition(Array<Polygon*>& result) {
+    if (repetition.type == RepetitionType::None) return;
 
-    Repetition* old_repetition = repetition;
     Array<Vec2> offsets = {0};
-    repetition->get_offsets(offsets);
-    repetition = NULL;  // Clear before copying
+    repetition.get_offsets(offsets);
+    repetition.clear();
 
     // Skip first offset (0, 0)
     Vec2* offset_p = offsets.items + 1;
@@ -313,7 +313,7 @@ Repetition* Polygon::apply_repetition(Array<Polygon*>& result) {
     }
 
     offsets.clear();
-    return old_repetition;
+    return;
 }
 
 void Polygon::to_gds(FILE* out, double scaling) const {
@@ -337,8 +337,8 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -376,7 +376,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
         fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
 
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
     coords.clear();
 }
 
@@ -389,9 +389,9 @@ void Polygon::to_svg(FILE* out, double scaling) const {
         p++;
     }
     fprintf(out, "%lf,%lf\"/>\n", p->x * scaling, p->y * scaling);
-    if (repetition) {
+    if (repetition.type != RepetitionType::None) {
         Array<Vec2> offsets = {0};
-        repetition->get_offsets(offsets);
+        repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
         for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;

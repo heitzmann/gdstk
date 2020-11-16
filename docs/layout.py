@@ -35,12 +35,10 @@ if __name__ == "__main__":
     dev_cell.add(
         gdstk.Reference(
             grating, (-200, -150), rotation=numpy.pi / 2, columns=2, spacing=(300, 0)
-        )
-    )
-    dev_cell.add(
+        ),
         gdstk.Reference(
             grating, (200, 150), rotation=-numpy.pi / 2, columns=2, spacing=(300, 0)
-        )
+        ),
     )
 
     # Create a waveguide connecting a grating to a MZI port.
@@ -63,10 +61,10 @@ if __name__ == "__main__":
 
     # Main cell with 2 devices and lithography alignment marks
     main = gdstk.Cell("Main")
-    main.add(gdstk.Reference(dev_cell, (250, 250)))
-    main.add(gdstk.Reference(dev_cell, (250, 750)))
     main.add(
-        gdstk.Reference(pdk["Alignment Mark"], columns=2, rows=3, spacing=(500, 500))
+        gdstk.Reference(dev_cell, (250, 250)),
+        gdstk.Reference(dev_cell, (250, 750)),
+        gdstk.Reference(pdk["Alignment Mark"], columns=2, rows=3, spacing=(500, 500)),
     )
 
     lib = gdstk.Library()
@@ -78,15 +76,9 @@ if __name__ == "__main__":
     for cell in [dev_cell, main]:
         for x in cell.references:
             if isinstance(x.cell, gdstk.RawCell):
+                ref = gdstk.Reference(pdk[x.cell.name], x.origin)
+                ref.repetition = x.repetition
                 cell.remove(x)
-                cell.add(
-                    gdstk.Reference(
-                        pdk[x.cell.name],
-                        x.origin,
-                        columns=x.columns,
-                        rows=x.rows,
-                        spacing=x.spacing,
-                    )
-                )
+                cell.add(ref)
     main.name = "layout"
     draw(main, path / "how-tos")

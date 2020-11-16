@@ -33,8 +33,8 @@ struct Label {
     double rotation;  // in RADIANS
     double magnification;
     bool x_reflection;
+    Repetition repetition;
     Property* properties;
-    Repetition* repetition;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -43,7 +43,7 @@ struct Label {
     void clear();
     void copy_from(const Label& label);
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
-    Repetition* apply_repetition(Array<Label*>& result);
+    void apply_repetition(Array<Label*>& result);
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };

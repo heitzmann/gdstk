@@ -18,20 +18,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// TODO:
-// - Respect deep_copy
-// - copy_from/clear: follow properties
-// - No changes with transformations
-// - Polygon->fracture -> copy
-// - Play nice with bounding_box and area
-// - Fix all transforms
-// - Cell.get_polygons(true, …) and Reference.polygons(true, …) -> copy from paths
-// - Cell.flatten (apply reference repetitions, but not resulting geometry's)
-// - path.to_polygon -> copy
-// - create python object and all interfaces
-
 enum struct RepetitionType {
-    Rectangular = 0,
+    None = 0,
+    Rectangular,
     Regular,
     Explicit,
     ExplicitX,
@@ -50,14 +39,12 @@ struct Repetition {
             };
             Vec2 v2;
         };
-        Array<Vec2> positions;  // Explicit (10, 11)
-        Array<double> coords;   // ExplicitX, ExplicitY (Oasis 4, 5, 6, 7)
+        Array<Vec2> offsets;   // Explicit (10, 11)
+        Array<double> coords;  // ExplicitX, ExplicitY (Oasis 4, 5, 6, 7)
     };
-    // Used by the python interface to store the associated PyObject* (if any).
-    // No functions in gdstk namespace should touch this value!
-    void* owner;
 
     void print() const {
+        const int64_t n = 12;
         switch (type) {
             case RepetitionType::Rectangular:
                 printf("Rectangular repetition <%p>, %" PRId64 " columns, %" PRId64
@@ -71,10 +58,10 @@ struct Repetition {
                 break;
             case RepetitionType::Explicit:
                 printf("Explicit repetition <%p>: ", this);
-                positions.print(true);
+                offsets.print(true);
                 break;
-            default:
-                const int64_t n = 12;
+            case RepetitionType::ExplicitX:
+            case RepetitionType::ExplicitY:
                 printf("Explicit %c repetition <%p>:",
                        type == RepetitionType::ExplicitX ? 'X' : 'Y', this);
                 for (int64_t i = 0; i < coords.size; i += n) {
@@ -83,12 +70,15 @@ struct Repetition {
                     }
                     putchar('\n');
                 }
+                break;
+            case RepetitionType::None:
+                return;
         }
     }
 
     void clear() {
         if (type == RepetitionType::Explicit) {
-            positions.clear();
+            offsets.clear();
         } else if (type == RepetitionType::ExplicitX || type == RepetitionType::ExplicitY) {
             coords.clear();
         }
@@ -110,10 +100,14 @@ struct Repetition {
                 v2 = repetition.v2;
                 break;
             case RepetitionType::Explicit:
-                positions.copy_from(repetition.positions);
+                offsets.copy_from(repetition.offsets);
                 break;
-            default:
+            case RepetitionType::ExplicitX:
+            case RepetitionType::ExplicitY:
                 coords.copy_from(repetition.coords);
+                break;
+            case RepetitionType::None:
+                return;
         }
     }
 
@@ -123,29 +117,26 @@ struct Repetition {
             case RepetitionType::Regular:
                 return columns * rows;
             case RepetitionType::Explicit:
-                return positions.size;
-            default:
-                return coords.size;
+                return offsets.size + 1;  // Assume (0, 0) is not included.
+            case RepetitionType::ExplicitX:
+            case RepetitionType::ExplicitY:
+                return coords.size + 1;  // Assume 0 is not included.
+            case RepetitionType::None:
+                return 0;
         }
         return 0;
     }
 
     // NOTE: the coordinates for the original (0, 0) are includded as 1st element
     void get_offsets(Array<Vec2>& result) const {
+        if (type == RepetitionType::None) return;
         int64_t size = get_size();
-        result.ensure_slots(size + 1);
+        result.ensure_slots(size);
         double* c_item;
         double* c = (double*)(result.items + result.size);
-        *c++ = 0;
-        *c++ = 0;
-        result.size++;
         switch (type) {
             case RepetitionType::Rectangular:
-                for (int64_t j = 1; j < rows; j++) {
-                    *c++ = 0;
-                    *c++ = j * spacing.y;
-                }
-                for (int64_t i = 1; i < columns; i++) {
+                for (int64_t i = 0; i < columns; i++) {
                     double cx = i * spacing.x;
                     for (int64_t j = 0; j < rows; j++) {
                         *c++ = cx;
@@ -155,11 +146,7 @@ struct Repetition {
                 result.size += size;
                 break;
             case RepetitionType::Regular:
-                for (int64_t j = 1; j < rows; j++) {
-                    *c++ = j * v2.x;
-                    *c++ = j * v2.y;
-                }
-                for (int64_t i = 1; i < columns; i++) {
+                for (int64_t i = 0; i < columns; i++) {
                     Vec2 vi = i * v1;
                     for (int64_t j = 0; j < rows; j++) {
                         *c++ = vi.x + j * v2.x;
@@ -169,32 +156,33 @@ struct Repetition {
                 result.size += size;
                 break;
             case RepetitionType::ExplicitX:
+                *c++ = 0;
+                *c++ = 0;
                 c_item = coords.items;
-                for (int64_t j = 0; j < size; j++) {
+                for (int64_t j = 1; j < size; j++) {
                     *c++ = *c_item++;
                     *c++ = 0;
                 }
                 result.size += size;
                 break;
             case RepetitionType::ExplicitY:
+                *c++ = 0;
+                *c++ = 0;
                 c_item = coords.items;
-                for (int64_t j = 0; j < size; j++) {
+                for (int64_t j = 1; j < size; j++) {
                     *c++ = 0;
                     *c++ = *c_item++;
                 }
                 result.size += size;
                 break;
-            default:
-                result.extend(positions);
+            case RepetitionType::Explicit:
+                result.append_unsafe(Vec2{0, 0});
+                result.extend(offsets);
+                break;
+            case RepetitionType::None:
+                return;
         }
     }
-};
-
-inline Repetition* repetition_copy(const Repetition* repetition) {
-    if (repetition == NULL) return NULL;
-    Repetition* result = (Repetition*)allocate_clear(sizeof(Repetition));
-    result->copy_from(*repetition);
-    return result;
 };
 
 }  // namespace gdstk

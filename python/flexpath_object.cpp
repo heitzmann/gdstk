@@ -1620,6 +1620,21 @@ static PyObject* flexpath_object_rotate(FlexPathObject* self, PyObject* args, Py
     return (PyObject*)self;
 }
 
+static PyObject* flexpath_object_apply_repetition(FlexPathObject* self, PyObject* args) {
+    Array<FlexPath*> array = {0};
+    self->flexpath->apply_repetition(array);
+    PyObject* result = PyList_New(array.size);
+    for (int64_t i = 0; i < array.size; i++) {
+        FlexPathObject* obj = PyObject_New(FlexPathObject, &flexpath_object_type);
+        obj = (FlexPathObject*)PyObject_Init((PyObject*)obj, &flexpath_object_type);
+        obj->flexpath = array[i];
+        array[i]->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+    array.clear();
+    return result;
+}
+
 static PyObject* flexpath_object_set_property(FlexPathObject* self, PyObject* args) {
     int16_t attr;
     char* value;
@@ -1717,6 +1732,8 @@ static PyMethodDef flexpath_object_methods[] = {
      flexpath_object_mirror_doc},
     {"rotate", (PyCFunction)flexpath_object_rotate, METH_VARARGS | METH_KEYWORDS,
      flexpath_object_rotate_doc},
+    {"apply_repetition", (PyCFunction)flexpath_object_apply_repetition, METH_NOARGS,
+     flexpath_object_apply_repetition_doc},
     {"set_property", (PyCFunction)flexpath_object_set_property, METH_VARARGS,
      flexpath_object_set_property_doc},
     {"get_property", (PyCFunction)flexpath_object_get_property, METH_VARARGS,
@@ -1771,9 +1788,33 @@ static PyObject* flexpath_object_get_size(FlexPathObject* self, void*) {
     return PyLong_FromLong(self->flexpath->spine.point_array.size);
 }
 
+static PyObject* flexpath_object_get_repetition(FlexPathObject* self, void*) {
+    RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
+    obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
+    obj->repetition = self->flexpath->repetition;
+    return (PyObject*)obj;
+}
+
+int flexpath_object_set_repetition(FlexPathObject* self, PyObject* arg, void*) {
+    if (arg == Py_None) {
+        self->flexpath->repetition.clear();
+        return 0;
+    }
+    else if (!RepetitionObject_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
+        return -1;
+    }
+    RepetitionObject* repetition_obj = (RepetitionObject*)arg;
+    self->flexpath->repetition.clear();
+    self->flexpath->repetition = repetition_obj->repetition;
+    return 0;
+}
+
 static PyGetSetDef flexpath_object_getset[] = {
     {"layers", (getter)flexpath_object_get_layers, NULL, flexpath_object_layers_doc, NULL},
     {"datatypes", (getter)flexpath_object_get_datatypes, NULL, flexpath_object_datatypes_doc, NULL},
     {"num_paths", (getter)flexpath_object_get_num_paths, NULL, flexpath_object_num_paths_doc, NULL},
     {"size", (getter)flexpath_object_get_size, NULL, flexpath_object_size_doc, NULL},
+    {"repetition", (getter)flexpath_object_get_repetition, (setter)flexpath_object_set_repetition,
+     flexpath_object_repetition_doc, NULL},
     {NULL}};

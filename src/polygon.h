@@ -24,8 +24,8 @@ struct Polygon {
     int16_t layer;
     int16_t datatype;
     Array<Vec2> point_array;
+    Repetition repetition;
     Property* properties;
-    Repetition* repetition;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -42,7 +42,7 @@ struct Polygon {
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
     void fillet(const Array<double> radii, double tol);
     void fracture(int64_t max_points, double precision, Array<Polygon*>& result) const;
-    Repetition* apply_repetition(Array<Polygon*>& result);
+    void apply_repetition(Array<Polygon*>& result);
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };

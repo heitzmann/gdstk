@@ -76,9 +76,7 @@ int main(int argc, char* argv[]) {
         .type = ReferenceType::Cell,
         .cell = &device_cell,
         .magnification = 1,
-        .columns = 3,
-        .rows = 2,
-        .spacing = Vec2{6, 7},
+        .repetition = {RepetitionType::Rectangular, 3, 2, Vec2{6, 7}},
     };
     main_cell.reference_array.append(&device_ref);
 

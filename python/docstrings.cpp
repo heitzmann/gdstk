@@ -478,6 +478,16 @@ Examples:
     .. image:: ../polygon/fracture.*
        :align: center)!");
 
+PyDoc_STRVAR(polygon_object_apply_repetition_doc, R"!(apply_repetition() -> list
+
+Create new polygons based on this object's ``repetition`` attribute.
+
+After the repetition is applyed, the original attribute is set to
+``None``.
+
+Returns:
+    Newly created objects.)!");
+
 PyDoc_STRVAR(polygon_object_set_property_doc, R"!(set_property(attr, value) -> self
 
 Set a GDSII property for this polygon.
@@ -518,11 +528,13 @@ PyDoc_STRVAR(polygon_object_size_doc, R"!(Number of vertices in this polygon.
 Notes:
     This attribute is read-only.)!");
 
+PyDoc_STRVAR(polygon_object_repetition_doc, R"!(Repetition associated with this element.)!");
+
 // Reference
 
 PyDoc_STRVAR(
     reference_object_type_doc,
-    R"!(Reference(cell, origin=(0, 0), rotation=0, magnification=1, x_reflection=False, columns=1, rows=1, spacing=(0, 0))
+    R"!(Reference(cell, origin=(0, 0), rotation=0, magnification=1, x_reflection=False, columns=1, rows=1, spacing=None)
 
 Reference to another cell.
 
@@ -536,10 +548,9 @@ Args:
     magnification: Geometry scaling for this reference.
     x_reflection: If ``True``, the geometry is reflected across the
       horizontal axis before rotation.
-    columns: Number of repetitions along the horizontal direction.
-    rows: Number of repetitions along the vertical direction.
-    spacing: Distance between insertion points of adjacent columns and
-      rows.
+    columns: Number of repetitions along the first direction.
+    rows: Number of repetitions along the second direction.
+    spacing: Spacing between insertions points of repetitions.
 
 Examples:
     >>> polygons = gdstk.text("F", 10, (0, 0))
@@ -554,7 +565,10 @@ Examples:
 
 Notes:
     If ``cell`` is a str (cell name), operations on the referenced cell
-    are not performed, such as computing the bounding box.)!");
+    are not performed, such as computing the bounding box.
+
+    When ``spacing`` is set, a repetition is defined according to the
+    ``rotation`` and ``x_reflection`` arguments.)!");
 
 PyDoc_STRVAR(reference_object_copy_doc, R"!(copy() -> gdstk.Reference
 
@@ -580,8 +594,13 @@ Examples:
     >>> polygons = gdstk.text("F", 10, (0, 0))
     >>> f_cell = gdstk.Cell("F_CELL")
     >>> f_cell.add(*polygons)
-    >>> array_ref = gdstk.Reference(f_cell, rotation=numpy.pi / 4,
-    ...                             columns=3, rows=2, spacing=(8, 10))
+    >>> ang = numpy.pi / 4
+    >>> array_ref = gdstk.Reference(f_cell, rotation=ang)
+    >>> array_ref.repetition = gdstk.Repetition(columns=3, rows=2,
+    ...     v1=8 * numpy.exp(1j * ang), v2=10j * numpy.exp(1j * ang))
+    >>> array_ref = gdstk.Reference(f_cell, rotation=numpy.pi / 4)
+    >>> array_ref.repetition = gdstk.Repetition(columns=3, rows=2,
+    ...                                         spacing=(8, 10))
     >>> bbox = array_ref.bounding_box()
     >>> print(bbox)
     ((-12.816310409006173, 1.7677669529663689),
@@ -590,6 +609,16 @@ Examples:
 
     .. image:: ../reference/bounding_box.*
        :align: center)!");
+
+PyDoc_STRVAR(reference_object_apply_repetition_doc, R"!(apply_repetition() -> list
+
+Create new references based on this object's ``repetition`` attribute.
+
+After the repetition is applyed, the original attribute is set to
+``None``.
+
+Returns:
+    Newly created objects.)!");
 
 PyDoc_STRVAR(reference_object_set_property_doc, R"!(set_property(attr, value) -> self
 
@@ -630,11 +659,7 @@ PyDoc_STRVAR(reference_object_magnification_doc, R"!(Reference magnification.)!"
 
 PyDoc_STRVAR(reference_object_x_reflection_doc, R"!(Reference reflection across the x axis.)!");
 
-PyDoc_STRVAR(reference_object_columns_doc, R"!(Number of columns in the array.)!");
-
-PyDoc_STRVAR(reference_object_rows_doc, R"!(Number of rows in the array.)!");
-
-PyDoc_STRVAR(reference_object_spacing_doc, R"!(Spacing between copies in the array.)!");
+PyDoc_STRVAR(reference_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // FlexPath
 
@@ -1257,6 +1282,16 @@ Args:
     angle: Rotation angle (in radians).
     center (coordinate pair or complex): Center of the transformation.)!");
 
+PyDoc_STRVAR(flexpath_object_apply_repetition_doc, R"!(apply_repetition() -> list
+
+Create new flexpaths based on this object's ``repetition`` attribute.
+
+After the repetition is applyed, the original attribute is set to
+``None``.
+
+Returns:
+    Newly created objects.)!");
+
 PyDoc_STRVAR(flexpath_object_set_property_doc, R"!(set_property(attr, value) -> self
 
 Set a GDSII property for this path.
@@ -1302,6 +1337,8 @@ PyDoc_STRVAR(flexpath_object_size_doc, R"!(Number of points in the path spine.
 
 Notes:
     This attribute is read-only.)!");
+
+PyDoc_STRVAR(flexpath_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // RobustPath
 
@@ -1963,6 +2000,16 @@ Args:
     angle: Rotation angle (in radians).
     center (coordinate pair or complex): Center of the transformation.)!");
 
+PyDoc_STRVAR(robustpath_object_apply_repetition_doc, R"!(apply_repetition() -> list
+
+Create new robustpaths based on this object's ``repetition`` attribute.
+
+After the repetition is applyed, the original attribute is set to
+``None``.
+
+Returns:
+    Newly created objects.)!");
+
 PyDoc_STRVAR(robustpath_object_set_property_doc, R"!(set_property(attr, value) -> self
 
 Set a GDSII property for this path.
@@ -2008,6 +2055,8 @@ PyDoc_STRVAR(robustpath_object_size_doc, R"!(Number of sections in this path.
 
 Notes:
     This attribute is read-only.)!");
+
+PyDoc_STRVAR(robustpath_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // Label
 
@@ -2058,6 +2107,16 @@ Create a copy this label.
 Returns:
     Copy of this label.)!");
 
+PyDoc_STRVAR(label_object_apply_repetition_doc, R"!(apply_repetition() -> list
+
+Create new labels based on this object's ``repetition`` attribute.
+
+After the repetition is applyed, the original attribute is set to
+``None``.
+
+Returns:
+    Newly created objects.)!");
+
 PyDoc_STRVAR(label_object_set_property_doc, R"!(set_property(attr, value) -> self
 
 Set a GDSII property for this label.
@@ -2099,6 +2158,8 @@ PyDoc_STRVAR(label_object_x_reflection_doc, R"!(Label reflection across the x ax
 PyDoc_STRVAR(label_object_layer_doc, R"!(Label layer.)!");
 
 PyDoc_STRVAR(label_object_texttype_doc, R"!(Label text type.)!");
+
+PyDoc_STRVAR(label_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // Cell
 
@@ -2148,8 +2209,10 @@ Examples:
     >>> polygons = gdstk.text("F", 10, (0, 0))
     >>> f_cell = gdstk.Cell("F_CELL")
     >>> f_cell.add(*polygons)
-    >>> array_ref = gdstk.Reference(f_cell, rotation=numpy.pi / 4,
-    ...                             columns=3, rows=2, spacing=(8, 10))
+    >>> ang = numpy.pi / 4
+    >>> array_ref = gdstk.Reference(f_cell, rotation=ang)
+    >>> array_ref.repetition = gdstk.Repetition(columns=3, rows=2,
+    ...     v1=8 * numpy.exp(1j * ang), v2=10j * numpy.exp(1j * ang))
     >>> path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1,
     ...                       gdsii_path=True)
     >>> main_cell = gdstk.Cell("MAIN")
@@ -2175,7 +2238,9 @@ Examples:
     >>> cell1 = gdstk.Cell('CELL_1')
     >>> cell1.add(poly1)
     >>> poly2 = gdstk.Polygon([(1, 0), (1.5, 1), (0.5, 1)], layer=1)
-    >>> ref = gdstk.Reference(cell1, columns=2, rows=2, spacing=(1, 1))
+    >>> ref = gdstk.Reference(cell1)
+    >>> ref.repetition = gdstk.Repetition(columns=2, rows=2,
+    ...                                   spacing=(1, 1))
     >>> cell2 = gdstk.Cell('CELL_2')
     >>> cell2.add(poly2, ref)
     >>> print(len(cell2.polygons), len(cell2.references),
@@ -2420,7 +2485,7 @@ Args:
     max_points: Maximal number of vertices per polygon. Polygons with
       more vertices that this are automatically fractured.
 
-Example:
+Eaxmples:
     >>> writer = gdstk.GdsWriter()
     >>> cell1 = some_function_that_creates_a_huge_cell()
     >>> writer.write(cell1)
@@ -2440,6 +2505,87 @@ Write cells to the output file.)!");
 PyDoc_STRVAR(gdswriter_object_close_doc, R"!(close() -> None
 
 Finish writing the output file and close it.)!");
+
+// Repetition
+
+PyDoc_STRVAR(
+    repetition_object_type_doc,
+    R"!(Repetition(columns=None, rows=None, spacing=None, v1=None, v2=None, offsets=None, x_offsets=None, y_offsets=None)
+
+Repetition object that creates multiple identical elements.
+
+A repetition can be set in any polygon, path, label or reference to
+indicate that the element should be copied to multiple positions.
+Repetitions can be of 5 different types, depending on which arguments
+are set:
+
+- Rectangular: requires `columns`, `rows` and `spacing`. Creates a
+  rectangular array of copies.
+- Regular: requires `columns`, `rows`, `v1` and `v2`. Creates an array
+  of copies along the specified direction vectors.
+- Explicit: requires `offsets`. Creates copies at the specified position
+  offsets. The original element at offset (0, 0) is always present, so
+  it should not be specified in the `offsets` array.
+- X-explicit: requires `x-offsets`. Creates a linear array of copies
+  at the given x coordinates. Coordinate 0 is always included, so it
+  should not be specified.
+- Y-explicit: requires `y-offsets`. Creates a linear array of copies
+  at the given y coordinates.  Coordinate 0 is always included, so it
+  should not be specified.
+
+Args:
+    columns (int): Number of copies in the x direction (rectangular) or
+      along `v1` (regular).
+    rows (int): Number of copies in the y direction (rectangular) or
+      along `v2` (regular).
+    spacing (coordinate pair or complex): Step sizes in x and y
+      directions for rectangular array.
+    v1 (coordinate pair or complex): First vector defining the shape of
+      a regular array.
+    v2 (coordinate pair or complex): Second vector defining the shape of
+      a regular array.
+    offsets (sequence of points): Explicit offsets for copies.
+    x_offsets (sequence of numbers): Explicit x coordinates for copies.
+    y_offsets (sequence of numbers): Explicit y coordinates for copies.
+
+Examples:
+    TODO: Rectangular array, rotated, magnified reference array,
+          Regular
+          Explicit
+          ExplictX
+          ExplicitY
+          + images
+    >>> ref_array = gdstk.Reference("Some Cell")
+    >>> # Create an array of 3 by 2 references:
+    >>> ref_array.repetition = gdstk.Repetition(3, 2, (10, 12))
+
+Notes:
+    All attributes of Repetition objects are read-only.)!");
+
+PyDoc_STRVAR(repetition_object_getoffsets_doc, R"!(get_offsets() -> numpy.ndarray
+
+Calculate all offsets generated by this repetition.
+
+Returns:
+    Offsets generated by this repetition.)!");
+
+PyDoc_STRVAR(repetition_object_size_doc, R"!(Number of offsets generated by this repetition.)!");
+
+PyDoc_STRVAR(repetition_object_columns_doc, R"!(Number of columns in a rectangular or regular array.)!");
+
+PyDoc_STRVAR(repetition_object_rows_doc, R"!(Number of rows in a rectangular or regular array.)!");
+
+PyDoc_STRVAR(repetition_object_spacing_doc, R"!(Spacing in a rectangular array.)!");
+
+PyDoc_STRVAR(repetition_object_v1_doc, R"!(First vector defining a regular array.)!");
+
+PyDoc_STRVAR(repetition_object_v2_doc, R"!(Second vector defining a regular array.)!");
+
+PyDoc_STRVAR(repetition_object_offsets_doc, R"!(Offsets for an explicit array.)!");
+
+PyDoc_STRVAR(repetition_object_x_offsets_doc, R"!(X coordinates for an x-explicit array.)!");
+
+PyDoc_STRVAR(repetition_object_y_offsets_doc, R"!(Y coordinates for a y-explicit array.)!");
 
 // Module-level functions
 

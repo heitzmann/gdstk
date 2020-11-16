@@ -15,16 +15,13 @@ from conftest import assert_same_shape, assert_close
 
 def test_noreference():
     name = "ca_noreference"
-    ref = gdstk.Reference(name, (1, -1), numpy.pi / 2, 2.1, True, 2, 3, (5, 4))
+    ref = gdstk.Reference(name, (1, -1), numpy.pi / 2, 2.1, True)
     assert ref.cell == name
     assert ref.bounding_box() is None
     assert ref.origin == (1, -1)
     assert ref.rotation == numpy.pi / 2
     assert ref.magnification == 2.1
     assert ref.x_reflection == True
-    assert ref.columns == 2
-    assert ref.rows == 3
-    assert ref.spacing == (5, 4)
 
 
 def test_empty():

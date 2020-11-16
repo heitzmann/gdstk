@@ -82,7 +82,15 @@ def horizontal_image():
     path.horizontal(2, width=0.4, relative=True)
     path.horizontal(2, offset=[0.4], relative=True)
     path.horizontal(2, relative=True)
-    # print(path.spine())
+    assert (
+        numpy.max(
+            numpy.abs(
+                path.spine()
+                - numpy.array([[0.0, 0.0], [2.0, 0.0], [4.0, 0.0], [6.0, 0.0]])
+            )
+        )
+        == 0
+    )
     return gdstk.Cell("horizontal").add(path)
 
 

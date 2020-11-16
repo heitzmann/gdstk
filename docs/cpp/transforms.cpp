@@ -37,36 +37,30 @@ int main(int argc, char* argv[]) {
             .cell = &unit_cell,
             .origin = Vec2{-n * d, -n * d},
             .magnification = 1,
-            .columns = (uint16_t)(2 * n + 1),
-            .rows = (uint16_t)n,
-            .spacing = Vec2{d, d},
+            .repetition = {RepetitionType::Rectangular, (uint16_t)(2 * n + 1), (uint16_t)n,
+                           Vec2{d, d}},
         },
         {
             .type = ReferenceType::Cell,
             .cell = &unit_cell,
             .origin = Vec2{-n * d, d},
             .magnification = 1,
-            .columns = (uint16_t)(2 * n + 1),
-            .rows = (uint16_t)n,
-            .spacing = Vec2{d, d},
+            .repetition = {RepetitionType::Rectangular, (uint16_t)(2 * n + 1), (uint16_t)n,
+                           Vec2{d, d}},
         },
         {
             .type = ReferenceType::Cell,
             .cell = &unit_cell,
             .origin = Vec2{-n * d, 0},
             .magnification = 1,
-            .columns = (uint16_t)n,
-            .rows = 1,
-            .spacing = Vec2{d, d},
+            .repetition = {RepetitionType::Rectangular, (uint16_t)n, 1, Vec2{d, d}},
         },
         {
             .type = ReferenceType::Cell,
             .cell = &unit_cell,
             .origin = Vec2{d, 0},
             .magnification = 1,
-            .columns = (uint16_t)n,
-            .rows = 1,
-            .spacing = Vec2{d, d},
+            .repetition = {RepetitionType::Rectangular, (uint16_t)n, 1, Vec2{d, d}},
         },
     };
     Reference* unit_refs_p[] = {unit_refs, unit_refs + 1, unit_refs + 2, unit_refs + 3};
@@ -111,7 +105,7 @@ int main(int argc, char* argv[]) {
     }
     for (int64_t i = 0; i < resonator_cell_copy.reference_array.size; i++) {
         Reference* ref = resonator_cell_copy.reference_array[i];
-        ref->transform(s, Vec2{0, 0}, false, 0, Vec2{0, 0});
+        ref->transform(s, false, 0, Vec2{0, 0});
     }
 
     Reference resonator_refs[] = {

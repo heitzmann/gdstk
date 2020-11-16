@@ -135,7 +135,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         Polygon** psrc = cell.polygon_array.items;
         Polygon** pdst = polygon_array.items;
         for (int64_t i = 0; i < cell.polygon_array.size; i++, psrc++, pdst++) {
-            *pdst = (Polygon*)allocate(sizeof(Polygon));
+            *pdst = (Polygon*)allocate_clear(sizeof(Polygon));
             (*pdst)->copy_from(**psrc);
         }
 
@@ -146,7 +146,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         Reference** rsrc = cell.reference_array.items;
         Reference** rdst = reference_array.items;
         for (int64_t i = 0; i < cell.reference_array.size; i++, rsrc++, rdst++) {
-            *rdst = (Reference*)allocate(sizeof(Reference));
+            *rdst = (Reference*)allocate_clear(sizeof(Reference));
             (*rdst)->copy_from(**rsrc);
         }
 
@@ -156,7 +156,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         FlexPath** fpsrc = cell.flexpath_array.items;
         FlexPath** fpdst = flexpath_array.items;
         for (int64_t i = 0; i < cell.flexpath_array.size; i++, fpsrc++, fpdst++) {
-            *fpdst = (FlexPath*)allocate(sizeof(FlexPath));
+            *fpdst = (FlexPath*)allocate_clear(sizeof(FlexPath));
             (*fpdst)->copy_from(**fpsrc);
         }
 
@@ -167,7 +167,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         RobustPath** rpsrc = cell.robustpath_array.items;
         RobustPath** rpdst = robustpath_array.items;
         for (int64_t i = 0; i < cell.robustpath_array.size; i++, rpsrc++, rpdst++) {
-            *rpdst = (RobustPath*)allocate(sizeof(RobustPath));
+            *rpdst = (RobustPath*)allocate_clear(sizeof(RobustPath));
             (*rpdst)->copy_from(**rpsrc);
         }
 
@@ -177,7 +177,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         Label** lsrc = cell.label_array.items;
         Label** ldst = label_array.items;
         for (int64_t i = 0; i < cell.label_array.size; i++, lsrc++, ldst++) {
-            *ldst = (Label*)allocate(sizeof(Label));
+            *ldst = (Label*)allocate_clear(sizeof(Label));
             (*ldst)->copy_from(**lsrc);
         }
     } else {

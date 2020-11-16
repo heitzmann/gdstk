@@ -17,9 +17,10 @@ namespace gdstk {
 
 void Label::print() {
     printf(
-        "Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg, reflection %d, layer %hd, texttype %hd, properties <%p>, repetition <%p>, owner <%p>\n",
+        "Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg, reflection %d, layer %hd, texttype %hd, properties <%p>, owner <%p>\n",
         this, text, origin.x, origin.y, rotation, magnification, x_reflection, layer, texttype,
-        properties, repetition, owner);
+        properties, owner);
+    repetition.print();
 }
 
 void Label::clear() {
@@ -27,9 +28,9 @@ void Label::clear() {
         free_allocation(text);
         text = NULL;
     }
+    repetition.clear();
     properties_clear(properties);
     properties = NULL;
-    repetition = NULL;
 }
 
 void Label::copy_from(const Label& label) {
@@ -42,8 +43,8 @@ void Label::copy_from(const Label& label) {
     rotation = label.rotation;
     magnification = label.magnification;
     x_reflection = label.x_reflection;
+    repetition = label.repetition;
     properties = properties_copy(label.properties);
-    repetition = repetition_copy(label.repetition);
 }
 
 void Label::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
@@ -59,13 +60,12 @@ void Label::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
     x_reflection ^= x_refl;
 }
 
-Repetition* Label::apply_repetition(Array<Label*>& result) {
-    if (repetition == NULL) return NULL;
+void Label::apply_repetition(Array<Label*>& result) {
+    if (repetition.type == RepetitionType::None) return;
 
-    Repetition* old_repetition = repetition;
     Array<Vec2> offsets = {0};
-    repetition->get_offsets(offsets);
-    repetition = NULL;  // Clear before copying
+    repetition.get_offsets(offsets);
+    repetition.clear();
 
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
@@ -79,7 +79,7 @@ Repetition* Label::apply_repetition(Array<Label*>& result) {
     }
 
     offsets.clear();
-    return old_repetition;
+    return;
 }
 
 void Label::to_gds(FILE* out, double scaling) const {
@@ -125,8 +125,8 @@ void Label::to_gds(FILE* out, double scaling) const {
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    if (repetition) {
-        repetition->get_offsets(offsets);
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_offsets(offsets);
     } else {
         offsets.size = 1;
         offsets.items = &zero;
@@ -161,7 +161,7 @@ void Label::to_gds(FILE* out, double scaling) const {
         properties_to_gds(properties, out);
         fwrite(buffer_end, sizeof(int16_t), COUNT(buffer_end), out);
     }
-    if (repetition) offsets.clear();
+    if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 void Label::to_svg(FILE* out, double scaling) const {
@@ -228,9 +228,9 @@ void Label::to_svg(FILE* out, double scaling) const {
     }
     fputs("</text>\n", out);
 
-    if (repetition) {
+    if (repetition.type != RepetitionType::None) {
         Array<Vec2> offsets = {0};
-        repetition->get_offsets(offsets);
+        repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
         for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
