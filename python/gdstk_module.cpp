@@ -12,7 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define PYDEBUG(o)                             \
     PyObject_Print((PyObject*)(o), stdout, 0); \
-    putchar("\n");                              \
+    putchar('\n');                              \
     fflush(stdout);
 
 #define CellObject_Check(o) PyObject_TypeCheck((o), &cell_object_type)

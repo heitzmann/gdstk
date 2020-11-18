@@ -224,7 +224,7 @@ Library read_gds(const char* filename, double unit) {
                 // for (int64_t i = 0; i < data_length; i++) printf(" %c", str[i]);
         }
 
-        // putchar("\n");
+        // putchar('\n');
 
         switch (buffer[2]) {
             case 0x00:  // HEADER
