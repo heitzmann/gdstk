@@ -24,6 +24,11 @@ The complete documentation is available [here](http://heitzmann.github.io/gdstk)
 The source files can be found in the _docs_ directory.
 
 
+## Instalation via Conda
+
+Windows users are suggested to install via [conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock). The recipe works on MacOS and Linux as well.
+
+
 ## Installation from source
 
 The C++ library is meant to be used straight from source.
@@ -43,10 +48,6 @@ Installation from source should follow the usual method:
 ```sh
 python setup.py install
 ```
-
-### Instalation via Conda
-
-Windows users are suggested to install via [conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock). The recipe works on MacOS and Linux as well.
 
 
 ## Support
