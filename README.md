@@ -24,7 +24,7 @@ The complete documentation is available [here](http://heitzmann.github.io/gdstk)
 The source files can be found in the _docs_ directory.
 
 
-## Installation
+## Installation from source
 
 The C++ library is meant to be used straight from source.
 The only requirement is that it must be linked against LAPACK.
@@ -44,8 +44,9 @@ Installation from source should follow the usual method:
 python setup.py install
 ```
 
-Windows users have the option to use a pre-compiled binary from the [releases](https://github.com/heitzmann/gdstk/releases) page.
-It depends on openBLAS, which is currently not included in the package, so the recommendation is to [install it](https://anaconda.org/anaconda/openblas) via [conda](https://www.anaconda.com/).
+### Instalation via Conda
+
+Windows users are suggested to install via [conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock). The recipe works on MacOS and Linux as well.
 
 
 ## Support
