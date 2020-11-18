@@ -42,7 +42,7 @@ struct Array {
                     if (j > 0) printf(" ");
                     printf("<%p>", items[i + j]);
                 }
-                printf("\n");
+                putchar("\n");
             }
         }
     }
@@ -109,7 +109,7 @@ inline void Array<Vec2>::print(bool all) const {
                 if (j > 0) printf(" ");
                 printf("(%lg, %lg)", items[i + j].x, items[i + j].y);
             }
-            printf("\n");
+            putchar("\n");
         }
     }
 }
