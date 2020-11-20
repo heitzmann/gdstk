@@ -814,7 +814,7 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
     } else if (RobustPathObject_Check(py_polygons)) {
         ((RobustPathObject*)py_polygons)->robustpath->to_polygons(polygon_array);
     } else if (ReferenceObject_Check(py_polygons)) {
-        ((ReferenceObject*)py_polygons)->reference->polygons(true, -1, polygon_array);
+        ((ReferenceObject*)py_polygons)->reference->polygons(true, true, -1, polygon_array);
     } else if (PySequence_Check(py_polygons)) {
         for (int64_t i = PySequence_Length(py_polygons) - 1; i >= 0; i--) {
             PyObject* arg = PySequence_ITEM(py_polygons, i);
@@ -837,7 +837,7 @@ static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
             } else if (RobustPathObject_Check(arg)) {
                 ((RobustPathObject*)arg)->robustpath->to_polygons(polygon_array);
             } else if (ReferenceObject_Check(arg)) {
-                ((ReferenceObject*)arg)->reference->polygons(true, -1, polygon_array);
+                ((ReferenceObject*)arg)->reference->polygons(true, true, -1, polygon_array);
             } else {
                 Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (parse_point_sequence(arg, polygon->point_array, "") < 0) {

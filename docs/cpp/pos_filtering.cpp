@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     main_cell.reference_array.append(unit_refs + 1);
 
     Array<Reference*> removed_references = {0};
-    main_cell.flatten(removed_references);
+    main_cell.flatten(true, removed_references);
     removed_references.clear();
 
     Array<Polygon*> txt = {0};

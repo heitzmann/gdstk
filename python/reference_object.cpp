@@ -88,34 +88,13 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
         // If any of these are zero, we won't be able to detect the AREF construction in to_gds().
         if (columns == 1 && spacing.x == 0) spacing.x = 1;
         if (rows == 1 && spacing.y == 0) spacing.y = 1;
-        if (rotation != 0 && x_reflection) {
-            double ca = cos(rotation);
-            double sa = sin(rotation);
-            repetition->type = RepetitionType::Regular;
-            repetition->v1.x = spacing.x * ca;
-            repetition->v1.y = spacing.x * sa;
-            repetition->v2.x = spacing.y * sa;
-            repetition->v2.y = -spacing.y * ca;
-        } else if (rotation != 0) {
-            double ca = cos(rotation);
-            double sa = sin(rotation);
-            repetition->type = RepetitionType::Regular;
-            repetition->v1.x = spacing.x * ca;
-            repetition->v1.y = spacing.x * sa;
-            repetition->v2.x = -spacing.y * sa;
-            repetition->v2.y = spacing.y * ca;
-        }else if(x_reflection){
-            repetition->type = RepetitionType::Regular;
-            repetition->v1.x = spacing.x;
-            repetition->v1.y = 0;
-            repetition->v2.x = 0;
-            repetition->v2.y = -spacing.y;
-        } else {
-            repetition->type = RepetitionType::Rectangular;
-            repetition->spacing = spacing;
-        }
+        repetition->type = RepetitionType::Rectangular;
         repetition->columns = columns;
         repetition->rows = rows;
+        repetition->spacing = spacing;
+        if (rotation != 0 || x_reflection) {
+            repetition->transform(1, x_reflection > 0, rotation);
+        }
     }
 
     reference->origin = origin;

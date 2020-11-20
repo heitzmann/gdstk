@@ -2229,9 +2229,14 @@ Notes:
     This operation can be slow because all paths and references are
     included in the computation.)!");
 
-PyDoc_STRVAR(cell_object_flatten_doc, R"!(flatten() -> self
+PyDoc_STRVAR(cell_object_flatten_doc, R"!(flatten(apply_repetitions=True) -> self
 
 Transform all references into polygons, paths and labels.
+
+Args:
+    apply_repetitions: Define whether repetitions should be flattened
+      for polygons, paths and labels (reference repetitions are always
+      applied).
 
 Examples:
     >>> poly1 = gdstk.Polygon([(0, 0), (1, 0), (0.5, 1)])
@@ -2770,7 +2775,11 @@ Examples:
     ...                       use_union=True, layer=1)
 
     .. image:: ../function/offset.*
-       :align: center)!");
+       :align: center
+
+Notes:
+    Repetitions are not applied to any elements, except references and
+    their contents.)!");
 
 PyDoc_STRVAR(boolean_function_doc,
              R"!(boolean(operand1, operand2, operation, precision=1e-3, layer=0, datatype=0) -> list
@@ -2803,7 +2812,11 @@ Examples:
     >>> result = gdstk.boolean(circle, text + [path], "not")
 
     .. image:: ../function/boolean.*
-       :align: center)!");
+       :align: center
+
+Notes:
+    Repetitions are not applied to any elements, except references and
+    their contents.)!");
 
 PyDoc_STRVAR(slice_function_doc, R"!(slice(polygons, position, axis, precision=1e-3) -> list
 
@@ -2832,7 +2845,11 @@ Examples:
     [1, 1, 0, 1, 2, 1]
 
     .. image:: ../function/slice.*
-       :align: center)!");
+       :align: center
+
+Notes:
+    Repetitions are not applied to any elements, except references and
+    their contents.)!");
 
 PyDoc_STRVAR(inside_function_doc,
              R"!(inside(points, polygons, short_circuit=*, precision=1e=3) -> tuple
@@ -2868,7 +2885,11 @@ Examples:
     >>> print(gdstk.inside([[(0.5, 0.5), (2, 2)],
     ...                     [(0, 0), (1, 1)],
     ...                     [(2, 2), (3, 3)]], rect)
-    (True, True, False))!");
+    (True, True, False)
+
+Notes:
+    Repetitions are not applied to any elements, except references and
+    their contents.)!");
 
 PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0) -> gdstk.Library
 

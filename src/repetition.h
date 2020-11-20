@@ -183,6 +183,122 @@ struct Repetition {
                 return;
         }
     }
+
+    void transform(double magnification, bool x_reflection, double rotation) {
+        if (type == RepetitionType::None) return;
+        switch (type) {
+            case RepetitionType::Rectangular: {
+                if (magnification != 1) spacing *= magnification;
+                if (x_reflection || rotation != 0) {
+                    Vec2 v = spacing;
+                    if (x_reflection) v.y = -v.y;
+                    double ca = cos(rotation);
+                    double sa = sin(rotation);
+                    type = RepetitionType::Regular;
+                    v1.x = v.x * ca;
+                    v1.y = v.x * sa;
+                    v2.x = -v.y * sa;
+                    v2.y = v.y * ca;
+                }
+            } break;
+            case RepetitionType::Regular: {
+                if (magnification != 1) {
+                    v1 *= magnification;
+                    v2 *= magnification;
+                }
+                if (x_reflection) {
+                    v1.y = -v1.y;
+                    v2.y = -v2.y;
+                }
+                if (rotation != 0) {
+                    Vec2 r = {cos(rotation), sin(rotation)};
+                    v1 = cplx_mul(v1, r);
+                    v2 = cplx_mul(v2, r);
+                }
+            } break;
+            case RepetitionType::ExplicitX: {
+                if (rotation != 0) {
+                    double ca = magnification * cos(rotation);
+                    double sa = magnification * sin(rotation);
+                    Array<Vec2> temp = {0};
+                    temp.ensure_slots(coords.size);
+                    temp.size = coords.size;
+                    Vec2* v = temp.items;
+                    double* c = coords.items;
+                    for (int i = coords.size; i > 0; i--, c++, v++) {
+                        v->x = *c * ca;
+                        v->y = *c * sa;
+                    }
+                    coords.clear();
+                    type = RepetitionType::Explicit;
+                    offsets = temp;
+                } else if (magnification != 1) {
+                    double* c = coords.items;
+                    for (int i = coords.size; i > 0; i--) {
+                        *c++ *= magnification;
+                    }
+                }
+            } break;
+            case RepetitionType::ExplicitY: {
+                if (rotation != 0) {
+                    double ca = magnification * cos(rotation);
+                    double sa = -magnification * sin(rotation);
+                    if (x_reflection) {
+                        ca = -ca;
+                        sa = -sa;
+                    }
+                    Array<Vec2> temp = {0};
+                    temp.ensure_slots(coords.size);
+                    temp.size = coords.size;
+                    Vec2* v = temp.items;
+                    double* c = coords.items;
+                    for (int i = coords.size; i > 0; i--, c++, v++) {
+                        v->x = *c * sa;
+                        v->y = *c * ca;
+                    }
+                    coords.clear();
+                    type = RepetitionType::Explicit;
+                    offsets = temp;
+                } else if (x_reflection || magnification != 1) {
+                    if (x_reflection) magnification = -magnification;
+                    double* c = coords.items;
+                    for (int i = coords.size; i > 0; i--) {
+                        *c++ *= magnification;
+                    }
+                }
+            } break;
+            case RepetitionType::Explicit: {
+                Vec2* v = offsets.items;
+                if (rotation != 0) {
+                    Vec2 r = {magnification * cos(rotation), magnification * sin(rotation)};
+                    if (x_reflection) {
+                        for (int i = offsets.size; i > 0; i--, v++) {
+                            *v = cplx_mul(cplx_conj(*v), r);
+                        }
+                    } else {
+                        for (int i = offsets.size; i > 0; i--, v++) {
+                            *v = cplx_mul(*v, r);
+                        }
+                    }
+                } else if (x_reflection && magnification != 1) {
+                    for (int i = offsets.size; i > 0; i--, v++) {
+                        v->x *= magnification;
+                        v->y *= -magnification;
+                    }
+                } else if (x_reflection) {
+                    for (int i = offsets.size; i > 0; i--, v++) {
+                        v->y = -v->y;
+                    }
+                } else if (magnification != 1) {
+                    for (int i = offsets.size; i > 0; i--, v++) {
+                        *v *= magnification;
+                    }
+                }
+            } break;
+            default:
+                return;
+        }
+    }
 };
 
 }  // namespace gdstk

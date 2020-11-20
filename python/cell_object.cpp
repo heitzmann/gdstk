@@ -118,7 +118,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
     int by_spec = 0;
     if (!PyArg_ParseTuple(args, "|p:area", &by_spec)) return NULL;
     Array<Polygon*> array = {0};
-    self->cell->get_polygons(true, -1, array);
+    self->cell->get_polygons(true, true, -1, array);
     if (by_spec) {
         result = PyDict_New();
         if (!result) {
@@ -196,11 +196,17 @@ static PyObject* cell_object_bounding_box(CellObject* self, PyObject* args) {
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 
-static PyObject* cell_object_flatten(CellObject* self, PyObject* args) {
+static PyObject* cell_object_flatten(CellObject* self, PyObject* args, PyObject* kwds) {
+    int apply_repetitions = 1;
+    const char* keywords[] = {"apply_repetitions", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|p:flatten", (char**)keywords,
+                                     &apply_repetitions))
+        return NULL;
+
     Cell* cell = self->cell;
 
     Array<Reference*> reference_array = {0};
-    self->cell->flatten(reference_array);
+    self->cell->flatten(apply_repetitions > 0, reference_array);
     Reference** ref = reference_array.items;
     for (int64_t i = reference_array.size - 1; i >= 0; i--, ref++) Py_XDECREF((*ref)->owner);
     reference_array.clear();
@@ -288,8 +294,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             Polygon* polygon = (*polygon_array)[i];
             polygon->owner = new_obj;
             new_obj->polygon = polygon;
-            if (transform)
+            if (transform) {
                 polygon->transform(magnification, x_reflection > 0, rotation, translation);
+                polygon->repetition.transform(magnification, x_reflection > 0, rotation);
+            }
         }
     } else {
         for (int64_t i = 0; i < polygon_array->size; i++) Py_INCREF((*polygon_array)[i]->owner);
@@ -307,8 +315,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
                 Py_INCREF(reference->cell->owner);
             else if (reference->type == ReferenceType::RawCell)
                 Py_INCREF(reference->rawcell->owner);
-            if (transform)
+            if (transform){
                 reference->transform(magnification, x_reflection > 0, rotation, translation);
+                reference->repetition.transform(magnification, x_reflection > 0, rotation);
+            }
         }
     } else {
         for (int64_t i = 0; i < reference_array->size; i++) Py_INCREF((*reference_array)[i]->owner);
@@ -322,7 +332,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             FlexPath* path = (*flexpath_array)[i];
             path->owner = new_obj;
             new_obj->flexpath = path;
-            if (transform) path->transform(magnification, x_reflection > 0, rotation, translation);
+            if (transform) {
+                path->transform(magnification, x_reflection > 0, rotation, translation);
+                path->repetition.transform(magnification, x_reflection > 0, rotation);
+            }
         }
     } else {
         for (int64_t i = 0; i < flexpath_array->size; i++) Py_INCREF((*flexpath_array)[i]->owner);
@@ -336,7 +349,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             RobustPath* path = (*robustpath_array)[i];
             path->owner = new_obj;
             new_obj->robustpath = path;
-            if (transform) path->transform(magnification, x_reflection > 0, rotation, translation);
+            if (transform) {
+                path->transform(magnification, x_reflection > 0, rotation, translation);
+                path->repetition.transform(magnification, x_reflection > 0, rotation);
+            }
         }
     } else {
         for (int64_t i = 0; i < robustpath_array->size; i++)
@@ -351,7 +367,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
             Label* label = (*label_array)[i];
             label->owner = new_obj;
             new_obj->label = label;
-            if (transform) label->transform(magnification, x_reflection > 0, rotation, translation);
+            if (transform) {
+                label->transform(magnification, x_reflection > 0, rotation, translation);
+                label->repetition.transform(magnification, x_reflection > 0, rotation);
+            }
         }
     } else {
         for (int64_t i = 0; i < label_array->size; i++) Py_INCREF((*label_array)[i]->owner);
