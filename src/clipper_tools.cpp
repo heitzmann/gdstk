@@ -62,11 +62,12 @@ static void paths_to_polygons(const ClipperLib::Paths& paths, double scaling,
                               Array<Polygon*>& polygon_array) {
     int64_t num = paths.size();
     polygon_array.ensure_slots(num);
-    polygon_array.size = num;
-    for (int64_t i = 0; i < num; i++) {
-        polygon_array[i] = (Polygon*)allocate_clear(sizeof(Polygon));
-        path_to_polygon(paths[i], scaling, *polygon_array[i]);
+    Polygon** poly = polygon_array.items + polygon_array.size;
+    for (int64_t i = 0; i < num; i++, poly++) {
+        *poly = (Polygon*)allocate_clear(sizeof(Polygon));
+        path_to_polygon(paths[i], scaling, **poly);
     }
+    polygon_array.size += num;
 }
 
 static inline bool point_compare(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
