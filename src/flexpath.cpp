@@ -129,6 +129,7 @@ void FlexPath::scale(double scale, const Vec2 center) {
     if (scale_width) wo_scale.u = wo_scale.v;
     FlexPathElement* el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
+        el->end_extensions *= scale;
         Vec2* wo = el->half_width_and_offset.items;
         for (int64_t num = spine.point_array.size; num > 0; num--) *wo++ *= wo_scale;
     }

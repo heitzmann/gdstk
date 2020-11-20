@@ -457,6 +457,10 @@ void RobustPath::simple_scale(double scale) {
     trafo[5] *= scale;
     offset_scale *= fabs(scale);
     if (scale_width) width_scale *= fabs(scale);
+    RobustPathElement* el = elements;
+    for (int64_t ne = 0; ne < num_elements; ne++, el++) {
+        el->end_extensions *= scale;
+    }
 }
 
 void RobustPath::scale(double scale, const Vec2 center) {
