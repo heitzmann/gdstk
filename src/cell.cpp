@@ -190,7 +190,9 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
 }
 
 // If depth < 0, goes through all references in the structure.
-void Cell::get_polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const {
+void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+                        Array<Polygon*>& result) const {
+    int64_t start = result.size;
     result.ensure_slots(polygon_array.size);
 
     Polygon** poly = result.items + result.size;
@@ -213,15 +215,23 @@ void Cell::get_polygons(bool include_paths, int64_t depth, Array<Polygon*>& resu
         }
     }
 
+    if (apply_repetitions) {
+        int64_t finish = result.size;
+        for (int64_t i = start; i < finish; i++) {
+            result[i]->apply_repetition(result);
+        }
+    }
+
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            (*ref)->polygons(include_paths, depth > 0 ? depth - 1 : -1, result);
+            (*ref)->polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1, result);
         }
     }
 }
 
-void Cell::get_flexpaths(int64_t depth, Array<FlexPath*>& result) const {
+void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const {
+    int64_t start = result.size;
     result.ensure_slots(flexpath_array.size);
 
     FlexPath** dst = result.items + result.size;
@@ -232,15 +242,24 @@ void Cell::get_flexpaths(int64_t depth, Array<FlexPath*>& result) const {
     }
     result.size += flexpath_array.size;
 
+    if (apply_repetitions) {
+        int64_t finish = result.size;
+        for (int64_t i = start; i < finish; i++) {
+            result[i]->apply_repetition(result);
+        }
+    }
+
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            (*ref)->flexpaths(depth > 0 ? depth - 1 : -1, result);
+            (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
         }
     }
 }
 
-void Cell::get_robustpaths(int64_t depth, Array<RobustPath*>& result) const {
+void Cell::get_robustpaths(bool apply_repetitions, int64_t depth,
+                           Array<RobustPath*>& result) const {
+    int64_t start = result.size;
     result.ensure_slots(robustpath_array.size);
 
     RobustPath** dst = result.items + result.size;
@@ -251,15 +270,23 @@ void Cell::get_robustpaths(int64_t depth, Array<RobustPath*>& result) const {
     }
     result.size += robustpath_array.size;
 
+    if (apply_repetitions) {
+        int64_t finish = result.size;
+        for (int64_t i = start; i < finish; i++) {
+            result[i]->apply_repetition(result);
+        }
+    }
+
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            (*ref)->robustpaths(depth > 0 ? depth - 1 : -1, result);
+            (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
         }
     }
 }
 
-void Cell::get_labels(int64_t depth, Array<Label*>& result) const {
+void Cell::get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const {
+    int64_t start = result.size;
     result.ensure_slots(label_array.size);
 
     Label** dst = result.items + result.size;
@@ -270,24 +297,31 @@ void Cell::get_labels(int64_t depth, Array<Label*>& result) const {
     }
     result.size += label_array.size;
 
+    if (apply_repetitions) {
+        int64_t finish = result.size;
+        for (int64_t i = start; i < finish; i++) {
+            result[i]->apply_repetition(result);
+        }
+    }
+
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (int64_t i = 0; i < reference_array.size; i++, ref++) {
-            (*ref)->labels(depth > 0 ? depth - 1 : -1, result);
+            (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
         }
     }
 }
 
-void Cell::flatten(Array<Reference*>& result) {
+void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
     Reference** r_item = reference_array.items;
     for (int64_t i = 0; i < reference_array.size; i++) {
         Reference* ref = *r_item++;
         if (ref->type == ReferenceType::Cell) {
             result.append(ref);
-            ref->polygons(false, -1, polygon_array);
-            ref->flexpaths(-1, flexpath_array);
-            ref->robustpaths(-1, robustpath_array);
-            ref->labels(-1, label_array);
+            ref->polygons(apply_repetitions, false, -1, polygon_array);
+            ref->flexpaths(apply_repetitions, -1, flexpath_array);
+            ref->robustpaths(apply_repetitions, -1, robustpath_array);
+            ref->labels(apply_repetitions, -1, label_array);
         }
     }
 

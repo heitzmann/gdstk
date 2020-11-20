@@ -44,16 +44,17 @@ struct Cell {
 
     void copy_from(const Cell& cell, const char* new_name, bool deep_copy);
 
-    void get_polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const;
-    void get_flexpaths(int64_t depth, Array<FlexPath*>& result) const;
-    void get_robustpaths(int64_t depth, Array<RobustPath*>& result) const;
-    void get_labels(int64_t depth, Array<Label*>& result) const;
+    void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+                      Array<Polygon*>& result) const;
+    void get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const;
+    void get_robustpaths(bool apply_repetitions, int64_t depth, Array<RobustPath*>& result) const;
+    void get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const;
 
     void get_dependencies(bool recursive, Map<Cell*>& result) const;
     void get_raw_dependencies(bool recursive, Map<RawCell*>& result) const;
 
     // Return removed references
-    void flatten(Array<Reference*>& removed_references);
+    void flatten(bool apply_repetitions, Array<Reference*>& removed_references);
 
     void to_gds(FILE* out, double scaling, int64_t max_points, double precision,
                 const std::tm* timestamp) const;

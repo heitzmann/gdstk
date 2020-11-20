@@ -67,10 +67,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     Array<Polygon*> array = {0};
-    // TODO: We could get all polygons by this reference without processing its repetition.
-    // This reference's repetiton could be applyed to the calculated bounding box (similar to
-    // Polygon.bounding_box).
-    polygons(true, -1, array);
+    polygons(true, true, -1, array);
     Polygon** p_item = array.items;
     for (int64_t i = 0; i < array.size; i++) {
         Polygon* poly = *p_item++;
@@ -122,11 +119,12 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
-void Reference::polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const {
+void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+                         Array<Polygon*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Polygon*> array = {0};
-    cell->get_polygons(include_paths, depth, array);
+    cell->get_polygons(apply_repetitions, include_paths, depth, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -159,11 +157,11 @@ void Reference::polygons(bool include_paths, int64_t depth, Array<Polygon*>& res
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
+void Reference::flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<FlexPath*> array = {0};
-    cell->get_flexpaths(depth, array);
+    cell->get_flexpaths(apply_repetitions, depth, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -195,11 +193,12 @@ void Reference::flexpaths(int64_t depth, Array<FlexPath*>& result) const {
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
+void Reference::robustpaths(bool apply_repetitions, int64_t depth,
+                            Array<RobustPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<RobustPath*> array = {0};
-    cell->get_robustpaths(depth, array);
+    cell->get_robustpaths(apply_repetitions, depth, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -231,11 +230,11 @@ void Reference::robustpaths(int64_t depth, Array<RobustPath*>& result) const {
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::labels(int64_t depth, Array<Label*>& result) const {
+void Reference::labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Label*> array = {0};
-    cell->get_labels(depth, array);
+    cell->get_labels(apply_repetitions, depth, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};

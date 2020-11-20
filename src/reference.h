@@ -52,10 +52,11 @@ struct Reference {
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
     void apply_repetition(Array<Reference*>& result);
 
-    void polygons(bool include_paths, int64_t depth, Array<Polygon*>& result) const;
-    void flexpaths(int64_t depth, Array<FlexPath*>& result) const;
-    void robustpaths(int64_t depth, Array<RobustPath*>& result) const;
-    void labels(int64_t depth, Array<Label*>& result) const;
+    void polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+                  Array<Polygon*>& result) const;
+    void flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const;
+    void robustpaths(bool apply_repetitions, int64_t depth, Array<RobustPath*>& result) const;
+    void labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const;
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };
