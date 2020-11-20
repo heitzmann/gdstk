@@ -280,8 +280,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
 
     if (repetition.type != RepetitionType::None) {
         if (repetition.type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
-            printf("AREF (simple): ");  // DEBUG
-            print();                    // DEBUG
+            // printf("AREF (simple): ");  // DEBUG
+            // print();                    // DEBUG
             array = true;
             x2 = origin.x + repetition.columns * repetition.spacing.x;
             y2 = origin.y;
@@ -299,8 +299,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
                 fabs(u1.y - sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.x + sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.y - ca) < REFERENCE_REPETITION_TOLERANCE) {
-                printf("AREF (complex): ");  // DEBUG
-                print();                     // DEBUG
+                // printf("AREF (complex): ");  // DEBUG
+                // print();                     // DEBUG
                 array = true;
                 x2 = origin.x + repetition.columns * repetition.v1.x;
                 y2 = origin.y + repetition.columns * repetition.v1.y;
@@ -324,8 +324,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
             offsets.size = 0;
             offsets.items = NULL;
             repetition.get_offsets(offsets);
-            printf("Repeated SREF: ");  // DEBUG
-            print();                    // DEBUG
+            // printf("Repeated SREF: ");  // DEBUG
+            // print();                    // DEBUG
         }
     }
 

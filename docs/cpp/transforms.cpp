@@ -106,6 +106,7 @@ int main(int argc, char* argv[]) {
     for (int64_t i = 0; i < resonator_cell_copy.reference_array.size; i++) {
         Reference* ref = resonator_cell_copy.reference_array[i];
         ref->transform(s, false, 0, Vec2{0, 0});
+        ref->repetition.transform(s, false, 0);
     }
 
     Reference resonator_refs[] = {
