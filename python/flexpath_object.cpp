@@ -824,7 +824,7 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
     }
     if (PySequence_Check(py_coord)) {
         Array<double> coord = {0};
-        if (parse_sequence_double(py_coord, coord, "x") < 0) {
+        if (parse_double_sequence(py_coord, coord, "x") < 0) {
             free_allocation(buffer);
             return NULL;
         }
@@ -873,7 +873,7 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
     }
     if (PySequence_Check(py_coord)) {
         Array<double> coord = {0};
-        if (parse_sequence_double(py_coord, coord, "y") < 0) {
+        if (parse_double_sequence(py_coord, coord, "y") < 0) {
             free_allocation(buffer);
             return NULL;
         }

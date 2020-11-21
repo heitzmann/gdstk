@@ -16,7 +16,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 else()
     set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wshadow -Wformat -Wno-missing-field-initializers -Wno-missing-braces")
     set(CMAKE_CXX_FLAGS_DEBUG "-g")
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 endif()
 
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)

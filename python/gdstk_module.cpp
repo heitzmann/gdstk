@@ -803,63 +803,6 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     return result;
 }
 
-// polygon_array should be zero-initialized
-static int parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array, const char* name) {
-    if (PolygonObject_Check(py_polygons)) {
-        Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-        polygon->copy_from(*((PolygonObject*)py_polygons)->polygon);
-        polygon_array.append(polygon);
-    } else if (FlexPathObject_Check(py_polygons)) {
-        ((FlexPathObject*)py_polygons)->flexpath->to_polygons(polygon_array);
-    } else if (RobustPathObject_Check(py_polygons)) {
-        ((RobustPathObject*)py_polygons)->robustpath->to_polygons(polygon_array);
-    } else if (ReferenceObject_Check(py_polygons)) {
-        ((ReferenceObject*)py_polygons)->reference->polygons(true, true, -1, polygon_array);
-    } else if (PySequence_Check(py_polygons)) {
-        for (int64_t i = PySequence_Length(py_polygons) - 1; i >= 0; i--) {
-            PyObject* arg = PySequence_ITEM(py_polygons, i);
-            if (arg == NULL) {
-                PyErr_Format(PyExc_RuntimeError,
-                             "Unable to retrieve item %" PRId64 " from sequence %s.", i, name);
-                for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
-                    polygon_array[j]->clear();
-                    free_allocation(polygon_array[j]);
-                }
-                polygon_array.clear();
-                return -1;
-            }
-            if (PolygonObject_Check(arg)) {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                polygon->copy_from(*((PolygonObject*)arg)->polygon);
-                polygon_array.append(polygon);
-            } else if (FlexPathObject_Check(arg)) {
-                ((FlexPathObject*)arg)->flexpath->to_polygons(polygon_array);
-            } else if (RobustPathObject_Check(arg)) {
-                ((RobustPathObject*)arg)->robustpath->to_polygons(polygon_array);
-            } else if (ReferenceObject_Check(arg)) {
-                ((ReferenceObject*)arg)->reference->polygons(true, true, -1, polygon_array);
-            } else {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                if (parse_point_sequence(arg, polygon->point_array, "") < 0) {
-                    PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to parse item %" PRId64 " from sequence %s.", i, name);
-                    return -1;
-                }
-                polygon_array.append(polygon);
-            }
-            Py_DECREF(arg);
-        }
-    } else {
-        PyErr_Format(
-            PyExc_TypeError,
-            "Argument %s must be a Polygon, FlexPath, RobustPath, References. "
-            "It can also be a sequence where each item is one of those or a sequence of points.",
-            name);
-        return -1;
-    }
-    return polygon_array.size;
-}
-
 static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* py_polygons;
     double distance;
@@ -1011,7 +954,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     double single_position;
     Array<double> positions = {0};
     if (PySequence_Check(py_position)) {
-        if (parse_sequence_double(py_position, positions, "position") < 0) return NULL;
+        if (parse_double_sequence(py_position, positions, "position") < 0) return NULL;
     } else {
         single_position = PyFloat_AsDouble(py_position);
         if (PyErr_Occurred()) {

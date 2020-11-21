@@ -61,7 +61,7 @@ static PyObject* curve_object_horizontal(CurveObject* self, PyObject* args, PyOb
         return NULL;
     if (PySequence_Check(x)) {
         Array<double> points = {0};
-        if (parse_sequence_double(x, points, "x") < 0) return NULL;
+        if (parse_double_sequence(x, points, "x") < 0) return NULL;
         self->curve->horizontal(points, relative > 0);
         points.clear();
     } else {
@@ -84,7 +84,7 @@ static PyObject* curve_object_vertical(CurveObject* self, PyObject* args, PyObje
         return NULL;
     if (PySequence_Check(y)) {
         Array<double> points = {0};
-        if (parse_sequence_double(y, points, "y") < 0) return NULL;
+        if (parse_double_sequence(y, points, "y") < 0) return NULL;
         self->curve->vertical(points, relative > 0);
         points.clear();
     } else {

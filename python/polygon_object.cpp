@@ -145,7 +145,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj, &tol))
         return NULL;
     if (PySequence_Check(radius_obj)) {
-        if (parse_sequence_double(radius_obj, radius_array, "radius") < 0) return NULL;
+        if (parse_double_sequence(radius_obj, radius_array, "radius") < 0) return NULL;
         free_items = true;
     } else {
         radius = PyFloat_AsDouble(radius_obj);

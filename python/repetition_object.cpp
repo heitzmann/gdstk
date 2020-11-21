@@ -71,10 +71,10 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
         if (parse_point_sequence(offsets_obj, repetition->offsets, "offsets") < 0) return -1;
     } else if (xoff_obj != Py_None) {
         repetition->type = RepetitionType::ExplicitX;
-        if (parse_sequence_double(xoff_obj, repetition->coords, "x_offsets") < 0) return -1;
+        if (parse_double_sequence(xoff_obj, repetition->coords, "x_offsets") < 0) return -1;
     } else if (yoff_obj != Py_None) {
         repetition->type = RepetitionType::ExplicitY;
-        if (parse_sequence_double(yoff_obj, repetition->coords, "y_offsets") < 0) return -1;
+        if (parse_double_sequence(yoff_obj, repetition->coords, "y_offsets") < 0) return -1;
     } else {
         PyErr_SetString(
             PyExc_RuntimeError,
@@ -285,7 +285,7 @@ static PyObject* repetition_object_get_x_offsets(RepetitionObject* self, void*) 
 // static int repetition_object_set_x_offsets(RepetitionObject* self, PyObject* arg, void*) {
 //     Repetition* repetition = &self->repetition;
 //     repetition->type = RepetitionType::ExplicitX;
-//     if (parse_sequence_double(arg, repetition->coords, "x_offsets") < 0) return -1;
+//     if (parse_double_sequence(arg, repetition->coords, "x_offsets") < 0) return -1;
 //     return 0;
 // }
 
@@ -309,7 +309,7 @@ static PyObject* repetition_object_get_y_offsets(RepetitionObject* self, void*) 
 // static int repetition_object_set_y_offsets(RepetitionObject* self, PyObject* arg, void*) {
 //     Repetition* repetition = &self->repetition;
 //     repetition->type = RepetitionType::ExplicitY;
-//     if (parse_sequence_double(arg, repetition->coords, "y_offsets") < 0) return -1;
+//     if (parse_double_sequence(arg, repetition->coords, "y_offsets") < 0) return -1;
 //     return 0;
 // }
 
