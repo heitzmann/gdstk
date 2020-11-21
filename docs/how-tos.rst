@@ -103,6 +103,26 @@ The latter is particularly useful when changes to the transformed cell contents 
    When using :meth:`gdstk.Cell.copy`, the attribute is respected.
    This is also a problem for some GDSII viewers and editors.
 
+***********
+Repetitions
+***********
+
+References can be effectively used to instantiate repetitive geometry across a layout.
+:class:`Repetition` is an extension of that idea which allows the reuse of any element without the need for creating a :class:`gdstk.Cell`.
+In fact, the creation of a :class:`gdstk.Reference` as an array is only a shortcut to the creation of a single reference with a rectangular (or regular) repetition.
+The following example demonstrates the use of different forms of repetition to avoid creating all objects in memory (the final GDSII file will contain all copies).
+
+.. literalinclude:: repetitions.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-before: main.name
+
+:download:`C++ version <cpp/repetitions.cpp>`
+
+.. image:: how-tos/repetitions.*
+   :align: center
+
+
 ******************
 Geometry Filtering
 ******************

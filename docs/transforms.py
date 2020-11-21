@@ -7,8 +7,8 @@
 #                                                                    #
 ######################################################################
 
-from tutorial_images import draw
 import pathlib
+from tutorial_images import draw
 import numpy
 import gdstk
 

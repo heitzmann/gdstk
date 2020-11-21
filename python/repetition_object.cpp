@@ -47,7 +47,7 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
     int64_t rows = 0;
     const char* keywords[] = {"columns", "rows",      "spacing",   "v1", "v2",
                               "offsets", "x_offsets", "y_offsets", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|LLOOOOO:Repetition", (char**)keywords, &columns,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|LLOOOOOO:Repetition", (char**)keywords, &columns,
                                      &rows, &spacing_obj, &v1_obj, &v2_obj, &offsets_obj, &xoff_obj,
                                      &yoff_obj))
         return -1;
@@ -83,13 +83,6 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
     }
     return 0;
 }
-
-// static PyObject* repetition_object_copy(RepetitionObject* self, PyObject* args) {
-//     RepetitionObject* result = PyObject_New(RepetitionObject, &repetition_object_type);
-//     result = (RepetitionObject*)PyObject_Init((PyObject*)result, &repetition_object_type);
-//     result->repetition = self->repetition;
-//     return (PyObject*)result;
-// }
 
 static PyObject* repetition_object_getoffsets(RepetitionObject* self, PyObject* args) {
     Array<Vec2> offsets = {0};

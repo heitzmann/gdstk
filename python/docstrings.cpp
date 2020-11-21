@@ -2554,15 +2554,11 @@ Args:
     y_offsets (sequence of numbers): Explicit y coordinates for copies.
 
 Examples:
-    TODO: Rectangular array, rotated, magnified reference array,
-          Regular
-          Explicit
-          ExplictX
-          ExplicitY
-          + images
     >>> ref_array = gdstk.Reference("Some Cell")
     >>> # Create an array of 3 by 2 references:
-    >>> ref_array.repetition = gdstk.Repetition(3, 2, (10, 12))
+    >>> ref_array.repetition = gdstk.Repetition(
+    ...     offsets=[(10, 10), (20, 0), (10, -10)]
+    ... )
 
 Notes:
     All attributes of Repetition objects are read-only.)!");

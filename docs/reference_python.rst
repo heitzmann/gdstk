@@ -19,6 +19,7 @@ Classes and functions for construction and manipulation of geometric objects.
    gdstk.Curve
    gdstk.FlexPath
    gdstk.RobustPath
+   gdstk.Repetition
 
 .. rubric:: Functions
 
