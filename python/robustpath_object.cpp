@@ -1716,7 +1716,7 @@ static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
 static PyObject* robustpath_object_get_repetition(RobustPathObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
-    obj->repetition = self->robustpath->repetition;
+    obj->repetition.copy_from(self->robustpath->repetition);
     return (PyObject*)obj;
 }
 
@@ -1731,7 +1731,7 @@ int robustpath_object_set_repetition(RobustPathObject* self, PyObject* arg, void
     }
     RepetitionObject* repetition_obj = (RepetitionObject*)arg;
     self->robustpath->repetition.clear();
-    self->robustpath->repetition = repetition_obj->repetition;
+    self->robustpath->repetition.copy_from(repetition_obj->repetition);
     return 0;
 }
 

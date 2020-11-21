@@ -1791,7 +1791,7 @@ static PyObject* flexpath_object_get_size(FlexPathObject* self, void*) {
 static PyObject* flexpath_object_get_repetition(FlexPathObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
-    obj->repetition = self->flexpath->repetition;
+    obj->repetition.copy_from(self->flexpath->repetition);
     return (PyObject*)obj;
 }
 
@@ -1806,7 +1806,7 @@ int flexpath_object_set_repetition(FlexPathObject* self, PyObject* arg, void*) {
     }
     RepetitionObject* repetition_obj = (RepetitionObject*)arg;
     self->flexpath->repetition.clear();
-    self->flexpath->repetition = repetition_obj->repetition;
+    self->flexpath->repetition.copy_from(repetition_obj->repetition);
     return 0;
 }
 

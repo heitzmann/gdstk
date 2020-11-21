@@ -380,8 +380,7 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
 
 void RobustPath::print(bool all) const {
     printf("RobustPath <%p> at (%lg, %lg), size %" PRId64 ", %" PRId64
-           " elements, tol %lg, max_evals %" PRId64
-           ", properties <%p>, owner <%p>\n",
+           " elements, tol %lg, max_evals %" PRId64 ", properties <%p>, owner <%p>\n",
            this, end_point.x, end_point.y, subpath_array.size, num_elements, tolerance, max_evals,
            properties, owner);
     if (all) {
@@ -414,7 +413,7 @@ void RobustPath::clear() {
 
 void RobustPath::copy_from(const RobustPath &path) {
     properties = properties_copy(path.properties);
-    repetition = path.repetition;
+    repetition.copy_from(path.repetition);
     end_point = path.end_point;
     subpath_array.copy_from(path.subpath_array);
     num_elements = path.num_elements;
@@ -457,7 +456,7 @@ void RobustPath::simple_scale(double scale) {
     trafo[5] *= scale;
     offset_scale *= fabs(scale);
     if (scale_width) width_scale *= fabs(scale);
-    RobustPathElement* el = elements;
+    RobustPathElement *el = elements;
     for (int64_t ne = 0; ne < num_elements; ne++, el++) {
         el->end_extensions *= scale;
     }
@@ -1317,7 +1316,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
         result_polygon->layer = el->layer;
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_side;
-        result_polygon->repetition = repetition;
+        result_polygon->repetition.copy_from(repetition);
         result_polygon->properties = properties_copy(properties);
         result.append_unsafe(result_polygon);
     }

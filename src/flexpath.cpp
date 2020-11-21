@@ -90,7 +90,7 @@ void FlexPath::clear() {
 void FlexPath::copy_from(const FlexPath& path) {
     spine.copy_from(path.spine);
     properties = properties_copy(path.properties);
-    repetition = path.repetition;
+    repetition.copy_from(path.repetition);
     scale_width = path.scale_width;
     gdsii_path = path.gdsii_path;
     num_elements = path.num_elements;
@@ -623,13 +623,14 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
         right_curve.point_array.size += left_curve.point_array.size;
         left_curve.clear();
 
+
         curve_size_guess = right_curve.point_array.size * 6 / 5;
 
         Polygon* result_polygon = (Polygon*)allocate_clear(sizeof(Polygon));
         result_polygon->layer = el->layer;
         result_polygon->datatype = el->datatype;
         result_polygon->point_array = right_curve.point_array;
-        result_polygon->repetition = repetition;
+        result_polygon->repetition.copy_from(repetition);
         result_polygon->properties = properties_copy(properties);
         result.append_unsafe(result_polygon);
     }

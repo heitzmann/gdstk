@@ -43,7 +43,7 @@ void Label::copy_from(const Label& label) {
     rotation = label.rotation;
     magnification = label.magnification;
     x_reflection = label.x_reflection;
-    repetition = label.repetition;
+    repetition.copy_from(label.repetition);
     properties = properties_copy(label.properties);
 }
 

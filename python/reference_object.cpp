@@ -287,7 +287,7 @@ int reference_object_set_x_reflection(ReferenceObject* self, PyObject* arg, void
 static PyObject* reference_object_get_repetition(ReferenceObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
-    obj->repetition = self->reference->repetition;
+    obj->repetition.copy_from(self->reference->repetition);
     return (PyObject*)obj;
 }
 
@@ -301,7 +301,7 @@ int reference_object_set_repetition(ReferenceObject* self, PyObject* arg, void*)
     }
     RepetitionObject* repetition_obj = (RepetitionObject*)arg;
     self->reference->repetition.clear();
-    self->reference->repetition = repetition_obj->repetition;
+    self->reference->repetition.copy_from(repetition_obj->repetition);
     return 0;
 }
 

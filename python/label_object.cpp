@@ -359,7 +359,7 @@ static int label_object_set_texttype(LabelObject* self, PyObject* arg, void*) {
 static PyObject* label_object_get_repetition(LabelObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
-    obj->repetition = self->label->repetition;
+    obj->repetition.copy_from(self->label->repetition);
     return (PyObject*)obj;
 }
 
@@ -374,7 +374,7 @@ int label_object_set_repetition(LabelObject* self, PyObject* arg, void*) {
     }
     RepetitionObject* repetition_obj = (RepetitionObject*)arg;
     self->label->repetition.clear();
-    self->label->repetition = repetition_obj->repetition;
+    self->label->repetition.copy_from(repetition_obj->repetition);
     return 0;
 }
 

@@ -326,7 +326,7 @@ static PyObject* polygon_object_get_size(PolygonObject* self, void*) {
 static PyObject* polygon_object_get_repetition(PolygonObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
-    obj->repetition = self->polygon->repetition;
+    obj->repetition.copy_from(self->polygon->repetition);
     return (PyObject*)obj;
 }
 
@@ -341,7 +341,7 @@ int polygon_object_set_repetition(PolygonObject* self, PyObject* arg, void*) {
     }
     RepetitionObject* repetition_obj = (RepetitionObject*)arg;
     self->polygon->repetition.clear();
-    self->polygon->repetition = repetition_obj->repetition;
+    self->polygon->repetition.copy_from(repetition_obj->repetition);
     return 0;
 }
 

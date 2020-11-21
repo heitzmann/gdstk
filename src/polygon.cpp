@@ -46,7 +46,7 @@ void Polygon::copy_from(const Polygon& polygon) {
     layer = polygon.layer;
     datatype = polygon.datatype;
     point_array.copy_from(polygon.point_array);
-    repetition = polygon.repetition;
+    repetition.copy_from(polygon.repetition);
     properties = properties_copy(polygon.properties);
 }
 
@@ -290,7 +290,7 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
         poly = result[i];
         poly->layer = layer;
         poly->datatype = datatype;
-        poly->repetition = repetition;
+        poly->repetition.copy_from(repetition);
         poly->properties = properties_copy(properties);
     }
 }
@@ -328,7 +328,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     int64_t total = point_array.size + 1;
     if (total > 8190) {
         fputs(
-            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification.  This GDSII file might not be compatible with all readers.\n",
+            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
             stderr);
     }
     Array<int32_t> coords = {0};

@@ -59,7 +59,7 @@ void Reference::copy_from(const Reference& reference) {
     rotation = reference.rotation;
     magnification = reference.magnification;
     x_reflection = reference.x_reflection;
-    repetition = reference.repetition;
+    repetition.copy_from(reference.repetition);
     properties = properties_copy(reference.properties);
 }
 
