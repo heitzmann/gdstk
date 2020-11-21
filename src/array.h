@@ -92,10 +92,10 @@ struct Array {
     }
 
     void copy_from(const Array<T>& src) {
-        capacity = src.capacity;
+        capacity = src.capacity > src.size ? src.capacity : src.size;
         size = src.size;
         items = (T*)allocate(sizeof(T) * capacity);
-        memcpy(items, src.items, sizeof(T) * src.size);
+        memcpy(items, src.items, sizeof(T) * size);
     }
 };
 
