@@ -122,6 +122,19 @@ The following example demonstrates the use of different forms of repetition to a
 .. image:: how-tos/repetitions.*
    :align: center
 
+When geometry operations are applied to elements with repetitions, they are not automatically applied.
+If desired the repetition can be manually applied before executing the desired operation.
+The following example demonstrates this use:
+
+.. literalinclude:: apply_repetition.py
+   :language: python
+   :start-after: from tutorial_images import draw
+   :end-before: main.name
+
+:download:`C++ version <cpp/apply_repetition.cpp>`
+
+.. image:: how-tos/apply_repetition.*
+   :align: center
 
 ******************
 Geometry Filtering

@@ -37,6 +37,7 @@ jobs:
           python docs/layout.py
           python docs/transforms.py
           python docs/repetitions.py
+          python docs/apply_repetition.py
           python docs/filtering.py
           python docs/pos_filtering.py
           python docs/path_markers.py
