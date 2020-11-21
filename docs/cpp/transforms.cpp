@@ -75,8 +75,8 @@ int main(int argc, char* argv[]) {
         .end_extensions = Vec2{r, r},
     };
     FlexPath path = {
-        .num_elements = 1,
         .elements = &element,
+        .num_elements = 1,
         .gdsii_path = true,
         .scale_width = false,
     };

@@ -44,8 +44,8 @@ struct FlexPathElement {
 
 struct FlexPath {
     Curve spine;
-    int64_t num_elements;
     FlexPathElement* elements;
+    int64_t num_elements;
     bool gdsii_path;
     bool scale_width;
     Repetition repetition;

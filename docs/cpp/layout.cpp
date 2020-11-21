@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
     dev_cell.reference_array.append(&grating_ref2);
 
     FlexPathElement element = {.layer = 1, .bend_type = BendType::Circular, .bend_radius = 15};
-    FlexPath waveguide = {.num_elements = 1, .elements = &element};
+    FlexPath waveguide = {.elements = &element, .num_elements = 1};
     waveguide.init(Vec2{-220, -150}, 20, 0, 0.01);
 
     waveguide.segment(Vec2{20, 0}, NULL, NULL, true);
