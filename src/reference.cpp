@@ -271,7 +271,9 @@ void Reference::to_gds(FILE* out, double scaling) const {
     bool array = false;
     double x2, y2, x3, y3;
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {.size = 1, .items = &zero};
+    Array<Vec2> offsets = {0};
+    offsets.size = 1;
+    offsets.items = &zero;
 
     uint16_t buffer_array[] = {8, 0x1302, 0, 0, 28, 0x1003};
     int32_t buffer_coord[6];
