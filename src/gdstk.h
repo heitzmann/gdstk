@@ -10,7 +10,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __GDSTK_H__
 #define __GDSTK_H__
 
-#define GDSTK_VERSION "0.1.1"
+#define GDSTK_VERSION "0.2.0"
 
 #include "array.h"
 #include "cell.h"
