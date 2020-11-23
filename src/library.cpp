@@ -375,10 +375,8 @@ Library read_gds(const char* filename, double unit) {
                                 (factor * data32[2] - origin.x) / repetition->columns;
                             repetition->v1.y =
                                 (factor * data32[3] - origin.y) / repetition->columns;
-                            repetition->v2.x =
-                                (factor * data32[4] - origin.x) / repetition->rows;
-                            repetition->v2.y =
-                                (factor * data32[5] - origin.y) / repetition->rows;
+                            repetition->v2.x = (factor * data32[4] - origin.x) / repetition->rows;
+                            repetition->v2.y = (factor * data32[5] - origin.y) / repetition->rows;
                         }
                     }
                 } else if (label) {

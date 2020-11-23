@@ -59,8 +59,7 @@ void FlexPath::init(const Vec2 initial_position, int64_t num_elements_, const do
 void FlexPath::print(bool all) const {
     printf("FlexPath <%p>, size %" PRId64 ", %" PRId64
            " elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
-           this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties,
-           owner);
+           this, spine.point_array.size, num_elements, gdsii_path, scale_width, properties, owner);
     if (all) {
         FlexPathElement* el = elements;
         for (int64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -622,7 +621,6 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
         for (int64_t i = left_curve.point_array.size - 1; i >= 0; i--) *dst++ = *src--;
         right_curve.point_array.size += left_curve.point_array.size;
         left_curve.clear();
-
 
         curve_size_guess = right_curve.point_array.size * 6 / 5;
 

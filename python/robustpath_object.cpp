@@ -1724,8 +1724,7 @@ int robustpath_object_set_repetition(RobustPathObject* self, PyObject* arg, void
     if (arg == Py_None) {
         self->robustpath->repetition.clear();
         return 0;
-    }
-    else if (!RepetitionObject_Check(arg)) {
+    } else if (!RepetitionObject_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
         return -1;
     }
@@ -1742,6 +1741,6 @@ static PyGetSetDef robustpath_object_getset[] = {
     {"num_paths", (getter)robustpath_object_get_num_paths, NULL, robustpath_object_num_paths_doc,
      NULL},
     {"size", (getter)robustpath_object_get_size, NULL, robustpath_object_size_doc, NULL},
-    {"repetition", (getter)robustpath_object_get_repetition, (setter)robustpath_object_set_repetition,
-     robustpath_object_repetition_doc, NULL},
+    {"repetition", (getter)robustpath_object_get_repetition,
+     (setter)robustpath_object_set_repetition, robustpath_object_repetition_doc, NULL},
     {NULL}};

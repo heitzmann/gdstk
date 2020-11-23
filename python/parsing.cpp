@@ -97,7 +97,8 @@ static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, co
 }
 
 // polygon_array should be zero-initialized
-static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array, const char* name) {
+static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
+                              const char* name) {
     if (PolygonObject_Check(py_polygons)) {
         Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
         polygon->copy_from(*((PolygonObject*)py_polygons)->polygon);

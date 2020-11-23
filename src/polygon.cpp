@@ -25,8 +25,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Polygon::print(bool all) const {
-    printf("Polygon <%p>, size %" PRId64
-           ", layer %hd, datatype %hd, properties <%p>, owner <%p>\n",
+    printf("Polygon <%p>, size %" PRId64 ", layer %hd, datatype %hd, properties <%p>, owner <%p>\n",
            this, point_array.size, layer, datatype, properties, owner);
     if (all) {
         printf("Points: ");

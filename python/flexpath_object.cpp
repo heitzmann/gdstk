@@ -1799,8 +1799,7 @@ int flexpath_object_set_repetition(FlexPathObject* self, PyObject* arg, void*) {
     if (arg == Py_None) {
         self->flexpath->repetition.clear();
         return 0;
-    }
-    else if (!RepetitionObject_Check(arg)) {
+    } else if (!RepetitionObject_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "Value must be a Repetition object.");
         return -1;
     }

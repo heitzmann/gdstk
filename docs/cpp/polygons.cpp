@@ -67,7 +67,6 @@ void example_curves1(Cell& out_cell) {
 }
 
 void example_curves2(Cell& out_cell) {
-
     Curve c3 = {.tolerance = 0.01};
     c3.append(Vec2{0, 2});
     c3.segment(4 * cplx_from_angle(M_PI / 6), true);

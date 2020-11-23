@@ -315,7 +315,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
                 Py_INCREF(reference->cell->owner);
             else if (reference->type == ReferenceType::RawCell)
                 Py_INCREF(reference->rawcell->owner);
-            if (transform){
+            if (transform) {
                 reference->transform(magnification, x_reflection > 0, rotation, translation);
                 reference->repetition.transform(magnification, x_reflection > 0, rotation);
             }
