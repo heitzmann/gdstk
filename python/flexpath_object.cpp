@@ -249,7 +249,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                  "Unable to get item %" PRId64 " from layer list.", i);
                     return -1;
                 }
-                el->layer = PyLong_AsLong(item);
+                el->layer = (int16_t)PyLong_AsLong(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRId64 "] to int.",
@@ -258,7 +258,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 }
             }
         } else {
-            const int16_t layer = PyLong_AsLong(py_layer);
+            const int16_t layer = (int16_t)PyLong_AsLong(py_layer);
             if (PyErr_Occurred()) {
                 flexpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert layer to int.");
@@ -286,7 +286,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                  "Unable to get item %" PRId64 " from datatype list.", i);
                     return -1;
                 }
-                el->datatype = PyLong_AsLong(item);
+                el->datatype = (int16_t)PyLong_AsLong(item);
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
@@ -295,7 +295,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 }
             }
         } else {
-            const int16_t datatype = PyLong_AsLong(py_datatype);
+            const int16_t datatype = (int16_t)PyLong_AsLong(py_datatype);
             if (PyErr_Occurred()) {
                 flexpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert datatype to int.");
@@ -686,7 +686,7 @@ static PyObject* flexpath_object_set_layers(FlexPathObject* self, PyObject* arg)
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
             return NULL;
         }
-        flexpath->elements[i].layer = PyLong_AsLong(item);
+        flexpath->elements[i].layer = (int16_t)PyLong_AsLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRId64 " to int.",
@@ -716,7 +716,7 @@ static PyObject* flexpath_object_set_datatypes(FlexPathObject* self, PyObject* a
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
             return NULL;
         }
-        flexpath->elements[i].datatype = PyLong_AsLong(item);
+        flexpath->elements[i].datatype = (int16_t)PyLong_AsLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRId64 " to int.", i);
@@ -1781,11 +1781,11 @@ static PyObject* flexpath_object_get_datatypes(FlexPathObject* self, void*) {
 }
 
 static PyObject* flexpath_object_get_num_paths(FlexPathObject* self, void*) {
-    return PyLong_FromLong(self->flexpath->num_elements);
+    return PyLong_FromLong((long)self->flexpath->num_elements);
 }
 
 static PyObject* flexpath_object_get_size(FlexPathObject* self, void*) {
-    return PyLong_FromLong(self->flexpath->spine.point_array.size);
+    return PyLong_FromLong((long)self->flexpath->spine.point_array.size);
 }
 
 static PyObject* flexpath_object_get_repetition(FlexPathObject* self, void*) {

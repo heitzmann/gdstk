@@ -84,7 +84,8 @@ Vec2 SubPath::gradient(double u, const double *trafo) const {
             Vec2 *_ctrl = (Vec2 *)allocate(sizeof(Vec2) * size);
             Vec2 *dst = _ctrl;
             const Vec2 *src = ctrl.items;
-            for (int64_t i = 0; i < size; i++, src++, dst++) *dst = size * (*(src + 1) - *src);
+            for (int64_t i = 0; i < size; i++, src++, dst++)
+                *dst = (double)size * (*(src + 1) - *src);
             grad = eval_bezier(u, _ctrl, size);
             free_allocation(_ctrl);
         } break;
@@ -835,7 +836,7 @@ int64_t RobustPath::commands(const CurveInstruction *items, int64_t size) {
 
 Vec2 RobustPath::position(double u, bool from_below) const {
     if (u >= subpath_array.size)
-        u = subpath_array.size;
+        u = (double)subpath_array.size;
     else if (u < 0)
         u = 0;
     int64_t idx = (int64_t)u;
@@ -852,7 +853,7 @@ Vec2 RobustPath::position(double u, bool from_below) const {
 
 Vec2 RobustPath::gradient(double u, bool from_below) const {
     if (u >= subpath_array.size)
-        u = subpath_array.size;
+        u = (double)subpath_array.size;
     else if (u < 0)
         u = 0;
     int64_t idx = (int64_t)u;
@@ -869,7 +870,7 @@ Vec2 RobustPath::gradient(double u, bool from_below) const {
 
 void RobustPath::width(double u, bool from_below, double *result) const {
     if (u >= subpath_array.size)
-        u = subpath_array.size;
+        u = (double)subpath_array.size;
     else if (u < 0)
         u = 0;
     int64_t idx = (int64_t)u;
@@ -888,7 +889,7 @@ void RobustPath::width(double u, bool from_below, double *result) const {
 
 void RobustPath::offset(double u, bool from_below, double *result) const {
     if (u >= subpath_array.size)
-        u = subpath_array.size;
+        u = (double)subpath_array.size;
     else if (u < 0)
         u = 0;
     int64_t idx = (int64_t)u;

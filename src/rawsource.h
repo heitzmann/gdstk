@@ -28,7 +28,7 @@ struct RawSource {
 #ifdef _WIN32
         // The POSIX version (pread) does not change the file cursor, this does.
         // Furthermore, this is not thread-safe!
-        fseek(file, offset, SEEK_SET);
+        _fseeki64(file, offset, SEEK_SET);
         return fread(buffer, sizeof(uint8_t), num_bytes, file);
 #else
         return pread(fileno(file), buffer, num_bytes, offset);

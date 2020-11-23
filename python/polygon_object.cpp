@@ -298,7 +298,7 @@ static PyObject* polygon_object_get_layer(PolygonObject* self, void*) {
 }
 
 static int polygon_object_set_layer(PolygonObject* self, PyObject* arg, void*) {
-    self->polygon->layer = PyLong_AsLong(arg);
+    self->polygon->layer = (int16_t)PyLong_AsLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert layer to int.");
         return -1;
@@ -311,7 +311,7 @@ static PyObject* polygon_object_get_datatype(PolygonObject* self, void*) {
 }
 
 static int polygon_object_set_datatype(PolygonObject* self, PyObject* arg, void*) {
-    self->polygon->datatype = PyLong_AsLong(arg);
+    self->polygon->datatype = (int16_t)PyLong_AsLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert datatype to int.");
         return -1;
@@ -320,7 +320,7 @@ static int polygon_object_set_datatype(PolygonObject* self, PyObject* arg, void*
 }
 
 static PyObject* polygon_object_get_size(PolygonObject* self, void*) {
-    return PyLong_FromLong(self->polygon->point_array.size);
+    return PyLong_FromLong((long)self->polygon->point_array.size);
 }
 
 static PyObject* polygon_object_get_repetition(PolygonObject* self, void*) {

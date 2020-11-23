@@ -93,7 +93,7 @@ void delete_property(Property*& properties, int16_t key) {
 void properties_to_gds(const Property* properties, FILE* out) {
     uint64_t size = 0;
     for (; properties; properties = properties->next) {
-        uint16_t len = strlen(properties->value);
+        uint16_t len = (uint16_t)strlen(properties->value);
         if (len % 2) len++;
         uint16_t buffer_prop[] = {6, 0x2B02, (uint16_t)properties->key, (uint16_t)(4 + len),
                                   0x2C06};

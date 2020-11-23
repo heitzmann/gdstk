@@ -106,14 +106,14 @@ static PyMethodDef repetition_object_methods[] = {
     {NULL}};
 
 static PyObject* repetition_object_get_size(RepetitionObject* self, void*) {
-    return PyLong_FromLong(self->repetition.get_size());
+    return PyLong_FromLong((long)self->repetition.get_size());
 }
 
 static PyObject* repetition_object_get_columns(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Rectangular ||
         repetition->type == RepetitionType::Regular) {
-        return PyLong_FromLong(self->repetition.columns);
+        return PyLong_FromLong((long)self->repetition.columns);
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -137,7 +137,7 @@ static PyObject* repetition_object_get_rows(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Rectangular ||
         repetition->type == RepetitionType::Regular) {
-        return PyLong_FromLong(repetition->rows);
+        return PyLong_FromLong((long)repetition->rows);
     }
     Py_INCREF(Py_None);
     return Py_None;

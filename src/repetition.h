@@ -147,7 +147,7 @@ struct Repetition {
                 break;
             case RepetitionType::Regular:
                 for (int64_t i = 0; i < columns; i++) {
-                    Vec2 vi = i * v1;
+                    Vec2 vi = (double)i * v1;
                     for (int64_t j = 0; j < rows; j++) {
                         *c++ = vi.x + j * v2.x;
                         *c++ = vi.y + j * v2.y;
@@ -225,7 +225,7 @@ struct Repetition {
                     temp.size = coords.size;
                     Vec2* v = temp.items;
                     double* c = coords.items;
-                    for (int i = coords.size; i > 0; i--, c++, v++) {
+                    for (uint64_t i = coords.size; i > 0; i--, c++, v++) {
                         v->x = *c * ca;
                         v->y = *c * sa;
                     }
@@ -234,7 +234,7 @@ struct Repetition {
                     offsets = temp;
                 } else if (magnification != 1) {
                     double* c = coords.items;
-                    for (int i = coords.size; i > 0; i--) {
+                    for (uint64_t i = coords.size; i > 0; i--) {
                         *c++ *= magnification;
                     }
                 }
@@ -252,7 +252,7 @@ struct Repetition {
                     temp.size = coords.size;
                     Vec2* v = temp.items;
                     double* c = coords.items;
-                    for (int i = coords.size; i > 0; i--, c++, v++) {
+                    for (uint64_t i = coords.size; i > 0; i--, c++, v++) {
                         v->x = *c * sa;
                         v->y = *c * ca;
                     }
@@ -262,7 +262,7 @@ struct Repetition {
                 } else if (x_reflection || magnification != 1) {
                     if (x_reflection) magnification = -magnification;
                     double* c = coords.items;
-                    for (int i = coords.size; i > 0; i--) {
+                    for (uint64_t i = coords.size; i > 0; i--) {
                         *c++ *= magnification;
                     }
                 }
@@ -272,25 +272,25 @@ struct Repetition {
                 if (rotation != 0) {
                     Vec2 r = {magnification * cos(rotation), magnification * sin(rotation)};
                     if (x_reflection) {
-                        for (int i = offsets.size; i > 0; i--, v++) {
+                        for (uint64_t i = offsets.size; i > 0; i--, v++) {
                             *v = cplx_mul(cplx_conj(*v), r);
                         }
                     } else {
-                        for (int i = offsets.size; i > 0; i--, v++) {
+                        for (uint64_t i = offsets.size; i > 0; i--, v++) {
                             *v = cplx_mul(*v, r);
                         }
                     }
                 } else if (x_reflection && magnification != 1) {
-                    for (int i = offsets.size; i > 0; i--, v++) {
+                    for (uint64_t i = offsets.size; i > 0; i--, v++) {
                         v->x *= magnification;
                         v->y *= -magnification;
                     }
                 } else if (x_reflection) {
-                    for (int i = offsets.size; i > 0; i--, v++) {
+                    for (uint64_t i = offsets.size; i > 0; i--, v++) {
                         v->y = -v->y;
                     }
                 } else if (magnification != 1) {
-                    for (int i = offsets.size; i > 0; i--, v++) {
+                    for (uint64_t i = offsets.size; i > 0; i--, v++) {
                         *v *= magnification;
                     }
                 }

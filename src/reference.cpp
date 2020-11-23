@@ -312,8 +312,9 @@ void Reference::to_gds(FILE* out, double scaling) const {
         }
 
         if (array) {
-            buffer_array[2] = repetition.columns;
-            buffer_array[3] = repetition.rows;
+            // TODO: Deal with columns or rows > INT16_MAX
+            buffer_array[2] = (uint16_t)repetition.columns;
+            buffer_array[3] = (uint16_t)repetition.rows;
             swap16(buffer_array, COUNT(buffer_array));
             buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
             buffer_coord[1] = (int32_t)(lround(origin.y * scaling));

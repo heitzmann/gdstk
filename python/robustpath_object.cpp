@@ -238,7 +238,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                  "Unable to get item %" PRId64 " from layer list.", i);
                     return -1;
                 }
-                el->layer = PyLong_AsLong(item);
+                el->layer = (int16_t)PyLong_AsLong(item);
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRId64 "] to int.",
@@ -247,7 +247,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 }
             }
         } else {
-            const int16_t layer = PyLong_AsLong(py_layer);
+            const int16_t layer = (int16_t)PyLong_AsLong(py_layer);
             if (PyErr_Occurred()) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert layer to int.");
@@ -275,7 +275,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                  "Unable to get item %" PRId64 " from datatype list.", i);
                     return -1;
                 }
-                el->datatype = PyLong_AsLong(item);
+                el->datatype = (int16_t)PyLong_AsLong(item);
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
@@ -284,7 +284,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 }
             }
         } else {
-            const int16_t datatype = PyLong_AsLong(py_datatype);
+            const int16_t datatype = (int16_t)PyLong_AsLong(py_datatype);
             if (PyErr_Occurred()) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert datatype to int.");
@@ -546,7 +546,7 @@ static PyObject* robustpath_object_set_layers(RobustPathObject* self, PyObject* 
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
             return NULL;
         }
-        robustpath->elements[i].layer = PyLong_AsLong(item);
+        robustpath->elements[i].layer = (int16_t)PyLong_AsLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRId64 " to int.",
@@ -576,7 +576,7 @@ static PyObject* robustpath_object_set_datatypes(RobustPathObject* self, PyObjec
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
             return NULL;
         }
-        robustpath->elements[i].datatype = PyLong_AsLong(item);
+        robustpath->elements[i].datatype = (int16_t)PyLong_AsLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRId64 " to int.", i);
@@ -1706,11 +1706,11 @@ static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) 
 }
 
 static PyObject* robustpath_object_get_num_paths(RobustPathObject* self, void*) {
-    return PyLong_FromLong(self->robustpath->num_elements);
+    return PyLong_FromLong((long)self->robustpath->num_elements);
 }
 
 static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
-    return PyLong_FromLong(self->robustpath->subpath_array.size);
+    return PyLong_FromLong((long)self->robustpath->subpath_array.size);
 }
 
 static PyObject* robustpath_object_get_repetition(RobustPathObject* self, void*) {

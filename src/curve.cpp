@@ -146,8 +146,8 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
     Vec2* dst1 = d2p.items;
     const Vec2* src = ctrl.items;
     for (int64_t i = 0; i < size - 1; i++, src++, dst0++) {
-        *dst0 = (size - 1) * (*(src + 1) - *src);
-        if (i > 0) *dst1++ = (size - 2) * (*dst0 - *(dst0 - 1));
+        *dst0 = (double)(size - 1) * (*(src + 1) - *src);
+        if (i > 0) *dst1++ = (double)(size - 2) * (*dst0 - *(dst0 - 1));
     }
     dp.size = size - 1;
     d2p.size = size - 2;

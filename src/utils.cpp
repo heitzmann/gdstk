@@ -49,8 +49,8 @@ uint64_t gdsii_real_from_double(double value) {
     const double fexp = 0.25 * log2(value);
     double exponent = ceil(fexp);
     if (exponent == fexp) exponent++;
-    result.u64 = value * pow(16, 14 - exponent);
-    result.u8_1 = 64 + exponent;
+    result.u64 = (uint64_t)(value * pow(16, 14 - exponent));
+    result.u8_1 = (uint8_t)(64 + exponent);
     if (negative) result.u8_1 |= 0x80;
     return result.u64;
 }

@@ -77,7 +77,7 @@ PyObject* rawcell_object_get_name(RawCellObject* self, void*) {
 }
 
 PyObject* rawcell_object_get_size(RawCellObject* self, void*) {
-    PyObject* result = PyLong_FromLong(self->rawcell->size);
+    PyObject* result = PyLong_FromLong((long)self->rawcell->size);
     if (!result) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert value to long.");
         return NULL;

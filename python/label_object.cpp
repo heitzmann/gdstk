@@ -335,7 +335,7 @@ static PyObject* label_object_get_layer(LabelObject* self, void*) {
 }
 
 static int label_object_set_layer(LabelObject* self, PyObject* arg, void*) {
-    self->label->layer = PyLong_AsLong(arg);
+    self->label->layer = (int16_t)PyLong_AsLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert layer to int.");
         return -1;
@@ -348,7 +348,7 @@ static PyObject* label_object_get_texttype(LabelObject* self, void*) {
 }
 
 static int label_object_set_texttype(LabelObject* self, PyObject* arg, void*) {
-    self->label->texttype = PyLong_AsLong(arg);
+    self->label->texttype = (int16_t)PyLong_AsLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert texttype to int.");
         return -1;
