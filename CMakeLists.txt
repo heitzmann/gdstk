@@ -42,6 +42,7 @@ add_library(gdstk STATIC
     src/property.cpp
     src/rawcell.cpp
     src/reference.cpp
+    src/repetition.cpp
     src/robustpath.cpp
     src/style.cpp
     src/utils.cpp
