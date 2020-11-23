@@ -29,30 +29,20 @@ extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int
 
 namespace gdstk {
 
-#pragma pack(push, 1)
-union GdsiiReal {
-    uint64_t u64;
-    struct {
-        uint8_t u8_1;
-        uint8_t u8_2;
-        uint16_t u16;
-        uint32_t u32;
-    };
-};
-#pragma pack(pop)
-
 uint64_t gdsii_real_from_double(double value) {
-    GdsiiReal result = {0};
-    if (value == 0) return result.u64;
-    const bool negative = value < 0;
-    if (negative) value = -value;
+    if (value == 0) return 0;
+    uint8_t u8_1 = 0;
+    if (value < 0) {
+        u8_1 = 0x80;
+        value = -value;
+    }
     const double fexp = 0.25 * log2(value);
     double exponent = ceil(fexp);
     if (exponent == fexp) exponent++;
-    result.u64 = (uint64_t)(value * pow(16, 14 - exponent));
-    result.u8_1 = (uint8_t)(64 + exponent);
-    if (negative) result.u8_1 |= 0x80;
-    return result.u64;
+    const uint64_t mantissa = value * pow(16, 14 - exponent);
+    u8_1 += 64 + exponent;
+    const uint64_t result = ((int64_t)u8_1 << 56) | (mantissa & 0x00FFFFFFFFFFFFFF);
+    return result;
 }
 
 double gdsii_real_to_double(uint64_t real) {
