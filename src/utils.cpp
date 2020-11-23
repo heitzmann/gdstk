@@ -39,8 +39,8 @@ uint64_t gdsii_real_from_double(double value) {
     const double fexp = 0.25 * log2(value);
     double exponent = ceil(fexp);
     if (exponent == fexp) exponent++;
-    const uint64_t mantissa = value * pow(16, 14 - exponent);
-    u8_1 += 64 + exponent;
+    const uint64_t mantissa = (uint64_t)(value * pow(16, 14 - exponent));
+    u8_1 += (uint8_t)(64 + exponent);
     const uint64_t result = ((int64_t)u8_1 << 56) | (mantissa & 0x00FFFFFFFFFFFFFF);
     return result;
 }
