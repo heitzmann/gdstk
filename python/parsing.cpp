@@ -192,8 +192,8 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
         while (PyDict_Next(css_dict, &i, &key, &value)) {
             if (!(PyUnicode_Check(key) && PyUnicode_Check(value))) {
                 PyErr_Format(PyExc_TypeError,
-                             "Keys and values in dictionary %" PRId64 " in %s are not strings.", (int64_t)j,
-                             name);
+                             "Keys and values in dictionary %" PRId64 " in %s are not strings.",
+                             (int64_t)j, name);
                 return -1;
             }
 

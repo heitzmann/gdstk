@@ -63,7 +63,11 @@ void example_offset(Cell& out_cell) {
     Polygon* rect_p[] = {rect, rect + 1};
     const Array<Polygon*> rect_array = {.size = 2, .items = rect_p};
     out_cell.polygon_array.extend(rect_array);
+    uint64_t start = out_cell.polygon_array.size;
     offset(rect_array, -0.5, OffsetJoin::Miter, 2, 1000, true, out_cell.polygon_array);
+    for (uint64_t i = start; i < out_cell.polygon_array.size; i++) {
+        out_cell.polygon_array[i]->layer = 1;
+    }
 }
 
 void example_fillet(Cell& out_cell) {

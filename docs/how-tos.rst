@@ -166,7 +166,6 @@ In this example we create a periodic background and remove all elements that ove
 .. image:: how-tos/pos_filtering.*
    :align: center
 
-
 *******************
 Points Along a Path
 *******************
