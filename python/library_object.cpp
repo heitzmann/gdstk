@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* library_object_str(LibraryObject* self) {
     char buffer[256];
-    snprintf(buffer, COUNT(buffer), "Library '%s' with %" PRId64 " cells and %" PRId64 " raw cells",
+    snprintf(buffer, COUNT(buffer), "Library '%s' with %" PRIu64 " cells and %" PRIu64 " raw cells",
              self->library->name, self->library->cell_array.size,
              self->library->rawcell_array.size);
     return PyUnicode_FromString(buffer);
@@ -16,9 +16,9 @@ static PyObject* library_object_str(LibraryObject* self) {
 static void library_object_dealloc(LibraryObject* self) {
     Library* library = self->library;
     if (library) {
-        for (int64_t i = 0; i < library->cell_array.size; i++)
+        for (uint64_t i = 0; i < library->cell_array.size; i++)
             Py_DECREF(library->cell_array[i]->owner);
-        for (int64_t i = 0; i < library->rawcell_array.size; i++)
+        for (uint64_t i = 0; i < library->rawcell_array.size; i++)
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
         free_allocation(library);
@@ -37,9 +37,9 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
         return -1;
     Library* library = self->library;
     if (library) {
-        for (int64_t i = 0; i < library->cell_array.size; i++)
+        for (uint64_t i = 0; i < library->cell_array.size; i++)
             Py_DECREF(library->cell_array[i]->owner);
-        for (int64_t i = 0; i < library->rawcell_array.size; i++)
+        for (uint64_t i = 0; i < library->rawcell_array.size; i++)
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
     } else {
@@ -48,7 +48,7 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
     }
 
     if (!name) name = (char*)default_name;
-    int64_t len = strlen(name) + 1;
+    uint64_t len = strlen(name) + 1;
     library->name = (char*)allocate(sizeof(char) * len);
     memcpy(library->name, name, len);
 
@@ -59,9 +59,9 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
 }
 
 static PyObject* library_object_add(LibraryObject* self, PyObject* args) {
-    Py_ssize_t len = PyTuple_GET_SIZE(args);
+    uint64_t len = PyTuple_GET_SIZE(args);
     Library* library = self->library;
-    for (Py_ssize_t i = 0; i < len; i++) {
+    for (uint64_t i = 0; i < len; i++) {
         PyObject* arg = PyTuple_GET_ITEM(args, i);
         Py_INCREF(arg);
         if (CellObject_Check(arg)) {
@@ -102,7 +102,7 @@ static PyObject* library_object_new_cell(LibraryObject* self, PyObject* args) {
     result->cell = (Cell*)allocate_clear(sizeof(Cell));
     Cell* cell = result->cell;
     cell->owner = result;
-    int64_t len = strlen(name) + 1;
+    uint64_t len = strlen(name) + 1;
     cell->name = (char*)allocate(sizeof(char) * len);
     memcpy(cell->name, name, len);
     self->library->cell_array.append(cell);
@@ -111,23 +111,19 @@ static PyObject* library_object_new_cell(LibraryObject* self, PyObject* args) {
 }
 
 static PyObject* library_object_remove(LibraryObject* self, PyObject* args) {
-    Py_ssize_t len = PyTuple_GET_SIZE(args);
-    for (Py_ssize_t i = 0; i < len; i++) {
+    uint64_t len = PyTuple_GET_SIZE(args);
+    for (uint64_t i = 0; i < len; i++) {
         PyObject* arg = PyTuple_GET_ITEM(args, i);
         if (CellObject_Check(arg)) {
             Cell* cell = ((CellObject*)arg)->cell;
             Array<Cell*>* array = &self->library->cell_array;
-            int64_t i = array->index(cell);
-            if (i >= 0) {
-                array->remove(i);
+            if (array->remove_item(cell)) {
                 Py_DECREF((PyObject*)cell->owner);
             }
         } else if (RawCellObject_Check(arg)) {
             RawCell* rawcell = ((RawCellObject*)arg)->rawcell;
             Array<RawCell*>* array = &self->library->rawcell_array;
-            int64_t i = array->index(rawcell);
-            if (i >= 0) {
-                array->remove(i);
+            if (array->remove_item(rawcell)) {
                 Py_DECREF((PyObject*)rawcell->owner);
             }
         } else {
@@ -146,8 +142,8 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject* args) {
     Array<RawCell*> top_rawcells = {0};
     library->top_level(top_cells, top_rawcells);
 
-    const int64_t i0 = top_cells.size;
-    const int64_t i1 = top_rawcells.size;
+    const uint64_t i0 = top_cells.size;
+    const uint64_t i1 = top_rawcells.size;
 
     PyObject* result = PyList_New(i0 + i1);
     if (!result) {
@@ -158,14 +154,14 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject* args) {
     }
 
     Cell** c_item = top_cells.items;
-    for (int64_t i = 0; i < i0; i++) {
+    for (uint64_t i = 0; i < i0; i++) {
         PyObject* obj = (PyObject*)(*c_item++)->owner;
         Py_INCREF(obj);
         PyList_SET_ITEM(result, i, obj);
     }
 
     RawCell** r_item = top_rawcells.items;
-    for (int64_t i = 0; i < i1; i++) {
+    for (uint64_t i = 0; i < i1; i++) {
         PyObject* obj = (PyObject*)(*r_item++)->owner;
         Py_INCREF(obj);
         PyList_SET_ITEM(result, i0 + i, obj);
@@ -179,8 +175,8 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject* args) {
 static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"outfile", "max_points", NULL};
     PyObject* pybytes = NULL;
-    Py_ssize_t max_points = 199;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|n:write_gds", (char**)keywords,
+    uint64_t max_points = 199;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|K:write_gds", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &max_points))
         return NULL;
 
@@ -230,13 +226,13 @@ int library_object_set_name(LibraryObject* self, PyObject* arg, void*) {
 PyObject* library_object_get_cells(LibraryObject* self, void*) {
     Array<Cell*>* cell_array = &self->library->cell_array;
     Array<RawCell*>* rawcell_array = &self->library->rawcell_array;
-    const int64_t size = cell_array->size + rawcell_array->size;
+    const uint64_t size = cell_array->size + rawcell_array->size;
     PyObject* result = PyList_New(size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create list.");
         return NULL;
     }
-    int64_t i = 0;
+    uint64_t i = 0;
     for (Cell** cell = cell_array->items; i < cell_array->size; i++, cell++) {
         PyObject* cell_obj = (PyObject*)(*cell)->owner;
         Py_INCREF(cell_obj);

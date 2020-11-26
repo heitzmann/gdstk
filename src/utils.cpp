@@ -12,11 +12,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstring>
 
-//#include <cstdio>
-
-#ifdef _WIN32
-#include <intrin.h>
-#endif
+// #ifdef _WIN32
+// #include <intrin.h>
+// #endif
 
 #include "allocator.h"
 #include "vec.h"
@@ -41,7 +39,7 @@ uint64_t gdsii_real_from_double(double value) {
     if (exponent == fexp) exponent++;
     const uint64_t mantissa = (uint64_t)(value * pow(16, 14 - exponent));
     u8_1 += (uint8_t)(64 + exponent);
-    const uint64_t result = ((int64_t)u8_1 << 56) | (mantissa & 0x00FFFFFFFFFFFFFF);
+    const uint64_t result = ((uint64_t)u8_1 << 56) | (mantissa & 0x00FFFFFFFFFFFFFF);
     return result;
 }
 
@@ -57,8 +55,8 @@ double modulo(double x, double y) {
     return m < 0 ? m + y : m;
 }
 
-int64_t arc_num_points(double angle, double radius, double tol) {
-    return (int64_t)lround(0.5 * angle / acos(1 - tol / radius));
+uint64_t arc_num_points(double angle, double radius, double tol) {
+    return (uint64_t)llround(0.5 * fabs(angle) / acos(1 - tol / radius));
 }
 
 double elliptical_angle_transform(double angle, double radius_x, double radius_y) {
@@ -94,7 +92,7 @@ void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const V
     }
 }
 
-void swap16(uint16_t* buffer, int64_t n) {
+void swap16(uint16_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint16_t b = *buffer;
@@ -102,7 +100,7 @@ void swap16(uint16_t* buffer, int64_t n) {
     }
 }
 
-void swap32(uint32_t* buffer, int64_t n) {
+void swap32(uint32_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint32_t b = *buffer;
@@ -110,7 +108,7 @@ void swap32(uint32_t* buffer, int64_t n) {
     }
 }
 
-void swap64(uint64_t* buffer, int64_t n) {
+void swap64(uint64_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint64_t b = *buffer;
@@ -122,7 +120,7 @@ void swap64(uint64_t* buffer, int64_t n) {
 }
 
 // Read record and make necessary swaps
-int32_t read_record(FILE* in, uint8_t* buffer) {
+uint32_t read_record(FILE* in, uint8_t* buffer) {
     uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
     if (read_length < 4) {
         if (feof(in) != 0)
@@ -132,11 +130,11 @@ int32_t read_record(FILE* in, uint8_t* buffer) {
         return 0;
     }
     swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
-    const int32_t record_length = *((uint16_t*)buffer);
+    const uint32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) return 0;
     if (record_length == 4) return record_length;
     read_length = fread(buffer + 4, sizeof(uint8_t), record_length - 4, in);
-    if (read_length < (uint32_t)(record_length - 4)) {
+    if (read_length < record_length - 4) {
         if (feof(in) != 0)
             fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
         else
@@ -166,13 +164,13 @@ Vec2 eval_bezier3(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2, const V
     return result;
 }
 
-Vec2 eval_bezier(double t, const Vec2* ctrl, int64_t size) {
+Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t size) {
     Vec2 result;
     Vec2* p = (Vec2*)allocate(sizeof(Vec2) * size);
     memcpy(p, ctrl, sizeof(Vec2) * size);
     const double r = 1 - t;
-    for (int64_t j = size - 1; j > 0; j--)
-        for (int64_t i = 0; i < j; i++) p[i] = r * p[i] + t * p[i + 1];
+    for (uint64_t j = size - 1; j > 0; j--)
+        for (uint64_t i = 0; i < j; i++) p[i] = r * p[i] + t * p[i + 1];
     result = p[0];
     free_allocation(p);
     return result;
@@ -185,7 +183,7 @@ Vec2 eval_bezier(double t, const Vec2* ctrl, int64_t size) {
 //                     ...,
 //                     p[size - 1], ca[size - 1], cb[size - 1]};
 // The last controls are only present if `cycle == true`.
-void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle_constraints,
+void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle) {
     const int nrhs = 1;
     const double A = sqrt(2.0);
@@ -201,26 +199,26 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
     Vec2* tens = tension;
     double* ang = angles;
     bool* ang_c = angle_constraints;
-    int64_t points_size = size;
+    uint64_t points_size = size;
 
-    int64_t rotate = 0;
+    uint64_t rotate = 0;
     if (cycle) {
         while (rotate < size && !angle_constraints[rotate]) rotate++;
         if (rotate == size) {
             // No angle constraints
-            const int64_t dim = 2 * size;
+            const uint64_t dim = 2 * size;
             Vec2 v = points[3] - points[0];
             Vec2 v_prev = points[0] - points[3 * (size - 1)];
             double length_v = v.length();
             double delta_prev = v_prev.angle();
             memset(a, 0, sizeof(double) * dim * dim);
-            for (int64_t i = 0; i < size; i++) {
-                const int64_t i_1 = i == 0 ? size - 1 : i - 1;
-                const int64_t i1 = i == size - 1 ? 0 : i + 1;
-                const int64_t i2 = i < size - 2 ? i + 2 : (i == size - 2 ? 0 : 1);
-                const int64_t j = size + i;
-                const int64_t j_1 = size + i_1;
-                const int64_t j1 = size + i1;
+            for (uint64_t i = 0; i < size; i++) {
+                const uint64_t i_1 = i == 0 ? size - 1 : i - 1;
+                const uint64_t i1 = i == size - 1 ? 0 : i + 1;
+                const uint64_t i2 = i < size - 2 ? i + 2 : (i == size - 2 ? 0 : 1);
+                const uint64_t j = size + i;
+                const uint64_t j_1 = size + i_1;
+                const uint64_t j1 = size + i1;
 
                 const double delta = v.angle();
                 const Vec2 v_next = points[3 * i2] - points[3 * i1];
@@ -259,9 +257,9 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
             Vec2* ctb = points + 2;
             v = points[3] - points[0];
             Vec2 w = cplx_from_angle(theta[0] + v.angle());
-            for (int64_t i = 0; i < size; i++, cta += 3, ctb += 3) {
-                const int64_t i1 = i == size - 1 ? 0 : i + 1;
-                const int64_t i2 = i < size - 2 ? i + 2 : (i == size - 2 ? 0 : 1);
+            for (uint64_t i = 0; i < size; i++, cta += 3, ctb += 3) {
+                const uint64_t i1 = i == size - 1 ? 0 : i + 1;
+                const uint64_t i2 = i < size - 2 ? i + 2 : (i == size - 2 ? 0 : 1);
                 const double st = sin(theta[i]);
                 const double ct = cos(theta[i]);
                 const double sp = sin(phi[i]);
@@ -308,14 +306,14 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
 
     {
         // Open curve solver
-        const int64_t n = points_size - 1;
+        const uint64_t n = points_size - 1;
         double* theta = (double*)allocate(sizeof(double) * n);
         double* phi = (double*)allocate(sizeof(double) * n);
         if (ang_c[0]) theta[0] = ang[0] - (pts[3] - pts[0]).angle();
 
-        int64_t i = 0;
+        uint64_t i = 0;
         while (i < n) {
-            int64_t j = i + 1;
+            uint64_t j = i + 1;
             while (j < n + 1 && !ang_c[j]) j++;
             if (j == n + 1)
                 j--;
@@ -325,21 +323,21 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
             }
 
             // Solve curve pts[i] thru pts[j]
-            const int64_t range = j - i;
-            const int64_t dim = 2 * range;
+            const uint64_t range = j - i;
+            const uint64_t dim = 2 * range;
             memset(a, 0, sizeof(double) * dim * dim);
             memset(b, 0, sizeof(double) * dim);
 
             Vec2 v_prev = pts[3 * (i + 1)] - pts[3 * i];
             double delta_prev = v_prev.angle();
             double length_v_prev = v_prev.length();
-            for (int64_t k = 0; k < range - 1; k++) {  // [0; range - 2]
-                const int64_t k1 = k + 1;              // [1; range - 1]
-                const int64_t i0 = i + k;              // [i; j - 2]
-                const int64_t i1 = i0 + 1;             // [i + 1; j - 1]
-                const int64_t i2 = i0 + 2;             // [i + 2; j]
-                const int64_t l = k + range;           // [range; 2 * range - 2]
-                const int64_t l1 = l + 1;              // [range + 1; range - 1]
+            for (uint64_t k = 0; k < range - 1; k++) {  // [0; range - 2]
+                const uint64_t k1 = k + 1;              // [1; range - 1]
+                const uint64_t i0 = i + k;              // [i; j - 2]
+                const uint64_t i1 = i0 + 1;             // [i + 1; j - 1]
+                const uint64_t i2 = i0 + 2;             // [i + 2; j]
+                const uint64_t l = k + range;           // [range; 2 * range - 2]
+                const uint64_t l1 = l + 1;              // [range + 1; range - 1]
 
                 Vec2 v = pts[3 * i2] - pts[3 * i1];
                 const double delta = v.angle();
@@ -354,18 +352,18 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 a[k1 + dim * l] = 1;
                 // A_k
                 a[l + dim * k] = length_v * tens[i2].u * tens[i1].u * tens[i1].u;
-                // printf("a %"PRId64" %"PRId64" %lg\n", l, k, a[l + dim * k]);
+                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, k, a[l + dim * k]);
                 // B_{k+1}
                 a[l + dim * k1] =
                     -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v * (1 - 3 * tens[i2].u);
-                // printf("a %"PRId64" %"PRId64" %lg\n", l, k1, a[l + dim * k1]);
+                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, k1, a[l + dim * k1]);
                 // C_{k+1}
                 a[l + dim * l] =
                     length_v * tens[i2].u * tens[i1].u * tens[i1].u * (1 - 3 * tens[i0].v);
-                // printf("a %"PRId64" %"PRId64" %lg\n", l, l, a[l + dim * l]);
+                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, l, a[l + dim * l]);
                 // D_{k+2}
                 a[l + dim * l1] = -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v;
-                // printf("a %"PRId64" %"PRId64" %lg\n", l, l1, a[l + dim * l1]);
+                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, l1, a[l + dim * l1]);
 
                 delta_prev = delta;
                 length_v_prev = length_v;
@@ -399,7 +397,7 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
                 a[dim - 1 + dim * (dim - 1)] = ti3 * (1 - 3 * tens[n - 1].v) - cto3;
             }
             if (range > 1 || !ang_c[i] || !ang_c[j]) {
-                // printf("Solving range [%"PRId64", %"PRId64"]\n\n", i, j);
+                // printf("Solving range [%"PRIu64", %"PRIu64"]\n\n", i, j);
                 // for (int _l = 0; _l < dim; _l++) {
                 //     printf("%s[", _l == (dim - 1) / 2 ? "A = " : "    ");
                 //     for (int _c = 0; _c < dim; _c++) printf(" %lg ", a[_l + dim * _c]);
@@ -421,10 +419,10 @@ void hobby_interpolation(int64_t size, Vec2* points, double* angles, bool* angle
 
         Vec2 v = pts[3] - pts[0];
         Vec2 w = cplx_from_angle(theta[0] + v.angle());
-        for (int64_t ii = 0; ii < n; ii++) {
-            const int64_t i1 = ii + 1;
-            const int64_t i2 = ii == n - 1 ? 0 : ii + 2;
-            const int64_t ci = ii + rotate >= size ? ii + rotate - size : ii + rotate;
+        for (uint64_t ii = 0; ii < n; ii++) {
+            const uint64_t i1 = ii + 1;
+            const uint64_t i2 = ii == n - 1 ? 0 : ii + 2;
+            const uint64_t ci = ii + rotate >= size ? ii + rotate - size : ii + rotate;
             const double st = sin(theta[ii]);
             const double ct = cos(theta[ii]);
             const double sp = sin(phi[ii]);

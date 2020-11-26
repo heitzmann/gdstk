@@ -27,7 +27,7 @@ void properties_clear(Property* properties) {
 }
 
 static void value_copy(const char* value, Property* dst) {
-    int64_t len = strlen(value) + 1;
+    uint64_t len = strlen(value) + 1;
     dst->value = (char*)allocate(sizeof(char) * len);
     memcpy(dst->value, value, len);
 }

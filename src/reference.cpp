@@ -49,7 +49,7 @@ void Reference::clear() {
 void Reference::copy_from(const Reference& reference) {
     type = reference.type;
     if (reference.type == ReferenceType::Name) {
-        int64_t len = 1 + strlen(reference.name);
+        uint64_t len = 1 + strlen(reference.name);
         name = (char*)allocate(sizeof(char) * len);
         memcpy(name, reference.name, len);
     } else {
@@ -69,7 +69,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
     Array<Polygon*> array = {0};
     polygons(true, true, -1, array);
     Polygon** p_item = array.items;
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         Polygon* poly = *p_item++;
         Vec2 pmin, pmax;
         poly->bounding_box(pmin, pmax);
@@ -106,7 +106,7 @@ void Reference::apply_repetition(Array<Reference*>& result) {
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
     result.ensure_slots(offsets.size - 1);
-    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
         Reference* reference = (Reference*)allocate_clear(sizeof(Reference));
         reference->copy_from(*this);
         reference->origin.x += *offset_p++;
@@ -137,13 +137,13 @@ void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t dep
     result.ensure_slots(array.size * offsets.size);
 
     Polygon** a_item = array.items;
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         Polygon* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
             Polygon* dst;
             // Avoid an extra allocation by moving the last polygon.
-            if (offset_count == 0) {
+            if (offset_count == 1) {
                 dst = src;
             } else {
                 dst = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -174,12 +174,12 @@ void Reference::flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*
     result.ensure_slots(array.size * offsets.size);
 
     FlexPath** a_item = array.items;
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         FlexPath* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
             FlexPath* dst;
-            if (offset_count == 0) {
+            if (offset_count == 1) {
                 dst = src;
             } else {
                 dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
@@ -211,12 +211,12 @@ void Reference::robustpaths(bool apply_repetitions, int64_t depth,
     result.ensure_slots(array.size * offsets.size);
 
     RobustPath** a_item = array.items;
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         RobustPath* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
             RobustPath* dst;
-            if (offset_count == 0) {
+            if (offset_count == 1) {
                 dst = src;
             } else {
                 dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
@@ -247,12 +247,12 @@ void Reference::labels(bool apply_repetitions, int64_t depth, Array<Label*>& res
     result.ensure_slots(array.size * offsets.size);
 
     Label** a_item = array.items;
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         Label* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (int64_t offset_count = offsets.size - 1; offset_count >= 0; offset_count--) {
+        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
             Label* dst;
-            if (offset_count == 0) {
+            if (offset_count == 1) {
                 dst = src;
             } else {
                 dst = (Label*)allocate_clear(sizeof(Label));
@@ -335,7 +335,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
     const char* ref_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
-    int64_t len = strlen(ref_name);
+    uint64_t len = strlen(ref_name);
     if (len % 2) len++;
     uint16_t buffer_start[] = {4, 0x0A00, (uint16_t)(4 + len), 0x1206};
     if (array) buffer_start[1] = 0x0B00;
@@ -369,7 +369,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
     }
 
     Vec2* offset_p = offsets.items;
-    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
+    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
         fwrite(ref_name, sizeof(char), len, out);
 
@@ -397,7 +397,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
         }
 
         properties_to_gds(properties, out);
-        fwrite(buffer_end, sizeof(int16_t), COUNT(buffer_end), out);
+        fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
 
     if (repetition.type != RepetitionType::None && !array) offsets.clear();
@@ -424,7 +424,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
     }
 
     double* offset_p = (double*)offsets.items;
-    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
         double offset_x = scaling * (origin.x + *offset_p++);
         double offset_y = scaling * (origin.y + *offset_p++);
         fprintf(out, "<use transform=\"translate(%lf %lf)", offset_x, offset_y);

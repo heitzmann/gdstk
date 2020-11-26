@@ -26,19 +26,19 @@ namespace gdstk {
 
 template <class T>
 struct Array {
-    int64_t capacity;  // allocated capacity
-    int64_t size;      // number of slots used
-    T* items;          // slots
+    uint64_t capacity;  // allocated capacity
+    uint64_t size;      // number of slots used
+    T* items;           // slots
 
-    T& operator[](int64_t idx) { return items[idx]; }
-    const T& operator[](int64_t idx) const { return items[idx]; }
+    T& operator[](uint64_t idx) { return items[idx]; }
+    const T& operator[](uint64_t idx) const { return items[idx]; }
 
     void print(bool all) const {
-        const int64_t n = 6;
-        printf("Array <%p>, size %" PRId64 "/%" PRId64 "\n", this, size, capacity);
+        const uint8_t n = 6;
+        printf("Array <%p>, size %" PRIu64 "/%" PRIu64 "\n", this, size, capacity);
         if (all) {
-            for (int64_t i = 0; i < size; i += n) {
-                for (int64_t j = 0; j < n && i + j < size; j++) {
+            for (uint64_t i = 0; i < size; i += n) {
+                for (uint64_t j = 0; j < n && i + j < size; j++) {
                     if (j > 0) printf(" ");
                     printf("<%p>", items[i + j]);
                 }
@@ -54,11 +54,18 @@ struct Array {
         size = 0;
     }
 
-    int64_t index(const T item) const {
+    bool contains(const T item) const {
         T* it = items;
-        for (int64_t j = 0; j < size; j++)
+        for (uint64_t j = 0; j < size; j++)
+            if (*(it++) == item) return true;
+        return false;
+    }
+
+    uint64_t index(const T item) const {
+        T* it = items;
+        for (uint64_t j = 0; j < size; j++)
             if (*(it++) == item) return j;
-        return -1;
+        return size;
     }
 
     void append(T item) {
@@ -72,13 +79,20 @@ struct Array {
 
     void append_unsafe(T item) { items[size++] = item; }
 
-    void remove_unordered(int64_t index) { items[index] = items[--size]; }
+    void remove_unordered(uint64_t index) { items[index] = items[--size]; }
 
-    void remove(int64_t index) {
+    void remove(uint64_t index) {
         memmove(items + index, items + index + 1, sizeof(T) * ((--size) - index));
     }
 
-    void ensure_slots(int64_t free_slots) {
+    bool remove_item(const T item) {
+        uint64_t i = index(item);
+        if (i == size) return false;
+        remove(i);
+        return true;
+    }
+
+    void ensure_slots(uint64_t free_slots) {
         if (capacity < size + free_slots) {
             capacity = size + free_slots;
             items = (T*)reallocate(items, sizeof(T) * capacity);
@@ -105,13 +119,28 @@ struct Array {
 
 template <>
 inline void Array<Vec2>::print(bool all) const {
-    const int64_t n = 6;
-    printf("Array <%p>, size %" PRId64 "/%" PRId64 "\n", this, size, capacity);
+    const uint8_t n = 6;
+    printf("Array <%p>, size %" PRIu64 "/%" PRIu64 "\n", this, size, capacity);
     if (all) {
-        for (int64_t i = 0; i < size; i += n) {
-            for (int64_t j = 0; j < n && i + j < size; j++) {
+        for (uint64_t i = 0; i < size; i += n) {
+            for (uint64_t j = 0; j < n && i + j < size; j++) {
                 if (j > 0) printf(" ");
                 printf("(%lg, %lg)", items[i + j].x, items[i + j].y);
+            }
+            putchar('\n');
+        }
+    }
+}
+
+template <>
+inline void Array<double>::print(bool all) const {
+    const uint8_t n = 12;
+    printf("Array <%p>, size %" PRIu64 "/%" PRIu64 "\n", this, size, capacity);
+    if (all) {
+        for (uint64_t i = 0; i < size; i += n) {
+            for (uint64_t j = 0; j < n && i + j < size; j++) {
+                if (j > 0) printf(" ");
+                printf("%lg", items[i + j]);
             }
             putchar('\n');
         }

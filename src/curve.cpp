@@ -19,7 +19,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Curve::print(bool all) const {
-    printf("Curve <%p>, size %" PRId64 ", tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
+    printf("Curve <%p>, size %" PRIu64 ", tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
            point_array.size, tolerance, last_ctrl.x, last_ctrl.y, owner);
     if (all) {
         printf("Points: ");
@@ -133,7 +133,7 @@ void Curve::append_quad(const Vec2 p0, const Vec2 p1, const Vec2 p2) {
 }
 
 void Curve::append_bezier(const Array<Vec2> ctrl) {
-    const int64_t size = ctrl.size;
+    const uint64_t size = ctrl.size;
     // Sampling based on curvature
     // dp : 1st derivative
     Array<Vec2> dp = {0};
@@ -145,7 +145,7 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
     Vec2* dst0 = dp.items;
     Vec2* dst1 = d2p.items;
     const Vec2* src = ctrl.items;
-    for (int64_t i = 0; i < size - 1; i++, src++, dst0++) {
+    for (uint64_t i = 0; i < size - 1; i++, src++, dst0++) {
         *dst0 = (double)(size - 1) * (*(src + 1) - *src);
         if (i > 0) *dst1++ = (double)(size - 2) * (*dst0 - *(dst0 - 1));
     }
@@ -215,13 +215,13 @@ void Curve::horizontal(const Array<double> coord_x, bool relative) {
     const double* src_x = coord_x.items;
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < coord_x.size; i++, dst++) {
+        for (uint64_t i = 0; i < coord_x.size; i++, dst++) {
             dst->x = ref.x + *src_x++;
             dst->y = ref.y;
         }
     } else {
         const double ref_y = point_array[point_array.size - 1].y;
-        for (int64_t i = 0; i < coord_x.size; i++, dst++) {
+        for (uint64_t i = 0; i < coord_x.size; i++, dst++) {
             dst->x = *src_x++;
             dst->y = ref_y;
         }
@@ -247,13 +247,13 @@ void Curve::vertical(const Array<double> coord_y, bool relative) {
     const double* src_y = coord_y.items;
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < coord_y.size; i++, dst++) {
+        for (uint64_t i = 0; i < coord_y.size; i++, dst++) {
             dst->x = ref.x;
             dst->y = ref.y + *src_y++;
         }
     } else {
         const double ref_x = point_array[point_array.size - 1].x;
-        for (int64_t i = 0; i < coord_y.size; i++, dst++) {
+        for (uint64_t i = 0; i < coord_y.size; i++, dst++) {
             dst->x = ref_x;
             dst->y = *src_y++;
         }
@@ -277,7 +277,7 @@ void Curve::segment(const Array<Vec2> points, bool relative) {
         const Vec2 ref = point_array[point_array.size - 1];
         const Vec2* src = points.items;
         Vec2* dst = point_array.items + point_array.size;
-        for (int64_t i = 0; i < points.size; i++) *dst++ = ref + *src++;
+        for (uint64_t i = 0; i < points.size; i++) *dst++ = ref + *src++;
         point_array.size += points.size;
     } else {
         point_array.extend(points);
@@ -289,14 +289,14 @@ void Curve::cubic(const Array<Vec2> points, bool relative) {
     Vec2 last_point = point_array[point_array.size - 1];
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < points.size - 2; i += 3) {
+        for (uint64_t i = 0; i < points.size - 2; i += 3) {
             Vec2 first_point = last_point;
             last_point = ref + points[i + 2];
             append_cubic(first_point, ref + points[i], ref + points[i + 1], last_point);
         }
         last_ctrl = ref + points[points.size - 2];
     } else {
-        for (int64_t i = 0; i < points.size - 2; i += 3) {
+        for (uint64_t i = 0; i < points.size - 2; i += 3) {
             Vec2 first_point = last_point;
             last_point = points[i + 2];
             append_cubic(first_point, points[i], points[i + 1], last_point);
@@ -310,7 +310,7 @@ void Curve::cubic_smooth(const Array<Vec2> points, bool relative) {
     const Vec2* point = points.items;
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < points.size - 1; i += 2) {
+        for (uint64_t i = 0; i < points.size - 1; i += 2) {
             Vec2 first_point = last_point;
             Vec2 smooth_ctrl = last_point * 2 - last_ctrl;
             last_ctrl = ref + *point++;
@@ -318,7 +318,7 @@ void Curve::cubic_smooth(const Array<Vec2> points, bool relative) {
             append_cubic(first_point, smooth_ctrl, last_ctrl, last_point);
         }
     } else {
-        for (int64_t i = 0; i < points.size - 1; i += 2) {
+        for (uint64_t i = 0; i < points.size - 1; i += 2) {
             Vec2 first_point = last_point;
             Vec2 smooth_ctrl = last_point * 2 - last_ctrl;
             last_ctrl = *point++;
@@ -332,14 +332,14 @@ void Curve::quadratic(const Array<Vec2> points, bool relative) {
     Vec2 last_point = point_array[point_array.size - 1];
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < points.size - 1; i += 2) {
+        for (uint64_t i = 0; i < points.size - 1; i += 2) {
             Vec2 first_point = last_point;
             last_point = ref + points[i + 1];
             append_quad(first_point, ref + points[i], last_point);
         }
         last_ctrl = ref + points[points.size - 2];
     } else {
-        for (int64_t i = 0; i < points.size - 1; i += 2) {
+        for (uint64_t i = 0; i < points.size - 1; i += 2) {
             Vec2 first_point = last_point;
             last_point = points[i + 1];
             append_quad(first_point, points[i], last_point);
@@ -363,14 +363,14 @@ void Curve::quadratic_smooth(const Array<Vec2> points, bool relative) {
     const Vec2* point = points.items;
     if (relative) {
         const Vec2 ref = point_array[point_array.size - 1];
-        for (int64_t i = 0; i < points.size; i += 1) {
+        for (uint64_t i = 0; i < points.size; i += 1) {
             Vec2 first_point = last_point;
             last_ctrl = last_point * 2 - last_ctrl;
             last_point = ref + *point++;
             append_quad(first_point, last_ctrl, last_point);
         }
     } else {
-        for (int64_t i = 0; i < points.size; i += 1) {
+        for (uint64_t i = 0; i < points.size; i += 1) {
             Vec2 first_point = last_point;
             last_ctrl = last_point * 2 - last_ctrl;
             last_point = *point++;
@@ -387,7 +387,7 @@ void Curve::bezier(const Array<Vec2> points, bool relative) {
         const Vec2 ref = point_array[point_array.size - 1];
         ctrl[0] = ref;
         Vec2* dst = ctrl.items + 1;
-        for (int64_t i = 0; i < points.size; i++, dst++) *dst = ref + *point++;
+        for (uint64_t i = 0; i < points.size; i++, dst++) *dst = ref + *point++;
     } else {
         ctrl[0] = point_array[point_array.size - 1];
         memcpy(ctrl.items + 1, points.items, sizeof(Vec2) * points.size);
@@ -409,9 +409,9 @@ void Curve::interpolation(const Array<Vec2> points, double* angles, bool* angle_
     Vec2* dst = hobby_vec.items + 3;
     hobby_vec[0] = ref;
     if (relative) {
-        for (int64_t i = 0; i < points.size; i++, dst += 3) *dst = ref + *src++;
+        for (uint64_t i = 0; i < points.size; i++, dst += 3) *dst = ref + *src++;
     } else {
-        for (int64_t i = 0; i < points.size; i++, dst += 3) *dst = *src++;
+        for (uint64_t i = 0; i < points.size; i++, dst += 3) *dst = *src++;
     }
     hobby_interpolation(points.size + 1, hobby_vec.items, angles, angle_constraints, tension,
                         initial_curl, final_curl, cycle);
@@ -431,7 +431,7 @@ void Curve::arc(double radius_x, double radius_y, double initial_angle, double f
                 double rotation) {
     const double full_angle = fabs(final_angle - initial_angle);
     const double max_radius = radius_x > radius_y ? radius_x : radius_y;
-    int64_t num_points = 1 + arc_num_points(full_angle, max_radius, tolerance);
+    uint64_t num_points = 1 + arc_num_points(full_angle, max_radius, tolerance);
     if (num_points < MIN_POINTS) num_points = MIN_POINTS;
 
     initial_angle = elliptical_angle_transform(initial_angle - rotation, radius_x, radius_y);
@@ -444,7 +444,7 @@ void Curve::arc(double radius_x, double radius_y, double initial_angle, double f
     const Vec2 delta = point_array[point_array.size - 1] - point0;
     ensure_slots(num_points - 1);
     Vec2* dst = point_array.items + point_array.size;
-    for (int64_t i = 1; i < num_points; i++) {
+    for (uint64_t i = 1; i < num_points; i++) {
         double t = i / (num_points - 1.0);
         double angle = LERP(initial_angle, final_angle, t);
         x = radius_x * cos(angle);
@@ -494,7 +494,7 @@ void Curve::parametric(ParametricVec2 curve_function, void* data, bool relative)
     }
 }
 
-int64_t Curve::commands(const CurveInstruction* items, int64_t size) {
+uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
     const CurveInstruction* item = items;
     const CurveInstruction* end = items + size;
     Array<Vec2> points = {0};

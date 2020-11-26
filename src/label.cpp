@@ -16,10 +16,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Label::print() {
-    printf(
-        "Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg, reflection %d, layer %hd, texttype %hd, properties <%p>, owner <%p>\n",
-        this, text, origin.x, origin.y, rotation, magnification, x_reflection, layer, texttype,
-        properties, owner);
+    printf("Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg, reflection %d, layer %" PRIu32
+           ", texttype %" PRIu32 ", properties <%p>, owner <%p>\n",
+           this, text, origin.x, origin.y, rotation, magnification, x_reflection, layer, texttype,
+           properties, owner);
     repetition.print();
 }
 
@@ -70,7 +70,7 @@ void Label::apply_repetition(Array<Label*>& result) {
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
     result.ensure_slots(offsets.size - 1);
-    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
         Label* label = (Label*)allocate_clear(sizeof(Label));
         label->copy_from(*this);
         label->origin.x += *offset_p++;
@@ -94,7 +94,7 @@ void Label::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_xy[] = {12, 0x1003};
     swap16(buffer_xy, COUNT(buffer_xy));
 
-    int64_t len = strlen(text);
+    uint64_t len = strlen(text);
     if (len % 2) len++;
     uint16_t buffer_text[] = {(uint16_t)(4 + len), 0x1906};
     swap16(buffer_text, COUNT(buffer_text));
@@ -133,7 +133,7 @@ void Label::to_gds(FILE* out, double scaling) const {
     }
 
     Vec2* offset_p = offsets.items;
-    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
+    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
 
         if (transform) {
@@ -159,13 +159,13 @@ void Label::to_gds(FILE* out, double scaling) const {
         fwrite(text, sizeof(char), len, out);
 
         properties_to_gds(properties, out);
-        fwrite(buffer_end, sizeof(int16_t), COUNT(buffer_end), out);
+        fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
 void Label::to_svg(FILE* out, double scaling) const {
-    fprintf(out, "<text id=\"%p\" class=\"l%dt%d\"", this, layer, texttype);
+    fprintf(out, "<text id=\"%p\" class=\"l%" PRIu32 "t%" PRIu32 "\"", this, layer, texttype);
     switch (anchor) {
         case Anchor::NW:
         case Anchor::W:
@@ -232,7 +232,7 @@ void Label::to_svg(FILE* out, double scaling) const {
         Array<Vec2> offsets = {0};
         repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
-        for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
             fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,

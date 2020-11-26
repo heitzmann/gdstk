@@ -8,7 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 static PyObject* gdswriter_object_str(GdsWriterObject* self) {
     char buffer[256];
     snprintf(buffer, COUNT(buffer),
-             "GdsWriter with unit %lg, precision %lg, %" PRId64 " maximal points per polygon",
+             "GdsWriter with unit %lg, precision %lg, %" PRIu64 " maximal points per polygon",
              self->gdswriter->unit, self->gdswriter->precision, self->gdswriter->max_points);
     return PyUnicode_FromString(buffer);
 }
@@ -22,12 +22,12 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
     const char* keywords[] = {"outfile", "name", "unit", "precision", "max_points", NULL};
     const char* default_name = "library";
     PyObject* pybytes = NULL;
-    Py_ssize_t max_points = 199;
+    uint64_t max_points = 199;
     char* name = NULL;
     double unit = 1e-6;
     double precision = 1e-9;
     time_t now = time(NULL);
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|sddn:GdsWriter", (char**)keywords,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|sddK:GdsWriter", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &name, &unit, &precision,
                                      &max_points))
         return -1;
@@ -53,9 +53,9 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
 }
 
 static PyObject* gdswriter_object_write(GdsWriterObject* self, PyObject* args) {
-    Py_ssize_t len = PyTuple_GET_SIZE(args);
+    uint64_t len = PyTuple_GET_SIZE(args);
     GdsWriter* gdswriter = self->gdswriter;
-    for (Py_ssize_t i = 0; i < len; i++) {
+    for (uint64_t i = 0; i < len; i++) {
         PyObject* arg = PyTuple_GET_ITEM(args, i);
         if (CellObject_Check(arg))
             gdswriter->write_cell(*((CellObject*)arg)->cell);

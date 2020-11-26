@@ -29,16 +29,16 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Library::print(bool all) const {
-    printf("Library <%p> %s, unit %lg, precision %lg, %" PRId64 " cells, %" PRId64
+    printf("Library <%p> %s, unit %lg, precision %lg, %" PRIu64 " cells, %" PRIu64
            " raw cells, owner <%p>\n",
            this, name, unit, precision, cell_array.size, rawcell_array.size, owner);
     if (all) {
-        for (int64_t i = 0; i < cell_array.size; i++) {
-            printf("{%" PRId64 "} ", i);
+        for (uint64_t i = 0; i < cell_array.size; i++) {
+            printf("{%" PRIu64 "} ", i);
             cell_array[i]->print(true);
         }
-        for (int64_t i = 0; i < rawcell_array.size; i++) {
-            printf("{%" PRId64 "} ", i);
+        for (uint64_t i = 0; i < rawcell_array.size; i++) {
+            printf("{%" PRIu64 "} ", i);
             rawcell_array[i]->print(true);
         }
     }
@@ -55,7 +55,7 @@ void Library::copy_from(const Library& library, bool deep_copy) {
         cell_array.items = (Cell**)allocate(sizeof(Cell*) * cell_array.capacity);
         Cell** src = library.cell_array.items;
         Cell** dst = cell_array.items;
-        for (int64_t i = 0; i < library.cell_array.size; i++, src++, dst++) {
+        for (uint64_t i = 0; i < library.cell_array.size; i++, src++, dst++) {
             *dst = (Cell*)allocate_clear(sizeof(Cell));
             (*dst)->copy_from(**src, NULL, true);
         }
@@ -73,38 +73,38 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     rawcell_deps.resize(rawcell_array.size * 2);
 
     Cell** c_item = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, c_item++) {
+    for (uint64_t i = 0; i < cell_array.size; i++, c_item++) {
         Cell* cell = *c_item;
         cell->get_dependencies(false, cell_deps);
         cell->get_raw_dependencies(false, rawcell_deps);
     }
 
     RawCell** r_item = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++) {
+    for (uint64_t i = 0; i < rawcell_array.size; i++) {
         (*r_item++)->get_dependencies(false, rawcell_deps);
     }
 
     c_item = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++) {
+    for (uint64_t i = 0; i < cell_array.size; i++) {
         Cell* cell = *c_item++;
         if (cell_deps.get(cell->name) != cell) top_cells.append(cell);
     }
 
     r_item = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++) {
+    for (uint64_t i = 0; i < rawcell_array.size; i++) {
         RawCell* rawcell = *r_item++;
         if (rawcell_deps.get(rawcell->name) != rawcell) top_rawcells.append(rawcell);
     }
 }
 
-void Library::write_gds(const char* filename, int64_t max_points, std::tm* timestamp) const {
+void Library::write_gds(const char* filename, uint64_t max_points, std::tm* timestamp) const {
     FILE* out = fopen(filename, "wb");
     if (out == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);
         return;
     }
 
-    int64_t len = strlen(name);
+    uint64_t len = strlen(name);
     if (len % 2) len++;
     if (!timestamp) {
         time_t now = time(NULL);
@@ -143,12 +143,12 @@ void Library::write_gds(const char* filename, int64_t max_points, std::tm* times
 
     double scaling = unit / precision;
     Cell** cell = cell_array.items;
-    for (int64_t i = 0; i < cell_array.size; i++, cell++) {
+    for (uint64_t i = 0; i < cell_array.size; i++, cell++) {
         (*cell)->to_gds(out, scaling, max_points, precision, timestamp);
     }
 
     RawCell** rawcell = rawcell_array.items;
-    for (int64_t i = 0; i < rawcell_array.size; i++, rawcell++) (*rawcell)->to_gds(out);
+    for (uint64_t i = 0; i < rawcell_array.size; i++, rawcell++) (*rawcell)->to_gds(out);
 
     uint16_t buffer_end[] = {4, 0x0400};
     swap16(buffer_end, COUNT(buffer_end));
@@ -178,7 +178,7 @@ Library read_gds(const char* filename, double unit) {
     int32_t* data32 = (int32_t*)(buffer + 4);
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     char* str = (char*)(buffer + 4);
-    int32_t record_length;
+    uint32_t record_length;
 
     Cell* cell = NULL;
     Polygon* polygon = NULL;
@@ -197,31 +197,31 @@ Library read_gds(const char* filename, double unit) {
     }
 
     while ((record_length = read_record(in, buffer)) > 0) {
-        int32_t data_length;
+        uint32_t data_length;
 
-        // printf("%02X %s (%d bytes)", buffer[2], record_names[buffer[2]], record_length);
+        // printf("%02X %s (%" PRIu32 " bytes)", buffer[2], record_names[buffer[2]], record_length);
 
         switch (buffer[3]) {
             case 1:
             case 2:
                 data_length = (record_length - 4) / 2;
                 swap16((uint16_t*)data16, data_length);
-                // for (int64_t i = 0; i < data_length; i++) printf(" %hd", data16[i]);
+                // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRId16, data16[i]);
                 break;
             case 3:
             case 4:
                 data_length = (record_length - 4) / 4;
                 swap32((uint32_t*)data32, data_length);
-                // for (int64_t i = 0; i < data_length; i++) printf(" %d", data32[i]);
+                // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRId32, data32[i]);
                 break;
             case 5:
                 data_length = (record_length - 4) / 8;
                 swap64(data64, data_length);
-                // for (int64_t i = 0; i < data_length; i++) printf(" %lx", data64[i]);
+                // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRIu64, data64[i]);
                 break;
             default:
                 data_length = record_length - 4;
-                // for (int64_t i = 0; i < data_length; i++) printf(" %c", str[i]);
+                // for (uint32_t i = 0; i < data_length; i++) printf(" %c", str[i]);
         }
 
         // putchar('\n');
@@ -251,16 +251,15 @@ Library read_gds(const char* filename, double unit) {
             } break;
             case 0x04: {  // ENDLIB
                 Map<Cell*> map = {0};
-                int64_t c_size = library.cell_array.size;
-                map.resize((int64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+                uint64_t c_size = library.cell_array.size;
+                map.resize((uint64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
                 Cell** c_item = library.cell_array.items;
-                for (int64_t i = c_size - 1; i >= 0; i--, c_item++)
-                    map.set((*c_item)->name, *c_item);
+                for (uint64_t i = c_size; i > 0; i--, c_item++) map.set((*c_item)->name, *c_item);
                 c_item = library.cell_array.items;
-                for (int64_t i = c_size - 1; i >= 0; i--) {
+                for (uint64_t i = c_size; i > 0; i--) {
                     cell = *c_item++;
                     Reference** ref = cell->reference_array.items;
-                    for (int64_t j = cell->reference_array.size - 1; j >= 0; j--) {
+                    for (uint64_t j = cell->reference_array.size; j > 0; j--) {
                         reference = *ref++;
                         Cell* cp = map.get(reference->name);
                         if (cp) {
@@ -337,7 +336,7 @@ Library read_gds(const char* filename, double unit) {
                     polygon->point_array.ensure_slots(data_length / 2);
                     double* d = (double*)polygon->point_array.items + polygon->point_array.size;
                     int32_t* s = data32;
-                    for (int64_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
+                    for (uint32_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
                     polygon->point_array.size += data_length / 2;
                 } else if (path) {
                     Array<Vec2> point_array = {0};
@@ -348,13 +347,13 @@ Library read_gds(const char* filename, double unit) {
                         point_array.ensure_slots(data_length / 2 - 1);
                         double* d = (double*)point_array.items;
                         int32_t* s = data32 + 2;
-                        for (int64_t i = data_length - 2; i > 0; i--) *d++ = factor * (*s++);
+                        for (uint32_t i = data_length - 2; i > 0; i--) *d++ = factor * (*s++);
                         point_array.size += data_length / 2 - 1;
                     } else {
                         point_array.ensure_slots(data_length / 2);
                         double* d = (double*)point_array.items;
                         int32_t* s = data32;
-                        for (int64_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
+                        for (uint32_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
                         point_array.size += data_length / 2;
                     }
                     path->segment(point_array, NULL, NULL, false);

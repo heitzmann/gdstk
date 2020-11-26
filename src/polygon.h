@@ -21,8 +21,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 struct Polygon {
-    int16_t layer;
-    int16_t datatype;
+    uint32_t layer;
+    uint32_t datatype;
     Array<Vec2> point_array;
     Repetition repetition;
     Property* properties;
@@ -41,24 +41,24 @@ struct Polygon {
     void rotate(double angle, const Vec2 center);
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
     void fillet(const Array<double> radii, double tol);
-    void fracture(int64_t max_points, double precision, Array<Polygon*>& result) const;
+    void fracture(uint64_t max_points, double precision, Array<Polygon*>& result) const;
     void apply_repetition(Array<Polygon*>& result);
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };
 
-Polygon rectangle(const Vec2 corner1, const Vec2 corner2, int16_t layer, int16_t datatype);
-Polygon cross(const Vec2 center, double full_size, double arm_width, int16_t layer,
-              int16_t datatype);
-Polygon regular_polygon(const Vec2 center, double side_length, int64_t sides, double rotation,
-                        int16_t layer, int16_t datatype);
+Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype);
+Polygon cross(const Vec2 center, double full_size, double arm_width, uint32_t layer,
+              uint32_t datatype);
+Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, double rotation,
+                        uint32_t layer, uint32_t datatype);
 Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inner_radius_x,
                 double inner_radius_y, double initial_angle, double final_angle, double tolerance,
-                int16_t layer, int16_t datatype);
+                uint32_t layer, uint32_t datatype);
 Polygon racetrack(const Vec2 center, double straight_length, double radius, double inner_radius,
-                  bool vertical, double tolerance, int16_t layer, int16_t datatype);
-void text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
-          int16_t datatype, Array<Polygon*>& result);
+                  bool vertical, double tolerance, uint32_t layer, uint32_t datatype);
+void text(const char* s, double size, const Vec2 position, bool vertical, uint32_t layer,
+          uint32_t datatype, Array<Polygon*>& result);
 
 }  // namespace gdstk
 

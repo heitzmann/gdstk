@@ -25,7 +25,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Polygon::print(bool all) const {
-    printf("Polygon <%p>, size %" PRId64 ", layer %hd, datatype %hd, properties <%p>, owner <%p>\n",
+    printf("Polygon <%p>, size %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
+           ", properties <%p>, owner <%p>\n",
            this, point_array.size, layer, datatype, properties, owner);
     if (all) {
         printf("Points: ");
@@ -55,7 +56,7 @@ double Polygon::area() const {
     Vec2* p = point_array.items;
     Vec2 v0 = *p++;
     Vec2 v1 = *p++ - v0;
-    for (int64_t num = point_array.size - 2; num > 0; num--) {
+    for (uint64_t num = point_array.size - 2; num > 0; num--) {
         Vec2 v2 = *p++ - v0;
         result += v1.cross(v2);
         v1 = v2;
@@ -68,7 +69,7 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     Vec2* p = point_array.items;
-    for (int64_t num = point_array.size; num > 0; num--, p++) {
+    for (uint64_t num = point_array.size; num > 0; num--, p++) {
         if (p->x < min.x) min.x = p->x;
         if (p->x > max.x) max.x = p->x;
         if (p->y < min.y) min.y = p->y;
@@ -80,7 +81,7 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
         Vec2* off = offsets.items;
         Vec2 min0 = min;
         Vec2 max0 = max;
-        for (int64_t i = offsets.size; i > 0; i--, off++) {
+        for (uint64_t i = offsets.size; i > 0; i--, off++) {
             if (min0.x + off->x < min.x) min.x = min0.x + off->x;
             if (max0.x + off->x > max.x) max.x = max0.x + off->x;
             if (min0.y + off->y < min.y) min.y = min0.y + off->y;
@@ -92,12 +93,12 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
 
 void Polygon::translate(const Vec2 v) {
     Vec2* p = point_array.items;
-    for (int64_t num = point_array.size; num > 0; num--) *p++ += v;
+    for (uint64_t num = point_array.size; num > 0; num--) *p++ += v;
 }
 
 void Polygon::scale(const Vec2 scale, const Vec2 center) {
     Vec2* p = point_array.items;
-    for (int64_t num = point_array.size; num > 0; num--, p++) *p = (*p - center) * scale + center;
+    for (uint64_t num = point_array.size; num > 0; num--, p++) *p = (*p - center) * scale + center;
 }
 
 void Polygon::mirror(const Vec2 p0, const Vec2 p1) {
@@ -107,14 +108,15 @@ void Polygon::mirror(const Vec2 p0, const Vec2 p1) {
     Vec2 r = v * (2 / tmp);
     Vec2 p2 = p0 * 2;
     Vec2* p = point_array.items;
-    for (int64_t num = point_array.size; num > 0; num--, p++) *p = v * (*p - p0).inner(r) - *p + p2;
+    for (uint64_t num = point_array.size; num > 0; num--, p++)
+        *p = v * (*p - p0).inner(r) - *p + p2;
 }
 
 void Polygon::rotate(double angle, const Vec2 center) {
     double ca = cos(angle);
     double sa = sin(angle);
     Vec2* p = point_array.items;
-    for (int64_t num = point_array.size; num > 0; num--, p++) {
+    for (uint64_t num = point_array.size; num > 0; num--, p++) {
         Vec2 q = *p - center;
         p->x = q.x * ca - q.y * sa + center.x;
         p->y = q.x * sa + q.y * ca + center.y;
@@ -126,7 +128,7 @@ void Polygon::transform(double magnification, bool x_reflection, double rotation
     double ca = cos(rotation);
     double sa = sin(rotation);
     Vec2* p = point_array.items;
-    for (int64_t num = point_array.size; num > 0; num--, p++) {
+    for (uint64_t num = point_array.size; num > 0; num--, p++) {
         Vec2 q = *p * magnification;
         if (x_reflection) q.y = -q.y;
         p->x = q.x * ca - q.y * sa + origin.x;
@@ -141,21 +143,21 @@ void Polygon::fillet(const Array<double> radii, double tol) {
     old_pts.copy_from(point_array);
     point_array.size = 0;
 
-    const int64_t old_size = old_pts.size;
-    int64_t j = 0;
+    const uint64_t old_size = old_pts.size;
+    uint64_t j = 0;
     if (old_pts[old_size - 1] == old_pts[0]) {
         j = old_size - 1;
         while (old_pts[j - 1] == old_pts[j]) j -= 1;
     }
-    const int64_t last = j;
+    const uint64_t last = j;
 
-    int64_t i = j == 0 ? old_size - 1 : j - 1;
+    uint64_t i = j == 0 ? old_size - 1 : j - 1;
     Vec2 p0 = old_pts[i];
     Vec2 p1 = old_pts[j];
     Vec2 v0 = p1 - p0;
     double len0 = v0.normalize();
 
-    int64_t k = last + 1;
+    uint64_t k = last + 1;
     while (k != last) {
         k = j == old_size - 1 ? 0 : j + 1;
         while (old_pts[k] == old_pts[j]) k += 1;
@@ -189,14 +191,18 @@ void Polygon::fillet(const Array<double> radii, double tol) {
                 a1 -= 2 * M_PI;
             else if (a1 - a0 < -M_PI)
                 a1 += 2 * M_PI;
-            int64_t n = arc_num_points(fabs(a1 - a0), radius, tol);
-            if (n < 1) n = 1;
+
+            uint64_t n = 1;
+            if (radius > 0) {
+                n = arc_num_points(fabs(a1 - a0), radius, tol);
+                if (n == 0) n = 1;
+            }
 
             point_array.ensure_slots(n);
             if (n == 1) {
                 point_array.append_unsafe(p1);
             } else {
-                for (int64_t l = 0; l < n; l++) {
+                for (uint64_t l = 0; l < n; l++) {
                     const double a = a0 + l * (a1 - a0) / (n - 1.0);
                     Vec2 cosi = {cos(a), sin(a)};
                     point_array.append_unsafe(p1 + (dv + cosi) * radius);
@@ -217,16 +223,16 @@ void Polygon::fillet(const Array<double> radii, double tol) {
     old_pts.clear();
 }
 
-void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& result) const {
+void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& result) const {
     if (max_points <= 4) return;
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     poly->point_array.copy_from(point_array);
     result.append(poly);
 
     double scaling = 1.0 / precision;
-    for (int64_t i = 0; i < result.size;) {
+    for (uint64_t i = 0; i < result.size;) {
         Polygon* subj = result[i];
-        int64_t num_points = subj->point_array.size;
+        uint64_t num_points = subj->point_array.size;
         if (num_points <= max_points) {
             i++;
             continue;
@@ -236,7 +242,7 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
         Vec2 max;
         subj->bounding_box(min, max);
 
-        const int64_t num_cuts = num_points / max_points;
+        const uint64_t num_cuts = num_points / max_points;
         const double frac = num_points / (num_cuts + 1.0);
         Array<double> cuts = {0};
         cuts.ensure_slots(num_cuts);
@@ -247,20 +253,20 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
             double* x = coords;
             double* px = x;
             Vec2* pt = subj->point_array.items;
-            for (int64_t j = 0; j < num_points; j++) (*px++) = (pt++)->x;
+            for (uint64_t j = 0; j < num_points; j++) (*px++) = (pt++)->x;
             std::sort(x, x + num_points);
             x_axis = true;
             px = cuts.items;
-            for (int64_t j = 0; j < num_cuts; j++) (*px++) = x[(int64_t)((j + 1.0) * frac + 0.5)];
+            for (uint64_t j = 0; j < num_cuts; j++) (*px++) = x[(uint64_t)((j + 1.0) * frac + 0.5)];
         } else {
             double* y = coords;
             double* py = y;
             Vec2* pt = subj->point_array.items;
-            for (int64_t j = 0; j < num_points; j++) (*py++) = (pt++)->y;
+            for (uint64_t j = 0; j < num_points; j++) (*py++) = (pt++)->y;
             std::sort(y, y + num_points);
             x_axis = false;
             py = cuts.items;
-            for (int64_t j = 0; j < num_cuts; j++) (*py++) = y[(int64_t)((j + 1.0) * frac + 0.5)];
+            for (uint64_t j = 0; j < num_cuts; j++) (*py++) = y[(uint64_t)((j + 1.0) * frac + 0.5)];
         }
         free_allocation(coords);
 
@@ -273,11 +279,11 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
         result.remove_unordered(i);
         free_allocation(subj);
 
-        int64_t total = 0;
-        for (int64_t j = 0; j <= num_cuts; j++) total += chopped[j].size;
+        uint64_t total = 0;
+        for (uint64_t j = 0; j <= num_cuts; j++) total += chopped[j].size;
         result.ensure_slots(total);
 
-        for (int64_t j = 0; j <= num_cuts; j++) {
+        for (uint64_t j = 0; j <= num_cuts; j++) {
             result.extend(chopped[j]);
             chopped[j].clear();
         }
@@ -285,7 +291,7 @@ void Polygon::fracture(int64_t max_points, double precision, Array<Polygon*>& re
         free_allocation(chopped);
     }
 
-    for (int64_t i = 0; i < result.size; i++) {
+    for (uint64_t i = 0; i < result.size; i++) {
         poly = result[i];
         poly->layer = layer;
         poly->datatype = datatype;
@@ -304,7 +310,7 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
     // Skip first offset (0, 0)
     Vec2* offset_p = offsets.items + 1;
     result.ensure_slots(offsets.size - 1);
-    for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
         Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
         poly->copy_from(*this);
         poly->translate(*offset_p++);
@@ -324,7 +330,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     swap16(buffer_start, COUNT(buffer_start));
     swap16(buffer_end, COUNT(buffer_end));
 
-    int64_t total = point_array.size + 1;
+    uint64_t total = point_array.size + 1;
     if (total > 8190) {
         fputs(
             "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
@@ -344,14 +350,14 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     }
 
     double* offset_p = (double*)offsets.items;
-    for (int64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
 
         double offset_x = *offset_p++;
         double offset_y = *offset_p++;
         int32_t* c = coords.items;
         Vec2* p = point_array.items;
-        for (int64_t j = point_array.size; j > 0; j--) {
+        for (uint64_t j = point_array.size; j > 0; j--) {
             *c++ = (int32_t)lround((offset_x + p->x) * scaling);
             *c++ = (int32_t)lround((offset_y + p->y) * scaling);
             p++;
@@ -360,9 +366,9 @@ void Polygon::to_gds(FILE* out, double scaling) const {
         *c++ = coords[1];
         swap32((uint32_t*)coords.items, coords.size);
 
-        int64_t i0 = 0;
+        uint64_t i0 = 0;
         while (i0 < total) {
-            int64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
+            uint64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
             uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
             swap16(buffer_pts, COUNT(buffer_pts));
             fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
@@ -381,9 +387,10 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
 void Polygon::to_svg(FILE* out, double scaling) const {
     if (point_array.size < 3) return;
-    fprintf(out, "<polygon id=\"%p\" class=\"l%hdd%hd\" points=\"", this, layer, datatype);
+    fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this, layer,
+            datatype);
     Vec2* p = point_array.items;
-    for (int64_t j = 0; j < point_array.size - 1; j++) {
+    for (uint64_t j = 0; j < point_array.size - 1; j++) {
         fprintf(out, "%lf,%lf ", p->x * scaling, p->y * scaling);
         p++;
     }
@@ -392,7 +399,7 @@ void Polygon::to_svg(FILE* out, double scaling) const {
         Array<Vec2> offsets = {0};
         repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
-        for (int64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
             fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,
@@ -402,7 +409,7 @@ void Polygon::to_svg(FILE* out, double scaling) const {
     }
 }
 
-Polygon rectangle(const Vec2 corner1, const Vec2 corner2, int16_t layer, int16_t datatype) {
+Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype) {
     Polygon result = {0};
     result.layer = layer;
     result.datatype = datatype;
@@ -415,8 +422,8 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, int16_t layer, int16_t
     return result;
 };
 
-Polygon cross(const Vec2 center, double full_size, double arm_width, int16_t layer,
-              int16_t datatype) {
+Polygon cross(const Vec2 center, double full_size, double arm_width, uint32_t layer,
+              uint32_t datatype) {
     const double len = full_size / 2;
     const double half_width = arm_width / 2;
     Polygon result = {0};
@@ -439,8 +446,8 @@ Polygon cross(const Vec2 center, double full_size, double arm_width, int16_t lay
     return result;
 };
 
-Polygon regular_polygon(const Vec2 center, double side_length, int64_t sides, double rotation,
-                        int16_t layer, int16_t datatype) {
+Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, double rotation,
+                        uint32_t layer, uint32_t datatype) {
     Polygon result = {0};
     result.layer = layer;
     result.datatype = datatype;
@@ -449,7 +456,7 @@ Polygon regular_polygon(const Vec2 center, double side_length, int64_t sides, do
     rotation += M_PI / sides - 0.5 * M_PI;
     const double radius = side_length / (2 * sin(M_PI / sides));
     Vec2* v = result.point_array.items;
-    for (int64_t i = 0; i < sides; i++) {
+    for (uint64_t i = 0; i < sides; i++) {
         const double angle = rotation + i * 2 * M_PI / sides;
         *v++ = center + Vec2{radius * cos(angle), radius * sin(angle)};
     }
@@ -458,17 +465,17 @@ Polygon regular_polygon(const Vec2 center, double side_length, int64_t sides, do
 
 Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inner_radius_x,
                 double inner_radius_y, double initial_angle, double final_angle, double tolerance,
-                int16_t layer, int16_t datatype) {
+                uint32_t layer, uint32_t datatype) {
     Polygon result = {0};
     result.layer = layer;
     result.datatype = datatype;
     const double full_angle =
         (final_angle == initial_angle) ? 2 * M_PI : fabs(final_angle - initial_angle);
     if (inner_radius_x > 0 && inner_radius_y > 0) {
-        int64_t num_points1 =
+        uint64_t num_points1 =
             1 + arc_num_points(full_angle, radius_x > radius_y ? radius_x : radius_y, tolerance);
         if (num_points1 < MIN_POINTS) num_points1 = MIN_POINTS;
-        int64_t num_points2 =
+        uint64_t num_points2 =
             1 + arc_num_points(full_angle,
                                inner_radius_x > inner_radius_y ? inner_radius_x : inner_radius_y,
                                tolerance);
@@ -479,12 +486,12 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
         Vec2* v = result.point_array.items;
         if (full_angle == 2 * M_PI) {
             // Ring
-            for (int64_t i = 0; i < num_points1; i++) {
+            for (uint64_t i = 0; i < num_points1; i++) {
                 const double angle = i * 2 * M_PI / (num_points1 - 1);
                 *v++ = center + Vec2{radius_x * cos(angle), radius_y * sin(angle)};
             }
-            for (int64_t i = num_points2 - 1; i >= 0; i--) {
-                const double angle = i * 2 * M_PI / (num_points2 - 1);
+            for (uint64_t i = num_points2; i > 0; i--) {
+                const double angle = (i - 1) * 2 * M_PI / (num_points2 - 1);
                 *v++ = center + Vec2{inner_radius_x * cos(angle), inner_radius_y * sin(angle)};
             }
         } else {
@@ -492,23 +499,23 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
             double initial_ell_angle =
                 elliptical_angle_transform(initial_angle, radius_x, radius_y);
             double final_ell_angle = elliptical_angle_transform(final_angle, radius_x, radius_y);
-            for (int64_t i = 0; i < num_points1; i++) {
+            for (uint64_t i = 0; i < num_points1; i++) {
                 const double angle =
-                    LERP(initial_ell_angle, final_ell_angle, (double)i / (num_points1 - 1.0));
+                    LERP(initial_ell_angle, final_ell_angle, (double)i / (double)(num_points1 - 1));
                 *v++ = center + Vec2{radius_x * cos(angle), radius_y * sin(angle)};
             }
             initial_ell_angle =
                 elliptical_angle_transform(initial_angle, inner_radius_x, inner_radius_y);
             final_ell_angle =
                 elliptical_angle_transform(final_angle, inner_radius_x, inner_radius_y);
-            for (int64_t i = num_points2 - 1; i >= 0; i--) {
-                const double angle =
-                    LERP(initial_ell_angle, final_ell_angle, (double)i / (num_points2 - 1.0));
+            for (uint64_t i = num_points2; i > 0; i--) {
+                const double angle = LERP(initial_ell_angle, final_ell_angle,
+                                          (double)(i - 1) / (double)(num_points2 - 1));
                 *v++ = center + Vec2{inner_radius_x * cos(angle), inner_radius_y * sin(angle)};
             }
         }
     } else {
-        int64_t num_points =
+        uint64_t num_points =
             1 + arc_num_points(full_angle, radius_x > radius_y ? radius_x : radius_y, tolerance);
         if (num_points < MIN_POINTS) num_points = MIN_POINTS;
         if (full_angle == 2 * M_PI) {
@@ -516,7 +523,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
             result.point_array.ensure_slots(num_points);
             result.point_array.size = num_points;
             Vec2* v = result.point_array.items;
-            for (int64_t i = 0; i < num_points; i++) {
+            for (uint64_t i = 0; i < num_points; i++) {
                 const double angle = i * 2 * M_PI / num_points;
                 *v++ = center + Vec2{radius_x * cos(angle), radius_y * sin(angle)};
             }
@@ -530,7 +537,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
             result.point_array.size = num_points + 1;
             Vec2* v = result.point_array.items;
             *v++ = center;
-            for (int64_t i = 0; i < num_points; i++) {
+            for (uint64_t i = 0; i < num_points; i++) {
                 const double angle =
                     LERP(initial_ell_angle, final_ell_angle, (double)i / (num_points - 1.0));
                 *v++ = center + Vec2{radius_x * cos(angle), radius_y * sin(angle)};
@@ -541,7 +548,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
 }
 
 Polygon racetrack(const Vec2 center, double straight_length, double radius, double inner_radius,
-                  bool vertical, double tolerance, int16_t layer, int16_t datatype) {
+                  bool vertical, double tolerance, uint32_t layer, uint32_t datatype) {
     Polygon result = {0};
     result.layer = layer;
     result.datatype = datatype;
@@ -558,13 +565,13 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
 
     const Vec2 c1 = center + direction;
     const Vec2 c2 = center - direction;
-    int64_t num_points = 1 + arc_num_points(M_PI, radius, tolerance);
+    uint64_t num_points = 1 + arc_num_points(M_PI, radius, tolerance);
     if (num_points < MIN_POINTS) num_points = MIN_POINTS;
     result.point_array.ensure_slots(2 * num_points);
     result.point_array.size = 2 * num_points;
     Vec2* v1 = result.point_array.items;
     Vec2* v2 = result.point_array.items + num_points;
-    for (int64_t i = 0; i < num_points; i++) {
+    for (uint64_t i = 0; i < num_points; i++) {
         const double angle = initial_angle + i * M_PI / num_points;
         const Vec2 rad_vec = {radius * cos(angle), radius * sin(angle)};
         *v1++ = c1 + rad_vec;
@@ -579,8 +586,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
         *v2++ = result.point_array[0];
         *v2++ = c1 + Vec2{inner_radius * cos(initial_angle), inner_radius * sin(initial_angle)};
         v1 = v2 + num_points;
-        for (int64_t i = num_points - 1; i >= 0; i--) {
-            const double angle = initial_angle + i * M_PI / num_points;
+        for (uint64_t i = num_points; i > 0; i--) {
+            const double angle = initial_angle + (i - 1) * M_PI / num_points;
             const Vec2 rad_vec = {inner_radius * cos(angle), inner_radius * sin(angle)};
             *v1++ = c1 + rad_vec;
             *v2++ = c2 - rad_vec;
@@ -589,8 +596,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     return result;
 }
 
-void text(const char* s, double size, const Vec2 position, bool vertical, int16_t layer,
-          int16_t datatype, Array<Polygon*>& result) {
+void text(const char* s, double size, const Vec2 position, bool vertical, uint32_t layer,
+          uint32_t datatype, Array<Polygon*>& result) {
     size /= 16;
     Vec2 cursor = position;
     for (; *s != 0; s++) {
@@ -617,17 +624,18 @@ void text(const char* s, double size, const Vec2 position, bool vertical, int16_
                 }
                 break;
             default: {
-                const int64_t index = *s - FIRST_CODEPOINT;
-                if (index >= 0 && index < (int64_t)(COUNT(_first_poly))) {
-                    int16_t p_idx = _first_poly[index];
-                    for (int16_t i = _num_polys[index] - 1; i >= 0; i--, p_idx++) {
+                const int32_t index = *s - FIRST_CODEPOINT;
+                if (index >= 0 && index < (int32_t)(COUNT(_first_poly))) {
+                    uint16_t p_idx = _first_poly[index];
+                    for (uint16_t i = _num_polys[index]; i > 0; i--, p_idx++) {
                         Polygon* p = (Polygon*)allocate_clear(sizeof(Polygon));
                         p->layer = layer;
                         p->datatype = datatype;
                         p->point_array.ensure_slots(_num_coords[p_idx]);
-                        int16_t c_idx = _first_coord[p_idx];
-                        for (int16_t j = _num_coords[p_idx] - 1; j >= 0; j--, c_idx++)
+                        uint16_t c_idx = _first_coord[p_idx];
+                        for (uint16_t j = _num_coords[p_idx]; j > 0; j--, c_idx++) {
                             p->point_array.append_unsafe(cursor + size * _all_coords[c_idx]);
+                        }
                         result.append(p);
                     }
                     if (vertical)

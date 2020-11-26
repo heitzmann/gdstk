@@ -56,7 +56,7 @@ static int64_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, con
     const int64_t len = PySequence_Length(py_polygon);
     dest.ensure_slots(len);
     Vec2* p = dest.items;
-    for (Py_ssize_t j = 0; j < len; ++j) {
+    for (int64_t j = 0; j < len; ++j) {
         PyObject* py_point = PySequence_ITEM(py_polygon, j);
         if (py_point == NULL || parse_point(py_point, *p, "") != 0) {
             Py_XDECREF(py_point);
@@ -77,12 +77,12 @@ static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, co
     const int64_t len = PySequence_Length(sequence);
     if (len <= 0) {
         PyErr_Format(PyExc_RuntimeError,
-                     "Argument %s is a sequence with invalid length (%" PRId64 ").", name, len);
+                     "Argument %s is a sequence with invalid length (%" PRIu64 ").", name, len);
         return -1;
     }
     dest.ensure_slots(len);
     double* v = dest.items;
-    for (Py_ssize_t j = 0; j < len; j++) {
+    for (int64_t j = 0; j < len; j++) {
         PyObject* item = PySequence_ITEM(sequence, j);
         *v++ = PyFloat_AsDouble(item);
         Py_DECREF(item);
@@ -114,7 +114,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
             PyObject* arg = PySequence_ITEM(py_polygons, i);
             if (arg == NULL) {
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to retrieve item %" PRId64 " from sequence %s.", i, name);
+                             "Unable to retrieve item %" PRIu64 " from sequence %s.", i, name);
                 for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
                     polygon_array[j]->clear();
                     free_allocation(polygon_array[j]);
@@ -136,7 +136,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
                 Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (parse_point_sequence(arg, polygon->point_array, "") < 0) {
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to parse item %" PRId64 " from sequence %s.", i, name);
+                                 "Unable to parse item %" PRIu64 " from sequence %s.", i, name);
                     return -1;
                 }
                 polygon_array.append(polygon);
@@ -171,17 +171,17 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
             PyErr_Format(PyExc_TypeError,
                          "Item %" PRId64
                          " in %s must have a 2-element tuple as key and a dictionary as value.",
-                         j, name);
+                         (int64_t)j, name);
             return -1;
         }
 
-        int16_t layer = (int16_t)PyLong_AsLong(PyTuple_GET_ITEM(lttuple, 0));
-        int16_t type = (int16_t)PyLong_AsLong(PyTuple_GET_ITEM(lttuple, 1));
+        uint32_t layer = (uint32_t)PyLong_AsUnsignedLongLong(PyTuple_GET_ITEM(lttuple, 0));
+        uint32_t type = (uint32_t)PyLong_AsUnsignedLongLong(PyTuple_GET_ITEM(lttuple, 1));
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError,
                          "Unable to retrieve layer and type from the key in item %" PRId64
                          " in %s.",
-                         j, name);
+                         (int64_t)j, name);
             return -1;
         }
 
@@ -192,7 +192,7 @@ int update_style(PyObject* dict, StyleMap& map, const char* name) {
         while (PyDict_Next(css_dict, &i, &key, &value)) {
             if (!(PyUnicode_Check(key) && PyUnicode_Check(value))) {
                 PyErr_Format(PyExc_TypeError,
-                             "Keys and values in dictionary %" PRId64 " in %s are not strings.", j,
+                             "Keys and values in dictionary %" PRId64 " in %s are not strings.", (int64_t)j,
                              name);
                 return -1;
             }

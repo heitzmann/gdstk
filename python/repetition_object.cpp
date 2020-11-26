@@ -7,25 +7,25 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* repetition_object_str(RepetitionObject* self) {
     char buffer[64];
-    int64_t size = self->repetition.get_size();
+    uint64_t size = self->repetition.get_size();
     switch (self->repetition.type) {
         case RepetitionType::None:
             snprintf(buffer, COUNT(buffer), "No repetition");
             break;
         case RepetitionType::Rectangular:
-            snprintf(buffer, COUNT(buffer), "Repetition (rectangular) of size %" PRId64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (rectangular) of size %" PRIu64, size);
             break;
         case RepetitionType::Regular:
-            snprintf(buffer, COUNT(buffer), "Repetition (regular) of size %" PRId64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (regular) of size %" PRIu64, size);
             break;
         case RepetitionType::Explicit:
-            snprintf(buffer, COUNT(buffer), "Repetition (explicit) of size %" PRId64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (explicit) of size %" PRIu64, size);
             break;
         case RepetitionType::ExplicitX:
-            snprintf(buffer, COUNT(buffer), "Repetition (x-explicit) of size %" PRId64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (x-explicit) of size %" PRIu64, size);
             break;
         case RepetitionType::ExplicitY:
-            snprintf(buffer, COUNT(buffer), "Repetition (y-explicit) of size %" PRId64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (y-explicit) of size %" PRIu64, size);
             break;
         default:
             PyErr_SetString(PyExc_RuntimeError, "Uknown repetition type.");
@@ -43,11 +43,11 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
     PyObject* offsets_obj = Py_None;
     PyObject* xoff_obj = Py_None;
     PyObject* yoff_obj = Py_None;
-    int64_t columns = 0;
-    int64_t rows = 0;
+    uint64_t columns = 0;
+    uint64_t rows = 0;
     const char* keywords[] = {"columns", "rows",      "spacing",   "v1", "v2",
                               "offsets", "x_offsets", "y_offsets", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|LLOOOOOO:Repetition", (char**)keywords, &columns,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|KKOOOOOO:Repetition", (char**)keywords, &columns,
                                      &rows, &spacing_obj, &v1_obj, &v2_obj, &offsets_obj, &xoff_obj,
                                      &yoff_obj))
         return -1;
@@ -106,56 +106,28 @@ static PyMethodDef repetition_object_methods[] = {
     {NULL}};
 
 static PyObject* repetition_object_get_size(RepetitionObject* self, void*) {
-    return PyLong_FromLong((long)self->repetition.get_size());
+    return PyLong_FromUnsignedLongLong(self->repetition.get_size());
 }
 
 static PyObject* repetition_object_get_columns(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Rectangular ||
         repetition->type == RepetitionType::Regular) {
-        return PyLong_FromLong((long)self->repetition.columns);
+        return PyLong_FromUnsignedLongLong(self->repetition.columns);
     }
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-// static int repetition_object_set_columns(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     if (repetition->type != RepetitionType::Rectangular &&
-//         repetition->type != RepetitionType::Regular) {
-//         repetition->type = RepetitionType::Rectangular;
-//     }
-//     repetition->columns = PyLong_AsLong(arg);
-//     if (PyErr_Occurred()) {
-//         PyErr_SetString(PyExc_TypeError, "Unable to convert columns to int.");
-//         return -1;
-//     }
-//     return 0;
-// }
 
 static PyObject* repetition_object_get_rows(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Rectangular ||
         repetition->type == RepetitionType::Regular) {
-        return PyLong_FromLong((long)repetition->rows);
+        return PyLong_FromUnsignedLongLong(repetition->rows);
     }
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-// static int repetition_object_set_rows(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     if (repetition->type != RepetitionType::Rectangular &&
-//         repetition->type != RepetitionType::Regular) {
-//         repetition->type = RepetitionType::Rectangular;
-//     }
-//     repetition->rows = PyLong_AsLong(arg);
-//     if (PyErr_Occurred()) {
-//         PyErr_SetString(PyExc_TypeError, "Unable to convert rows to int.");
-//         return -1;
-//     }
-//     return 0;
-// }
 
 static PyObject* repetition_object_get_spacing(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
@@ -178,13 +150,6 @@ static PyObject* repetition_object_get_spacing(RepetitionObject* self, void*) {
     return Py_None;
 }
 
-// static int repetition_object_set_spacing(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     repetition->type = RepetitionType::Rectangular;
-//     if (parse_point(arg, repetition->spacing, "spacing") < 0) return -1;
-//     return 0;
-// }
-
 static PyObject* repetition_object_get_v1(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Regular) {
@@ -205,13 +170,6 @@ static PyObject* repetition_object_get_v1(RepetitionObject* self, void*) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-// static int repetition_object_set_v1(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     repetition->type = RepetitionType::Regular;
-//     if (parse_point(arg, repetition->v1, "v1") < 0) return -1;
-//     return 0;
-// }
 
 static PyObject* repetition_object_get_v2(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
@@ -234,13 +192,6 @@ static PyObject* repetition_object_get_v2(RepetitionObject* self, void*) {
     return Py_None;
 }
 
-// static int repetition_object_set_v2(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     repetition->type = RepetitionType::Regular;
-//     if (parse_point(arg, repetition->v2, "v2") < 0) return -1;
-//     return 0;
-// }
-
 static PyObject* repetition_object_get_offsets(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Explicit) {
@@ -257,13 +208,6 @@ static PyObject* repetition_object_get_offsets(RepetitionObject* self, void*) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-// static int repetition_object_set_offsets(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     repetition->type = RepetitionType::Explicit;
-//     if (parse_point_sequence(arg, repetition->offsets, "offsets") < 0) return -1;
-//     return 0;
-// }
 
 static PyObject* repetition_object_get_x_offsets(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
@@ -282,13 +226,6 @@ static PyObject* repetition_object_get_x_offsets(RepetitionObject* self, void*) 
     return Py_None;
 }
 
-// static int repetition_object_set_x_offsets(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     repetition->type = RepetitionType::ExplicitX;
-//     if (parse_double_sequence(arg, repetition->coords, "x_offsets") < 0) return -1;
-//     return 0;
-// }
-
 static PyObject* repetition_object_get_y_offsets(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::ExplicitY) {
@@ -305,13 +242,6 @@ static PyObject* repetition_object_get_y_offsets(RepetitionObject* self, void*) 
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-// static int repetition_object_set_y_offsets(RepetitionObject* self, PyObject* arg, void*) {
-//     Repetition* repetition = &self->repetition;
-//     repetition->type = RepetitionType::ExplicitY;
-//     if (parse_double_sequence(arg, repetition->coords, "y_offsets") < 0) return -1;
-//     return 0;
-// }
 
 static PyGetSetDef repetition_object_getset[] = {
     {"size", (getter)repetition_object_get_size, NULL, repetition_object_size_doc, NULL},

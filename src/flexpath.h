@@ -23,8 +23,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 struct FlexPathElement {
-    int16_t layer;
-    int16_t datatype;
+    uint32_t layer;
+    uint32_t datatype;
     Array<Vec2> half_width_and_offset;
 
     JoinType join_type;
@@ -45,7 +45,7 @@ struct FlexPathElement {
 struct FlexPath {
     Curve spine;
     FlexPathElement* elements;
-    int64_t num_elements;
+    uint64_t num_elements;
     bool gdsii_path;
     bool scale_width;
     Repetition repetition;
@@ -59,9 +59,9 @@ struct FlexPath {
     void init(const Vec2 initial_position, const double* width, const double* offset,
               double tolerance);
     // elements will be allocated
-    void init(const Vec2 initial_position, int64_t num_elements_, double width, double offset,
+    void init(const Vec2 initial_position, uint64_t num_elements_, double width, double offset,
               double tolerance);
-    void init(const Vec2 initial_position, int64_t num_elements_, const double* width,
+    void init(const Vec2 initial_position, uint64_t num_elements_, const double* width,
               const double* offset, double tolerance);
 
     void print(bool all) const;
@@ -106,7 +106,7 @@ struct FlexPath {
 
     // Return n = number of items processed.  If n < size, item n could not be parsed.  Width and
     // offset remain unchainged.
-    int64_t commands(const CurveInstruction* items, int64_t size);
+    uint64_t commands(const CurveInstruction* items, uint64_t size);
 
     void to_polygons(Array<Polygon*>& result);
 

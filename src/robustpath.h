@@ -97,8 +97,8 @@ struct SubPath {
 };
 
 struct RobustPathElement {
-    int16_t layer;
-    int16_t datatype;
+    uint32_t layer;
+    uint32_t datatype;
     Array<Interpolation> width_array;
     Array<Interpolation> offset_array;
     double end_width;
@@ -113,9 +113,9 @@ struct RobustPath {
     Vec2 end_point;
     Array<SubPath> subpath_array;
     RobustPathElement* elements;
-    int64_t num_elements;
+    uint64_t num_elements;
     double tolerance;
-    int64_t max_evals;
+    uint64_t max_evals;
     double width_scale;
     double offset_scale;
     double trafo[6];  // Look at apply_transform for the meaning of each coefficient
@@ -165,7 +165,7 @@ struct RobustPath {
                     bool relative);
     // Return n = number of items processed.  If n < size, item n could not be parsed.
     // Width and offset remain unchainged.
-    int64_t commands(const CurveInstruction* items, int64_t size);
+    uint64_t commands(const CurveInstruction* items, uint64_t size);
 
     // 0 <= u <= path.subpath_array.size
     Vec2 position(double u, bool from_below) const;

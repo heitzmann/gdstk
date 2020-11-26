@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* robustpath_object_str(RobustPathObject* self) {
     char buffer[64];
-    snprintf(buffer, COUNT(buffer), "RobustPath with %" PRId64 " paths and %" PRId64 " sections",
+    snprintf(buffer, COUNT(buffer), "RobustPath with %" PRIu64 " paths and %" PRIu64 " sections",
              self->robustpath->num_elements, self->robustpath->subpath_array.size);
     return PyUnicode_FromString(buffer);
 }
@@ -15,17 +15,17 @@ static PyObject* robustpath_object_str(RobustPathObject* self) {
 static void robustpath_cleanup(RobustPathObject* self) {
     RobustPath* path = self->robustpath;
     RobustPathElement* el = path->elements;
-    for (int64_t j = path->num_elements - 1; j >= 0; j--, el++) {
+    for (uint64_t j = path->num_elements; j > 0; j--, el++) {
         Py_XDECREF(el->end_function_data);
         Interpolation* interp = el->width_array.items;
-        for (int64_t i = el->width_array.size - 1; i >= 0; i--, interp++)
+        for (uint64_t i = el->width_array.size; i > 0; i--, interp++)
             if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
         interp = el->offset_array.items;
-        for (int64_t i = el->offset_array.size - 1; i >= 0; i--, interp++)
+        for (uint64_t i = el->offset_array.size; i > 0; i--, interp++)
             if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
     }
     SubPath* sub = path->subpath_array.items;
-    for (int64_t j = path->subpath_array.size - 1; j >= 0; j--, sub++)
+    for (uint64_t j = path->subpath_array.size; j > 0; j--, sub++)
         if (sub->type == SubPathType::Parametric) {
             Py_XDECREF(sub->func_data);
             if (sub->path_gradient != NULL) Py_XDECREF(sub->grad_data);
@@ -48,7 +48,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
     PyObject* py_layer = NULL;
     PyObject* py_datatype = NULL;
     double tolerance = 1e-2;
-    int64_t max_evals = 1000;
+    uint64_t max_evals = 1000;
     int gdsii_path = 0;
     int scale_width = 1;
     const char* keywords[] = {"initial_point", "width",     "offset",     "ends",
@@ -63,17 +63,17 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
     if (self->robustpath) {
         RobustPath* robustpath = self->robustpath;
         RobustPathElement* el = robustpath->elements;
-        for (int64_t i = 0; i < robustpath->num_elements; i++, el++) {
+        for (uint64_t j = 0; j < robustpath->num_elements; j++, el++) {
             Py_XDECREF(el->end_function_data);
             Interpolation* interp = el->width_array.items;
-            for (int64_t i = el->width_array.size - 1; i >= 0; i--, interp++)
+            for (uint64_t i = el->width_array.size; i > 0; i--, interp++)
                 if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
             interp = el->offset_array.items;
-            for (int64_t i = el->offset_array.size - 1; i >= 0; i--, interp++)
+            for (uint64_t i = el->offset_array.size; i > 0; i--, interp++)
                 if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
         }
         SubPath* sub = self->robustpath->subpath_array.items;
-        for (int64_t j = self->robustpath->subpath_array.size - 1; j >= 0; j--, sub++)
+        for (uint64_t j = self->robustpath->subpath_array.size; j > 0; j--, sub++)
             if (sub->type == SubPathType::Parametric) {
                 Py_XDECREF(sub->func_data);
                 if (sub->path_gradient != NULL) Py_XDECREF(sub->grad_data);
@@ -88,7 +88,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
         robustpath_cleanup(self);
         return -1;
     }
-    int64_t num_elements = 1;
+    uint64_t num_elements = 1;
 
     if (PySequence_Check(py_width)) {
         num_elements = PySequence_Length(py_width);
@@ -96,7 +96,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
         robustpath->elements =
             (RobustPathElement*)allocate_clear(num_elements * sizeof(RobustPathElement));
         if (py_offset && PySequence_Check(py_offset)) {
-            if (PySequence_Length(py_offset) != num_elements) {
+            if ((uint64_t)PySequence_Length(py_offset) != num_elements) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError,
                                 "Sequences width and offset must have the same length.");
@@ -105,12 +105,12 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
 
             // Case 1: width and offset are sequences with the same length
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 PyObject* item = PySequence_ITEM(py_width, i);
                 if (item == NULL) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %" PRId64 " from width sequence.", i);
+                                 "Unable to retrieve item %" PRIu64 " from width sequence.", i);
                     return -1;
                 }
                 el->end_width = PyFloat_AsDouble(item);
@@ -118,7 +118,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to convert width[%" PRId64 "] to float.", i);
+                                 "Unable to convert width[%" PRIu64 "] to float.", i);
                     return -1;
                 }
 
@@ -126,7 +126,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 if (item == NULL) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %" PRId64 " from offset sequence.", i);
+                                 "Unable to retrieve item %" PRIu64 " from offset sequence.", i);
                     return -1;
                 }
                 el->end_offset = PyFloat_AsDouble(item);
@@ -134,7 +134,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to convert offset[%" PRId64 "] to float.", i);
+                                 "Unable to convert offset[%" PRIu64 "] to float.", i);
                     return -1;
                 }
             }
@@ -148,14 +148,14 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
             }
 
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 el->end_offset = (i - 0.5 * (num_elements - 1)) * offset;
 
                 PyObject* item = PySequence_ITEM(py_width, i);
                 if (item == NULL) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %" PRId64 " from width sequence.", i);
+                                 "Unable to retrieve item %" PRIu64 " from width sequence.", i);
                     return -1;
                 }
                 el->end_width = PyFloat_AsDouble(item);
@@ -163,7 +163,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to convert width[%" PRId64 "] to float.", i);
+                                 "Unable to convert width[%" PRIu64 "] to float.", i);
                     return -1;
                 }
             }
@@ -182,21 +182,21 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
         }
 
         RobustPathElement* el = robustpath->elements;
-        for (int64_t i = 0; i < num_elements; i++, el++) {
+        for (uint64_t i = 0; i < num_elements; i++, el++) {
             el->end_width = width;
 
             PyObject* item = PySequence_ITEM(py_offset, i);
             if (item == NULL) {
                 robustpath_cleanup(self);
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to retrieve item %" PRId64 " from offset sequence.", i);
+                             "Unable to retrieve item %" PRIu64 " from offset sequence.", i);
                 return -1;
             }
             el->end_offset = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
                 robustpath_cleanup(self);
-                PyErr_Format(PyExc_RuntimeError, "Unable to convert offset[%" PRId64 "] to float.",
+                PyErr_Format(PyExc_RuntimeError, "Unable to convert offset[%" PRIu64 "] to float.",
                              i);
                 return -1;
             }
@@ -223,93 +223,93 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
 
     if (py_layer) {
         if (PyList_Check(py_layer)) {
-            if (PyList_GET_SIZE(py_layer) != num_elements) {
+            if ((uint64_t)PyList_GET_SIZE(py_layer) != num_elements) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError,
                                 "List layer must have the same length as the number of paths.");
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 PyObject* item = PyList_GET_ITEM(py_layer, i);
                 if (item == NULL) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to get item %" PRId64 " from layer list.", i);
+                                 "Unable to get item %" PRIu64 " from layer list.", i);
                     return -1;
                 }
-                el->layer = (int16_t)PyLong_AsLong(item);
+                el->layer = (uint32_t)PyLong_AsUnsignedLongLong(item);
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
-                    PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRId64 "] to int.",
+                    PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRIu64 "] to int.",
                                  i);
                     return -1;
                 }
             }
         } else {
-            const int16_t layer = (int16_t)PyLong_AsLong(py_layer);
+            const uint32_t layer = (uint32_t)PyLong_AsUnsignedLongLong(py_layer);
             if (PyErr_Occurred()) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert layer to int.");
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++) (el++)->layer = layer;
+            for (uint64_t i = 0; i < num_elements; i++) (el++)->layer = layer;
         }
     }
 
     if (py_datatype) {
         if (PyList_Check(py_datatype)) {
-            if (PyList_GET_SIZE(py_datatype) != num_elements) {
+            if ((uint64_t)PyList_GET_SIZE(py_datatype) != num_elements) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError,
                                 "List datatype must have the same length as the number of paths.");
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 PyObject* item = PyList_GET_ITEM(py_datatype, i);
                 if (item == NULL) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to get item %" PRId64 " from datatype list.", i);
+                                 "Unable to get item %" PRIu64 " from datatype list.", i);
                     return -1;
                 }
-                el->datatype = (int16_t)PyLong_AsLong(item);
+                el->datatype = (uint32_t)PyLong_AsUnsignedLongLong(item);
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to convert datatype[%" PRId64 "] to int.", i);
+                                 "Unable to convert datatype[%" PRIu64 "] to int.", i);
                     return -1;
                 }
             }
         } else {
-            const int16_t datatype = (int16_t)PyLong_AsLong(py_datatype);
+            const uint32_t datatype = (uint32_t)PyLong_AsUnsignedLongLong(py_datatype);
             if (PyErr_Occurred()) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert datatype to int.");
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++) (el++)->datatype = datatype;
+            for (uint64_t i = 0; i < num_elements; i++) (el++)->datatype = datatype;
         }
     }
 
     if (py_ends) {
         if (PyList_Check(py_ends)) {
-            if (PyList_GET_SIZE(py_ends) != num_elements) {
+            if ((uint64_t)PyList_GET_SIZE(py_ends) != num_elements) {
                 robustpath_cleanup(self);
                 PyErr_SetString(PyExc_RuntimeError,
                                 "List ends must have the same length as the number of paths.");
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 PyObject* item = PyList_GET_ITEM(py_ends, i);
                 if (item == NULL) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to retrieve item %" PRId64 " from ends list.", i);
+                                 "Unable to retrieve item %" PRIu64 " from ends list.", i);
                     return -1;
                 }
                 if (PyCallable_Check(item)) {
@@ -350,7 +350,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
             }
         } else if (PyCallable_Check(py_ends)) {
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 el->end_type = EndType::Function;
                 el->end_function = (EndFunction)custom_end_function;
                 el->end_function_data = (void*)py_ends;
@@ -384,7 +384,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 }
             }
             RobustPathElement* el = robustpath->elements;
-            for (int64_t i = 0; i < num_elements; i++, el++) {
+            for (uint64_t i = 0; i < num_elements; i++, el++) {
                 el->end_type = et;
                 el->end_extensions = ex;
             }
@@ -437,7 +437,7 @@ static PyObject* robustpath_object_widths(RobustPathObject* self, PyObject* args
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:widths", (char**)keywords, &u, &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    npy_intp dims[] = {robustpath->num_elements};
+    npy_intp dims[] = {(npy_intp)robustpath->num_elements};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -455,7 +455,7 @@ static PyObject* robustpath_object_offsets(RobustPathObject* self, PyObject* arg
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "d|p:offsets", (char**)keywords, &u, &from_below))
         return NULL;
     const RobustPath* robustpath = self->robustpath;
-    npy_intp dims[] = {robustpath->num_elements};
+    npy_intp dims[] = {(npy_intp)robustpath->num_elements};
     PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
@@ -510,14 +510,14 @@ static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject*
     PyObject* result = PyList_New(array.size);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
-        for (int64_t i = 0; i < array.size; i++) {
+        for (uint64_t i = 0; i < array.size; i++) {
             array[i]->clear();
             free_allocation(array[i]);
         }
         array.clear();
         return NULL;
     }
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         PolygonObject* item = PyObject_New(PolygonObject, &polygon_object_type);
         item = (PolygonObject*)PyObject_Init((PyObject*)item, &polygon_object_type);
         item->polygon = array[i];
@@ -533,23 +533,23 @@ static PyObject* robustpath_object_set_layers(RobustPathObject* self, PyObject* 
         PyErr_SetString(PyExc_TypeError, "Value must be a sequence of layer numbers.");
         return NULL;
     }
-    int64_t len = PySequence_Length(arg);
+    uint64_t len = PySequence_Length(arg);
     RobustPath* robustpath = self->robustpath;
     if (len != robustpath->num_elements) {
         PyErr_SetString(PyExc_RuntimeError,
                         "Length of layer sequence must match the number of paths.");
         return NULL;
     }
-    for (int64_t i = 0; i < len; i++) {
+    for (uint64_t i = 0; i < len; i++) {
         PyObject* item = PySequence_ITEM(arg, i);
         if (item == NULL) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
             return NULL;
         }
-        robustpath->elements[i].layer = (int16_t)PyLong_AsLong(item);
+        robustpath->elements[i].layer = (uint32_t)PyLong_AsUnsignedLongLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRId64 " to int.",
+            PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRIu64 " to int.",
                          i);
             return NULL;
         }
@@ -563,23 +563,23 @@ static PyObject* robustpath_object_set_datatypes(RobustPathObject* self, PyObjec
         PyErr_SetString(PyExc_TypeError, "Value must be a sequence of datatype numbers.");
         return NULL;
     }
-    int64_t len = PySequence_Length(arg);
+    uint64_t len = PySequence_Length(arg);
     RobustPath* robustpath = self->robustpath;
     if (len != robustpath->num_elements) {
         PyErr_SetString(PyExc_RuntimeError,
                         "Length of datatype sequence must match the number of paths.");
         return NULL;
     }
-    for (int64_t i = 0; i < len; i++) {
+    for (uint64_t i = 0; i < len; i++) {
         PyObject* item = PySequence_ITEM(arg, i);
         if (item == NULL) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 " from sequence.", i);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
             return NULL;
         }
-        robustpath->elements[i].datatype = (int16_t)PyLong_AsLong(item);
+        robustpath->elements[i].datatype = (uint32_t)PyLong_AsUnsignedLongLong(item);
         Py_DECREF(item);
         if (PyErr_Occurred()) {
-            PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRId64 " to int.", i);
+            PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRIu64 " to int.", i);
             return NULL;
         }
     }
@@ -592,15 +592,15 @@ static PyObject* robustpath_object_set_datatypes(RobustPathObject* self, PyObjec
 static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
                                    Interpolation* offset) {
     if (PyList_Check(py_offset)) {
-        if (PyList_GET_SIZE(py_offset) < robustpath.num_elements) {
+        if ((uint64_t)PyList_GET_SIZE(py_offset) < robustpath.num_elements) {
             PyErr_SetString(PyExc_RuntimeError, "List offset doesn't have enough elements.");
             return -1;
         }
-        for (int64_t i = 0; i < robustpath.num_elements; i++, offset++) {
+        for (uint64_t i = 0; i < robustpath.num_elements; i++, offset++) {
             PyObject* item = PyList_GET_ITEM(py_offset, i);
             if (item == NULL) {
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item [%" PRId64 "] from sequence offset.", i);
+                             "Unable to get item [%" PRIu64 "] from sequence offset.", i);
                 return -1;
             }
             if (PyTuple_Check(item)) {
@@ -657,7 +657,7 @@ static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
                 return -1;
             }
             if (strcmp(type, "constant") == 0) {
-                for (int64_t i = 0; i < robustpath.num_elements; i++, offset++) {
+                for (uint64_t i = 0; i < robustpath.num_elements; i++, offset++) {
                     offset->type = InterpolationType::Constant;
                     offset->value = (i - 0.5 * (robustpath.num_elements - 1)) * value;
                 }
@@ -674,14 +674,14 @@ static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
                         "Offset tuple must contain a number and the interpolation specification ('constant', 'linear', or 'smooth').");
                     return -1;
                 }
-                for (int64_t i = 0; i < robustpath.num_elements; i++, offset++) {
+                for (uint64_t i = 0; i < robustpath.num_elements; i++, offset++) {
                     offset->type = interp_type;
                     offset->initial_value = robustpath.elements[i].end_offset;
                     offset->final_value = (i - 0.5 * (robustpath.num_elements - 1)) * value;
                 }
             }
         } else if (PyCallable_Check(py_offset)) {
-            for (int64_t i = 0; i < robustpath.num_elements; i++, offset++) {
+            for (uint64_t i = 0; i < robustpath.num_elements; i++, offset++) {
                 offset->type = InterpolationType::Parametric;
                 offset->function = (ParametricDouble)eval_parametric_double;
                 offset->data = (void*)py_offset;
@@ -695,7 +695,7 @@ static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
                     "Argument offset must be a number, a 2-tuple, a callable, or a list of those.");
                 return -1;
             }
-            for (int64_t i = 0; i < robustpath.num_elements; i++, offset++) {
+            for (uint64_t i = 0; i < robustpath.num_elements; i++, offset++) {
                 offset->type = InterpolationType::Linear;
                 offset->initial_value = robustpath.elements[i].end_offset;
                 offset->final_value = (i - 0.5 * (robustpath.num_elements - 1)) * value;
@@ -709,15 +709,15 @@ static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
 static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                                   Interpolation* width) {
     if (PyList_Check(py_width)) {
-        if (PyList_GET_SIZE(py_width) < robustpath.num_elements) {
+        if ((uint64_t)PyList_GET_SIZE(py_width) < robustpath.num_elements) {
             PyErr_SetString(PyExc_RuntimeError, "List width doesn't have enough elements.");
             return -1;
         }
-        for (int64_t i = 0; i < robustpath.num_elements; i++, width++) {
+        for (uint64_t i = 0; i < robustpath.num_elements; i++, width++) {
             PyObject* item = PyList_GET_ITEM(py_width, i);
             if (item == NULL) {
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from sequence width.", i);
+                             "Unable to get item %" PRIu64 " from sequence width.", i);
                 return -1;
             }
             if (PyTuple_Check(item)) {
@@ -774,7 +774,7 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                 return -1;
             }
             if (strcmp(type, "constant") == 0) {
-                for (int64_t i = 0; i < robustpath.num_elements; i++, width++) {
+                for (uint64_t i = 0; i < robustpath.num_elements; i++, width++) {
                     width->type = InterpolationType::Constant;
                     width->value = value;
                 }
@@ -791,14 +791,14 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                         "Width tuple must contain a number and the interpolation specification ('constant', 'linear', or 'smooth').");
                     return -1;
                 }
-                for (int64_t i = 0; i < robustpath.num_elements; i++, width++) {
+                for (uint64_t i = 0; i < robustpath.num_elements; i++, width++) {
                     width->type = interp_type;
                     width->initial_value = robustpath.elements[i].end_width;
                     width->final_value = value;
                 }
             }
         } else if (PyCallable_Check(py_width)) {
-            for (int64_t i = 0; i < robustpath.num_elements; i++, width++) {
+            for (uint64_t i = 0; i < robustpath.num_elements; i++, width++) {
                 width->type = InterpolationType::Parametric;
                 width->function = (ParametricDouble)eval_parametric_double;
                 width->data = (void*)py_width;
@@ -812,7 +812,7 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                     "Argument width must be a number, a 2-tuple, a callable, or a list of those.");
                 return -1;
             }
-            for (int64_t i = 0; i < robustpath.num_elements; i++, width++) {
+            for (uint64_t i = 0; i < robustpath.num_elements; i++, width++) {
                 width->type = InterpolationType::Linear;
                 width->initial_value = robustpath.elements[i].end_width;
                 width->final_value = value;
@@ -1121,7 +1121,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         point_array.clear();
         return NULL;
     }
-    const int64_t size = point_array.size;
+    const uint64_t size = point_array.size;
 
     tension = (Vec2*)allocate((sizeof(Vec2) + sizeof(double) + sizeof(bool)) * (size + 1));
     angles = (double*)(tension + (size + 1));
@@ -1130,7 +1130,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
     if (!py_angles || py_angles == Py_None) {
         memset(angle_constraints, 0, sizeof(bool) * (size + 1));
     } else {
-        if (PySequence_Length(py_angles) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_angles) != size + 1) {
             free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
@@ -1138,13 +1138,13 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                 "Argument angles must be None or a sequence with size len(points) + 1.");
             return NULL;
         }
-        for (int64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_angles, i);
             if (!item) {
                 free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from angles sequence.", i);
+                             "Unable to get item %" PRIu64 " from angles sequence.", i);
                 return NULL;
             }
             if (item == Py_None)
@@ -1157,7 +1157,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                     point_array.clear();
                     Py_DECREF(item);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to convert angle[%" PRId64 "] to float.", i);
+                                 "Unable to convert angle[%" PRIu64 "] to float.", i);
                     return NULL;
                 }
             }
@@ -1167,7 +1167,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
 
     if (!py_tension_in) {
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->u = 1;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = 1;
     } else if (!PySequence_Check(py_tension_in)) {
         double t_in = PyFloat_AsDouble(py_tension_in);
         if (PyErr_Occurred()) {
@@ -1177,9 +1177,9 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
             return NULL;
         }
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
     } else {
-        if (PySequence_Length(py_tension_in) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_in) != size + 1) {
             free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
@@ -1187,13 +1187,13 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                 "Argument tension_in must be a number or a sequence with size len(points) + 1.");
             return NULL;
         }
-        for (int64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_in, i);
             if (!item) {
                 free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from tension_in sequence.", i);
+                             "Unable to get item %" PRIu64 " from tension_in sequence.", i);
                 return NULL;
             }
             tension[i].u = PyFloat_AsDouble(item);
@@ -1202,7 +1202,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                 free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert tension_in[%" PRId64 "] to float.", i);
+                             "Unable to convert tension_in[%" PRIu64 "] to float.", i);
                 return NULL;
             }
         }
@@ -1210,7 +1210,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
 
     if (!py_tension_out) {
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->v = 1;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = 1;
     } else if (!PySequence_Check(py_tension_out)) {
         double t_out = PyFloat_AsDouble(py_tension_out);
         if (PyErr_Occurred()) {
@@ -1220,9 +1220,9 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
             return NULL;
         }
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
     } else {
-        if (PySequence_Length(py_tension_out) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_out) != size + 1) {
             free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
@@ -1230,13 +1230,13 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                 "Argument tension_out must be a number or a sequence with size len(points) + 1.");
             return NULL;
         }
-        for (int64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_out, i);
             if (!item) {
                 free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from tension_out sequence.", i);
+                             "Unable to get item %" PRIu64 " from tension_out sequence.", i);
                 return NULL;
             }
             tension[i].v = PyFloat_AsDouble(item);
@@ -1245,7 +1245,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
                 free_allocation(tension);
                 point_array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert tension_out[%" PRId64 "] to float.", i);
+                             "Unable to convert tension_out[%" PRIu64 "] to float.", i);
                 return NULL;
             }
         }
@@ -1425,12 +1425,12 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
 }
 
 static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* args) {
-    Py_ssize_t size = PyTuple_GET_SIZE(args);
+    uint64_t size = PyTuple_GET_SIZE(args);
     CurveInstruction* instructions =
         (CurveInstruction*)allocate(sizeof(CurveInstruction) * size * 2);
     CurveInstruction* instr = instructions;
 
-    for (Py_ssize_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < size; i++) {
         PyObject* item = PyTuple_GET_ITEM(args, i);
         if (PyUnicode_Check(item)) {
             Py_ssize_t len = 0;
@@ -1458,11 +1458,11 @@ static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* ar
         }
     }
 
-    int64_t instr_size = instr - instructions;
-    int64_t processed = self->robustpath->commands(instructions, instr_size);
+    uint64_t instr_size = instr - instructions;
+    uint64_t processed = self->robustpath->commands(instructions, instr_size);
     if (processed < instr_size) {
         PyErr_Format(PyExc_RuntimeError,
-                     "Error parsing argument %" PRId64 " in curve construction.", processed);
+                     "Error parsing argument %" PRIu64 " in curve construction.", processed);
         free_allocation(instructions);
         return NULL;
     }
@@ -1542,7 +1542,7 @@ static PyObject* robustpath_object_apply_repetition(RobustPathObject* self, PyOb
     Array<RobustPath*> array = {0};
     self->robustpath->apply_repetition(array);
     PyObject* result = PyList_New(array.size);
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         RobustPathObject* obj = PyObject_New(RobustPathObject, &robustpath_object_type);
         obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
         obj->robustpath = array[i];
@@ -1674,8 +1674,8 @@ static PyObject* robustpath_object_get_layers(RobustPathObject* self, void*) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         return NULL;
     }
-    for (int64_t i = 0; i < robustpath->num_elements; i++) {
-        PyObject* item = PyLong_FromLong(robustpath->elements[i].layer);
+    for (uint64_t i = 0; i < robustpath->num_elements; i++) {
+        PyObject* item = PyLong_FromUnsignedLongLong(robustpath->elements[i].layer);
         if (item == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create int from layer");
             Py_DECREF(result);
@@ -1693,8 +1693,8 @@ static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) 
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         return NULL;
     }
-    for (int64_t i = 0; i < robustpath->num_elements; i++) {
-        PyObject* item = PyLong_FromLong(robustpath->elements[i].datatype);
+    for (uint64_t i = 0; i < robustpath->num_elements; i++) {
+        PyObject* item = PyLong_FromUnsignedLongLong(robustpath->elements[i].datatype);
         if (item == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create int from datatype");
             Py_DECREF(result);
@@ -1706,11 +1706,11 @@ static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) 
 }
 
 static PyObject* robustpath_object_get_num_paths(RobustPathObject* self, void*) {
-    return PyLong_FromLong((long)self->robustpath->num_elements);
+    return PyLong_FromUnsignedLongLong(self->robustpath->num_elements);
 }
 
 static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
-    return PyLong_FromLong((long)self->robustpath->subpath_array.size);
+    return PyLong_FromUnsignedLongLong(self->robustpath->subpath_array.size);
 }
 
 static PyObject* robustpath_object_get_repetition(RobustPathObject* self, void*) {

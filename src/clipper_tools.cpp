@@ -22,7 +22,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 static ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) {
-    int64_t num = polygon.point_array.size;
+    uint64_t num = polygon.point_array.size;
     ClipperLib::Path path(num);
     const Vec2* p = polygon.point_array.items;
     ClipperLib::IntPoint* q = &path[0];
@@ -37,7 +37,7 @@ static ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) 
 
 static void path_to_polygon(const ClipperLib::Path& path, double scaling, Polygon& polygon) {
     double invscaling = 1 / scaling;
-    int64_t num = path.size();
+    uint64_t num = path.size();
     polygon.point_array.ensure_slots(num);
     polygon.point_array.size = num;
     Vec2* p = polygon.point_array.items;
@@ -51,19 +51,19 @@ static void path_to_polygon(const ClipperLib::Path& path, double scaling, Polygo
 }
 
 static ClipperLib::Paths polygons_to_paths(const Array<Polygon*>& polygon_array, double scaling) {
-    int64_t num = polygon_array.size;
+    uint64_t num = polygon_array.size;
     ClipperLib::Paths paths;
     paths.reserve(num);
-    for (int64_t i = 0; i < num; i++) paths.push_back(polygon_to_path(*polygon_array[i], scaling));
+    for (uint64_t i = 0; i < num; i++) paths.push_back(polygon_to_path(*polygon_array[i], scaling));
     return paths;
 }
 
 static void paths_to_polygons(const ClipperLib::Paths& paths, double scaling,
                               Array<Polygon*>& polygon_array) {
-    int64_t num = paths.size();
+    uint64_t num = paths.size();
     polygon_array.ensure_slots(num);
     Polygon** poly = polygon_array.items + polygon_array.size;
-    for (int64_t i = 0; i < num; i++, poly++) {
+    for (uint64_t i = 0; i < num; i++, poly++) {
         *poly = (Polygon*)allocate_clear(sizeof(Polygon));
         path_to_polygon(paths[i], scaling, **poly);
     }
@@ -85,7 +85,7 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node) {
     holes.reserve(node->ChildCount());
 
     ClipperLib::Path result = node->Contour;
-    int64_t size = result.size();
+    uint64_t size = result.size();
     for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child != node->Childs.end();
          child++) {
         size += (*child)->Contour.size() + 3;
@@ -236,7 +236,7 @@ void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, 
     clip[0][2].Y = clip[0][3].Y = bb[3];
 
     ClipperLib::cInt pos = x_axis ? bb[0] : bb[2];
-    for (int64_t i = 0; i <= positions.size; i++) {
+    for (uint64_t i = 0; i <= positions.size; i++) {
         if (x_axis) {
             clip[0][0].X = clip[0][3].X = pos;
             pos = i < positions.size ? llround(scaling * positions[i]) : bb[1];
@@ -265,16 +265,16 @@ void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
     ClipperLib::Paths groups_paths = polygons_to_paths(groups, scaling);
     ClipperLib::Paths paths = polygons_to_paths(polygons, scaling);
 
-    int64_t num_groups = groups.size;
-    int64_t num_polygons = polygons.size;
+    uint64_t num_groups = groups.size;
+    uint64_t num_polygons = polygons.size;
 
     ClipperLib::cInt* paths_bb =
         (ClipperLib::cInt*)allocate(sizeof(ClipperLib::cInt) * 4 * num_polygons);
-    for (int64_t p = 0; p < num_polygons; p++) bounding_box(paths[p], paths_bb + 4 * p);
+    for (uint64_t p = 0; p < num_polygons; p++) bounding_box(paths[p], paths_bb + 4 * p);
 
     if (short_circuit == ShortCircuit::None) {
-        int64_t num = 0;
-        for (int64_t i = 0; i < num_groups; i++) num += groups[i]->point_array.size;
+        uint64_t num = 0;
+        for (uint64_t i = 0; i < num_groups; i++) num += groups[i]->point_array.size;
         result.ensure_slots(num);
 
         ClipperLib::cInt all_bb[4];
@@ -282,20 +282,20 @@ void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
         all_bb[1] = paths_bb[0 * 4 + 1];
         all_bb[2] = paths_bb[0 * 4 + 2];
         all_bb[3] = paths_bb[0 * 4 + 3];
-        for (int64_t p = 1; p < num_polygons; p++) {
+        for (uint64_t p = 1; p < num_polygons; p++) {
             if (all_bb[0] > paths_bb[p * 4 + 0]) all_bb[0] = paths_bb[p * 4 + 0];
             if (all_bb[1] < paths_bb[p * 4 + 1]) all_bb[1] = paths_bb[p * 4 + 1];
             if (all_bb[2] > paths_bb[p * 4 + 2]) all_bb[2] = paths_bb[p * 4 + 2];
             if (all_bb[3] < paths_bb[p * 4 + 3]) all_bb[3] = paths_bb[p * 4 + 3];
         }
 
-        for (int64_t i = 0; i < num_groups; i++) {
-            int64_t num_points = groups[i]->point_array.size;
-            for (int64_t j = 0; j < num_points; j++) {
+        for (uint64_t i = 0; i < num_groups; i++) {
+            uint64_t num_points = groups[i]->point_array.size;
+            for (uint64_t j = 0; j < num_points; j++) {
                 bool in = false;
                 if (groups_paths[i][j].X >= all_bb[0] && groups_paths[i][j].X <= all_bb[1] &&
                     groups_paths[i][j].Y >= all_bb[2] && groups_paths[i][j].Y <= all_bb[3])
-                    for (int64_t p = 0; p < num_polygons && in == false; p++)
+                    for (uint64_t p = 0; p < num_polygons && in == false; p++)
                         if (groups_paths[i][j].X >= paths_bb[p * 4 + 0] &&
                             groups_paths[i][j].X <= paths_bb[p * 4 + 1] &&
                             groups_paths[i][j].Y >= paths_bb[p * 4 + 2] &&
@@ -306,18 +306,18 @@ void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             }
         }
     } else if (short_circuit == ShortCircuit::Any) {
-        int64_t num = num_groups;
+        uint64_t num = num_groups;
         result.ensure_slots(num);
-        for (int64_t j = 0; j < num_groups; j++) {
+        for (uint64_t j = 0; j < num_groups; j++) {
             ClipperLib::cInt group_bb[4];
             bool in = false;
-            int64_t num_points = groups[j]->point_array.size;
+            uint64_t num_points = groups[j]->point_array.size;
             bounding_box(groups_paths[j], group_bb);
 
-            for (int64_t p = 0; p < num_polygons && in == false; p++)
+            for (uint64_t p = 0; p < num_polygons && in == false; p++)
                 if (group_bb[0] <= paths_bb[p * 4 + 1] && group_bb[1] >= paths_bb[p * 4 + 0] &&
                     group_bb[2] <= paths_bb[p * 4 + 3] && group_bb[3] >= paths_bb[p * 4 + 2])
-                    for (int64_t i = 0; i < num_points && in == false; i++)
+                    for (uint64_t i = 0; i < num_points && in == false; i++)
                         if (groups_paths[j][i].X >= paths_bb[p * 4 + 0] &&
                             groups_paths[j][i].X <= paths_bb[p * 4 + 1] &&
                             groups_paths[j][i].Y >= paths_bb[p * 4 + 2] &&
@@ -327,7 +327,7 @@ void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             result.append_unsafe(in);
         }
     } else if (short_circuit == ShortCircuit::All) {
-        int64_t num = num_groups;
+        uint64_t num = num_groups;
         result.ensure_slots(num);
 
         ClipperLib::cInt all_bb[4];
@@ -335,22 +335,22 @@ void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
         all_bb[1] = paths_bb[0 * 4 + 1];
         all_bb[2] = paths_bb[0 * 4 + 2];
         all_bb[3] = paths_bb[0 * 4 + 3];
-        for (int64_t p = 1; p < num_polygons; p++) {
+        for (uint64_t p = 1; p < num_polygons; p++) {
             if (all_bb[0] > paths_bb[p * 4 + 0]) all_bb[0] = paths_bb[p * 4 + 0];
             if (all_bb[1] < paths_bb[p * 4 + 1]) all_bb[1] = paths_bb[p * 4 + 1];
             if (all_bb[2] > paths_bb[p * 4 + 2]) all_bb[2] = paths_bb[p * 4 + 2];
             if (all_bb[3] < paths_bb[p * 4 + 3]) all_bb[3] = paths_bb[p * 4 + 3];
         }
 
-        for (int64_t j = 0; j < num_groups; j++) {
+        for (uint64_t j = 0; j < num_groups; j++) {
             bool in = true;
-            int64_t num_points = groups[j]->point_array.size;
+            uint64_t num_points = groups[j]->point_array.size;
 
-            for (int64_t i = 0; i < num_points && in == true; i++) {
+            for (uint64_t i = 0; i < num_points && in == true; i++) {
                 bool this_in = false;
                 if (groups_paths[j][i].X >= all_bb[0] && groups_paths[j][i].X <= all_bb[1] &&
                     groups_paths[j][i].Y >= all_bb[2] && groups_paths[j][i].Y <= all_bb[3])
-                    for (int64_t p = 0; p < num_polygons && this_in == false; p++)
+                    for (uint64_t p = 0; p < num_polygons && this_in == false; p++)
                         if (groups_paths[j][i].X >= paths_bb[p * 4 + 0] &&
                             groups_paths[j][i].X <= paths_bb[p * 4 + 1] &&
                             groups_paths[j][i].Y >= paths_bb[p * 4 + 2] &&

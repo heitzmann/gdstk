@@ -27,9 +27,9 @@ enum struct RepetitionType {
 struct Repetition {
     RepetitionType type;
     union {
-        struct {              // Rectangular (Oasis 1, 2, 3) or Regular (Oasis 8, 9)
-            int64_t columns;  // Along x or v1
-            int64_t rows;     // Along y or v2
+        struct {               // Rectangular (Oasis 1, 2, 3) or Regular (Oasis 8, 9)
+            uint64_t columns;  // Along x or v1
+            uint64_t rows;     // Along y or v2
             union {
                 Vec2 spacing;
                 Vec2 v1;
@@ -43,7 +43,7 @@ struct Repetition {
     void print() const;
     void clear();
     void copy_from(const Repetition repetition);
-    int64_t get_size() const;
+    uint64_t get_size() const;
     // NOTE: the coordinates for the original (0, 0) are includded as 1st element
     void get_offsets(Array<Vec2>& result) const;
     void transform(double magnification, bool x_reflection, double rotation);

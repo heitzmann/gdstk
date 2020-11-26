@@ -21,14 +21,14 @@ struct GdsWriter {
     FILE* out;
     double unit;
     double precision;
-    int64_t max_points;
+    uint64_t max_points;
     std::tm timestamp;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
     void write_gds(const char* name) const {
-        int64_t len = strlen(name);
+        uint64_t len = strlen(name);
         if (len % 2) len++;
         uint16_t buffer_start[] = {6,
                                    0x0002,

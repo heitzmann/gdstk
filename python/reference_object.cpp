@@ -41,12 +41,12 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
     double magnification = 1;
     int x_reflection = 0;
     Vec2 origin = {0, 0};
-    int64_t columns = 1;
-    int64_t rows = 1;
+    uint64_t columns = 1;
+    uint64_t rows = 1;
     const char* keywords[] = {"cell",          "origin",       "rotation",
                               "magnification", "x_reflection", "columns",
                               "rows",          "spacing",      NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OddpLLO:Reference", (char**)keywords, &cell_obj,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OddpKKO:Reference", (char**)keywords, &cell_obj,
                                      &origin_obj, &rotation, &magnification, &x_reflection,
                                      &columns, &rows, &spacing_obj))
         return -1;
@@ -130,7 +130,7 @@ static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObje
     Array<Reference*> array = {0};
     self->reference->apply_repetition(array);
     PyObject* result = PyList_New(array.size);
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         ReferenceObject* obj = PyObject_New(ReferenceObject, &reference_object_type);
         obj = (ReferenceObject*)PyObject_Init((PyObject*)obj, &reference_object_type);
         obj->reference = array[i];

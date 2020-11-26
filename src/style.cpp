@@ -16,12 +16,30 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// FNV-1a hash function (64 bits)
+#define STYLE_FNV_PRIME 0x00000100000001b3
+#define STYLE_FNV_OFFSET 0xcbf29ce484222325
+inline static uint64_t hash2(uint32_t a, uint32_t b) {
+    uint64_t result = STYLE_FNV_OFFSET;
+    uint8_t* octet = (uint8_t*)(&a);
+    for (uint8_t i = 0; i < 4; i++) {
+        result ^= *octet++;
+        result *= STYLE_FNV_PRIME;
+    }
+    octet = (uint8_t*)(&b);
+    for (uint8_t i = 0; i < 4; i++) {
+        result ^= *octet++;
+        result *= STYLE_FNV_PRIME;
+    }
+    return result;
+}
+
 // Kenneth Kelly's 22 colors of maximum contrast (minus B/W: "F2F3F4", "222222")
 const char* colors[] = {"F3C300", "875692", "F38400", "A1CAF1", "BE0032", "C2B280", "848482",
                         "008856", "E68FAC", "0067A5", "F99379", "604E97", "F6A600", "B3446C",
                         "DCD300", "882D17", "8DB600", "654522", "E25822", "2B3D26"};
 
-static const char* default_style(int16_t layer, int16_t type) {
+static const char* default_style(uint32_t layer, uint32_t type) {
     static char buffer[] = "stroke: #XXXXXX; fill: #XXXXXX; fill-opacity: 0.5;";
     const char* c = colors[(2 + layer + type * 13) % COUNT(colors)];
     memcpy(buffer + 9, c, sizeof(char) * 6);
@@ -31,7 +49,7 @@ static const char* default_style(int16_t layer, int16_t type) {
 
 void StyleMap::clear() {
     if (style) {
-        for (int64_t i = 0; i < capacity; i++) {
+        for (uint64_t i = 0; i < capacity; i++) {
             Style* s = style[i].next;
             while (s) {
                 Style* tmp = s->next;
@@ -54,14 +72,14 @@ void StyleMap::copy_from(const StyleMap& map) {
     for (Style* s = map.next(NULL); s; s = map.next(s)) set(s->layer, s->type, s->value);
 }
 
-void StyleMap::resize(int64_t new_capacity) {
+void StyleMap::resize(uint64_t new_capacity) {
     StyleMap new_map;
     new_map.capacity = new_capacity;
     new_map.style = (Style*)allocate_clear(new_capacity * sizeof(Style));
-    for (int64_t i = 0; i < capacity; i++) {
+    for (uint64_t i = 0; i < capacity; i++) {
         Style* prop = style[i].next;
         while (prop != NULL) {
-            int64_t j = HASH2(prop->layer, prop->type) % new_map.capacity;
+            uint64_t j = hash2(prop->layer, prop->type) % new_map.capacity;
             Style* slot = new_map.style + j;
             while (slot->next != NULL) slot = slot->next;
             slot->next = prop;
@@ -75,13 +93,13 @@ void StyleMap::resize(int64_t new_capacity) {
     capacity = new_map.capacity;
 }
 
-void StyleMap::set(int16_t layer, int16_t type, const char* value) {
+void StyleMap::set(uint32_t layer, uint32_t type, const char* value) {
     // Equallity is important for capacity == 0
     if (size * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
         resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
                                                 : INITIAL_MAP_CAPACITY);
 
-    int64_t idx = HASH2(layer, type) % capacity;
+    uint64_t idx = hash2(layer, type) % capacity;
     Style* s = style + idx;
     while (!(s->next == NULL || (s->next->layer == layer && s->next->type == type))) s = s->next;
     if (!s->next) {
@@ -99,20 +117,20 @@ void StyleMap::set(int16_t layer, int16_t type, const char* value) {
         free_allocation(s->value);
     }
     if (value) {
-        int64_t len = strlen(value) + 1;
+        uint64_t len = strlen(value) + 1;
         s->value = (char*)allocate(sizeof(char) * len);
         memcpy(s->value, value, len);
     } else {
         const char* default_value = default_style(layer, type);
-        int64_t len = strlen(default_value) + 1;
+        uint64_t len = strlen(default_value) + 1;
         s->value = (char*)allocate(sizeof(char) * len);
         memcpy(s->value, default_value, len);
     }
 }
 
-const char* StyleMap::get(int16_t layer, int16_t type) const {
+const char* StyleMap::get(uint32_t layer, uint32_t type) const {
     if (size == 0) return default_style(layer, type);
-    int64_t i = HASH2(layer, type) % capacity;
+    uint64_t i = hash2(layer, type) % capacity;
     Style* s = style[i].next;
     while (!(s == NULL || (s->layer == layer && s->type == type))) s = s->next;
 
@@ -120,10 +138,10 @@ const char* StyleMap::get(int16_t layer, int16_t type) const {
     return default_style(layer, type);
 }
 
-void StyleMap::del(int16_t layer, int16_t type) {
+void StyleMap::del(uint32_t layer, uint32_t type) {
     if (size == 0) return;
 
-    int64_t i = HASH2(layer, type) % capacity;
+    uint64_t i = hash2(layer, type) % capacity;
     Style* s = style + i;
     while (!(s->next == NULL || (s->next->layer == layer && s->next->type == type))) s = s->next;
     if (!s->next) return;
@@ -137,12 +155,12 @@ void StyleMap::del(int16_t layer, int16_t type) {
 
 Style* StyleMap::next(const Style* current) const {
     if (!current) {
-        for (int64_t i = 0; i < capacity; i++)
+        for (uint64_t i = 0; i < capacity; i++)
             if (style[i].next) return style[i].next;
         return NULL;
     }
     if (current->next) return current->next;
-    for (int64_t i = HASH2(current->layer, current->type) % capacity + 1; i < capacity; i++)
+    for (uint64_t i = hash2(current->layer, current->type) % capacity + 1; i < capacity; i++)
         if (style[i].next) return style[i].next;
     return NULL;
 }

@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* curve_object_str(CurveObject* self) {
     char buffer[64];
-    snprintf(buffer, COUNT(buffer), "Curve with %" PRId64 " points", self->curve->point_array.size);
+    snprintf(buffer, COUNT(buffer), "Curve with %" PRIu64 " points", self->curve->point_array.size);
     return PyUnicode_FromString(buffer);
 }
 
@@ -239,7 +239,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         array.clear();
         return NULL;
     }
-    const int64_t size = array.size;
+    const uint64_t size = array.size;
 
     tension = (Vec2*)allocate((sizeof(Vec2) + sizeof(double) + sizeof(bool)) * (size + 1));
     angles = (double*)(tension + (size + 1));
@@ -248,7 +248,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
     if (!py_angles || py_angles == Py_None) {
         memset(angle_constraints, 0, sizeof(bool) * (size + 1));
     } else {
-        if (PySequence_Length(py_angles) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_angles) != size + 1) {
             free_allocation(tension);
             array.clear();
             PyErr_SetString(
@@ -256,13 +256,13 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                 "Argument angles must be None or a sequence with size len(points) + 1.");
             return NULL;
         }
-        for (int64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_angles, i);
             if (!item) {
                 free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from angles sequence.", i);
+                             "Unable to get item %" PRIu64 " from angles sequence.", i);
                 return NULL;
             }
             if (item == Py_None)
@@ -275,7 +275,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                     array.clear();
                     Py_DECREF(item);
                     PyErr_Format(PyExc_RuntimeError,
-                                 "Unable to convert angles[%" PRId64 "] to float.", i);
+                                 "Unable to convert angles[%" PRIu64 "] to float.", i);
                     return NULL;
                 }
             }
@@ -285,7 +285,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
 
     if (!py_tension_in) {
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->u = 1;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = 1;
     } else if (!PySequence_Check(py_tension_in)) {
         double t_in = PyFloat_AsDouble(py_tension_in);
         if (PyErr_Occurred()) {
@@ -295,9 +295,9 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             return NULL;
         }
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
     } else {
-        if (PySequence_Length(py_tension_in) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_in) != size + 1) {
             free_allocation(tension);
             array.clear();
             PyErr_SetString(
@@ -305,13 +305,13 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                 "Argument tension_in must be a number or a sequence with size len(points) + 1.");
             return NULL;
         }
-        for (int64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_in, i);
             if (!item) {
                 free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from tension_in sequence.", i);
+                             "Unable to get item %" PRIu64 " from tension_in sequence.", i);
                 return NULL;
             }
             tension[i].u = PyFloat_AsDouble(item);
@@ -320,7 +320,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                 free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert tension_in[%" PRId64 "] to float.", i);
+                             "Unable to convert tension_in[%" PRIu64 "] to float.", i);
                 return NULL;
             }
         }
@@ -328,7 +328,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
 
     if (!py_tension_out) {
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->v = 1;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = 1;
     } else if (!PySequence_Check(py_tension_out)) {
         double t_out = PyFloat_AsDouble(py_tension_out);
         if (PyErr_Occurred()) {
@@ -338,9 +338,9 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             return NULL;
         }
         Vec2* t = tension;
-        for (int64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
+        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
     } else {
-        if (PySequence_Length(py_tension_out) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_out) != size + 1) {
             free_allocation(tension);
             array.clear();
             PyErr_SetString(
@@ -348,13 +348,13 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                 "Argument tension_out must be a number or a sequence with size len(points) + 1.");
             return NULL;
         }
-        for (int64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < size + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_out, i);
             if (!item) {
                 free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRId64 " from tension_out sequence.", i);
+                             "Unable to get item %" PRIu64 " from tension_out sequence.", i);
                 return NULL;
             }
             tension[i].v = PyFloat_AsDouble(item);
@@ -363,7 +363,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
                 free_allocation(tension);
                 array.clear();
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert tension_out[%" PRId64 "] to float.", i);
+                             "Unable to convert tension_out[%" PRIu64 "] to float.", i);
                 return NULL;
             }
         }
@@ -463,12 +463,12 @@ static PyObject* curve_object_parametric(CurveObject* self, PyObject* args, PyOb
 }
 
 static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
-    Py_ssize_t size = PyTuple_GET_SIZE(args);
+    uint64_t size = PyTuple_GET_SIZE(args);
     CurveInstruction* instructions =
         (CurveInstruction*)allocate(sizeof(CurveInstruction) * size * 2);
     CurveInstruction* instr = instructions;
 
-    for (Py_ssize_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < size; i++) {
         PyObject* item = PyTuple_GET_ITEM(args, i);
         if (PyUnicode_Check(item)) {
             Py_ssize_t len = 0;
@@ -496,11 +496,11 @@ static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
         }
     }
 
-    int64_t instr_size = instr - instructions;
-    int64_t processed = self->curve->commands(instructions, instr_size);
+    uint64_t instr_size = instr - instructions;
+    uint64_t processed = self->curve->commands(instructions, instr_size);
     if (processed < instr_size) {
         PyErr_Format(PyExc_RuntimeError,
-                     "Error parsing argument %" PRId64 " in curve construction.", processed);
+                     "Error parsing argument %" PRIu64 " in curve construction.", processed);
         free_allocation(instructions);
         return NULL;
     }

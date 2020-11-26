@@ -23,10 +23,10 @@ void RawCell::print(bool all) const {
                data, owner);
     }
     if (all) {
-        printf("Dependencies (%" PRId64 "/%" PRId64 "):\n", dependencies.size,
+        printf("Dependencies (%" PRIu64 "/%" PRIu64 "):\n", dependencies.size,
                dependencies.capacity);
-        for (int64_t i = 0; i < dependencies.size; i++) {
-            printf("(%" PRId64 ")", i);
+        for (uint64_t i = 0; i < dependencies.size; i++) {
+            printf("(%" PRIu64 ")", i);
             dependencies[i]->print(false);
         }
     }
@@ -55,7 +55,7 @@ void RawCell::clear() {
 
 void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
     RawCell** r_item = dependencies.items;
-    for (int64_t i = 0; i < dependencies.size; i++) {
+    for (uint64_t i = 0; i < dependencies.size; i++) {
         RawCell* rawcell = *r_item++;
         if (recursive && result.get(rawcell->name) != rawcell) {
             rawcell->get_dependencies(true, result);
@@ -68,7 +68,8 @@ void RawCell::to_gds(FILE* out) {
     if (source) {
         uint64_t off = offset;
         data = (uint8_t*)allocate(sizeof(uint8_t) * size);
-        if (source->offset_read(data, size, off) != size) {
+        int64_t result = source->offset_read(data, size, off);
+        if (result < 0 || (uint64_t)result != size) {
             fputs("[GDSTK] Unable to read RawCell data form input file.\n", stderr);
             size = 0;
         }
@@ -83,7 +84,7 @@ void RawCell::to_gds(FILE* out) {
 }
 
 Map<RawCell*> read_rawcells(const char* filename) {
-    int32_t record_length;
+    uint32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
 
@@ -103,11 +104,11 @@ Map<RawCell*> read_rawcells(const char* filename) {
             case 0x04:  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
                     Array<RawCell*>* dependencies = &item->value->dependencies;
-                    for (int64_t i = 0; i < dependencies->size;) {
+                    for (uint64_t i = 0; i < dependencies->size;) {
                         char* name = (char*)((*dependencies)[i]);
                         rawcell = result.get(name);
                         if (rawcell) {
-                            if (dependencies->index(rawcell) >= 0) {
+                            if (dependencies->contains(rawcell)) {
                                 dependencies->remove_unordered(i);
                             } else {
                                 (*dependencies)[i] = rawcell;
@@ -135,7 +136,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                 break;
             case 0x06:  // STRNAME
                 if (rawcell) {
-                    int32_t data_length = record_length - 4;
+                    uint32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
                     rawcell->name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(rawcell->name, str, data_length);
@@ -152,7 +153,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                 break;
             case 0x12:  // SNAME
                 if (rawcell) {
-                    int32_t data_length = record_length - 4;
+                    uint32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
                     char* name = (char*)allocate(sizeof(char) * (data_length + 1));
                     memcpy(name, str, data_length);

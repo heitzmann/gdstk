@@ -642,10 +642,10 @@ static PyObject* rectangle_function(PyObject* mod, PyObject* args, PyObject* kwd
     PyObject* py_corner2;
     Vec2 corner1;
     Vec2 corner2;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"corner1", "corner2", "layer", "datatype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|hh:rectangle", (char**)keywords, &py_corner1,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|kk:rectangle", (char**)keywords, &py_corner1,
                                      &py_corner2, &layer, &datatype))
         return NULL;
     if (parse_point(py_corner1, corner1, "corner1") != 0 ||
@@ -664,10 +664,10 @@ static PyObject* cross_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     Vec2 center;
     double full_size;
     double arm_width;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"center", "full_size", "arm_width", "layer", "datatype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Odd|hh:cross", (char**)keywords, &py_center,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Odd|kk:cross", (char**)keywords, &py_center,
                                      &full_size, &arm_width, &layer, &datatype))
         return NULL;
     if (parse_point(py_center, center, "center") != 0) return NULL;
@@ -685,11 +685,11 @@ static PyObject* regular_polygon_function(PyObject* mod, PyObject* args, PyObjec
     double side_length;
     long sides;
     double rotation = 0;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"center", "side_length", "sides", "rotation",
                               "layer",  "datatype",    NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Odl|dhh:regular_polygon", (char**)keywords,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Odl|dkk:regular_polygon", (char**)keywords,
                                      &py_center, &side_length, &sides, &rotation, &layer,
                                      &datatype))
         return NULL;
@@ -712,12 +712,12 @@ static PyObject* ellipse_function(PyObject* mod, PyObject* args, PyObject* kwds)
     double initial_angle = 0;
     double final_angle = 0;
     double tolerance = 0.01;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"center",        "radius",      "inner_radius",
                               "initial_angle", "final_angle", "tolerance",
                               "layer",         "datatype",    NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|Odddhh:ellipse", (char**)keywords, &py_center,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|Odddkk:ellipse", (char**)keywords, &py_center,
                                      &py_radius, &py_inner_radius, &initial_angle, &final_angle,
                                      &tolerance, &layer, &datatype))
         return NULL;
@@ -756,12 +756,12 @@ static PyObject* racetrack_function(PyObject* mod, PyObject* args, PyObject* kwd
     double inner_radius = 0;
     double tolerance = 0.01;
     int vertical = 0;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"center",       "straight_length", "radius",
                               "inner_radius", "vertical",        "tolerance",
                               "layer",        "datatype",        NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Odd|dpdhh:racetrack", (char**)keywords,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Odd|dpdkk:racetrack", (char**)keywords,
                                      &py_center, &straight_length, &radius, &inner_radius,
                                      &vertical, &tolerance, &layer, &datatype))
         return NULL;
@@ -781,10 +781,10 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* py_position;
     Vec2 position;
     int vertical = 0;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"text", "size", "position", "vertical", "layer", "datatype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sdO|phh:text", (char**)keywords, &s, &size,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sdO|pkk:text", (char**)keywords, &s, &size,
                                      &py_position, &vertical, &layer, &datatype))
         return NULL;
     if (parse_point(py_position, position, "position") != 0) return NULL;
@@ -792,7 +792,7 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     text(s, size, position, vertical > 0, layer, datatype, array);
 
     PyObject* result = PyList_New(array.size);
-    for (Py_ssize_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = array[i];
@@ -810,11 +810,11 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     double tolerance = 2;
     double precision = 0.001;
     int use_union = 0;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"polygons",  "distance", "join",     "tolerance", "precision",
                               "use_union", "layer",    "datatype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Od|sddphh:offset", (char**)keywords, &py_polygons,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Od|sddpkk:offset", (char**)keywords, &py_polygons,
                                      &distance, &join, &tolerance, &precision, &use_union, &layer,
                                      &datatype))
         return NULL;
@@ -842,7 +842,7 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
            result_array);
 
     PyObject* result = PyList_New(result_array.size);
-    for (Py_ssize_t i = 0; i < result_array.size; i++) {
+    for (uint64_t i = 0; i < result_array.size; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = result_array[i];
@@ -852,7 +852,7 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
 
-    for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
+    for (uint64_t j = 0; j < polygon_array.size; j++) {
         polygon_array[j]->clear();
         free_allocation(polygon_array[j]);
     }
@@ -867,11 +867,11 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     PyObject* py_polygons2;
     const char* operation = NULL;
     double precision = 0.001;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"operand1", "operand2", "operation", "precision",
                               "layer",    "datatype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs|dhh:boolean", (char**)keywords, &py_polygons1,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs|dkk:boolean", (char**)keywords, &py_polygons1,
                                      &py_polygons2, &operation, &precision, &layer, &datatype))
         return NULL;
 
@@ -894,7 +894,7 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     Array<Polygon*> polygon_array2 = {0};
     if (parse_polygons(py_polygons1, polygon_array1, "operand1") < 0) return NULL;
     if (parse_polygons(py_polygons2, polygon_array2, "operand2") < 0) {
-        for (int64_t j = polygon_array1.size - 1; j >= 0; j--) {
+        for (uint64_t j = 0; j < polygon_array1.size; j++) {
             polygon_array1[j]->clear();
             free_allocation(polygon_array1[j]);
         }
@@ -906,7 +906,7 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     boolean(polygon_array1, polygon_array2, oper, 1 / precision, result_array);
 
     PyObject* result = PyList_New(result_array.size);
-    for (Py_ssize_t i = 0; i < result_array.size; i++) {
+    for (uint64_t i = 0; i < result_array.size; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = result_array[i];
@@ -916,11 +916,11 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
 
-    for (int64_t j = polygon_array1.size - 1; j >= 0; j--) {
+    for (uint64_t j = 0; j < polygon_array1.size; j++) {
         polygon_array1[j]->clear();
         free_allocation(polygon_array1[j]);
     }
-    for (int64_t j = polygon_array2.size - 1; j >= 0; j--) {
+    for (uint64_t j = 0; j < polygon_array2.size; j++) {
         polygon_array2[j]->clear();
         free_allocation(polygon_array2[j]);
     }
@@ -980,20 +980,20 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
 
     Array<PyObject*> parts = {0};
     parts.ensure_slots(positions.size + 1);
-    for (int64_t s = 0; s <= positions.size; s++) {
+    for (uint64_t s = 0; s <= positions.size; s++) {
         parts[s] = PyList_New(0);
         PyList_SET_ITEM(result, s, parts[s]);
     }
 
-    for (Py_ssize_t i = 0; i < polygon_array.size; i++) {
-        int16_t layer = polygon_array[i]->layer;
-        int16_t datatype = polygon_array[i]->datatype;
+    for (uint64_t i = 0; i < polygon_array.size; i++) {
+        uint32_t layer = polygon_array[i]->layer;
+        uint32_t datatype = polygon_array[i]->datatype;
         Array<Polygon*>* slices =
             (Array<Polygon*>*)allocate_clear((positions.size + 1) * sizeof(Array<Polygon*>));
         slice(*polygon_array[i], positions, x_axis, 1 / precision, slices);
         Array<Polygon*>* slice_array = slices;
-        for (int64_t s = 0; s <= positions.size; s++, slice_array++) {
-            for (int64_t j = 0; j < slice_array->size; j++) {
+        for (uint64_t s = 0; s <= positions.size; s++, slice_array++) {
+            for (uint64_t j = 0; j < slice_array->size; j++) {
                 PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
                 obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
                 obj->polygon = slice_array->items[j];
@@ -1059,10 +1059,10 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         Py_DECREF(item);
         PyErr_Clear();
         sc = ShortCircuit::Any;
-        int64_t num_groups = PySequence_Length(py_points);
+        uint64_t num_groups = PySequence_Length(py_points);
         points.ensure_slots(num_groups);
         points.size = num_groups;
-        for (int64_t j = 0; j < num_groups; j++) {
+        for (uint64_t j = 0; j < num_groups; j++) {
             points[j] = (Polygon*)allocate_clear(sizeof(Polygon));
             item = PySequence_ITEM(py_points, j);
             if (parse_point_sequence(item, points[j]->point_array, "") < 0) {
@@ -1090,7 +1090,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         else {
             PyErr_SetString(PyExc_RuntimeError,
                             "Argument short_circuit must be 'none', 'any' or 'all'.");
-            for (int64_t j = points.size - 1; j >= 0; j--) {
+            for (uint64_t j = 0; j < points.size; j++) {
                 points[j]->clear();
                 free_allocation(points[j]);
             }
@@ -1101,7 +1101,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
 
     Array<Polygon*> polygon_array = {0};
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) {
-        for (int64_t j = points.size - 1; j >= 0; j--) {
+        for (uint64_t j = 0; j < points.size; j++) {
             points[j]->clear();
             free_allocation(points[j]);
         }
@@ -1118,7 +1118,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         return NULL;
     }
     bool* r_item = result_array.items;
-    for (int64_t i = 0; i < result_array.size; i++) {
+    for (uint64_t i = 0; i < result_array.size; i++) {
         if (*r_item++) {
             Py_INCREF(Py_True);
             PyTuple_SET_ITEM(result, i, Py_True);
@@ -1129,13 +1129,13 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     }
     result_array.clear();
 
-    for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
+    for (uint64_t j = 0; j < polygon_array.size; j++) {
         polygon_array[j]->clear();
         free_allocation(polygon_array[j]);
     }
     polygon_array.clear();
 
-    for (int64_t j = points.size - 1; j >= 0; j--) {
+    for (uint64_t j = 0; j < polygon_array.size; j++) {
         points[j]->clear();
         free_allocation(points[j]);
     }
@@ -1163,14 +1163,14 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     library->owner = result;
 
     Cell** cell = library->cell_array.items;
-    for (int64_t i = library->cell_array.size - 1; i >= 0; i--, cell++) {
+    for (uint64_t i = 0; i < library->cell_array.size; i++, cell++) {
         CellObject* cell_obj = PyObject_New(CellObject, &cell_object_type);
         cell_obj = (CellObject*)PyObject_Init((PyObject*)cell_obj, &cell_object_type);
         cell_obj->cell = *cell;
         cell_obj->cell->owner = cell_obj;
 
         Polygon** polygon = (*cell)->polygon_array.items;
-        for (int64_t j = (*cell)->polygon_array.size - 1; j >= 0; j--, polygon++) {
+        for (uint64_t j = 0; j < (*cell)->polygon_array.size; j++, polygon++) {
             PolygonObject* polygon_obj = PyObject_New(PolygonObject, &polygon_object_type);
             polygon_obj =
                 (PolygonObject*)PyObject_Init((PyObject*)polygon_obj, &polygon_object_type);
@@ -1179,7 +1179,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
         }
 
         FlexPath** flexpath = (*cell)->flexpath_array.items;
-        for (int64_t j = (*cell)->flexpath_array.size - 1; j >= 0; j--, flexpath++) {
+        for (uint64_t j = 0; j < (*cell)->flexpath_array.size; j++, flexpath++) {
             FlexPathObject* flexpath_obj = PyObject_New(FlexPathObject, &flexpath_object_type);
             flexpath_obj =
                 (FlexPathObject*)PyObject_Init((PyObject*)flexpath_obj, &flexpath_object_type);
@@ -1188,7 +1188,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
         }
 
         RobustPath** robustpath = (*cell)->robustpath_array.items;
-        for (int64_t j = (*cell)->robustpath_array.size - 1; j >= 0; j--, robustpath++) {
+        for (uint64_t j = 0; j < (*cell)->robustpath_array.size; j++, robustpath++) {
             RobustPathObject* robustpath_obj =
                 PyObject_New(RobustPathObject, &robustpath_object_type);
             robustpath_obj = (RobustPathObject*)PyObject_Init((PyObject*)robustpath_obj,
@@ -1198,7 +1198,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
         }
 
         Reference** reference = (*cell)->reference_array.items;
-        for (int64_t j = (*cell)->reference_array.size - 1; j >= 0; j--, reference++) {
+        for (uint64_t j = 0; j < (*cell)->reference_array.size; j++, reference++) {
             ReferenceObject* reference_obj = PyObject_New(ReferenceObject, &reference_object_type);
             reference_obj =
                 (ReferenceObject*)PyObject_Init((PyObject*)reference_obj, &reference_object_type);
@@ -1207,7 +1207,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
         }
 
         Label** label = (*cell)->label_array.items;
-        for (int64_t j = (*cell)->label_array.size - 1; j >= 0; j--, label++) {
+        for (uint64_t j = 0; j < (*cell)->label_array.size; j++, label++) {
             LabelObject* label_obj = PyObject_New(LabelObject, &label_object_type);
             label_obj = (LabelObject*)PyObject_Init((PyObject*)label_obj, &label_object_type);
             label_obj->label = *label;
@@ -1216,9 +1216,9 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     }
 
     cell = library->cell_array.items;
-    for (int64_t i = library->cell_array.size - 1; i >= 0; i--, cell++) {
+    for (uint64_t i = 0; i < library->cell_array.size; i++, cell++) {
         Reference** reference = (*cell)->reference_array.items;
-        for (int64_t j = (*cell)->reference_array.size - 1; j >= 0; j--, reference++)
+        for (uint64_t j = 0; j < (*cell)->reference_array.size; j++, reference++)
             Py_INCREF((*reference)->cell->owner);
     }
 

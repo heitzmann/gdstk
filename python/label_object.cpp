@@ -7,8 +7,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* label_object_str(LabelObject* self) {
     char buffer[256];
-    snprintf(buffer, COUNT(buffer), "Label '%s' at layer %hd, texttype %hd", self->label->text,
-             self->label->layer, self->label->texttype);
+    snprintf(buffer, COUNT(buffer), "Label '%s' at layer %" PRIu32 ", texttype %" PRIu32 "",
+             self->label->text, self->label->layer, self->label->texttype);
     return PyUnicode_FromString(buffer);
 }
 
@@ -27,11 +27,11 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     double rotation = 0;
     double magnification = 1;
     int x_reflection = 0;
-    short layer = 0;
-    short texttype = 0;
+    unsigned long layer = 0;
+    unsigned long texttype = 0;
     const char* keywords[] = {"text",         "origin", "anchor",   "rotation", "magnification",
                               "x_reflection", "layer",  "texttype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oddphh:Label", (char**)keywords, &s,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oddpkk:Label", (char**)keywords, &s,
                                      &py_origin, &py_anchor, &rotation, &magnification,
                                      &x_reflection, &layer, &texttype))
         return -1;
@@ -103,7 +103,7 @@ static PyObject* label_object_apply_repetition(LabelObject* self, PyObject* args
     Array<Label*> array = {0};
     self->label->apply_repetition(array);
     PyObject* result = PyList_New(array.size);
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         LabelObject* obj = PyObject_New(LabelObject, &label_object_type);
         obj = (LabelObject*)PyObject_Init((PyObject*)obj, &label_object_type);
         obj->label = array[i];
@@ -331,11 +331,11 @@ int label_object_set_x_reflection(LabelObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* label_object_get_layer(LabelObject* self, void*) {
-    return PyLong_FromLong(self->label->layer);
+    return PyLong_FromUnsignedLongLong(self->label->layer);
 }
 
 static int label_object_set_layer(LabelObject* self, PyObject* arg, void*) {
-    self->label->layer = (int16_t)PyLong_AsLong(arg);
+    self->label->layer = (uint32_t)PyLong_AsUnsignedLongLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert layer to int.");
         return -1;
@@ -344,11 +344,11 @@ static int label_object_set_layer(LabelObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* label_object_get_texttype(LabelObject* self, void*) {
-    return PyLong_FromLong(self->label->texttype);
+    return PyLong_FromUnsignedLongLong(self->label->texttype);
 }
 
 static int label_object_set_texttype(LabelObject* self, PyObject* arg, void*) {
-    self->label->texttype = (int16_t)PyLong_AsLong(arg);
+    self->label->texttype = (uint32_t)PyLong_AsUnsignedLongLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert texttype to int.");
         return -1;

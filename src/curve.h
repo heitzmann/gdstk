@@ -48,9 +48,9 @@ struct Curve {
 
     void append_unsafe(const Vec2 v) { point_array.append_unsafe(v); }
 
-    void remove(int64_t index) { point_array.remove(index); }
+    void remove(uint64_t index) { point_array.remove(index); }
 
-    void ensure_slots(int64_t free_slots) { point_array.ensure_slots(free_slots); }
+    void ensure_slots(uint64_t free_slots) { point_array.ensure_slots(free_slots); }
 
     bool closed() const {
         if (point_array.size < 2) return false;
@@ -79,7 +79,7 @@ struct Curve {
 
     // Return n = number of items processed.  If n < size, item n could not be
     // parsed.
-    int64_t commands(const CurveInstruction* items, int64_t size);
+    uint64_t commands(const CurveInstruction* items, uint64_t size);
 
     void turn(double radius, double angle) {
         const Vec2 direction = point_array[point_array.size - 1] - last_ctrl;

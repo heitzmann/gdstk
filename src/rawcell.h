@@ -26,7 +26,7 @@ struct RawCell {
         uint8_t* data;
         uint64_t offset;
     };
-    int64_t size;
+    uint64_t size;
     Array<RawCell*> dependencies;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!

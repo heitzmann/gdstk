@@ -8,7 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 static PyObject* rawcell_object_str(RawCellObject* self) {
     char buffer[256];
     snprintf(buffer, COUNT(buffer),
-             "RawCell '%s' with %" PRId64 " bytes and %" PRId64 " dependencies",
+             "RawCell '%s' with %" PRIu64 " bytes and %" PRIu64 " dependencies",
              self->rawcell->name, self->rawcell->size, self->rawcell->dependencies.size);
     return PyUnicode_FromString(buffer);
 }
@@ -26,7 +26,7 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
     const char* keywords[] = {"name", NULL};
     char* name = NULL;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s:RawCell", (char**)keywords, &name)) return -1;
-    int64_t len = strlen(name) + 1;
+    uint64_t len = strlen(name) + 1;
     RawCell* rawcell = self->rawcell;
     if (rawcell) {
         rawcell->clear();
@@ -51,7 +51,7 @@ static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args
         rawcell_map.clear();
         return NULL;
     }
-    int64_t i = 0;
+    uint64_t i = 0;
     for (MapItem<RawCell*>* item = rawcell_map.next(NULL); item != NULL;
          item = rawcell_map.next(item)) {
         PyObject* rawcell_obj = (PyObject*)item->value->owner;
@@ -77,7 +77,7 @@ PyObject* rawcell_object_get_name(RawCellObject* self, void*) {
 }
 
 PyObject* rawcell_object_get_size(RawCellObject* self, void*) {
-    PyObject* result = PyLong_FromLong((long)self->rawcell->size);
+    PyObject* result = PyLong_FromUnsignedLongLong(self->rawcell->size);
     if (!result) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert value to long.");
         return NULL;

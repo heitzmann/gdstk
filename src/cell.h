@@ -56,7 +56,7 @@ struct Cell {
     // Return removed references
     void flatten(bool apply_repetitions, Array<Reference*>& removed_references);
 
-    void to_gds(FILE* out, double scaling, int64_t max_points, double precision,
+    void to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
                 const std::tm* timestamp) const;
 
     void to_svg(FILE* out, double scaling, const char* attributes) const;

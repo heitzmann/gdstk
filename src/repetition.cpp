@@ -18,15 +18,15 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Repetition::print() const {
-    const int64_t n = 12;
+    const uint8_t n = 12;
     switch (type) {
         case RepetitionType::Rectangular:
-            printf("Rectangular repetition <%p>, %" PRId64 " columns, %" PRId64
+            printf("Rectangular repetition <%p>, %" PRIu64 " columns, %" PRIu64
                    " rows, spacing (%lg, %lg)\n",
                    this, columns, rows, spacing.x, spacing.y);
             break;
         case RepetitionType::Regular:
-            printf("Regular repetition <%p>, %" PRId64 " x %" PRId64
+            printf("Regular repetition <%p>, %" PRIu64 " x %" PRIu64
                    " elements along (%lg, %lg) and (%lg, %lg)\n",
                    this, columns, rows, v1.x, v1.y, v2.x, v2.y);
             break;
@@ -38,8 +38,8 @@ void Repetition::print() const {
         case RepetitionType::ExplicitY:
             printf("Explicit %c repetition <%p>:", type == RepetitionType::ExplicitX ? 'X' : 'Y',
                    this);
-            for (int64_t i = 0; i < coords.size; i += n) {
-                for (int64_t j = 0; j < n && i + j < coords.size; j++) {
+            for (uint64_t i = 0; i < coords.size; i += n) {
+                for (uint64_t j = 0; j < n && i + j < coords.size; j++) {
                     printf(" %lg", coords[i + j]);
                 }
                 putchar('\n');
@@ -85,7 +85,7 @@ void Repetition::copy_from(const Repetition repetition) {
     }
 }
 
-int64_t Repetition::get_size() const {
+uint64_t Repetition::get_size() const {
     switch (type) {
         case RepetitionType::Rectangular:
         case RepetitionType::Regular:
@@ -103,15 +103,15 @@ int64_t Repetition::get_size() const {
 
 void Repetition::get_offsets(Array<Vec2>& result) const {
     if (type == RepetitionType::None) return;
-    int64_t size = get_size();
+    uint64_t size = get_size();
     result.ensure_slots(size);
     double* c_item;
     double* c = (double*)(result.items + result.size);
     switch (type) {
         case RepetitionType::Rectangular:
-            for (int64_t i = 0; i < columns; i++) {
+            for (uint64_t i = 0; i < columns; i++) {
                 double cx = i * spacing.x;
-                for (int64_t j = 0; j < rows; j++) {
+                for (uint64_t j = 0; j < rows; j++) {
                     *c++ = cx;
                     *c++ = j * spacing.y;
                 }
@@ -119,9 +119,9 @@ void Repetition::get_offsets(Array<Vec2>& result) const {
             result.size += size;
             break;
         case RepetitionType::Regular:
-            for (int64_t i = 0; i < columns; i++) {
+            for (uint64_t i = 0; i < columns; i++) {
                 Vec2 vi = (double)i * v1;
-                for (int64_t j = 0; j < rows; j++) {
+                for (uint64_t j = 0; j < rows; j++) {
                     *c++ = vi.x + j * v2.x;
                     *c++ = vi.y + j * v2.y;
                 }
@@ -132,7 +132,7 @@ void Repetition::get_offsets(Array<Vec2>& result) const {
             *c++ = 0;
             *c++ = 0;
             c_item = coords.items;
-            for (int64_t j = 1; j < size; j++) {
+            for (uint64_t j = 1; j < size; j++) {
                 *c++ = *c_item++;
                 *c++ = 0;
             }
@@ -142,7 +142,7 @@ void Repetition::get_offsets(Array<Vec2>& result) const {
             *c++ = 0;
             *c++ = 0;
             c_item = coords.items;
-            for (int64_t j = 1; j < size; j++) {
+            for (uint64_t j = 1; j < size; j++) {
                 *c++ = 0;
                 *c++ = *c_item++;
             }

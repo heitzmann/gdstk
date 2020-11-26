@@ -23,29 +23,29 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Cell::print(bool all) const {
-    printf("Cell <%p> %s, %" PRId64 " polygons, %" PRId64 " flexpaths, %" PRId64
-           " robustpaths, %" PRId64 " references, %" PRId64 " labels, owner <%p>\n",
+    printf("Cell <%p> %s, %" PRIu64 " polygons, %" PRIu64 " flexpaths, %" PRIu64
+           " robustpaths, %" PRIu64 " references, %" PRIu64 " labels, owner <%p>\n",
            this, name, polygon_array.size, flexpath_array.size, robustpath_array.size,
            reference_array.size, label_array.size, owner);
     if (all) {
-        for (int64_t i = 0; i < polygon_array.size; i++) {
-            printf("[%" PRId64 "] ", i);
+        for (uint64_t i = 0; i < polygon_array.size; i++) {
+            printf("[%" PRIu64 "] ", i);
             polygon_array[i]->print(true);
         }
-        for (int64_t i = 0; i < flexpath_array.size; i++) {
-            printf("[%" PRId64 "] ", i);
+        for (uint64_t i = 0; i < flexpath_array.size; i++) {
+            printf("[%" PRIu64 "] ", i);
             flexpath_array[i]->print(true);
         }
-        for (int64_t i = 0; i < robustpath_array.size; i++) {
-            printf("[%" PRId64 "] ", i);
+        for (uint64_t i = 0; i < robustpath_array.size; i++) {
+            printf("[%" PRIu64 "] ", i);
             robustpath_array[i]->print(true);
         }
-        for (int64_t i = 0; i < reference_array.size; i++) {
-            printf("[%" PRId64 "] ", i);
+        for (uint64_t i = 0; i < reference_array.size; i++) {
+            printf("[%" PRIu64 "] ", i);
             reference_array[i]->print();
         }
-        for (int64_t i = 0; i < label_array.size; i++) {
-            printf("[%" PRId64 "] ", i);
+        for (uint64_t i = 0; i < label_array.size; i++) {
+            printf("[%" PRIu64 "] ", i);
             label_array[i]->print();
         }
     }
@@ -65,7 +65,7 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     Polygon** polygon = polygon_array.items;
-    for (int64_t i = 0; i < polygon_array.size; i++, polygon++) {
+    for (uint64_t i = 0; i < polygon_array.size; i++, polygon++) {
         Vec2 pmin, pmax;
         (*polygon)->bounding_box(pmin, pmax);
         if (pmin.x < min.x) min.x = pmin.x;
@@ -75,7 +75,7 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
     }
 
     Reference** reference = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++, reference++) {
+    for (uint64_t i = 0; i < reference_array.size; i++, reference++) {
         Vec2 rmin, rmax;
         (*reference)->bounding_box(rmin, rmax);
         if (rmin.x < min.x) min.x = rmin.x;
@@ -86,9 +86,9 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
 
     Array<Polygon*> array = {0};
     FlexPath** flexpath = flexpath_array.items;
-    for (int64_t i = 0; i < flexpath_array.size; i++, flexpath++) {
+    for (uint64_t i = 0; i < flexpath_array.size; i++, flexpath++) {
         (*flexpath)->to_polygons(array);
-        for (int64_t j = 0; j < array.size; j++) {
+        for (uint64_t j = 0; j < array.size; j++) {
             Vec2 pmin, pmax;
             array[j]->bounding_box(pmin, pmax);
             if (pmin.x < min.x) min.x = pmin.x;
@@ -102,9 +102,9 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
     }
 
     RobustPath** robustpath = robustpath_array.items;
-    for (int64_t i = 0; i < robustpath_array.size; i++, robustpath++) {
+    for (uint64_t i = 0; i < robustpath_array.size; i++, robustpath++) {
         (*robustpath)->to_polygons(array);
-        for (int64_t j = 0; j < array.size; j++) {
+        for (uint64_t j = 0; j < array.size; j++) {
             Vec2 pmin, pmax;
             array[j]->bounding_box(pmin, pmax);
             if (pmin.x < min.x) min.x = pmin.x;
@@ -134,7 +134,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         polygon_array.items = (Polygon**)allocate(sizeof(Polygon*) * polygon_array.capacity);
         Polygon** psrc = cell.polygon_array.items;
         Polygon** pdst = polygon_array.items;
-        for (int64_t i = 0; i < cell.polygon_array.size; i++, psrc++, pdst++) {
+        for (uint64_t i = 0; i < cell.polygon_array.size; i++, psrc++, pdst++) {
             *pdst = (Polygon*)allocate_clear(sizeof(Polygon));
             (*pdst)->copy_from(**psrc);
         }
@@ -145,7 +145,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
             (Reference**)allocate(sizeof(Reference*) * reference_array.capacity);
         Reference** rsrc = cell.reference_array.items;
         Reference** rdst = reference_array.items;
-        for (int64_t i = 0; i < cell.reference_array.size; i++, rsrc++, rdst++) {
+        for (uint64_t i = 0; i < cell.reference_array.size; i++, rsrc++, rdst++) {
             *rdst = (Reference*)allocate_clear(sizeof(Reference));
             (*rdst)->copy_from(**rsrc);
         }
@@ -155,7 +155,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         flexpath_array.items = (FlexPath**)allocate(sizeof(FlexPath*) * flexpath_array.capacity);
         FlexPath** fpsrc = cell.flexpath_array.items;
         FlexPath** fpdst = flexpath_array.items;
-        for (int64_t i = 0; i < cell.flexpath_array.size; i++, fpsrc++, fpdst++) {
+        for (uint64_t i = 0; i < cell.flexpath_array.size; i++, fpsrc++, fpdst++) {
             *fpdst = (FlexPath*)allocate_clear(sizeof(FlexPath));
             (*fpdst)->copy_from(**fpsrc);
         }
@@ -166,7 +166,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
             (RobustPath**)allocate(sizeof(RobustPath*) * robustpath_array.capacity);
         RobustPath** rpsrc = cell.robustpath_array.items;
         RobustPath** rpdst = robustpath_array.items;
-        for (int64_t i = 0; i < cell.robustpath_array.size; i++, rpsrc++, rpdst++) {
+        for (uint64_t i = 0; i < cell.robustpath_array.size; i++, rpsrc++, rpdst++) {
             *rpdst = (RobustPath*)allocate_clear(sizeof(RobustPath));
             (*rpdst)->copy_from(**rpsrc);
         }
@@ -176,7 +176,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         label_array.items = (Label**)allocate(sizeof(Label*) * label_array.capacity);
         Label** lsrc = cell.label_array.items;
         Label** ldst = label_array.items;
-        for (int64_t i = 0; i < cell.label_array.size; i++, lsrc++, ldst++) {
+        for (uint64_t i = 0; i < cell.label_array.size; i++, lsrc++, ldst++) {
             *ldst = (Label*)allocate_clear(sizeof(Label));
             (*ldst)->copy_from(**lsrc);
         }
@@ -192,12 +192,12 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
 // If depth < 0, goes through all references in the structure.
 void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
                         Array<Polygon*>& result) const {
-    int64_t start = result.size;
+    uint64_t start = result.size;
     result.ensure_slots(polygon_array.size);
 
     Polygon** poly = result.items + result.size;
     Polygon** psrc = polygon_array.items;
-    for (int64_t i = 0; i < polygon_array.size; i++, psrc++, poly++) {
+    for (uint64_t i = 0; i < polygon_array.size; i++, psrc++, poly++) {
         *poly = (Polygon*)allocate_clear(sizeof(Polygon));
         (*poly)->copy_from(**psrc);
     }
@@ -205,53 +205,53 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
 
     if (include_paths) {
         FlexPath** flexpath = flexpath_array.items;
-        for (int64_t i = 0; i < flexpath_array.size; i++, flexpath++) {
+        for (uint64_t i = 0; i < flexpath_array.size; i++, flexpath++) {
             (*flexpath)->to_polygons(result);
         }
 
         RobustPath** robustpath = robustpath_array.items;
-        for (int64_t i = 0; i < robustpath_array.size; i++, robustpath++) {
+        for (uint64_t i = 0; i < robustpath_array.size; i++, robustpath++) {
             (*robustpath)->to_polygons(result);
         }
     }
 
     if (apply_repetitions) {
-        int64_t finish = result.size;
-        for (int64_t i = start; i < finish; i++) {
+        uint64_t finish = result.size;
+        for (uint64_t i = start; i < finish; i++) {
             result[i]->apply_repetition(result);
         }
     }
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
-        for (int64_t i = 0; i < reference_array.size; i++, ref++) {
+        for (uint64_t i = 0; i < reference_array.size; i++, ref++) {
             (*ref)->polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1, result);
         }
     }
 }
 
 void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const {
-    int64_t start = result.size;
+    uint64_t start = result.size;
     result.ensure_slots(flexpath_array.size);
 
     FlexPath** dst = result.items + result.size;
     FlexPath** src = flexpath_array.items;
-    for (int64_t i = 0; i < flexpath_array.size; i++, src++, dst++) {
+    for (uint64_t i = 0; i < flexpath_array.size; i++, src++, dst++) {
         *dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
         (*dst)->copy_from(**src);
     }
     result.size += flexpath_array.size;
 
     if (apply_repetitions) {
-        int64_t finish = result.size;
-        for (int64_t i = start; i < finish; i++) {
+        uint64_t finish = result.size;
+        for (uint64_t i = start; i < finish; i++) {
             result[i]->apply_repetition(result);
         }
     }
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
-        for (int64_t i = 0; i < reference_array.size; i++, ref++) {
+        for (uint64_t i = 0; i < reference_array.size; i++, ref++) {
             (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
         }
     }
@@ -259,54 +259,54 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>
 
 void Cell::get_robustpaths(bool apply_repetitions, int64_t depth,
                            Array<RobustPath*>& result) const {
-    int64_t start = result.size;
+    uint64_t start = result.size;
     result.ensure_slots(robustpath_array.size);
 
     RobustPath** dst = result.items + result.size;
     RobustPath** src = robustpath_array.items;
-    for (int64_t i = 0; i < robustpath_array.size; i++, src++, dst++) {
+    for (uint64_t i = 0; i < robustpath_array.size; i++, src++, dst++) {
         *dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
         (*dst)->copy_from(**src);
     }
     result.size += robustpath_array.size;
 
     if (apply_repetitions) {
-        int64_t finish = result.size;
-        for (int64_t i = start; i < finish; i++) {
+        uint64_t finish = result.size;
+        for (uint64_t i = start; i < finish; i++) {
             result[i]->apply_repetition(result);
         }
     }
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
-        for (int64_t i = 0; i < reference_array.size; i++, ref++) {
+        for (uint64_t i = 0; i < reference_array.size; i++, ref++) {
             (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
         }
     }
 }
 
 void Cell::get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const {
-    int64_t start = result.size;
+    uint64_t start = result.size;
     result.ensure_slots(label_array.size);
 
     Label** dst = result.items + result.size;
     Label** src = label_array.items;
-    for (int64_t i = 0; i < label_array.size; i++, src++, dst++) {
+    for (uint64_t i = 0; i < label_array.size; i++, src++, dst++) {
         *dst = (Label*)allocate_clear(sizeof(Label));
         (*dst)->copy_from(**src);
     }
     result.size += label_array.size;
 
     if (apply_repetitions) {
-        int64_t finish = result.size;
-        for (int64_t i = start; i < finish; i++) {
+        uint64_t finish = result.size;
+        for (uint64_t i = start; i < finish; i++) {
             result[i]->apply_repetition(result);
         }
     }
 
     if (depth != 0) {
         Reference** ref = reference_array.items;
-        for (int64_t i = 0; i < reference_array.size; i++, ref++) {
+        for (uint64_t i = 0; i < reference_array.size; i++, ref++) {
             (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
         }
     }
@@ -314,7 +314,7 @@ void Cell::get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& resu
 
 void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
     Reference** r_item = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++) {
+    for (uint64_t i = 0; i < reference_array.size; i++) {
         Reference* ref = *r_item++;
         if (ref->type == ReferenceType::Cell) {
             result.append(ref);
@@ -325,7 +325,7 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
         }
     }
 
-    for (int64_t i = 0; i < reference_array.size;) {
+    for (uint64_t i = 0; i < reference_array.size;) {
         if (reference_array[i]->type == ReferenceType::Cell) {
             reference_array.remove_unordered(i);
         } else {
@@ -336,7 +336,7 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
 
 void Cell::get_dependencies(bool recursive, Map<Cell*>& result) const {
     Reference** reference = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++, reference++) {
+    for (uint64_t i = 0; i < reference_array.size; i++, reference++) {
         if ((*reference)->type == ReferenceType::Cell) {
             Cell* cell = (*reference)->cell;
             if (recursive && result.get(cell->name) != cell) {
@@ -349,7 +349,7 @@ void Cell::get_dependencies(bool recursive, Map<Cell*>& result) const {
 
 void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
     Reference** reference = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++, reference++) {
+    for (uint64_t i = 0; i < reference_array.size; i++, reference++) {
         Reference* ref = *reference;
         if (ref->type == ReferenceType::RawCell) {
             RawCell* rawcell = ref->rawcell;
@@ -363,9 +363,9 @@ void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
     }
 }
 
-void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precision,
+void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
                   const std::tm* timestamp) const {
-    int64_t len = strlen(name);
+    uint64_t len = strlen(name);
     if (len % 2) len++;
     uint16_t buffer_start[] = {28,
                                0x0502,
@@ -388,13 +388,13 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
     fwrite(name, sizeof(char), len, out);
 
     Polygon** p_item = polygon_array.items;
-    for (int64_t i = 0; i < polygon_array.size; i++, p_item++) {
+    for (uint64_t i = 0; i < polygon_array.size; i++, p_item++) {
         Polygon* polygon = *p_item;
         if (max_points > 4 && polygon->point_array.size > max_points) {
             Array<Polygon*> array = {0};
             polygon->fracture(max_points, precision, array);
             Polygon** a_item = array.items;
-            for (int64_t j = 0; j < array.size; j++, a_item++) {
+            for (uint64_t j = 0; j < array.size; j++, a_item++) {
                 Polygon* p = *a_item;
                 p->to_gds(out, scaling);
                 p->clear();
@@ -407,7 +407,7 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
     }
 
     FlexPath** fp_item = flexpath_array.items;
-    for (int64_t k = 0; k < flexpath_array.size; k++, fp_item++) {
+    for (uint64_t k = 0; k < flexpath_array.size; k++, fp_item++) {
         FlexPath* flexpath = *fp_item;
         if (flexpath->gdsii_path) {
             flexpath->to_gds(out, scaling);
@@ -415,13 +415,13 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
             Array<Polygon*> fp_array = {0};
             flexpath->to_polygons(fp_array);
             p_item = fp_array.items;
-            for (int64_t i = 0; i < fp_array.size; i++, p_item++) {
+            for (uint64_t i = 0; i < fp_array.size; i++, p_item++) {
                 Polygon* polygon = *p_item;
                 if (max_points > 4 && polygon->point_array.size > max_points) {
                     Array<Polygon*> array = {0};
                     polygon->fracture(max_points, precision, array);
                     Polygon** a_item = array.items;
-                    for (int64_t j = 0; j < array.size; j++, a_item++) {
+                    for (uint64_t j = 0; j < array.size; j++, a_item++) {
                         Polygon* p = *a_item;
                         p->to_gds(out, scaling);
                         p->clear();
@@ -439,7 +439,7 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
     }
 
     RobustPath** rp_item = robustpath_array.items;
-    for (int64_t k = 0; k < robustpath_array.size; k++, rp_item++) {
+    for (uint64_t k = 0; k < robustpath_array.size; k++, rp_item++) {
         RobustPath* robustpath = *rp_item;
         if (robustpath->gdsii_path) {
             robustpath->to_gds(out, scaling);
@@ -447,13 +447,13 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
             Array<Polygon*> rp_array = {0};
             robustpath->to_polygons(rp_array);
             p_item = rp_array.items;
-            for (int64_t i = 0; i < rp_array.size; i++, p_item++) {
+            for (uint64_t i = 0; i < rp_array.size; i++, p_item++) {
                 Polygon* polygon = *p_item;
                 if (max_points > 4 && polygon->point_array.size > max_points) {
                     Array<Polygon*> array = {0};
                     polygon->fracture(max_points, precision, array);
                     Polygon** a_item = array.items;
-                    for (int64_t j = 0; j < array.size; j++, a_item++) {
+                    for (uint64_t j = 0; j < array.size; j++, a_item++) {
                         Polygon* p = *a_item;
                         p->to_gds(out, scaling);
                         p->clear();
@@ -471,10 +471,10 @@ void Cell::to_gds(FILE* out, double scaling, int64_t max_points, double precisio
     }
 
     Label** label = label_array.items;
-    for (int64_t i = 0; i < label_array.size; i++, label++) (*label)->to_gds(out, scaling);
+    for (uint64_t i = 0; i < label_array.size; i++, label++) (*label)->to_gds(out, scaling);
 
     Reference** reference = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++, reference++)
+    for (uint64_t i = 0; i < reference_array.size; i++, reference++)
         (*reference)->to_gds(out, scaling);
 
     uint16_t buffer_end[] = {4, 0x0700};
@@ -496,21 +496,22 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
         fprintf(out, "<g id=\"%s\">\n", buffer);
 
     Polygon** polygon = polygon_array.items;
-    for (int64_t i = 0; i < polygon_array.size; i++, polygon++) (*polygon)->to_svg(out, scaling);
+    for (uint64_t i = 0; i < polygon_array.size; i++, polygon++) (*polygon)->to_svg(out, scaling);
 
     Reference** reference = reference_array.items;
-    for (int64_t i = 0; i < reference_array.size; i++, reference++)
+    for (uint64_t i = 0; i < reference_array.size; i++, reference++)
         (*reference)->to_svg(out, scaling);
 
     FlexPath** flexpath = flexpath_array.items;
-    for (int64_t i = 0; i < flexpath_array.size; i++, flexpath++) (*flexpath)->to_svg(out, scaling);
+    for (uint64_t i = 0; i < flexpath_array.size; i++, flexpath++)
+        (*flexpath)->to_svg(out, scaling);
 
     RobustPath** robustpath = robustpath_array.items;
-    for (int64_t i = 0; i < robustpath_array.size; i++, robustpath++)
+    for (uint64_t i = 0; i < robustpath_array.size; i++, robustpath++)
         (*robustpath)->to_svg(out, scaling);
 
     Label** label = label_array.items;
-    for (int64_t i = 0; i < label_array.size; i++, label++) (*label)->to_svg(out, scaling);
+    for (uint64_t i = 0; i < label_array.size; i++, label++) (*label)->to_svg(out, scaling);
 
     fputs("</g>\n", out);
     free_allocation(buffer);
@@ -549,25 +550,25 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
             "<style type=\"text/css\">\n",
             w, h, x, y, w, h);
 
-    for (int64_t i = 0; i < polygon_array.size; i++) {
+    for (uint64_t i = 0; i < polygon_array.size; i++) {
         style.set(polygon_array[i]->layer, polygon_array[i]->datatype, NULL);
     }
 
-    for (int64_t i = 0; i < flexpath_array.size; i++) {
+    for (uint64_t i = 0; i < flexpath_array.size; i++) {
         const FlexPath* flexpath = flexpath_array[i];
-        for (int64_t ne = 0; ne < flexpath->num_elements; ne++) {
+        for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
             style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
         }
     }
 
-    for (int64_t i = 0; i < robustpath_array.size; i++) {
+    for (uint64_t i = 0; i < robustpath_array.size; i++) {
         const RobustPath* robustpath = robustpath_array[i];
-        for (int64_t ne = 0; ne < robustpath->num_elements; ne++) {
+        for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
             style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
         }
     }
 
-    for (int64_t i = 0; i < label_array.size; i++) {
+    for (uint64_t i = 0; i < label_array.size; i++) {
         style.set(label_array[i]->layer, label_array[i]->texttype, NULL);
     }
 
@@ -575,37 +576,37 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
     get_dependencies(true, cell_map);
     for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
         const Array<Polygon*>* polygons = &item->value->polygon_array;
-        for (int64_t i = 0; i < polygons->size; i++) {
+        for (uint64_t i = 0; i < polygons->size; i++) {
             style.set((*polygons)[i]->layer, (*polygons)[i]->datatype, NULL);
         }
 
         const Array<FlexPath*>* flexpaths = &item->value->flexpath_array;
-        for (int64_t i = 0; i < flexpaths->size; i++) {
+        for (uint64_t i = 0; i < flexpaths->size; i++) {
             const FlexPath* flexpath = flexpaths->items[i];
-            for (int64_t ne = 0; ne < flexpath->num_elements; ne++) {
+            for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
                 style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
             }
         }
 
         const Array<RobustPath*>* robustpaths = &item->value->robustpath_array;
-        for (int64_t i = 0; i < robustpaths->size; i++) {
+        for (uint64_t i = 0; i < robustpaths->size; i++) {
             const RobustPath* robustpath = robustpaths->items[i];
-            for (int64_t ne = 0; ne < robustpath->num_elements; ne++) {
+            for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
                 style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
             }
         }
 
         const Array<Label*>* labels = &item->value->label_array;
-        for (int64_t i = 0; i < labels->size; i++) {
+        for (uint64_t i = 0; i < labels->size; i++) {
             style.set((*labels)[i]->layer, (*labels)[i]->texttype, NULL);
         }
     }
 
     for (Style* s = style.next(NULL); s; s = style.next(s))
-        fprintf(out, ".l%dd%d {%s}\n", s->layer, s->type, s->value);
+        fprintf(out, ".l%" PRIu32 "d%" PRIu32 " {%s}\n", s->layer, s->type, s->value);
 
     for (Style* s = label_style.next(NULL); s; s = label_style.next(s))
-        fprintf(out, ".l%dt%d {%s}\n", s->layer, s->type, s->value);
+        fprintf(out, ".l%" PRIu32 "t%" PRIu32 " {%s}\n", s->layer, s->type, s->value);
 
     fputs("</style>\n", out);
 

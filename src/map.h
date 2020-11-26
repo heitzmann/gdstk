@@ -25,16 +25,16 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// FNV-1a hash function (32 bits)
-#define MAP_FNV_PRIME 0x01000193
-#define MAP_FNV_OFFSET 0x811c9dc5
-static inline int64_t hash(const char* key) {
-    uint32_t h = MAP_FNV_OFFSET;
+// FNV-1a hash function (64 bits)
+#define MAP_FNV_PRIME 0x00000100000001b3
+#define MAP_FNV_OFFSET 0xcbf29ce484222325
+static inline uint64_t hash(const char* key) {
+    uint64_t result = MAP_FNV_OFFSET;
     for (const char* c = key; *c; c++) {
-        h ^= (uint32_t)(*c);
-        h *= MAP_FNV_PRIME;
+        result ^= (uint64_t)(*c);
+        result *= MAP_FNV_PRIME;
     }
-    return (int64_t)h;
+    return result;
 }
 
 template <class T>
@@ -46,19 +46,19 @@ struct MapItem {
 
 template <class T>
 struct Map {
-    int64_t capacity;   // allocated capacity
-    int64_t size;       // number of slots used
+    uint64_t capacity;  // allocated capacity
+    uint64_t size;      // number of slots used
     MapItem<T>* items;  // slots
 
     void print(bool all) const {
-        printf("Map <%p>, size %" PRId64 "/%" PRId64 ", items <%p>\n", this, size, capacity, items);
+        printf("Map <%p>, size %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, size, capacity, items);
         if (all) {
             MapItem<T>* item = items;
-            for (int64_t i = 0; i < capacity; i++, item++) {
-                printf("(%" PRId64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, item,
+            for (uint64_t i = 0; i < capacity; i++, item++) {
+                printf("(%" PRIu64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, item,
                        item->key, item->key ? item->key : "", item->value, item->next);
                 for (MapItem<T>* it = item->next; it; it = it->next) {
-                    printf("(%" PRId64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, it,
+                    printf("(%" PRIu64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, it,
                            it->key, it->key ? it->key : "", it->value, it->next);
                 }
             }
@@ -73,7 +73,7 @@ struct Map {
             set(item->key, item->value);
     }
 
-    void resize(int64_t new_capacity) {
+    void resize(uint64_t new_capacity) {
         Map<T> new_map;
         new_map.size = 0;
         new_map.capacity = new_capacity;
@@ -87,12 +87,12 @@ struct Map {
 
     MapItem<T>* next(const MapItem<T>* current) const {
         if (!current) {
-            for (int64_t i = 0; i < capacity; i++)
+            for (uint64_t i = 0; i < capacity; i++)
                 if (items[i].key) return items + i;
             return NULL;
         }
         if (current->next) return current->next;
-        for (int64_t i = hash(current->key) % capacity + 1; i < capacity; i++)
+        for (uint64_t i = hash(current->key) % capacity + 1; i < capacity; i++)
             if (items[i].key) return items + i;
         return NULL;
     }
@@ -105,7 +105,7 @@ struct Map {
     void clear() {
         if (items) {
             MapItem<T>* item = items;
-            for (int64_t i = 0; i < capacity; i++, item++) {
+            for (uint64_t i = 0; i < capacity; i++, item++) {
                 if (item->key) {
                     free_allocation(item->key);
                     item->key = NULL;
@@ -131,10 +131,10 @@ struct Map {
             resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
                                                     : INITIAL_MAP_CAPACITY);
 
-        int64_t h = hash(key) % capacity;
+        uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) {
-            int64_t len = 1 + strlen(key);
+            uint64_t len = 1 + strlen(key);
             item->key = (char*)allocate(sizeof(char) * len);
             memcpy(item->key, key, len);
             item->value = value;
@@ -148,7 +148,7 @@ struct Map {
             } else {
                 item->next = (MapItem<T>*)allocate(sizeof(MapItem<T>));
                 item = item->next;
-                int64_t len = 1 + strlen(key);
+                uint64_t len = 1 + strlen(key);
                 item->key = (char*)allocate(sizeof(char) * len);
                 memcpy(item->key, key, len);
                 item->value = value;
@@ -160,7 +160,7 @@ struct Map {
 
     bool has_key(const char* key) const {
         if (size == 0) return false;
-        int64_t h = hash(key) % capacity;
+        uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return false;
         for (; item != NULL; item = item->next) {
@@ -171,7 +171,7 @@ struct Map {
 
     T get(const char* key) const {
         if (size == 0) return T{0};
-        int64_t h = hash(key) % capacity;
+        uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return T{0};
         if (strcmp(item->key, key) == 0) return item->value;
@@ -182,7 +182,7 @@ struct Map {
 
     void del(const char* key) {
         if (size == 0) return;
-        int64_t h = hash(key) % capacity;
+        uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return;
         if (strcmp(item->key, key) == 0) {

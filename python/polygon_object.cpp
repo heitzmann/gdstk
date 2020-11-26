@@ -7,7 +7,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* polygon_object_str(PolygonObject* self) {
     char buffer[128];
-    snprintf(buffer, COUNT(buffer), "Polygon at layer %hd, datatype %hd, with %" PRId64 " points",
+    snprintf(buffer, COUNT(buffer),
+             "Polygon at layer %" PRIu32 ", datatype %" PRIu32 ", with %" PRIu64 " points",
              self->polygon->layer, self->polygon->datatype, self->polygon->point_array.size);
     return PyUnicode_FromString(buffer);
 }
@@ -22,10 +23,10 @@ static void polygon_object_dealloc(PolygonObject* self) {
 
 static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_points = NULL;
-    short layer = 0;
-    short datatype = 0;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
     const char* keywords[] = {"points", "layer", "datatype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|hh:Polygon", (char**)keywords, &py_points,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|kk:Polygon", (char**)keywords, &py_points,
                                      &layer, &datatype))
         return -1;
 
@@ -164,17 +165,17 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
 
 static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"max_points", "precision", NULL};
-    int64_t max_points = 199;
+    uint64_t max_points = 199;
     double precision = 0.001;
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|ld:fracture", (char**)keywords, &max_points,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|Kd:fracture", (char**)keywords, &max_points,
                                      &precision))
         return NULL;
 
     Array<Polygon*> array = {0};
     self->polygon->fracture(max_points, precision, array);
     PyObject* result = PyList_New(array.size);
-    for (Py_ssize_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = array[i];
@@ -189,7 +190,7 @@ static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject* 
     Array<Polygon*> array = {0};
     self->polygon->apply_repetition(array);
     PyObject* result = PyList_New(array.size);
-    for (int64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.size; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = array[i];
@@ -294,11 +295,11 @@ static PyObject* polygon_object_get_points(PolygonObject* self, void*) {
 }
 
 static PyObject* polygon_object_get_layer(PolygonObject* self, void*) {
-    return PyLong_FromLong(self->polygon->layer);
+    return PyLong_FromUnsignedLongLong(self->polygon->layer);
 }
 
 static int polygon_object_set_layer(PolygonObject* self, PyObject* arg, void*) {
-    self->polygon->layer = (int16_t)PyLong_AsLong(arg);
+    self->polygon->layer = (uint32_t)PyLong_AsUnsignedLongLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert layer to int.");
         return -1;
@@ -307,11 +308,11 @@ static int polygon_object_set_layer(PolygonObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* polygon_object_get_datatype(PolygonObject* self, void*) {
-    return PyLong_FromLong(self->polygon->datatype);
+    return PyLong_FromUnsignedLongLong(self->polygon->datatype);
 }
 
 static int polygon_object_set_datatype(PolygonObject* self, PyObject* arg, void*) {
-    self->polygon->datatype = (int16_t)PyLong_AsLong(arg);
+    self->polygon->datatype = (uint32_t)PyLong_AsUnsignedLongLong(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert datatype to int.");
         return -1;
@@ -320,7 +321,7 @@ static int polygon_object_set_datatype(PolygonObject* self, PyObject* arg, void*
 }
 
 static PyObject* polygon_object_get_size(PolygonObject* self, void*) {
-    return PyLong_FromLong((long)self->polygon->point_array.size);
+    return PyLong_FromUnsignedLongLong(self->polygon->point_array.size);
 }
 
 static PyObject* polygon_object_get_repetition(PolygonObject* self, void*) {
