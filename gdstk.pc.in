@@ -1,0 +1,7 @@
+Name: ${PROJECT_NAME}
+Description: Gdstk library
+URL: https://github.com/heitzmann/gdstk
+Version: ${PROJECT_VERSION}
+
+Cflags: -I${CMAKE_INSTALL_FULL_INCLUDEDIR}
+Libs: -L${CMAKE_INSTALL_FULL_LIBDIR} -lgdstk ${PRIVATE_LIBS}

@@ -33,7 +33,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <cinttypes>
 
-#include "allocator.h"
 #include "docstrings.cpp"
 #include "gdstk.h"
 

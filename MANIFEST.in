@@ -1,6 +1,7 @@
 include README.md
 include LICENSE
 include CMakeLists.txt
+include gdstk.pc.in
 include src/*
 include src/clipperlib/*
 include python/*.cpp

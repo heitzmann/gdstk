@@ -26,10 +26,21 @@ The source files can be found in the _docs_ directory.
 
 ## Instalation
 
+### C++ library only
+
+A static library can be installed with cmake (use `-DCMAKE_INSTALL_PREFIX=path` to control the installation path):
+
+```sh
+cmake -S . -B build
+cmake --build build --install target
+```
+
+The library depends only on LAPACK.
+
 ### Conda
 
-Windows users are suggested to install via [conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock). The recipe works on MacOS and Linux as well.
-
+Windows users are suggested to install via [conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock).
+The recipe works on MacOS and Linux as well.
 
 ### From source
 
@@ -37,20 +48,19 @@ The C++ library is meant to be used straight from source.
 The only requirement is that it must be linked against LAPACK.
 The included CMakeLists.txt file can be used as a guide.
 
-#### Dependencies for the Python wrapper
-
-* LAPACK
-* [CMake](https://cmake.org/)
-* [Python](https://www.python.org/)
-* [Numpy](https://numpy.org/)
-* [Sphinx](https://www.sphinx-doc.org/) and [rtd theme](https://sphinx-rtd-theme.readthedocs.io/) (to build the [documentation](http://heitzmann.github.io/gdstk))
-
 Installation from source should follow the usual method:
 
 ```sh
 python setup.py install
 ```
 
+## Dependencies for the Python wrapper
+
+* LAPACK
+* [CMake](https://cmake.org/)
+* [Python](https://www.python.org/)
+* [Numpy](https://numpy.org/)
+* [Sphinx](https://www.sphinx-doc.org/) and [rtd theme](https://sphinx-rtd-theme.readthedocs.io/) (to build the [documentation](http://heitzmann.github.io/gdstk))
 
 ## Support
 

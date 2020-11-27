@@ -1,6 +1,8 @@
 # Change Log
 
 ## Unreleased
+### Changed
+- Use cmake to properly intall library
 
 ## 0.2.0 - 2020-11-23
 ### Added

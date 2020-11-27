@@ -20,36 +20,47 @@ import numpy
 class build_ext(_build_ext):
     def run(self):
         root_dir = pathlib.Path().absolute()
-        build_dir = pathlib.Path(self.build_temp)
-        build_dir.mkdir(parents=True, exist_ok=True)
+        build_dir = pathlib.Path(self.build_temp).absolute() / "cmake_build"
+        install_dir = build_dir / "install"
 
         config = "Debug" if self.debug else "Release"
-        cmake_args = [
-            "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=" + str(build_dir.absolute()),
-            "-DCMAKE_BUILD_TYPE=" + config,
-        ]
-        build_args = ["--config", config]
 
-        os.chdir(build_dir)
-        self.spawn(["cmake", str(root_dir)] + cmake_args)
+        build_dir.mkdir(parents=True, exist_ok=True)
+        self.spawn(
+            [
+                "cmake",
+                "-S",
+                str(root_dir),
+                "-B",
+                str(build_dir),
+                "-DCMAKE_INSTALL_PREFIX=" + str(install_dir),
+                "-DCMAKE_BUILD_TYPE=" + config,
+            ]
+        )
         if not self.dry_run:
-            self.spawn(["cmake", "--build", "."] + build_args)
-        os.chdir(root_dir)
+            self.spawn(["cmake", "--build", str(build_dir), "--target", "install"])
 
-        if (build_dir / "is_multiconfig").exists():
-            # Visual Studio and Xcode
-            self.extensions[0].library_dirs.append(str((build_dir / config).absolute()))
-        else:
-            self.extensions[0].library_dirs.append(str(build_dir.absolute()))
-
-        for arg in (build_dir / "lapack_libs").read_text().split():
-            if arg.endswith(".framework"):
-                # MacOS-specific
-                self.extensions[0].extra_link_args.extend(
-                    ["-framework", arg[arg.rfind("/") + 1 : -10]]
-                )
-            else:
-                self.extensions[0].extra_link_args.append(arg)
+        with open(install_dir / "lib" / "pkgconfig" / "gdstk.pc", "r") as pkg:
+            for line in pkg:
+                if line.startswith("Cflags:"):
+                    for arg in line.split()[1:]:
+                        if arg.startswith("-I"):
+                            self.extensions[0].include_dirs.append(arg[2:])
+                        else:
+                            self.extensions[0].extra_compile_args.append(arg)
+                elif line.startswith("Libs:"):
+                    for arg in line.split()[1:]:
+                        if arg.endswith(".framework"):
+                            # MacOS-specific
+                            self.extensions[0].extra_link_args.extend(
+                                ["-framework", arg[arg.rfind("/") + 1 : -10]]
+                            )
+                        elif arg.startswith("-L"):
+                            self.extensions[0].library_dirs.append(arg[2:])
+                        elif arg.startswith("-l"):
+                            self.extensions[0].libraries.append(arg[2:])
+                        else:
+                            self.extensions[0].extra_link_args.append(arg)
 
         super().run()
 
@@ -96,8 +107,7 @@ setup(
         Extension(
             "gdstk",
             ["python/gdstk_module.cpp"],
-            include_dirs=["src", numpy.get_include()],
-            libraries=["gdstk"],
+            include_dirs=[numpy.get_include()],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
         ),
