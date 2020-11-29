@@ -1370,7 +1370,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             4,      0x0900,   6, 0x0D02, (uint16_t)el->layer, 6, 0x0E02, (uint16_t)el->datatype, 6,
             0x2102, end_type, 8, 0x0F03};
         int32_t width = (scale_width ? 1 : -1) *
-                        (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
+                        (int32_t)(interp(el->width_array[0], 0) * width_scale * scaling);
         swap16(buffer_start, COUNT(buffer_start));
         swap32((uint32_t *)&width, 1);
 
@@ -1378,8 +1378,8 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
         uint16_t buffer_ext2[] = {8, 0x3103};
         int32_t ext_size[] = {0, 0};
         if (end_type == 4) {
-            ext_size[0] = (int32_t)lround(el->end_extensions.u * scaling);
-            ext_size[1] = (int32_t)lround(el->end_extensions.v * scaling);
+            ext_size[0] = (int32_t)(el->end_extensions.u * scaling);
+            ext_size[1] = (int32_t)(el->end_extensions.v * scaling);
             swap16(buffer_ext1, COUNT(buffer_ext1));
             swap16(buffer_ext2, COUNT(buffer_ext2));
             swap32((uint32_t *)ext_size, COUNT(ext_size));
@@ -1425,8 +1425,8 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
             for (uint64_t i = point_array.size; i > 0; i--) {
-                *c++ = (int32_t)lround((*p++ + offset_x) * scaling);
-                *c++ = (int32_t)lround((*p++ + offset_y) * scaling);
+                *c++ = (int32_t)((*p++ + offset_x) * scaling);
+                *c++ = (int32_t)((*p++ + offset_y) * scaling);
             }
             swap32((uint32_t *)coords.items, coords.size);
 

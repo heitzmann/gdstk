@@ -358,8 +358,8 @@ void Polygon::to_gds(FILE* out, double scaling) const {
         int32_t* c = coords.items;
         Vec2* p = point_array.items;
         for (uint64_t j = point_array.size; j > 0; j--) {
-            *c++ = (int32_t)lround((offset_x + p->x) * scaling);
-            *c++ = (int32_t)lround((offset_y + p->y) * scaling);
+            *c++ = (int32_t)((offset_x + p->x) * scaling);
+            *c++ = (int32_t)((offset_y + p->y) * scaling);
             p++;
         }
         *c++ = coords[0];
