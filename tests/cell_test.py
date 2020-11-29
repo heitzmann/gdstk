@@ -99,7 +99,7 @@ def test_copy_transform(proof_cells):
     cell_copy = cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten()
     for path in cell_copy.paths:
         cell_copy.add(*path.to_polygons())
-    assert_same_shape(proof_cells["Cell.copy"].polygons, cell_copy.polygons, 3e-3)
+    assert_same_shape(proof_cells["Cell.copy"].polygons, cell_copy.polygons)
 
 
 def test_remove(tree):

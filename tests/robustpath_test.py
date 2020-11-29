@@ -67,7 +67,7 @@ def test_transforms(proof_cells):
             path0.copy().rotate(numpy.pi / 2, (2, 1)).translate(0.2, -0.3),
         ]
         assert_same_shape(
-            proof_cells[f"RobustPath: scale_width {scale_width}"].polygons, paths, 3e-3
+            proof_cells[f"RobustPath: scale_width {scale_width}"].polygons, paths
         )
 
 

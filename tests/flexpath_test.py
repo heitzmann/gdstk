@@ -48,7 +48,11 @@ def test_init():
 def test_transforms(proof_cells):
     for scale_width in [True, False]:
         path0 = gdstk.FlexPath(
-            (0j, 1j, 0.5 + 1j,),
+            (
+                0j,
+                1j,
+                0.5 + 1j,
+            ),
             [0.1, 0.2],
             0.3,
             tolerance=1e-4,
@@ -64,7 +68,7 @@ def test_transforms(proof_cells):
             path0.copy().rotate(numpy.pi / 2, (2, 1)).translate(0.2, -0.3),
         ]
         assert_same_shape(
-            proof_cells[f"FlexPath: scale_width {scale_width}"].polygons, paths, 3e-3
+            proof_cells[f"FlexPath: scale_width {scale_width}"].polygons, paths
         )
 
 

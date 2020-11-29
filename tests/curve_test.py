@@ -10,8 +10,6 @@ import pytest
 import numpy
 import gdstk
 
-from conftest import assert_same_shape
-
 
 def test_init():
     curve = gdstk.Curve(1j)

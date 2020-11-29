@@ -42,5 +42,4 @@ def test_notempty():
     assert_same_shape(
         [gdstk.rectangle((0, 0), (8, 2)), gdstk.rectangle((0, 3), (8, 5))],
         gdstk.Cell("TMP").add(ref).flatten().polygons,
-        1e-12,
     )

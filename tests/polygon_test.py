@@ -57,16 +57,16 @@ def test_fillet(proof_cells):
     p2 = p1.copy().translate(2, 0)
     p1.fillet(0.3, tolerance=1e-3)
     p2.fillet([0.3, 0, 0.1, 0, 0.5, 10], tolerance=1e-3)
-    assert_same_shape(proof_cells["Polygon.fillet"].polygons, [p1, p2], 2e-3)
+    assert_same_shape(proof_cells["Polygon.fillet"].polygons, [p1, p2])
 
 
 def test_fracture():
     poly = gdstk.racetrack((0, 0), 10, 20, 1, vertical=False)
     frac = poly.fracture(12, 1e-3)
-    assert_same_shape(poly, frac, 2e-3)
+    assert_same_shape(poly, frac)
     poly = gdstk.racetrack((0, 50), 10, 20, 1, vertical=True)
     frac = poly.fracture(12, 1e-3)
-    assert_same_shape(poly, frac, 2e-3)
+    assert_same_shape(poly, frac)
 
 
 def test_mirror():
