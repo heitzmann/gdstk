@@ -35,6 +35,7 @@ jobs:
           python docs/pcell.py
           python docs/photonics.py
           python docs/layout.py
+          python docs/merging.py
           python docs/transforms.py
           python docs/repetitions.py
           python docs/apply_repetition.py

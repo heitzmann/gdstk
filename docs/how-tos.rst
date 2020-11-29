@@ -59,13 +59,13 @@ Note that the interferometer already uses the directional coupler as a subcompon
 Using a Library
 ===============
 
-The library "photonics.gds" created above is used in the design of a larger layout.
+The library “photonics.gds” created above is used in the design of a larger layout.
 It is imported through :func:`gdstk.read_rawcells` so that is uses as little memory and processing power as possible.
 
 .. important:: Using `gdstk.RawCell` will only work properly when both the library and the current layout use the same unit and precision.
 
 Another option for creating libraries is to store them as python modules.
-The grating example in :ref:`parametric-cell` can be saved in a file "photonics.py" and imported as a Python module, as long as it can be found in the Python path (leaving it in the current working directory is sufficient).
+The grating example in :ref:`parametric-cell` can be saved in a file “photonics.py” and imported as a Python module, as long as it can be found in the Python path (leaving it in the current working directory is sufficient).
 
 .. literalinclude:: layout.py
    :language: python
@@ -76,6 +76,21 @@ The grating example in :ref:`parametric-cell` can be saved in a file "photonics.
 
 .. image:: how-tos/layout.*
    :align: center
+
+*****************
+Merging Libraries
+*****************
+
+Merging two or more libraries is only a matter of adding all the cells from one into the other.
+Extra cells can be latter added, of course, to create new top level cells with references from both originals.
+In this example, we only merge two GDSII files into a new one—which will end up with 2 top level cells—and take care of renaming all cells so that they don't collide.
+
+.. literalinclude:: merging.py
+   :language: python
+   :start-at: import pathlib
+
+:download:`C++ version <cpp/merging.cpp>`
+
 
 ***************
 Transformations
