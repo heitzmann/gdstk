@@ -14,7 +14,7 @@ import gdstk
 
 
 def assert_same_shape(sh1, sh2):
-    precision = 2e-3
+    precision = 3e-3
     d12 = gdstk.boolean(
         sh1, gdstk.offset(sh2, precision, use_union=True), "not", precision, 255, 102
     )
