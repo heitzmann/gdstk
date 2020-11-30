@@ -316,12 +316,12 @@ void Reference::to_gds(FILE* out, double scaling) const {
             buffer_array[2] = (uint16_t)repetition.columns;
             buffer_array[3] = (uint16_t)repetition.rows;
             swap16(buffer_array, COUNT(buffer_array));
-            buffer_coord[0] = (int32_t)(origin.x * scaling);
-            buffer_coord[1] = (int32_t)(origin.y * scaling);
-            buffer_coord[2] = (int32_t)(x2 * scaling);
-            buffer_coord[3] = (int32_t)(y2 * scaling);
-            buffer_coord[4] = (int32_t)(x3 * scaling);
-            buffer_coord[5] = (int32_t)(y3 * scaling);
+            buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
+            buffer_coord[1] = (int32_t)(lround(origin.y * scaling));
+            buffer_coord[2] = (int32_t)(lround(x2 * scaling));
+            buffer_coord[3] = (int32_t)(lround(y2 * scaling));
+            buffer_coord[4] = (int32_t)(lround(x3 * scaling));
+            buffer_coord[5] = (int32_t)(lround(y3 * scaling));
             swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
         } else {
             offsets.size = 0;
@@ -390,8 +390,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
             fwrite(buffer_coord, sizeof(int32_t), COUNT(buffer_coord), out);
         } else {
             fwrite(buffer_single, sizeof(uint16_t), COUNT(buffer_single), out);
-            int32_t buffer_single_coord[] = {(int32_t)((origin.x + offset_p->x) * scaling),
-                                             (int32_t)((origin.y + offset_p->y) * scaling)};
+            int32_t buffer_single_coord[] = {(int32_t)(lround((origin.x + offset_p->x) * scaling)),
+                                             (int32_t)(lround((origin.y + offset_p->y) * scaling))};
             swap32((uint32_t*)buffer_single_coord, COUNT(buffer_single_coord));
             fwrite(buffer_single_coord, sizeof(int32_t), COUNT(buffer_single_coord), out);
         }

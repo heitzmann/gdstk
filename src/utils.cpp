@@ -56,7 +56,7 @@ double modulo(double x, double y) {
 }
 
 uint64_t arc_num_points(double angle, double radius, double tol) {
-    return (uint64_t)(0.5 + 0.5 * fabs(angle) / acos(1 - tol / radius));
+    return (uint64_t)llround(0.5 * fabs(angle) / acos(1 - tol / radius));
 }
 
 double elliptical_angle_transform(double angle, double radius_x, double radius_y) {

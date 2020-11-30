@@ -27,8 +27,8 @@ static ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) 
     const Vec2* p = polygon.point_array.items;
     ClipperLib::IntPoint* q = &path[0];
     for (; num > 0; num--) {
-        q->X = (ClipperLib::cInt)(scaling * p->x);
-        q->Y = (ClipperLib::cInt)(scaling * p->y);
+        q->X = llround(scaling * p->x);
+        q->Y = llround(scaling * p->y);
         p++;
         q++;
     }
@@ -239,11 +239,11 @@ void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, 
     for (uint64_t i = 0; i <= positions.size; i++) {
         if (x_axis) {
             clip[0][0].X = clip[0][3].X = pos;
-            pos = i < positions.size ? (ClipperLib::cInt)(scaling * positions[i]) : bb[1];
+            pos = i < positions.size ? llround(scaling * positions[i]) : bb[1];
             clip[0][1].X = clip[0][2].X = pos;
         } else {
             clip[0][0].Y = clip[0][1].Y = pos;
-            pos = i < positions.size ? (ClipperLib::cInt)(scaling * positions[i]) : bb[3];
+            pos = i < positions.size ? llround(scaling * positions[i]) : bb[3];
             clip[0][2].Y = clip[0][3].Y = pos;
         }
 

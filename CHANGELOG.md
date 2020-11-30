@@ -3,7 +3,6 @@
 ## Unreleased
 ### Changed
 - Use cmake to properly intall library
-- Use truncation isntead of rounding towards precision for efficiency
 
 ## 0.2.0 - 2020-11-23
 ### Added

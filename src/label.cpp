@@ -148,8 +148,8 @@ void Label::to_gds(FILE* out, double scaling) const {
             }
         }
 
-        int32_t buffer_pos[] = {(int32_t)((origin.x + offset_p->x) * scaling),
-                                (int32_t)((origin.y + offset_p->y) * scaling)};
+        int32_t buffer_pos[] = {(int32_t)(lround((origin.x + offset_p->x) * scaling)),
+                                (int32_t)(lround((origin.y + offset_p->y) * scaling))};
         swap32((uint32_t*)buffer_pos, COUNT(buffer_pos));
 
         fwrite(buffer_xy, sizeof(uint16_t), COUNT(buffer_xy), out);
