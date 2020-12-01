@@ -11,6 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstdio>
 
+#include "gdsii.h"
 #include "utils.h"
 
 namespace gdstk {

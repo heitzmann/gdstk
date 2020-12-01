@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "allocator.h"
 #include "cell.h"
 #include "rawcell.h"
+#include "gdsii.h"
 #include "utils.h"
 
 namespace gdstk {

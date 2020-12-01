@@ -12,6 +12,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 
 #include "allocator.h"
+#include "gdsii.h"
+
 namespace gdstk {
 
 void RawCell::print(bool all) const {

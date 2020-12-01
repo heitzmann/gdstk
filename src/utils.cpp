@@ -12,10 +12,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstring>
 
-// #ifdef _WIN32
-// #include <intrin.h>
-// #endif
-
 #include "allocator.h"
 #include "vec.h"
 
@@ -26,29 +22,6 @@ extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int
 }
 
 namespace gdstk {
-
-uint64_t gdsii_real_from_double(double value) {
-    if (value == 0) return 0;
-    uint8_t u8_1 = 0;
-    if (value < 0) {
-        u8_1 = 0x80;
-        value = -value;
-    }
-    const double fexp = 0.25 * log2(value);
-    double exponent = ceil(fexp);
-    if (exponent == fexp) exponent++;
-    const uint64_t mantissa = (uint64_t)(value * pow(16, 14 - exponent));
-    u8_1 += (uint8_t)(64 + exponent);
-    const uint64_t result = ((uint64_t)u8_1 << 56) | (mantissa & 0x00FFFFFFFFFFFFFF);
-    return result;
-}
-
-double gdsii_real_to_double(uint64_t real) {
-    const int64_t exponent = ((real & 0x7F00000000000000) >> 54) - 256;
-    const double mantissa = ((double)(real & 0x00FFFFFFFFFFFFFF)) / 72057594037927936.0;
-    const double result = mantissa * exp2(exponent);
-    return (real & 0x8000000000000000) ? -result : result;
-}
 
 double modulo(double x, double y) {
     double m = fmod(x, y);
@@ -117,31 +90,6 @@ void swap64(uint64_t* buffer, uint64_t n) {
                     ((b & 0x000000FF00000000) >> 8) | ((b & 0x0000FF0000000000) >> 24) |
                     ((b & 0x00FF000000000000) >> 40) | (b >> 56);
     }
-}
-
-// Read record and make necessary swaps
-uint32_t read_record(FILE* in, uint8_t* buffer) {
-    uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
-    if (read_length < 4) {
-        if (feof(in) != 0)
-            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
-        else
-            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
-        return 0;
-    }
-    swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
-    const uint32_t record_length = *((uint16_t*)buffer);
-    if (record_length < 4) return 0;
-    if (record_length == 4) return record_length;
-    read_length = fread(buffer + 4, sizeof(uint8_t), record_length - 4, in);
-    if (read_length < record_length - 4) {
-        if (feof(in) != 0)
-            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
-        else
-            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
-        return 0;
-    }
-    return record_length;
 }
 
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1) { return LERP(p0, p1, t); }

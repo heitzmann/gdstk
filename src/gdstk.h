@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "gdstk/clipper_tools.h"
 #include "gdstk/curve.h"
 #include "gdstk/flexpath.h"
+#include "gdstk/gdsii.h"
 #include "gdstk/gdswriter.h"
 #include "gdstk/label.h"
 #include "gdstk/library.h"
