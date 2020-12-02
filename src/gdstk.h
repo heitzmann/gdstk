@@ -22,6 +22,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "gdstk/label.h"
 #include "gdstk/library.h"
 #include "gdstk/map.h"
+#include "gdstk/oasis.h"
 #include "gdstk/pathcommon.h"
 #include "gdstk/polygon.h"
 #include "gdstk/rawcell.h"

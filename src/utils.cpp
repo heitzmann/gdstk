@@ -92,6 +92,33 @@ void big_endian_swap64(uint64_t* buffer, uint64_t n) {
     }
 }
 
+void little_endian_swap16(uint16_t* buffer, uint64_t n) {
+    if (!IS_BIG_ENDIAN) return;
+    for (; n > 0; n--) {
+        uint16_t b = *buffer;
+        *buffer++ = (b << 8) | (b >> 8);
+    }
+}
+
+void little_endian_swap32(uint32_t* buffer, uint64_t n) {
+    if (!IS_BIG_ENDIAN) return;
+    for (; n > 0; n--) {
+        uint32_t b = *buffer;
+        *buffer++ = (b << 24) | ((b & 0x0000FF00) << 8) | ((b & 0x00FF0000) >> 8) | (b >> 24);
+    }
+}
+
+void little_endian_swap64(uint64_t* buffer, uint64_t n) {
+    if (!IS_BIG_ENDIAN) return;
+    for (; n > 0; n--) {
+        uint64_t b = *buffer;
+        *buffer++ = (b << 56) | ((b & 0x000000000000FF00) << 40) |
+                    ((b & 0x0000000000FF0000) << 24) | ((b & 0x00000000FF000000) << 8) |
+                    ((b & 0x000000FF00000000) >> 8) | ((b & 0x0000FF0000000000) >> 24) |
+                    ((b & 0x00FF000000000000) >> 40) | (b >> 56);
+    }
+}
+
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1) { return LERP(p0, p1, t); }
 
 Vec2 eval_bezier2(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2) {

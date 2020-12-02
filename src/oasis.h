@@ -7,8 +7,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define _USE_MATH_DEFINES
 
-#ifndef __GDSII_H__
-#define __GDSII_H__
+#ifndef __OASIS_H__
+#define __OASIS_H__
 
 #define _USE_MATH_DEFINES
 
@@ -17,13 +17,19 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-uint64_t gdsii_real_from_double(double value);
+uint64_t oasis_read_uint(FILE* in);
 
-double gdsii_real_to_double(uint64_t real);
+void oasis_write_uint(FILE* out, uint64_t value);
 
-// Read record and make necessary swaps
-uint32_t gdsii_read_record(FILE* in, uint8_t* buffer);
+int64_t oasis_read_int(FILE* in);
+
+void oasis_write_int(FILE* out, int64_t value);
+
+double oasis_read_real(FILE* in);
+
+void oasis_write_real(FILE* out, double value);
 
 }  // namespace gdstk
 
 #endif
+
