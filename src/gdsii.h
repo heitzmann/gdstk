@@ -22,7 +22,7 @@ uint64_t gdsii_real_from_double(double value);
 double gdsii_real_to_double(uint64_t real);
 
 // Read record and make necessary swaps
-uint32_t read_record(FILE* in, uint8_t* buffer);
+uint32_t gdsii_read_record(FILE* in, uint8_t* buffer);
 
 }  // namespace gdstk
 

@@ -130,16 +130,16 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
                                (uint16_t)timestamp->tm_sec,
                                (uint16_t)(4 + len),
                                0x0206};
-    swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
     fwrite(name, sizeof(char), len, out);
 
     uint16_t buffer_units[] = {20, 0x0305};
-    swap16(buffer_units, COUNT(buffer_units));
+    big_endian_swap16(buffer_units, COUNT(buffer_units));
     fwrite(buffer_units, sizeof(uint16_t), COUNT(buffer_units), out);
     uint64_t units[] = {gdsii_real_from_double(precision / unit),
                         gdsii_real_from_double(precision)};
-    swap64(units, COUNT(units));
+    big_endian_swap64(units, COUNT(units));
     fwrite(units, sizeof(uint64_t), COUNT(units), out);
 
     double scaling = unit / precision;
@@ -152,7 +152,7 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
     for (uint64_t i = 0; i < rawcell_array.size; i++, rawcell++) (*rawcell)->to_gds(out);
 
     uint16_t buffer_end[] = {4, 0x0400};
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 
     fclose(out);
@@ -197,7 +197,7 @@ Library read_gds(const char* filename, double unit) {
         return library;
     }
 
-    while ((record_length = read_record(in, buffer)) > 0) {
+    while ((record_length = gdsii_read_record(in, buffer)) > 0) {
         uint32_t data_length;
 
         // printf("%02X %s (%" PRIu32 " bytes)", buffer[2], record_names[buffer[2]], record_length);
@@ -206,18 +206,18 @@ Library read_gds(const char* filename, double unit) {
             case 1:
             case 2:
                 data_length = (record_length - 4) / 2;
-                swap16((uint16_t*)data16, data_length);
+                big_endian_swap16((uint16_t*)data16, data_length);
                 // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRId16, data16[i]);
                 break;
             case 3:
             case 4:
                 data_length = (record_length - 4) / 4;
-                swap32((uint32_t*)data32, data_length);
+                big_endian_swap32((uint32_t*)data32, data_length);
                 // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRId32, data32[i]);
                 break;
             case 5:
                 data_length = (record_length - 4) / 8;
-                swap64(data64, data_length);
+                big_endian_swap64(data64, data_length);
                 // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRIu64, data64[i]);
                 break;
             default:
@@ -534,9 +534,9 @@ int gds_units(const char* filename, double& unit, double& precision) {
         return -1;
     }
 
-    while (read_record(in, buffer) > 0) {
+    while (gdsii_read_record(in, buffer) > 0) {
         if (buffer[2] == 0x03) {  // UNITS
-            swap64(data64, 2);
+            big_endian_swap64(data64, 2);
             precision = gdsii_real_to_double(data64[1]);
             unit = precision / gdsii_real_to_double(data64[0]);
             fclose(in);

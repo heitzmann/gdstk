@@ -65,7 +65,7 @@ void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const V
     }
 }
 
-void swap16(uint16_t* buffer, uint64_t n) {
+void big_endian_swap16(uint16_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint16_t b = *buffer;
@@ -73,7 +73,7 @@ void swap16(uint16_t* buffer, uint64_t n) {
     }
 }
 
-void swap32(uint32_t* buffer, uint64_t n) {
+void big_endian_swap32(uint32_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint32_t b = *buffer;
@@ -81,7 +81,7 @@ void swap32(uint32_t* buffer, uint64_t n) {
     }
 }
 
-void swap64(uint64_t* buffer, uint64_t n) {
+void big_endian_swap64(uint64_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint64_t b = *buffer;

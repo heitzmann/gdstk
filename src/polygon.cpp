@@ -327,8 +327,8 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_start[] = {
         4, 0x0800, 6, 0x0D02, (uint16_t)layer, 6, 0x0E02, (uint16_t)datatype};
     uint16_t buffer_end[] = {4, 0x1100};
-    swap16(buffer_start, COUNT(buffer_start));
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
 
     uint64_t total = point_array.size + 1;
     if (total > 8190) {
@@ -364,13 +364,13 @@ void Polygon::to_gds(FILE* out, double scaling) const {
         }
         *c++ = coords[0];
         *c++ = coords[1];
-        swap32((uint32_t*)coords.items, coords.size);
+        big_endian_swap32((uint32_t*)coords.items, coords.size);
 
         uint64_t i0 = 0;
         while (i0 < total) {
             uint64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
             uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
-            swap16(buffer_pts, COUNT(buffer_pts));
+            big_endian_swap16(buffer_pts, COUNT(buffer_pts));
             fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
             fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
             i0 = i1;

@@ -66,11 +66,11 @@ double distance_to_line(const Vec2 p, const Vec2 p1, const Vec2 p2);
 void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const Vec2 ut1, double& u0,
                            double& u1);
 
-void swap16(uint16_t* buffer, uint64_t n);
+void big_endian_swap16(uint16_t* buffer, uint64_t n);
 
-void swap32(uint32_t* buffer, uint64_t n);
+void big_endian_swap32(uint32_t* buffer, uint64_t n);
 
-void swap64(uint64_t* buffer, uint64_t n);
+void big_endian_swap64(uint64_t* buffer, uint64_t n);
 
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1);
 

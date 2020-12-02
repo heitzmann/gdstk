@@ -39,7 +39,7 @@ double gdsii_real_to_double(uint64_t real) {
 }
 
 // Read record and make necessary swaps
-uint32_t read_record(FILE* in, uint8_t* buffer) {
+uint32_t gdsii_read_record(FILE* in, uint8_t* buffer) {
     uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
     if (read_length < 4) {
         if (feof(in) != 0)
@@ -48,7 +48,7 @@ uint32_t read_record(FILE* in, uint8_t* buffer) {
             fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
         return 0;
     }
-    swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
+    big_endian_swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
     const uint32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) return 0;
     if (record_length == 4) return record_length;

@@ -49,16 +49,16 @@ struct GdsWriter {
                                    (uint16_t)timestamp.tm_sec,
                                    (uint16_t)(4 + len),
                                    0x0206};
-        swap16(buffer_start, COUNT(buffer_start));
+        big_endian_swap16(buffer_start, COUNT(buffer_start));
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
         fwrite(name, sizeof(char), len, out);
 
         uint16_t buffer_units[] = {20, 0x0305};
-        swap16(buffer_units, COUNT(buffer_units));
+        big_endian_swap16(buffer_units, COUNT(buffer_units));
         fwrite(buffer_units, sizeof(uint16_t), COUNT(buffer_units), out);
         uint64_t units[] = {gdsii_real_from_double(precision / unit),
                             gdsii_real_from_double(precision)};
-        swap64(units, COUNT(units));
+        big_endian_swap64(units, COUNT(units));
         fwrite(units, sizeof(uint64_t), COUNT(units), out);
     }
 
@@ -70,7 +70,7 @@ struct GdsWriter {
 
     void close() {
         uint16_t buffer_end[] = {4, 0x0400};
-        swap16(buffer_end, COUNT(buffer_end));
+        big_endian_swap16(buffer_end, COUNT(buffer_end));
         fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
         fclose(out);
     }

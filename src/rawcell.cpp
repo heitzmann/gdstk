@@ -101,7 +101,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
         return result;
     }
 
-    while ((record_length = read_record(source->file, buffer)) > 0) {
+    while ((record_length = gdsii_read_record(source->file, buffer)) > 0) {
         switch (buffer[2]) {
             case 0x04:  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {

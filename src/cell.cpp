@@ -383,7 +383,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
                                (uint16_t)timestamp->tm_sec,
                                (uint16_t)(4 + len),
                                0x0606};
-    swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
     fwrite(name, sizeof(char), len, out);
 
@@ -478,7 +478,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
         (*reference)->to_gds(out, scaling);
 
     uint16_t buffer_end[] = {4, 0x0700};
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 }
 

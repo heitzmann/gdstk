@@ -98,7 +98,7 @@ void properties_to_gds(const Property* properties, FILE* out) {
         uint16_t buffer_prop[] = {6, 0x2B02, (uint16_t)properties->key, (uint16_t)(4 + len),
                                   0x2C06};
         size += len;
-        swap16(buffer_prop, COUNT(buffer_prop));
+        big_endian_swap16(buffer_prop, COUNT(buffer_prop));
         fwrite(buffer_prop, sizeof(uint16_t), COUNT(buffer_prop), out);
         fwrite(properties->value, sizeof(char), len, out);
     }

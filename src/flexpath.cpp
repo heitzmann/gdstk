@@ -640,7 +640,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
     if (spine.point_array.size < 2) return;
 
     uint16_t buffer_end[] = {4, 0x1100};
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -681,8 +681,8 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             0x2102, end_type, 8, 0x0F03};
         int32_t width =
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
-        swap16(buffer_start, COUNT(buffer_start));
-        swap32((uint32_t*)&width, 1);
+        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        big_endian_swap32((uint32_t*)&width, 1);
 
         uint16_t buffer_ext1[] = {8, 0x3003};
         uint16_t buffer_ext2[] = {8, 0x3103};
@@ -690,9 +690,9 @@ void FlexPath::to_gds(FILE* out, double scaling) {
         if (end_type == 4) {
             ext_size[0] = (int32_t)lround(el->end_extensions.u * scaling);
             ext_size[1] = (int32_t)lround(el->end_extensions.v * scaling);
-            swap16(buffer_ext1, COUNT(buffer_ext1));
-            swap16(buffer_ext2, COUNT(buffer_ext2));
-            swap32((uint32_t*)ext_size, COUNT(ext_size));
+            big_endian_swap16(buffer_ext1, COUNT(buffer_ext1));
+            big_endian_swap16(buffer_ext2, COUNT(buffer_ext2));
+            big_endian_swap32((uint32_t*)ext_size, COUNT(ext_size));
         }
 
         {  // Calculate path coordinates (analogous to to_polygons)
@@ -847,14 +847,14 @@ void FlexPath::to_gds(FILE* out, double scaling) {
                 *c++ = (int32_t)lround((*p++ + offset_x) * scaling);
                 *c++ = (int32_t)lround((*p++ + offset_y) * scaling);
             }
-            swap32((uint32_t*)coords.items, coords.size);
+            big_endian_swap32((uint32_t*)coords.items, coords.size);
 
             uint64_t total = point_array.size;
             uint64_t i0 = 0;
             while (i0 < total) {
                 uint64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
                 uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
-                swap16(buffer_pts, COUNT(buffer_pts));
+                big_endian_swap16(buffer_pts, COUNT(buffer_pts));
                 fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
                 fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
                 i0 = i1;
