@@ -70,6 +70,8 @@ enum struct OasisInterval : uint8_t {
     Bounded = 4
 };
 
+enum struct OasisDirection { E = 0, N = 1, W = 2, S = 3, NE = 4, NW = 5, SW = 6, SE = 7 };
+
 enum struct OasisRecord : uint8_t {
     PAD = 0,
     START = 1,
@@ -110,13 +112,29 @@ enum struct OasisRecord : uint8_t {
 
 uint64_t oasis_read_uint(FILE* in);
 
-void oasis_write_uint(FILE* out, uint64_t value);
-
 int64_t oasis_read_int(FILE* in);
+
+inline int64_t oasis_read_1delta(FILE* in) { return oasis_read_int(in); };
+
+void oasis_read_2delta(FILE* in, int64_t& x, int64_t& y);
+
+void oasis_read_3delta(FILE* in, int64_t& x, int64_t& y);
+
+void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y);
+
+double oasis_read_real(FILE* in);
+
+void oasis_write_uint(FILE* out, uint64_t value);
 
 void oasis_write_int(FILE* out, int64_t value);
 
-double oasis_read_real(FILE* in);
+inline void oasis_write_1delta(FILE* out, int64_t value) { oasis_write_int(out, value); };
+
+void oasis_write_2delta(FILE* out, int64_t x, int64_t y);
+
+void oasis_write_3delta(FILE* out, int64_t x, int64_t y);
+
+void oasis_write_gdelta(FILE* out, int64_t x, int64_t y);
 
 void oasis_write_real(FILE* out, double value);
 
