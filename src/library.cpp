@@ -18,12 +18,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "allocator.h"
 #include "cell.h"
 #include "flexpath.h"
+#include "gdsii.h"
 #include "label.h"
 #include "map.h"
 #include "polygon.h"
 #include "rawcell.h"
 #include "reference.h"
-#include "gdsii.h"
 #include "utils.h"
 #include "vec.h"
 
@@ -159,7 +159,7 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
 }
 
 Library read_gds(const char* filename, double unit) {
-    const char record_names[][13] = {
+    const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
         "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
         "TEXT",      "LAYER",    "DATATYPE",  "WIDTH",      "XY",          "ENDEL",
@@ -200,22 +200,23 @@ Library read_gds(const char* filename, double unit) {
     while ((record_length = gdsii_read_record(in, buffer)) > 0) {
         uint32_t data_length;
 
-        // printf("%02X %s (%" PRIu32 " bytes)", buffer[2], record_names[buffer[2]], record_length);
+        // printf("%02X %s (%" PRIu32 " bytes)", buffer[2], gdsii_record_names[buffer[2]],
+        // record_length);
 
-        switch (buffer[3]) {
-            case 1:
-            case 2:
+        switch ((GdsiiDataType)buffer[3]) {
+            case GdsiiDataType::BitArray:
+            case GdsiiDataType::TwoByteSignedInteger:
                 data_length = (record_length - 4) / 2;
                 big_endian_swap16((uint16_t*)data16, data_length);
                 // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRId16, data16[i]);
                 break;
-            case 3:
-            case 4:
+            case GdsiiDataType::FourByteSignedInteger:
+            case GdsiiDataType::FourByteReal:
                 data_length = (record_length - 4) / 4;
                 big_endian_swap32((uint32_t*)data32, data_length);
                 // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRId32, data32[i]);
                 break;
-            case 5:
+            case GdsiiDataType::EightByteReal:
                 data_length = (record_length - 4) / 8;
                 big_endian_swap64(data64, data_length);
                 // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRIu64, data64[i]);
@@ -227,18 +228,18 @@ Library read_gds(const char* filename, double unit) {
 
         // putchar('\n');
 
-        switch (buffer[2]) {
-            case 0x00:  // HEADER
-            case 0x01:  // BGNLIB
-            case 0x07:  // ENDSTR
+        switch ((GdsiiRecord)buffer[2]) {
+            case GdsiiRecord::HEADER:
+            case GdsiiRecord::BGNLIB:
+            case GdsiiRecord::ENDSTR:
                 break;
-            case 0x02:  // LIBNAME
+            case GdsiiRecord::LIBNAME:
                 if (str[data_length - 1] == 0) data_length--;
                 library.name = (char*)allocate(sizeof(char) * (data_length + 1));
                 memcpy(library.name, str, data_length);
                 library.name[data_length] = 0;
                 break;
-            case 0x03: {  // UNITS
+            case GdsiiRecord::UNITS: {
                 const double db_in_user = gdsii_real_to_double(data64[0]);
                 const double db_in_meters = gdsii_real_to_double(data64[1]);
                 if (unit > 0) {
@@ -250,7 +251,7 @@ Library read_gds(const char* filename, double unit) {
                 }
                 library.precision = db_in_meters;
             } break;
-            case 0x04: {  // ENDLIB
+            case GdsiiRecord::ENDLIB: {
                 Map<Cell*> map = {0};
                 uint64_t c_size = library.cell_array.size;
                 map.resize((uint64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
@@ -274,10 +275,10 @@ Library read_gds(const char* filename, double unit) {
                 fclose(in);
                 return library;
             } break;
-            case 0x05:  // BGNSTR
+            case GdsiiRecord::BGNSTR:
                 cell = (Cell*)allocate_clear(sizeof(Cell));
                 break;
-            case 0x06:  // STRNAME
+            case GdsiiRecord::STRNAME:
                 if (cell) {
                     if (str[data_length - 1] == 0) data_length--;
                     cell->name = (char*)allocate(sizeof(char) * (data_length + 1));
@@ -286,29 +287,29 @@ Library read_gds(const char* filename, double unit) {
                     library.cell_array.append(cell);
                 }
                 break;
-            case 0x08:  // BOUNDARY
-            case 0x2D:  // BOX
+            case GdsiiRecord::BOUNDARY:
+            case GdsiiRecord::BOX:
                 polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (cell) cell->polygon_array.append(polygon);
                 break;
-            case 0x09:  // PATH
+            case GdsiiRecord::PATH:
                 path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                 path->num_elements = 1;
                 path->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
                 path->gdsii_path = true;
                 if (cell) cell->flexpath_array.append(path);
                 break;
-            case 0x0A:  // SREF
-            case 0x0B:  // AREF
+            case GdsiiRecord::SREF:
+            case GdsiiRecord::AREF:
                 reference = (Reference*)allocate_clear(sizeof(Reference));
                 reference->magnification = 1;
                 if (cell) cell->reference_array.append(reference);
                 break;
-            case 0x0C:  // TEXT
+            case GdsiiRecord::TEXT:
                 label = (Label*)allocate_clear(sizeof(Label));
                 if (cell) cell->label_array.append(label);
                 break;
-            case 0x0D:  // LAYER
+            case GdsiiRecord::LAYER:
                 if (polygon)
                     polygon->layer = data16[0];
                 else if (path)
@@ -316,14 +317,14 @@ Library read_gds(const char* filename, double unit) {
                 else if (label)
                     label->layer = data16[0];
                 break;
-            case 0x0E:  // DATATYPE
-            case 0x2E:  // BOXTYPE
+            case GdsiiRecord::DATATYPE:
+            case GdsiiRecord::BOXTYPE:
                 if (polygon)
                     polygon->datatype = data16[0];
                 else if (path)
                     path->elements[0].datatype = data16[0];
                 break;
-            case 0x0F:  // WIDTH
+            case GdsiiRecord::WIDTH:
                 if (data32[0] < 0) {
                     width = factor * -data32[0];
                     if (path) path->scale_width = false;
@@ -332,7 +333,7 @@ Library read_gds(const char* filename, double unit) {
                     if (path) path->scale_width = true;
                 }
                 break;
-            case 0x10:  // XY
+            case GdsiiRecord::XY:
                 if (polygon) {
                     polygon->point_array.ensure_slots(data_length / 2);
                     double* d = (double*)polygon->point_array.items + polygon->point_array.size;
@@ -384,7 +385,7 @@ Library read_gds(const char* filename, double unit) {
                     label->origin.y = factor * data32[1];
                 }
                 break;
-            case 0x11:  // ENDEL
+            case GdsiiRecord::ENDEL:
                 if (polygon) {
                     // Polygons are closed in GDSII (first and last points are the same)
                     polygon->point_array.size--;
@@ -394,7 +395,7 @@ Library read_gds(const char* filename, double unit) {
                 reference = NULL;
                 label = NULL;
                 break;
-            case 0x12: {  // SNAME
+            case GdsiiRecord::SNAME: {
                 if (reference) {
                     if (str[data_length - 1] == 0) data_length--;
                     reference->name = (char*)allocate(sizeof(char) * (data_length + 1));
@@ -403,7 +404,7 @@ Library read_gds(const char* filename, double unit) {
                     reference->type = ReferenceType::Name;
                 }
             } break;
-            case 0x13:  // COLROW
+            case GdsiiRecord::COLROW:
                 if (reference) {
                     Repetition* repetition = &reference->repetition;
                     repetition->type = RepetitionType::Rectangular;
@@ -411,13 +412,13 @@ Library read_gds(const char* filename, double unit) {
                     repetition->rows = data16[1];
                 }
                 break;
-            case 0x16:  // TEXTTYPE
+            case GdsiiRecord::TEXTTYPE:
                 if (label) label->texttype = data16[0];
                 break;
-            case 0x17:  // PRESENTATION
+            case GdsiiRecord::PRESENTATION:
                 if (label) label->anchor = (Anchor)(data16[0] & 0x000F);
                 break;
-            case 0x19:  // STRING
+            case GdsiiRecord::STRING:
                 if (label) {
                     if (str[data_length - 1] == 0) data_length--;
                     label->text = (char*)allocate(sizeof(char) * (data_length + 1));
@@ -425,7 +426,7 @@ Library read_gds(const char* filename, double unit) {
                     label->text[data_length] = 0;
                 }
                 break;
-            case 0x1A:  // STRANS
+            case GdsiiRecord::STRANS:
                 if (reference)
                     reference->x_reflection = (data16[0] & 0x8000) != 0;
                 else if (label)
@@ -435,19 +436,19 @@ Library read_gds(const char* filename, double unit) {
                         "[GDSTK] Absolute magnification and rotation of references is not supported.\n",
                         stderr);
                 break;
-            case 0x1B:  // MAG
+            case GdsiiRecord::MAG:
                 if (reference)
                     reference->magnification = gdsii_real_to_double(data64[0]);
                 else if (label)
                     label->magnification = gdsii_real_to_double(data64[0]);
                 break;
-            case 0x1C:  // ANGLE
+            case GdsiiRecord::ANGLE:
                 if (reference)
                     reference->rotation = M_PI / 180.0 * gdsii_real_to_double(data64[0]);
                 else if (label)
                     label->rotation = M_PI / 180.0 * gdsii_real_to_double(data64[0]);
                 break;
-            case 0x21:  // PATHTYPE
+            case GdsiiRecord::PATHTYPE:
                 if (path) {
                     switch (data16[0]) {
                         case 0:
@@ -464,10 +465,10 @@ Library read_gds(const char* filename, double unit) {
                     }
                 }
                 break;
-            case 0x2B:  // PROPATTR
+            case GdsiiRecord::PROPATTR:
                 key = data16[0];
                 break;
-            case 0x2C:  // PROPVALUE
+            case GdsiiRecord::PROPVALUE:
                 if (str[data_length - 1] != 0) str[data_length++] = 0;
                 if (polygon) {
                     set_property(polygon->properties, key, str);
@@ -479,43 +480,43 @@ Library read_gds(const char* filename, double unit) {
                     set_property(label->properties, key, str);
                 }
                 break;
-            case 0x30:  // BGNEXTN
+            case GdsiiRecord::BGNEXTN:
                 if (path) path->elements[0].end_extensions.u = factor * data32[0];
                 break;
-            case 0x31:  // ENDEXTN
+            case GdsiiRecord::ENDEXTN:
                 if (path) path->elements[0].end_extensions.v = factor * data32[0];
                 break;
-            // case 0x14:  // TEXTNODE
-            // case 0x15:  // NODE
-            // case 0x18:  // SPACING
-            // case 0x1D:  // UINTEGER
-            // case 0x1E:  // USTRING
-            // case 0x1F:  // REFLIBS
-            // case 0x20:  // FONTS
-            // case 0x22:  // GENERATIONS
-            // case 0x23:  // ATTRTABLE
-            // case 0x24:  // STYPTABLE
-            // case 0x25:  // STRTYPE
-            // case 0x26:  // ELFLAGS
-            // case 0x27:  // ELKEY
-            // case 0x28:  // LINKTYPE
-            // case 0x29:  // LINKKEYS
-            // case 0x2A:  // NODETYPE
-            // case 0x2F:  // PLEX
-            // case 0x32:  // TAPENUM
-            // case 0x33:  // TAPECODE
-            // case 0x34:  // STRCLASS
-            // case 0x35:  // RESERVED
-            // case 0x36:  // FORMAT
-            // case 0x37:  // MASK
-            // case 0x38:  // ENDMASKS
-            // case 0x39:  // LIBDIRSIZE
-            // case 0x3A:  // SRFNAME
-            // case 0x3B:  // LIBSECUR
+            // case GdsiiRecord::TEXTNODE:
+            // case GdsiiRecord::NODE:
+            // case GdsiiRecord::SPACING:
+            // case GdsiiRecord::UINTEGER:
+            // case GdsiiRecord::USTRING:
+            // case GdsiiRecord::REFLIBS:
+            // case GdsiiRecord::FONTS:
+            // case GdsiiRecord::GENERATIONS:
+            // case GdsiiRecord::ATTRTABLE:
+            // case GdsiiRecord::STYPTABLE:
+            // case GdsiiRecord::STRTYPE:
+            // case GdsiiRecord::ELFLAGS:
+            // case GdsiiRecord::ELKEY:
+            // case GdsiiRecord::LINKTYPE:
+            // case GdsiiRecord::LINKKEYS:
+            // case GdsiiRecord::NODETYPE:
+            // case GdsiiRecord::PLEX:
+            // case GdsiiRecord::TAPENUM:
+            // case GdsiiRecord::TAPECODE:
+            // case GdsiiRecord::STRCLASS:
+            // case GdsiiRecord::RESERVED:
+            // case GdsiiRecord::FORMAT:
+            // case GdsiiRecord::MASK:
+            // case GdsiiRecord::ENDMASKS:
+            // case GdsiiRecord::LIBDIRSIZE:
+            // case GdsiiRecord::SRFNAME:
+            // case GdsiiRecord::LIBSECUR:
             default:
-                if (buffer[2] < COUNT(record_names))
+                if (buffer[2] < COUNT(gdsii_record_names))
                     fprintf(stderr, "[GDSTK] Record type %s (0x%02X) is not supported.\n",
-                            record_names[buffer[2]], buffer[2]);
+                            gdsii_record_names[buffer[2]], buffer[2]);
                 else
                     fprintf(stderr, "[GDSTK] Unknown record type 0x%02X.\n", buffer[2]);
         }

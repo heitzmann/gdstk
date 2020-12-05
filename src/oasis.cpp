@@ -15,6 +15,42 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+const char* oasis_record_names[] = {"PAD",
+                                    "START",
+                                    "END",
+                                    "CELLNAME_IMPLICIT",
+                                    "CELLNAME",
+                                    "TEXTSTRING_IMPLICIT",
+                                    "TEXTSTRING",
+                                    "PROPNAME_IMPLICIT",
+                                    "PROPNAME",
+                                    "PROPSTRING_IMPLICIT",
+                                    "PROPSTRING",
+                                    "LAYERNAME_DATA",
+                                    "LAYERNAME_TEXT",
+                                    "CELL_REFNAME",
+                                    "CELL",
+                                    "XYABSOLUTE",
+                                    "XYRELATIVE",
+                                    "PLACEMENT",
+                                    "PLACEMENT_TRANSFORM",
+                                    "TEXT",
+                                    "RECTANGLE",
+                                    "POLYGON",
+                                    "PATH",
+                                    "TRAPEZOID_AB",
+                                    "TRAPEZOID_A",
+                                    "TRAPEZOID_B",
+                                    "CTRAPEZOID",
+                                    "CIRCLE",
+                                    "PROPERTY",
+                                    "LAST_PROPERTY",
+                                    "XNAME_IMPLICIT",
+                                    "XNAME",
+                                    "XELEMENT",
+                                    "XGEOMETRY",
+                                    "CBLOCK"};
+
 uint64_t oasis_read_uint(FILE* in) {
     uint8_t byte;
     if (fread(&byte, 1, 1, in) < 1) return 0;
@@ -94,37 +130,39 @@ void oasis_write_int(FILE* out, int64_t value) {
 double oasis_read_real(FILE* in) {
     uint8_t byte;
     if (fread(&byte, 1, 1, in) < 1) return 0;
-    switch (byte) {
-        case 0:
+    switch ((OasisDataType)byte) {
+        case OasisDataType::RealPositiveInteger:
             return (double)oasis_read_uint(in);
-        case 1:
+        case OasisDataType::RealNegativeInteger:
             return -(double)oasis_read_uint(in);
-        case 2:
+        case OasisDataType::RealPositiveReciprocal:
             return 1.0 / (double)oasis_read_uint(in);
-        case 3:
+        case OasisDataType::RealNegativeReciprocal:
             return -1.0 / (double)oasis_read_uint(in);
-        case 4: {
+        case OasisDataType::RealPositiveRatio: {
             double num = oasis_read_uint(in);
             double den = oasis_read_uint(in);
             return num / den;
         }
-        case 5: {
+        case OasisDataType::RealNegativeRatio: {
             double num = oasis_read_uint(in);
             double den = oasis_read_uint(in);
             return -num / den;
         }
-        case 6: {
+        case OasisDataType::RealFloat: {
             float value;
             fread(&value, sizeof(float), 1, in);
             little_endian_swap32((uint32_t*)&value, 1);
             return (double)value;
         }
-        case 7: {
+        case OasisDataType::RealDouble: {
             double value;
             fread(&value, sizeof(double), 1, in);
             little_endian_swap64((uint64_t*)&value, 1);
             return value;
         }
+        default:
+            fputs("[GDSTK] Unable to determine real value.\n", stderr);
     }
     return 0;
 }
@@ -133,11 +171,11 @@ void oasis_write_real(FILE* out, double value) {
     if (trunc(value) == value && fabs(value) < UINT64_MAX) {
         // value is integer
         if (value >= 0) {
-            fputc(0, out);
+            fputc((uint8_t)OasisDataType::RealPositiveInteger, out);
             oasis_write_uint(out, (uint64_t)value);
             return;
         } else {
-            fputc(1, out);
+            fputc((uint8_t)OasisDataType::RealNegativeInteger, out);
             oasis_write_uint(out, (uint64_t)(-value));
             return;
         }
@@ -147,17 +185,17 @@ void oasis_write_real(FILE* out, double value) {
     if (trunc(inverse) == inverse && fabs(inverse) < UINT64_MAX) {
         // inverse is integer
         if (inverse >= 0) {
-            fputc(2, out);
+            fputc((uint8_t)OasisDataType::RealPositiveReciprocal, out);
             oasis_write_uint(out, (uint64_t)inverse);
             return;
         } else {
-            fputc(3, out);
+            fputc((uint8_t)OasisDataType::RealNegativeReciprocal, out);
             oasis_write_uint(out, (uint64_t)(-inverse));
             return;
         }
     }
 
-    fputc(7, out);
+    fputc((uint8_t)OasisDataType::RealDouble, out);
     little_endian_swap64((uint64_t*)&value, 1);
     fwrite(&value, sizeof(double), 1, out);
 }
