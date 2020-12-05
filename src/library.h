@@ -45,7 +45,11 @@ struct Library {
 
 Library read_gds(const char* filename, double unit);
 
+Library read_oas(const char* filename, double unit);
+
 int gds_units(const char* filename, double& unit, double& precision);
+
+int oas_precision(const char* filename, double& precision);
 
 }  // namespace gdstk
 

@@ -21,6 +21,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "gdsii.h"
 #include "label.h"
 #include "map.h"
+#include "oasis.h"
 #include "polygon.h"
 #include "rawcell.h"
 #include "reference.h"
@@ -526,6 +527,44 @@ Library read_gds(const char* filename, double unit) {
     return Library{0};
 }
 
+// Library read_oas(const char* filename, double unit) {
+//     const char* oasis_record_names[] = {"PAD",
+//                                         "START",
+//                                         "END",
+//                                         "CELLNAME_IMPLICIT",
+//                                         "CELLNAME",
+//                                         "TEXTSTRING_IMPLICIT",
+//                                         "TEXTSTRING",
+//                                         "PROPNAME_IMPLICIT",
+//                                         "PROPNAME",
+//                                         "PROPSTRING_IMPLICIT",
+//                                         "PROPSTRING",
+//                                         "LAYERNAME_DATA",
+//                                         "LAYERNAME_TEXT",
+//                                         "CELL_REFNAME",
+//                                         "CELL",
+//                                         "XYABSOLUTE",
+//                                         "XYRELATIVE",
+//                                         "PLACEMENT",
+//                                         "PLACEMENT_TRANSFORM",
+//                                         "TEXT",
+//                                         "RECTANGLE",
+//                                         "POLYGON",
+//                                         "PATH",
+//                                         "TRAPEZOID_AB",
+//                                         "TRAPEZOID_A",
+//                                         "TRAPEZOID_B",
+//                                         "CTRAPEZOID",
+//                                         "CIRCLE",
+//                                         "PROPERTY",
+//                                         "LAST_PROPERTY",
+//                                         "XNAME_IMPLICIT",
+//                                         "XNAME",
+//                                         "XELEMENT",
+//                                         "XGEOMETRY",
+//                                         "CBLOCK"};
+// }
+
 int gds_units(const char* filename, double& unit, double& precision) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
@@ -547,6 +586,23 @@ int gds_units(const char* filename, double& unit, double& precision) {
     fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
     fclose(in);
     return -1;
+}
+
+int oas_precision(const char* filename, double& precision) {
+    FILE* in = fopen(filename, "rb");
+    if (in == NULL) {
+        fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        return -1;
+    }
+    // Skip magic bytes and START record
+    fseek(in, 14, SEEK_SET);
+
+    uint64_t len = oasis_read_uint(in);
+    // Skip version string
+    fseek(in, len, SEEK_CUR);
+
+    precision = 1e-6 / oasis_read_real(in);
+    return 0;
 }
 
 }  // namespace gdstk
