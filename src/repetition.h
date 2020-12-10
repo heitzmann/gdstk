@@ -11,6 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __REPETITION_H__
 
 #include "array.h"
+#include "property.h"
 #include "vec.h"
 
 namespace gdstk {
@@ -39,6 +40,7 @@ struct Repetition {
         Array<Vec2> offsets;   // Explicit (10, 11)
         Array<double> coords;  // ExplicitX, ExplicitY (Oasis 4, 5, 6, 7)
     };
+    Property* properties;
 
     void print() const;
     void clear();

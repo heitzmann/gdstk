@@ -17,19 +17,69 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+const char gds_property_name[] = "S_GDS_PROPERTY";
+
+static bool is_gds_property(const Property* property) {
+    if (strcmp(property->name, gds_property_name) != 0 || property->value == NULL) return false;
+    PropertyValue* attribute = property->value;
+    PropertyValue* value = attribute->next;
+    if (attribute->type != PropertyType::UnsignedInteger || value == NULL ||
+        value->type != PropertyType::String)
+        return false;
+    return true;
+}
+
+static void property_values_clear(PropertyValue* values) {
+    while (values) {
+        if (values->type == PropertyType::String) {
+            free_allocation(values->bytes);
+        }
+        PropertyValue* next_value = values->next;
+        free_allocation(values);
+        values = next_value;
+    }
+}
+
 void properties_clear(Property* properties) {
     while (properties) {
+        property_values_clear(properties->value);
         Property* next = properties->next;
-        free_allocation(properties->value);
         free_allocation(properties);
         properties = next;
     }
 }
 
-static void value_copy(const char* value, Property* dst) {
-    uint64_t len = strlen(value) + 1;
-    dst->value = (char*)allocate(sizeof(char) * len);
-    memcpy(dst->value, value, len);
+static PropertyValue* property_values_copy(const PropertyValue* values) {
+    PropertyValue* result = NULL;
+    PropertyValue* dst;
+    for (; values; values = values->next) {
+        if (result == NULL) {
+            result = (PropertyValue*)allocate(sizeof(PropertyValue));
+            dst = result;
+        } else {
+            dst->next = (PropertyValue*)allocate(sizeof(PropertyValue));
+            dst = dst->next;
+        }
+        dst->type = values->type;
+        switch (values->type) {
+            case PropertyType::UnsignedInteger:
+                dst->unsigned_integer = values->unsigned_integer;
+                break;
+            case PropertyType::Integer:
+                dst->integer = values->integer;
+                break;
+            case PropertyType::Real:
+                dst->real = values->real;
+                break;
+            case PropertyType::String: {
+                dst->size = values->size;
+                dst->bytes = (uint8_t*)allocate(sizeof(uint8_t) * dst->size);
+                memcpy(dst->bytes, values->bytes, dst->size);
+            }
+        }
+        dst->next = NULL;
+    }
+    return result;
 }
 
 Property* properties_copy(const Property* properties) {
@@ -43,64 +93,208 @@ Property* properties_copy(const Property* properties) {
             dst->next = (Property*)allocate(sizeof(Property));
             dst = dst->next;
         }
-        dst->key = properties->key;
-        value_copy(properties->value, dst);
+        uint64_t len = strlen(properties->name) + 1;
+        dst->name = (char*)allocate(sizeof(char) * len);
+        memcpy(dst->name, properties->name, len);
+        dst->value = property_values_copy(properties->value);
         dst->next = NULL;
     }
     return result;
 }
 
-void set_property(Property*& properties, int16_t key, const char* value) {
-    Property root = {0, NULL, properties};
-    properties = &root;
-    while (properties->next && properties->next->key < key) properties = properties->next;
-    if (properties->next == NULL || properties->next->key > key) {
-        Property* p = (Property*)allocate(sizeof(Property));
-        p->key = key;
-        value_copy(value, p);
-        p->next = properties->next;
-        properties->next = p;
-    } else {
-        // Same key: replace value
+static Property* new_property(Property* properties, const char* name) {
+    Property* property = (Property*)allocate(sizeof(Property));
+    property->value = NULL;
+    property->next = properties;
+    uint64_t len = strlen(name) + 1;
+    property->name = (char*)allocate(sizeof(char) * len);
+    memcpy(property->name, name, len);
+    return property;
+}
+
+static Property* get_or_add_property(Property* properties, const char* name) {
+    Property* property = properties;
+    while (property && strcmp(property->name, name) != 0) property = property->next;
+    if (property == NULL) property = new_property(properties, name);
+    return property;
+}
+
+Property* set_property(Property* properties, const char* name, uint64_t unsigned_integer,
+                       bool create_new) {
+    Property* property =
+        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
+    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+    value->type = PropertyType::UnsignedInteger;
+    value->unsigned_integer = unsigned_integer;
+    value->next = property->value;
+    property->value = value;
+    return property;
+}
+
+Property* set_property(Property* properties, const char* name, int64_t integer, bool create_new) {
+    Property* property =
+        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
+    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+    value->type = PropertyType::Integer;
+    value->integer = integer;
+    value->next = property->value;
+    property->value = value;
+    return property;
+}
+
+Property* set_property(Property* properties, const char* name, double real, bool create_new) {
+    Property* property =
+        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
+    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+    value->type = PropertyType::Real;
+    value->real = real;
+    value->next = property->value;
+    property->value = value;
+    return property;
+}
+
+Property* set_property(Property* properties, const char* name, const char* string,
+                       bool create_new) {
+    Property* property =
+        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
+    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+    value->type = PropertyType::String;
+    value->size = strlen(string) + 1;
+    value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * value->size);
+    memcpy(value->bytes, string, value->size);
+    value->next = property->value;
+    property->value = value;
+    return property;
+}
+
+Property* set_property(Property* properties, const char* name, const uint8_t* bytes, uint64_t size,
+                       bool create_new) {
+    Property* property =
+        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
+    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+    value->type = PropertyType::String;
+    value->size = size;
+    value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * size);
+    memcpy(value->bytes, bytes, size);
+    value->next = property->value;
+    property->value = value;
+    return property;
+}
+
+Property* set_gds_property(Property* properties, uint16_t attribute, const char* value) {
+    PropertyValue* gds_attribute;
+    PropertyValue* gds_value;
+    Property* property = properties;
+    for (; property; property = property->next) {
+        if (is_gds_property(property) && property->value->unsigned_integer == attribute) {
+            gds_value = property->value->next;
+            gds_value->size = strlen(value) + 1;
+            gds_value->bytes =
+                (uint8_t*)reallocate(gds_value->bytes, sizeof(uint8_t) * gds_value->size);
+            memcpy(gds_value->bytes, value, gds_value->size);
+            return properties;
+        }
+    }
+    gds_attribute = (PropertyValue*)allocate(sizeof(PropertyValue));
+    gds_value = (PropertyValue*)allocate(sizeof(PropertyValue));
+    gds_attribute->type = PropertyType::UnsignedInteger;
+    gds_attribute->unsigned_integer = attribute;
+    gds_attribute->next = gds_value;
+    gds_value->type = PropertyType::String;
+    gds_value->size = strlen(value) + 1;
+    gds_value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * gds_value->size);
+    memcpy(gds_value->bytes, value, gds_value->size);
+    gds_value->next = NULL;
+    property = (Property*)allocate(sizeof(Property));
+    property->name = (char*)allocate(sizeof(char) * COUNT(gds_property_name));
+    memcpy(property->name, gds_property_name, COUNT(gds_property_name));
+    property->value = gds_attribute;
+    property->next = properties;
+    return property;
+}
+
+Property* remove_property(Property* properties, const char* name) {
+    if (properties == NULL) return NULL;
+    if (strcmp(properties->name, name) == 0) {
+        property_values_clear(properties->value);
+        Property* next = properties->next;
+        free_allocation(properties);
+        return next;
+    }
+    Property* property = properties;
+    while (property->next && strcmp(property->next->name, name) != 0) property = property->next;
+    if (property->next) {
+        Property* rem = property->next;
+        property_values_clear(rem->value);
+        property->next = rem->next;
+        free_allocation(rem);
+    }
+    return properties;
+}
+
+Property* remove_gds_property(Property* properties, uint16_t attribute) {
+    if (properties == NULL) return NULL;
+    if (is_gds_property(properties) && properties->value->unsigned_integer == attribute) {
+        property_values_clear(properties->value);
+        Property* next = properties->next;
+        free_allocation(properties);
+        return next;
+    }
+    Property* property = properties;
+    while (property->next &&
+           (!is_gds_property(property->next) || property->value->unsigned_integer != attribute))
+        property = property->next;
+    if (property->next) {
+        Property* rem = property->next;
+        property_values_clear(rem->value);
+        property->next = rem->next;
+        free_allocation(rem);
+    }
+    return properties;
+}
+
+PropertyValue* get_property(Property* properties, const char* name) {
+    while (properties && strcmp(properties->name, name) != 0) properties = properties->next;
+    if (properties) return properties->value;
+    return NULL;
+}
+
+PropertyValue* get_gds_property(Property* properties, uint16_t attribute) {
+    while (properties &&
+           (!is_gds_property(properties) || properties->value->unsigned_integer != attribute))
         properties = properties->next;
-        free_allocation(properties->value);
-        value_copy(value, properties);
-    }
-    properties = root.next;
-}
-
-const char* get_property(const Property* properties, int16_t key) {
-    Property root = {0, NULL, (Property*)properties};
-    properties = &root;
-    while (properties->next && properties->next->key < key) properties = properties->next;
-    if (properties->next == NULL || properties->next->key > key) return NULL;
-    return properties->next->value;
-}
-
-void delete_property(Property*& properties, int16_t key) {
-    Property root = {0, NULL, properties};
-    properties = &root;
-    while (properties->next && properties->next->key < key) properties = properties->next;
-    if (properties->next && properties->next->key == key) {
-        Property* p = properties->next;
-        properties->next = p->next;
-        free_allocation(p->value);
-        free_allocation(p);
-    }
-    properties = root.next;
+    if (properties) return properties->value->next;
+    return NULL;
 }
 
 void properties_to_gds(const Property* properties, FILE* out) {
     uint64_t size = 0;
     for (; properties; properties = properties->next) {
-        uint16_t len = (uint16_t)strlen(properties->value);
-        if (len % 2) len++;
-        uint16_t buffer_prop[] = {6, 0x2B02, (uint16_t)properties->key, (uint16_t)(4 + len),
-                                  0x2C06};
+        if (!is_gds_property(properties)) continue;
+        PropertyValue* attribute = properties->value;
+        PropertyValue* value = attribute->next;
+        uint64_t len = value->size;
+        uint8_t* bytes = value->bytes;
+        bool free_bytes = false;
+        if (len % 2) {
+            if (bytes[len - 1] == 0) {
+                len--;
+            } else {
+                free_bytes = true;
+                bytes = (uint8_t*)allocate(sizeof(uint8_t) * ++len);
+                memcpy(bytes, value->bytes, len - 1);
+                bytes[len - 1] = 0;
+            }
+        }
+
+        uint16_t buffer_prop[] = {6, 0x2B02, (uint16_t)attribute->unsigned_integer,
+                                  (uint16_t)(4 + len), 0x2C06};
         size += len;
         big_endian_swap16(buffer_prop, COUNT(buffer_prop));
         fwrite(buffer_prop, sizeof(uint16_t), COUNT(buffer_prop), out);
-        fwrite(properties->value, sizeof(char), len, out);
+        fwrite(bytes, sizeof(uint8_t), len, out);
+
+        if (free_bytes) free_allocation(bytes);
     }
     if (size > 128)
         fputs(

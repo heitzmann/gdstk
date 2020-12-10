@@ -32,6 +32,7 @@ struct Cell {
     Array<FlexPath*> flexpath_array;
     Array<RobustPath*> robustpath_array;
     Array<Label*> label_array;
+    Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;

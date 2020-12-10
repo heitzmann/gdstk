@@ -59,6 +59,8 @@ void Cell::clear() {
     flexpath_array.clear();
     robustpath_array.clear();
     label_array.clear();
+    properties_clear(properties);
+    properties = NULL;
 }
 
 void Cell::bounding_box(Vec2& min, Vec2& max) const {

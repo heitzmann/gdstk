@@ -56,6 +56,7 @@ void Repetition::clear() {
     } else if (type == RepetitionType::ExplicitX || type == RepetitionType::ExplicitY) {
         coords.clear();
     }
+    properties_clear(properties);
     memset(this, 0, sizeof(Repetition));
 }
 

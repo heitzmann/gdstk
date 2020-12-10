@@ -24,6 +24,7 @@ struct Library {
     double precision;
     Array<Cell*> cell_array;
     Array<RawCell*> rawcell_array;
+    Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -35,6 +36,8 @@ struct Library {
         name = NULL;
         cell_array.clear();
         rawcell_array.clear();
+        properties_clear(properties);
+        properties = NULL;
     }
 
     void copy_from(const Library& library, bool deep_copy);

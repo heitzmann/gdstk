@@ -229,7 +229,7 @@ Library read_gds(const char* filename, double unit) {
 
         // putchar('\n');
 
-        switch ((GdsiiRecord)buffer[2]) {
+        switch ((GdsiiRecord)(buffer[2])) {
             case GdsiiRecord::HEADER:
             case GdsiiRecord::BGNLIB:
             case GdsiiRecord::ENDSTR:
@@ -472,13 +472,13 @@ Library read_gds(const char* filename, double unit) {
             case GdsiiRecord::PROPVALUE:
                 if (str[data_length - 1] != 0) str[data_length++] = 0;
                 if (polygon) {
-                    set_property(polygon->properties, key, str);
+                    polygon->properties = set_gds_property(polygon->properties, key, str);
                 } else if (path) {
-                    set_property(path->properties, key, str);
+                    path->properties = set_gds_property(path->properties, key, str);
                 } else if (reference) {
-                    set_property(reference->properties, key, str);
+                    reference->properties = set_gds_property(reference->properties, key, str);
                 } else if (label) {
-                    set_property(label->properties, key, str);
+                    label->properties = set_gds_property(label->properties, key, str);
                 }
                 break;
             case GdsiiRecord::BGNEXTN:
@@ -592,6 +592,7 @@ int oas_precision(const char* filename, double& precision) {
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        fclose(in);
         return -1;
     }
     // Skip magic bytes and START record
@@ -602,6 +603,7 @@ int oas_precision(const char* filename, double& precision) {
     fseek(in, len, SEEK_CUR);
 
     precision = 1e-6 / oasis_read_real(in);
+    fclose(in);
     return 0;
 }
 
