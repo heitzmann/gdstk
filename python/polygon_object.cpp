@@ -38,8 +38,6 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
     polygon->layer = layer;
     polygon->datatype = datatype;
     if (parse_point_sequence(py_points, polygon->point_array, "points") < 0) return -1;
-    properties_clear(polygon->properties);
-    polygon->properties = NULL;
     polygon->owner = self;
     return 0;
 }

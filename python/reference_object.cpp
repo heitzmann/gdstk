@@ -101,8 +101,6 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
     reference->rotation = rotation;
     reference->magnification = magnification;
     reference->x_reflection = x_reflection > 0;
-    properties_clear(reference->properties);
-    reference->properties = NULL;
     reference->owner = self;
     return 0;
 }

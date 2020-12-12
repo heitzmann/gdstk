@@ -399,8 +399,6 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
     robustpath->trafo[4] = 1;
     robustpath->gdsii_path = gdsii_path > 0;
     robustpath->scale_width = scale_width > 0;
-    properties_clear(robustpath->properties);
-    robustpath->properties = NULL;
     robustpath->owner = self;
     return 0;
 }

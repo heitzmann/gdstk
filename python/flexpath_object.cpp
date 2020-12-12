@@ -580,8 +580,6 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
     flexpath->spine.tolerance = tolerance;
     flexpath->gdsii_path = gdsii_path > 0;
     flexpath->scale_width = scale_width > 0;
-    properties_clear(flexpath->properties);
-    flexpath->properties = NULL;
     flexpath->owner = self;
     return 0;
 }

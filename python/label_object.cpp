@@ -84,8 +84,6 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     label->x_reflection = x_reflection > 0;
     label->text = (char*)allocate((strlen(s) + 1) * sizeof(char));
     strcpy(label->text, s);
-    properties_clear(label->properties);
-    label->properties = NULL;
     label->owner = self;
     return 0;
 }
