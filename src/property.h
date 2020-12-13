@@ -42,26 +42,27 @@ struct Property {
     Property* next;
 };
 
-void properties_clear(Property* properties);
+void properties_print(Property* properties);
+void properties_clear(Property*& properties);
 Property* properties_copy(const Property* properties);
 
 // set_property functions add values to the first existing property with the given name.  A new
 // one is created if none exists or create_new == true.  New values are added to the start of the
 // value list, so in the OASIS file, they will appear in reverse of the insertion order (last added
 // will first).
-Property* set_property(Property* properties, const char* name, uint64_t unsigned_integer,
-                       bool create_new);
-Property* set_property(Property* properties, const char* name, int64_t integer, bool create_new);
-Property* set_property(Property* properties, const char* name, double real, bool create_new);
-Property* set_property(Property* properties, const char* name, const char* string, bool create_new);
-Property* set_property(Property* properties, const char* name, const uint8_t* bytes, uint64_t size,
-                       bool create_new);
+void set_property(Property*& properties, const char* name, uint64_t unsigned_integer,
+                  bool create_new);
+void set_property(Property*& properties, const char* name, int64_t integer, bool create_new);
+void set_property(Property*& properties, const char* name, double real, bool create_new);
+void set_property(Property*& properties, const char* name, const char* string, bool create_new);
+void set_property(Property*& properties, const char* name, const uint8_t* bytes, uint64_t size,
+                  bool create_new);
 
 // Overwrite properties with the same attribute number
-Property* set_gds_property(Property* properties, uint16_t attribute, const char* value);
+void set_gds_property(Property*& properties, uint16_t attribute, const char* value);
 
-Property* remove_property(Property* properties, const char* name);
-Property* remove_gds_property(Property* properties, uint16_t attribute);
+bool remove_property(Property*& properties, const char* name);
+bool remove_gds_property(Property*& properties, uint16_t attribute);
 PropertyValue* get_property(Property* properties, const char* name);
 PropertyValue* get_gds_property(Property* properties, uint16_t attribute);
 void properties_to_gds(const Property* properties, FILE* out);

@@ -71,6 +71,7 @@ void FlexPath::print(bool all) const {
         printf("Spine: ");
         spine.print(true);
     }
+    properties_print(properties);
     repetition.print();
 }
 
@@ -83,7 +84,6 @@ void FlexPath::clear() {
     num_elements = 0;
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void FlexPath::copy_from(const FlexPath& path) {

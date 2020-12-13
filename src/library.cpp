@@ -44,6 +44,7 @@ void Library::print(bool all) const {
             rawcell_array[i]->print(true);
         }
     }
+    properties_print(properties);
 }
 
 void Library::copy_from(const Library& library, bool deep_copy) {
@@ -472,13 +473,13 @@ Library read_gds(const char* filename, double unit) {
             case GdsiiRecord::PROPVALUE:
                 if (str[data_length - 1] != 0) str[data_length++] = 0;
                 if (polygon) {
-                    polygon->properties = set_gds_property(polygon->properties, key, str);
+                    set_gds_property(polygon->properties, key, str);
                 } else if (path) {
-                    path->properties = set_gds_property(path->properties, key, str);
+                    set_gds_property(path->properties, key, str);
                 } else if (reference) {
-                    reference->properties = set_gds_property(reference->properties, key, str);
+                    set_gds_property(reference->properties, key, str);
                 } else if (label) {
-                    label->properties = set_gds_property(label->properties, key, str);
+                    set_gds_property(label->properties, key, str);
                 }
                 break;
             case GdsiiRecord::BGNEXTN:

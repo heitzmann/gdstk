@@ -49,6 +49,7 @@ void Cell::print(bool all) const {
             label_array[i]->print();
         }
     }
+    properties_print(properties);
 }
 
 void Cell::clear() {
@@ -60,7 +61,6 @@ void Cell::clear() {
     robustpath_array.clear();
     label_array.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Cell::bounding_box(Vec2& min, Vec2& max) const {
@@ -129,6 +129,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         name = (char*)allocate(sizeof(char) * (strlen(cell.name) + 1));
         strcpy(name, cell.name);
     }
+    properties = properties_copy(cell.properties);
 
     if (deep_copy) {
         polygon_array.capacity = cell.polygon_array.capacity;

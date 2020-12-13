@@ -37,7 +37,6 @@ struct Library {
         cell_array.clear();
         rawcell_array.clear();
         properties_clear(properties);
-        properties = NULL;
     }
 
     void copy_from(const Library& library, bool deep_copy);

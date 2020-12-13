@@ -48,6 +48,7 @@ void Repetition::print() const {
         case RepetitionType::None:
             return;
     }
+    properties_print(properties);
 }
 
 void Repetition::clear() {
@@ -62,6 +63,7 @@ void Repetition::clear() {
 
 void Repetition::copy_from(const Repetition repetition) {
     type = repetition.type;
+    properties = properties_copy(repetition.properties);
     switch (type) {
         case RepetitionType::Rectangular:
             columns = repetition.columns;

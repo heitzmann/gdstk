@@ -396,6 +396,7 @@ void RobustPath::print(bool all) const {
                    ne, el->layer, el->datatype, (int)el->end_type, el->end_extensions.u,
                    el->end_extensions.v);
     }
+    properties_print(properties);
     repetition.print();
 }
 
@@ -411,7 +412,6 @@ void RobustPath::clear() {
     num_elements = 0;
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void RobustPath::copy_from(const RobustPath &path) {

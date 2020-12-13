@@ -21,6 +21,7 @@ void Label::print() {
            ", texttype %" PRIu32 ", properties <%p>, owner <%p>\n",
            this, text, origin.x, origin.y, rotation, magnification, x_reflection, layer, texttype,
            properties, owner);
+    properties_print(properties);
     repetition.print();
 }
 
@@ -31,7 +32,6 @@ void Label::clear() {
     }
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Label::copy_from(const Label& label) {

@@ -19,6 +19,37 @@ namespace gdstk {
 
 const char gds_property_name[] = "S_GDS_PROPERTY";
 
+void properties_print(Property* properties) {
+    if (!properties) return;
+    puts("Properties:");
+    for (; properties; properties = properties->next) {
+        printf("- %s:", properties->name);
+        for (PropertyValue* value = properties->value; value; value = value->next) {
+            switch (value->type) {
+                case PropertyType::UnsignedInteger:
+                    printf(" %" PRIu64, value->unsigned_integer);
+                    break;
+                case PropertyType::Integer:
+                    printf(" %" PRId64, value->integer);
+                    break;
+                case PropertyType::Real:
+                    printf(" %lg", value->real);
+                    break;
+                case PropertyType::String: {
+                    putchar(' ');
+                    uint8_t* c = value->bytes;
+                    for (uint64_t i = 0; i < value->size; i++, c++)
+                        if (*c >= 0x20 && *c < 0x7f)
+                            putchar(*c);
+                        else
+                            printf("[%02x]", *c);
+                }
+            }
+        }
+        putchar('\n');
+    }
+}
+
 static bool is_gds_property(const Property* property) {
     if (strcmp(property->name, gds_property_name) != 0 || property->value == NULL) return false;
     PropertyValue* attribute = property->value;
@@ -40,7 +71,7 @@ static void property_values_clear(PropertyValue* values) {
     }
 }
 
-void properties_clear(Property* properties) {
+void properties_clear(Property*& properties) {
     while (properties) {
         property_values_clear(properties->value);
         Property* next = properties->next;
@@ -102,86 +133,66 @@ Property* properties_copy(const Property* properties) {
     return result;
 }
 
-static Property* new_property(Property* properties, const char* name) {
+static PropertyValue* get_or_add_property(Property*& properties, const char* name,
+                                          bool create_new) {
+    if (!create_new) {
+        Property* property = properties;
+        while (property && strcmp(property->name, name) != 0) property = property->next;
+        if (property) {
+            PropertyValue* value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));
+            value->next = property->value;
+            property->value = value;
+            return value;
+        }
+    }
     Property* property = (Property*)allocate(sizeof(Property));
-    property->value = NULL;
     property->next = properties;
+    properties = property;
+
     uint64_t len = strlen(name) + 1;
     property->name = (char*)allocate(sizeof(char) * len);
     memcpy(property->name, name, len);
-    return property;
+    properties->value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));
+    return properties->value;
 }
 
-static Property* get_or_add_property(Property* properties, const char* name) {
-    Property* property = properties;
-    while (property && strcmp(property->name, name) != 0) property = property->next;
-    if (property == NULL) property = new_property(properties, name);
-    return property;
-}
-
-Property* set_property(Property* properties, const char* name, uint64_t unsigned_integer,
-                       bool create_new) {
-    Property* property =
-        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
-    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+void set_property(Property*& properties, const char* name, uint64_t unsigned_integer,
+                  bool create_new) {
+    PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::UnsignedInteger;
     value->unsigned_integer = unsigned_integer;
-    value->next = property->value;
-    property->value = value;
-    return property;
 }
 
-Property* set_property(Property* properties, const char* name, int64_t integer, bool create_new) {
-    Property* property =
-        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
-    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+void set_property(Property*& properties, const char* name, int64_t integer, bool create_new) {
+    PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::Integer;
     value->integer = integer;
-    value->next = property->value;
-    property->value = value;
-    return property;
 }
 
-Property* set_property(Property* properties, const char* name, double real, bool create_new) {
-    Property* property =
-        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
-    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+void set_property(Property*& properties, const char* name, double real, bool create_new) {
+    PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::Real;
     value->real = real;
-    value->next = property->value;
-    property->value = value;
-    return property;
 }
 
-Property* set_property(Property* properties, const char* name, const char* string,
-                       bool create_new) {
-    Property* property =
-        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
-    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+void set_property(Property*& properties, const char* name, const char* string, bool create_new) {
+    PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
     value->size = strlen(string) + 1;
     value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * value->size);
     memcpy(value->bytes, string, value->size);
-    value->next = property->value;
-    property->value = value;
-    return property;
 }
 
-Property* set_property(Property* properties, const char* name, const uint8_t* bytes, uint64_t size,
-                       bool create_new) {
-    Property* property =
-        create_new ? new_property(properties, name) : get_or_add_property(properties, name);
-    PropertyValue* value = (PropertyValue*)allocate(sizeof(PropertyValue));
+void set_property(Property*& properties, const char* name, const uint8_t* bytes, uint64_t size,
+                  bool create_new) {
+    PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
     value->size = size;
     value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * size);
     memcpy(value->bytes, bytes, size);
-    value->next = property->value;
-    property->value = value;
-    return property;
 }
 
-Property* set_gds_property(Property* properties, uint16_t attribute, const char* value) {
+void set_gds_property(Property*& properties, uint16_t attribute, const char* value) {
     PropertyValue* gds_attribute;
     PropertyValue* gds_value;
     Property* property = properties;
@@ -192,7 +203,7 @@ Property* set_gds_property(Property* properties, uint16_t attribute, const char*
             gds_value->bytes =
                 (uint8_t*)reallocate(gds_value->bytes, sizeof(uint8_t) * gds_value->size);
             memcpy(gds_value->bytes, value, gds_value->size);
-            return properties;
+            return;
         }
     }
     gds_attribute = (PropertyValue*)allocate(sizeof(PropertyValue));
@@ -210,16 +221,17 @@ Property* set_gds_property(Property* properties, uint16_t attribute, const char*
     memcpy(property->name, gds_property_name, COUNT(gds_property_name));
     property->value = gds_attribute;
     property->next = properties;
-    return property;
+    properties = property;
 }
 
-Property* remove_property(Property* properties, const char* name) {
-    if (properties == NULL) return NULL;
+bool remove_property(Property*& properties, const char* name) {
+    if (properties == NULL) return false;
     if (strcmp(properties->name, name) == 0) {
         property_values_clear(properties->value);
         Property* next = properties->next;
         free_allocation(properties);
-        return next;
+        properties = next;
+        return true;
     }
     Property* property = properties;
     while (property->next && strcmp(property->next->name, name) != 0) property = property->next;
@@ -228,17 +240,19 @@ Property* remove_property(Property* properties, const char* name) {
         property_values_clear(rem->value);
         property->next = rem->next;
         free_allocation(rem);
+        return true;
     }
-    return properties;
+    return false;
 }
 
-Property* remove_gds_property(Property* properties, uint16_t attribute) {
-    if (properties == NULL) return NULL;
+bool remove_gds_property(Property*& properties, uint16_t attribute) {
+    if (properties == NULL) return false;
     if (is_gds_property(properties) && properties->value->unsigned_integer == attribute) {
         property_values_clear(properties->value);
         Property* next = properties->next;
         free_allocation(properties);
-        return next;
+        properties = next;
+        return true;
     }
     Property* property = properties;
     while (property->next &&
@@ -249,8 +263,9 @@ Property* remove_gds_property(Property* properties, uint16_t attribute) {
         property_values_clear(rem->value);
         property->next = rem->next;
         free_allocation(rem);
+        return true;
     }
-    return properties;
+    return false;
 }
 
 PropertyValue* get_property(Property* properties, const char* name) {

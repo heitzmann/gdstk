@@ -15,8 +15,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "allocator.h"
 #include "cell.h"
-#include "rawcell.h"
 #include "gdsii.h"
+#include "rawcell.h"
 #include "utils.h"
 
 namespace gdstk {
@@ -34,6 +34,7 @@ void Reference::print() const {
     }
     printf(", at (%lg, %lg), %lg rad, mag %lg, reflection %d, properties <%p>, owner <%p>\n",
            origin.x, origin.y, rotation, magnification, x_reflection, properties, owner);
+    properties_print(properties);
     repetition.print();
 }
 
@@ -44,7 +45,6 @@ void Reference::clear() {
     }
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Reference::copy_from(const Reference& reference) {

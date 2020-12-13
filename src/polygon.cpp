@@ -32,6 +32,7 @@ void Polygon::print(bool all) const {
         printf("Points: ");
         point_array.print(true);
     }
+    properties_print(properties);
     repetition.print();
 }
 
@@ -39,7 +40,6 @@ void Polygon::clear() {
     point_array.clear();
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
