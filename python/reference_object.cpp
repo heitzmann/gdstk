@@ -140,54 +140,47 @@ static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObje
 }
 
 static PyObject* reference_object_set_property(ReferenceObject* self, PyObject* args) {
-    int16_t attr;
-    char* value;
-    if (!PyArg_ParseTuple(args, "hs:set_property", &attr, &value)) return NULL;
-    set_property(self->reference->properties, attr, value);
+    if (!parse_property(self->reference->properties, args)) return NULL;
     Py_INCREF(self);
     return (PyObject*)self;
 }
 
 static PyObject* reference_object_get_property(ReferenceObject* self, PyObject* args) {
-    Property* property = self->reference->properties;
+    return build_property(self->reference->properties, args);
+}
 
-    if (PyTuple_Size(args) == 0 || PyTuple_GetItem(args, 0) == Py_None) {
-        PyObject* result = PyDict_New();
-        for (; property; property = property->next) {
-            PyObject* key = PyLong_FromLong(property->key);
-            if (!key) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert key to int.");
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyObject* val = PyUnicode_FromString(property->value);
-            if (!val) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
-                Py_DECREF(key);
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyDict_SetItem(result, key, val);
-            Py_DECREF(key);
-            Py_DECREF(val);
-        }
-        return result;
-    }
+static PyObject* reference_object_delete_property(ReferenceObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->reference->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
 
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:get_property", &attr)) return NULL;
-    const char* value = get_property(property, attr);
+static PyObject* reference_object_set_gds_property(ReferenceObject* self, PyObject* args) {
+    uint16_t attribute;
+    char* value;
+    if (!PyArg_ParseTuple(args, "Hs:set_gds_property", &attribute, &value)) return NULL;
+    set_gds_property(self->reference->properties, attribute, value);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* reference_object_get_gds_property(ReferenceObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:get_gds_property", &attribute)) return NULL;
+    const PropertyValue* value = get_gds_property(self->reference->properties, attribute);
     if (!value) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString(value);
+    return PyUnicode_FromString((char*)value->bytes);
 }
 
-static PyObject* reference_object_delete_property(ReferenceObject* self, PyObject* args) {
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:delete_property", &attr)) return NULL;
-    delete_property(self->reference->properties, attr);
+static PyObject* reference_object_delete_gds_property(ReferenceObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:delete_gds_property", &attribute)) return NULL;
+    remove_gds_property(self->reference->properties, attribute);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -199,11 +192,17 @@ static PyMethodDef reference_object_methods[] = {
     {"apply_repetition", (PyCFunction)reference_object_apply_repetition, METH_NOARGS,
      reference_object_apply_repetition_doc},
     {"set_property", (PyCFunction)reference_object_set_property, METH_VARARGS,
-     reference_object_set_property_doc},
+     object_set_property_doc},
     {"get_property", (PyCFunction)reference_object_get_property, METH_VARARGS,
-     reference_object_get_property_doc},
+     object_get_property_doc},
     {"delete_property", (PyCFunction)reference_object_delete_property, METH_VARARGS,
-     reference_object_delete_property_doc},
+     object_delete_property_doc},
+    {"set_gds_property", (PyCFunction)reference_object_set_gds_property, METH_VARARGS,
+     object_set_gds_property_doc},
+    {"get_gds_property", (PyCFunction)reference_object_get_gds_property, METH_VARARGS,
+     object_get_gds_property_doc},
+    {"delete_gds_property", (PyCFunction)reference_object_delete_gds_property, METH_VARARGS,
+     object_delete_gds_property_doc},
     {NULL}};
 
 static PyObject* reference_object_get_cell(ReferenceObject* self, void*) {
@@ -282,6 +281,14 @@ int reference_object_set_x_reflection(ReferenceObject* self, PyObject* arg, void
     return 0;
 }
 
+static PyObject* reference_object_get_properties(ReferenceObject* self, void*) {
+    return build_properties(self->reference->properties);
+}
+
+int reference_object_set_properties(ReferenceObject* self, PyObject* arg, void*) {
+    return parse_properties(self->reference->properties, arg);
+}
+
 static PyObject* reference_object_get_repetition(ReferenceObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
@@ -313,6 +320,8 @@ static PyGetSetDef reference_object_getset[] = {
      (setter)reference_object_set_magnification, reference_object_magnification_doc, NULL},
     {"x_reflection", (getter)reference_object_get_x_reflection,
      (setter)reference_object_set_x_reflection, reference_object_x_reflection_doc, NULL},
+    {"properties", (getter)reference_object_get_properties, (setter)reference_object_set_properties,
+     object_properties_doc, NULL},
     {"repetition", (getter)reference_object_get_repetition, (setter)reference_object_set_repetition,
-     reference_object_repetition_doc, NULL},
+     object_repetition_doc, NULL},
     {NULL}};

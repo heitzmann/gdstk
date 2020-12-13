@@ -99,10 +99,34 @@ static PyObject* repetition_object_getoffsets(RepetitionObject* self, PyObject* 
     return (PyObject*)result;
 }
 
+static PyObject* repetition_object_set_property(RepetitionObject* self, PyObject* args) {
+    if (!parse_property(self->repetition.properties, args)) return NULL;
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* repetition_object_get_property(RepetitionObject* self, PyObject* args) {
+    return build_property(self->repetition.properties, args);
+}
+
+static PyObject* repetition_object_delete_property(RepetitionObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->repetition.properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyMethodDef repetition_object_methods[] = {
     // {"copy", (PyCFunction)repetition_object_copy, METH_NOARGS, repetition_object_copy_doc},
     {"get_offsets", (PyCFunction)repetition_object_getoffsets, METH_NOARGS,
      repetition_object_getoffsets_doc},
+    {"set_property", (PyCFunction)repetition_object_set_property, METH_VARARGS,
+     object_set_property_doc},
+    {"get_property", (PyCFunction)repetition_object_get_property, METH_VARARGS,
+     object_get_property_doc},
+    {"delete_property", (PyCFunction)repetition_object_delete_property, METH_VARARGS,
+     object_delete_property_doc},
     {NULL}};
 
 static PyObject* repetition_object_get_size(RepetitionObject* self, void*) {
@@ -243,6 +267,14 @@ static PyObject* repetition_object_get_y_offsets(RepetitionObject* self, void*) 
     return Py_None;
 }
 
+static PyObject* repetition_object_get_properties(RepetitionObject* self, void*) {
+    return build_properties(self->repetition.properties);
+}
+
+int repetition_object_set_properties(RepetitionObject* self, PyObject* arg, void*) {
+    return parse_properties(self->repetition.properties, arg);
+}
+
 static PyGetSetDef repetition_object_getset[] = {
     {"size", (getter)repetition_object_get_size, NULL, repetition_object_size_doc, NULL},
     {"columns", (getter)repetition_object_get_columns, NULL, repetition_object_columns_doc, NULL},
@@ -255,4 +287,6 @@ static PyGetSetDef repetition_object_getset[] = {
      NULL},
     {"y_offsets", (getter)repetition_object_get_y_offsets, NULL, repetition_object_y_offsets_doc,
      NULL},
+    {"properties", (getter)repetition_object_get_properties,
+     (setter)repetition_object_set_properties, object_properties_doc, NULL},
     {NULL}};

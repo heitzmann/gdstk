@@ -188,6 +188,24 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
     return Py_None;
 }
 
+static PyObject* library_object_set_property(LibraryObject* self, PyObject* args) {
+    if (!parse_property(self->library->properties, args)) return NULL;
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* library_object_get_property(LibraryObject* self, PyObject* args) {
+    return build_property(self->library->properties, args);
+}
+
+static PyObject* library_object_delete_property(LibraryObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->library->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyMethodDef library_object_methods[] = {
     {"add", (PyCFunction)library_object_add, METH_VARARGS, library_object_add_doc},
     {"remove", (PyCFunction)library_object_remove, METH_VARARGS, library_object_remove_doc},
@@ -195,6 +213,12 @@ static PyMethodDef library_object_methods[] = {
     {"top_level", (PyCFunction)library_object_top_level, METH_NOARGS, library_object_top_level_doc},
     {"write_gds", (PyCFunction)library_object_write_gds, METH_VARARGS | METH_KEYWORDS,
      library_object_write_gds_doc},
+    {"set_property", (PyCFunction)library_object_set_property, METH_VARARGS,
+     object_set_property_doc},
+    {"get_property", (PyCFunction)library_object_get_property, METH_VARARGS,
+     object_get_property_doc},
+    {"delete_property", (PyCFunction)library_object_delete_property, METH_VARARGS,
+     object_delete_property_doc},
     {NULL}};
 
 PyObject* library_object_get_name(LibraryObject* self, void*) {
@@ -246,8 +270,18 @@ PyObject* library_object_get_cells(LibraryObject* self, void*) {
     return result;
 }
 
+static PyObject* library_object_get_properties(LibraryObject* self, void*) {
+    return build_properties(self->library->properties);
+}
+
+int library_object_set_properties(LibraryObject* self, PyObject* arg, void*) {
+    return parse_properties(self->library->properties, arg);
+}
+
 static PyGetSetDef library_object_getset[] = {
     {"name", (getter)library_object_get_name, (setter)library_object_set_name,
      library_object_name_doc, NULL},
     {"cells", (getter)library_object_get_cells, NULL, library_object_cells_doc, NULL},
+    {"properties", (getter)library_object_get_properties, (setter)library_object_set_properties,
+     object_properties_doc, NULL},
     {NULL}};

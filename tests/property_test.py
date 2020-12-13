@@ -9,7 +9,7 @@
 import gdstk
 
 
-def test_properties():
+def test_gds_properties():
     for obj in [
         gdstk.Polygon([-1 + 0j, -2j, 3 + 0j, 4j]),
         gdstk.FlexPath((0j, 1j), 0.1),
@@ -17,13 +17,46 @@ def test_properties():
         gdstk.Label("Label", 0j),
         gdstk.Reference("EMPTY"),
     ]:
-        assert obj.get_property(12) is None
-        assert obj.delete_property(12) is obj
-        obj.set_property(13, "Property text")
-        assert obj.get_property(12) is None
-        assert obj.get_property(13) == "Property text"
-        obj.delete_property(13)
-        assert obj.get_property(13) is None
-        obj.set_property(13, "Second text")
-        obj.set_property(13, "Third text")
-        assert obj.get_property(13) == "Third text"
+        assert obj.get_gds_property(12) is None
+        assert obj.delete_gds_property(12) is obj
+        obj.set_gds_property(13, "Property text")
+        assert obj.get_gds_property(12) is None
+        assert obj.get_gds_property(13) == "Property text"
+        obj.delete_gds_property(13)
+        assert obj.get_gds_property(13) is None
+        obj.set_gds_property(13, "Second text")
+        obj.set_gds_property(13, "Third text")
+        obj.set_gds_property(14, "Fourth text")
+        assert obj.get_gds_property(13) == "Third text"
+        assert obj.properties == [
+            ["S_GDS_PROPERTY", 14, b"Fourth text\x00"],
+            ["S_GDS_PROPERTY", 13, b"Third text\x00"],
+        ]
+
+
+def test_properties():
+    for obj in [
+        gdstk.Polygon([-1 + 0j, -2j, 3 + 0j, 4j]),
+        gdstk.FlexPath((0j, 1j), 0.1),
+        gdstk.RobustPath(0j, 0.1),
+        gdstk.Label("Label", 0j),
+        gdstk.Reference("EMPTY"),
+        gdstk.Cell("CELL"),
+        gdstk.Repetition(1, 1, (1, 1)),
+        gdstk.Library("Name"),
+    ]:
+        assert len(obj.properties) == 0
+        assert obj.get_property("None") is None
+        obj.set_property("FIRST", 1)
+        obj.set_property("SECOND", 2.0)
+        obj.set_property("THIRD", -3)
+        obj.set_property("FOURTH", [1, 2.0, -3, "FO", b"UR\x00TH\x00"])
+        obj.set_property("FIRST", -1)
+        assert obj.get_property("FIRST") == [-1]
+        obj.delete_property("THIRD")
+        assert obj.properties == [
+            ["FIRST", -1],
+            ["FOURTH", 1, 2.0, -3, b"FO", b"UR\x00TH\x00"],
+            ["SECOND", 2.0],
+            ["FIRST", 1],
+        ]

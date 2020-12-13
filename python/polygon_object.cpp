@@ -200,54 +200,47 @@ static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject* 
 }
 
 static PyObject* polygon_object_set_property(PolygonObject* self, PyObject* args) {
-    int16_t attr;
-    char* value;
-    if (!PyArg_ParseTuple(args, "hs:set_property", &attr, &value)) return NULL;
-    set_property(self->polygon->properties, attr, value);
+    if (!parse_property(self->polygon->properties, args)) return NULL;
     Py_INCREF(self);
     return (PyObject*)self;
 }
 
 static PyObject* polygon_object_get_property(PolygonObject* self, PyObject* args) {
-    Property* property = self->polygon->properties;
+    return build_property(self->polygon->properties, args);
+}
 
-    if (PyTuple_Size(args) == 0 || PyTuple_GetItem(args, 0) == Py_None) {
-        PyObject* result = PyDict_New();
-        for (; property; property = property->next) {
-            PyObject* key = PyLong_FromLong(property->key);
-            if (!key) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert key to int.");
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyObject* val = PyUnicode_FromString(property->value);
-            if (!val) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
-                Py_DECREF(key);
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyDict_SetItem(result, key, val);
-            Py_DECREF(key);
-            Py_DECREF(val);
-        }
-        return result;
-    }
+static PyObject* polygon_object_delete_property(PolygonObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->polygon->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
 
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:get_property", &attr)) return NULL;
-    const char* value = get_property(property, attr);
+static PyObject* polygon_object_set_gds_property(PolygonObject* self, PyObject* args) {
+    uint16_t attribute;
+    char* value;
+    if (!PyArg_ParseTuple(args, "Hs:set_gds_property", &attribute, &value)) return NULL;
+    set_gds_property(self->polygon->properties, attribute, value);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* polygon_object_get_gds_property(PolygonObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:get_gds_property", &attribute)) return NULL;
+    const PropertyValue* value = get_gds_property(self->polygon->properties, attribute);
     if (!value) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString(value);
+    return PyUnicode_FromString((char*)value->bytes);
 }
 
-static PyObject* polygon_object_delete_property(PolygonObject* self, PyObject* args) {
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:delete_property", &attr)) return NULL;
-    delete_property(self->polygon->properties, attr);
+static PyObject* polygon_object_delete_gds_property(PolygonObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:delete_gds_property", &attribute)) return NULL;
+    remove_gds_property(self->polygon->properties, attribute);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -272,11 +265,17 @@ static PyMethodDef polygon_object_methods[] = {
     {"apply_repetition", (PyCFunction)polygon_object_apply_repetition, METH_NOARGS,
      polygon_object_apply_repetition_doc},
     {"set_property", (PyCFunction)polygon_object_set_property, METH_VARARGS,
-     polygon_object_set_property_doc},
+     object_set_property_doc},
     {"get_property", (PyCFunction)polygon_object_get_property, METH_VARARGS,
-     polygon_object_get_property_doc},
+     object_get_property_doc},
     {"delete_property", (PyCFunction)polygon_object_delete_property, METH_VARARGS,
-     polygon_object_delete_property_doc},
+     object_delete_property_doc},
+    {"set_gds_property", (PyCFunction)polygon_object_set_gds_property, METH_VARARGS,
+     object_set_gds_property_doc},
+    {"get_gds_property", (PyCFunction)polygon_object_get_gds_property, METH_VARARGS,
+     object_get_gds_property_doc},
+    {"delete_gds_property", (PyCFunction)polygon_object_delete_gds_property, METH_VARARGS,
+     object_delete_gds_property_doc},
     {NULL}};
 
 static PyObject* polygon_object_get_points(PolygonObject* self, void*) {
@@ -322,6 +321,14 @@ static PyObject* polygon_object_get_size(PolygonObject* self, void*) {
     return PyLong_FromUnsignedLongLong(self->polygon->point_array.size);
 }
 
+static PyObject* polygon_object_get_properties(PolygonObject* self, void*) {
+    return build_properties(self->polygon->properties);
+}
+
+int polygon_object_set_properties(PolygonObject* self, PyObject* arg, void*) {
+    return parse_properties(self->polygon->properties, arg);
+}
+
 static PyObject* polygon_object_get_repetition(PolygonObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
@@ -350,6 +357,8 @@ static PyGetSetDef polygon_object_getset[] = {
     {"datatype", (getter)polygon_object_get_datatype, (setter)polygon_object_set_datatype,
      polygon_object_datatype_doc, NULL},
     {"size", (getter)polygon_object_get_size, NULL, polygon_object_size_doc, NULL},
+    {"properties", (getter)polygon_object_get_properties, (setter)polygon_object_set_properties,
+     object_properties_doc, NULL},
     {"repetition", (getter)polygon_object_get_repetition, (setter)polygon_object_set_repetition,
-     polygon_object_repetition_doc, NULL},
+     object_repetition_doc, NULL},
     {NULL}};

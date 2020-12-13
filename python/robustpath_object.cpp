@@ -1552,54 +1552,47 @@ static PyObject* robustpath_object_apply_repetition(RobustPathObject* self, PyOb
 }
 
 static PyObject* robustpath_object_set_property(RobustPathObject* self, PyObject* args) {
-    int16_t attr;
-    char* value;
-    if (!PyArg_ParseTuple(args, "hs:set_property", &attr, &value)) return NULL;
-    set_property(self->robustpath->properties, attr, value);
+    if (!parse_property(self->robustpath->properties, args)) return NULL;
     Py_INCREF(self);
     return (PyObject*)self;
 }
 
 static PyObject* robustpath_object_get_property(RobustPathObject* self, PyObject* args) {
-    Property* property = self->robustpath->properties;
+    return build_property(self->robustpath->properties, args);
+}
 
-    if (PyTuple_Size(args) == 0 || PyTuple_GetItem(args, 0) == Py_None) {
-        PyObject* result = PyDict_New();
-        for (; property; property = property->next) {
-            PyObject* key = PyLong_FromLong(property->key);
-            if (!key) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert key to int.");
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyObject* val = PyUnicode_FromString(property->value);
-            if (!val) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
-                Py_DECREF(key);
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyDict_SetItem(result, key, val);
-            Py_DECREF(key);
-            Py_DECREF(val);
-        }
-        return result;
-    }
+static PyObject* robustpath_object_delete_property(RobustPathObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->robustpath->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
 
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:get_property", &attr)) return NULL;
-    const char* value = get_property(property, attr);
+static PyObject* robustpath_object_set_gds_property(RobustPathObject* self, PyObject* args) {
+    uint16_t attribute;
+    char* value;
+    if (!PyArg_ParseTuple(args, "Hs:set_gds_property", &attribute, &value)) return NULL;
+    set_gds_property(self->robustpath->properties, attribute, value);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* robustpath_object_get_gds_property(RobustPathObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:get_gds_property", &attribute)) return NULL;
+    const PropertyValue* value = get_gds_property(self->robustpath->properties, attribute);
     if (!value) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString(value);
+    return PyUnicode_FromString((char*)value->bytes);
 }
 
-static PyObject* robustpath_object_delete_property(RobustPathObject* self, PyObject* args) {
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:delete_property", &attr)) return NULL;
-    delete_property(self->robustpath->properties, attr);
+static PyObject* robustpath_object_delete_gds_property(RobustPathObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:delete_gds_property", &attribute)) return NULL;
+    remove_gds_property(self->robustpath->properties, attribute);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1658,11 +1651,17 @@ static PyMethodDef robustpath_object_methods[] = {
     {"apply_repetition", (PyCFunction)robustpath_object_apply_repetition, METH_NOARGS,
      robustpath_object_apply_repetition_doc},
     {"set_property", (PyCFunction)robustpath_object_set_property, METH_VARARGS,
-     robustpath_object_set_property_doc},
+     object_set_property_doc},
     {"get_property", (PyCFunction)robustpath_object_get_property, METH_VARARGS,
-     robustpath_object_get_property_doc},
+     object_get_property_doc},
     {"delete_property", (PyCFunction)robustpath_object_delete_property, METH_VARARGS,
-     robustpath_object_delete_property_doc},
+     object_delete_property_doc},
+    {"set_gds_property", (PyCFunction)robustpath_object_set_gds_property, METH_VARARGS,
+     object_set_gds_property_doc},
+    {"get_gds_property", (PyCFunction)robustpath_object_get_gds_property, METH_VARARGS,
+     object_get_gds_property_doc},
+    {"delete_gds_property", (PyCFunction)robustpath_object_delete_gds_property, METH_VARARGS,
+     object_delete_gds_property_doc},
     {NULL}};
 
 static PyObject* robustpath_object_get_layers(RobustPathObject* self, void*) {
@@ -1711,6 +1710,14 @@ static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
     return PyLong_FromUnsignedLongLong(self->robustpath->subpath_array.size);
 }
 
+static PyObject* robustpath_object_get_properties(RobustPathObject* self, void*) {
+    return build_properties(self->robustpath->properties);
+}
+
+int robustpath_object_set_properties(RobustPathObject* self, PyObject* arg, void*) {
+    return parse_properties(self->robustpath->properties, arg);
+}
+
 static PyObject* robustpath_object_get_repetition(RobustPathObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
@@ -1739,6 +1746,8 @@ static PyGetSetDef robustpath_object_getset[] = {
     {"num_paths", (getter)robustpath_object_get_num_paths, NULL, robustpath_object_num_paths_doc,
      NULL},
     {"size", (getter)robustpath_object_get_size, NULL, robustpath_object_size_doc, NULL},
+    {"properties", (getter)robustpath_object_get_properties,
+     (setter)robustpath_object_set_properties, object_properties_doc, NULL},
     {"repetition", (getter)robustpath_object_get_repetition,
-     (setter)robustpath_object_set_repetition, robustpath_object_repetition_doc, NULL},
+     (setter)robustpath_object_set_repetition, object_repetition_doc, NULL},
     {NULL}};

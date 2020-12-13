@@ -1636,54 +1636,47 @@ static PyObject* flexpath_object_apply_repetition(FlexPathObject* self, PyObject
 }
 
 static PyObject* flexpath_object_set_property(FlexPathObject* self, PyObject* args) {
-    int16_t attr;
-    char* value;
-    if (!PyArg_ParseTuple(args, "hs:set_property", &attr, &value)) return NULL;
-    set_property(self->flexpath->properties, attr, value);
+    if (!parse_property(self->flexpath->properties, args)) return NULL;
     Py_INCREF(self);
     return (PyObject*)self;
 }
 
 static PyObject* flexpath_object_get_property(FlexPathObject* self, PyObject* args) {
-    Property* property = self->flexpath->properties;
+    return build_property(self->flexpath->properties, args);
+}
 
-    if (PyTuple_Size(args) == 0 || PyTuple_GetItem(args, 0) == Py_None) {
-        PyObject* result = PyDict_New();
-        for (; property; property = property->next) {
-            PyObject* key = PyLong_FromLong(property->key);
-            if (!key) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert key to int.");
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyObject* val = PyUnicode_FromString(property->value);
-            if (!val) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
-                Py_DECREF(key);
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyDict_SetItem(result, key, val);
-            Py_DECREF(key);
-            Py_DECREF(val);
-        }
-        return result;
-    }
+static PyObject* flexpath_object_delete_property(FlexPathObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->flexpath->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
 
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:get_property", &attr)) return NULL;
-    const char* value = get_property(property, attr);
+static PyObject* flexpath_object_set_gds_property(FlexPathObject* self, PyObject* args) {
+    uint16_t attribute;
+    char* value;
+    if (!PyArg_ParseTuple(args, "Hs:set_gds_property", &attribute, &value)) return NULL;
+    set_gds_property(self->flexpath->properties, attribute, value);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* flexpath_object_get_gds_property(FlexPathObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:get_gds_property", &attribute)) return NULL;
+    const PropertyValue* value = get_gds_property(self->flexpath->properties, attribute);
     if (!value) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString(value);
+    return PyUnicode_FromString((char*)value->bytes);
 }
 
-static PyObject* flexpath_object_delete_property(FlexPathObject* self, PyObject* args) {
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:delete_property", &attr)) return NULL;
-    delete_property(self->flexpath->properties, attr);
+static PyObject* flexpath_object_delete_gds_property(FlexPathObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:delete_gds_property", &attribute)) return NULL;
+    remove_gds_property(self->flexpath->properties, attribute);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1735,11 +1728,17 @@ static PyMethodDef flexpath_object_methods[] = {
     {"apply_repetition", (PyCFunction)flexpath_object_apply_repetition, METH_NOARGS,
      flexpath_object_apply_repetition_doc},
     {"set_property", (PyCFunction)flexpath_object_set_property, METH_VARARGS,
-     flexpath_object_set_property_doc},
+     object_set_property_doc},
     {"get_property", (PyCFunction)flexpath_object_get_property, METH_VARARGS,
-     flexpath_object_get_property_doc},
+     object_get_property_doc},
     {"delete_property", (PyCFunction)flexpath_object_delete_property, METH_VARARGS,
-     flexpath_object_delete_property_doc},
+     object_delete_property_doc},
+    {"set_gds_property", (PyCFunction)flexpath_object_set_gds_property, METH_VARARGS,
+     object_set_gds_property_doc},
+    {"get_gds_property", (PyCFunction)flexpath_object_get_gds_property, METH_VARARGS,
+     object_get_gds_property_doc},
+    {"delete_gds_property", (PyCFunction)flexpath_object_delete_gds_property, METH_VARARGS,
+     object_delete_gds_property_doc},
     {NULL}};
 
 static PyObject* flexpath_object_get_layers(FlexPathObject* self, void*) {
@@ -1788,6 +1787,14 @@ static PyObject* flexpath_object_get_size(FlexPathObject* self, void*) {
     return PyLong_FromUnsignedLongLong(self->flexpath->spine.point_array.size);
 }
 
+static PyObject* flexpath_object_get_properties(FlexPathObject* self, void*) {
+    return build_properties(self->flexpath->properties);
+}
+
+int flexpath_object_set_properties(FlexPathObject* self, PyObject* arg, void*) {
+    return parse_properties(self->flexpath->properties, arg);
+}
+
 static PyObject* flexpath_object_get_repetition(FlexPathObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
@@ -1814,6 +1821,8 @@ static PyGetSetDef flexpath_object_getset[] = {
     {"datatypes", (getter)flexpath_object_get_datatypes, NULL, flexpath_object_datatypes_doc, NULL},
     {"num_paths", (getter)flexpath_object_get_num_paths, NULL, flexpath_object_num_paths_doc, NULL},
     {"size", (getter)flexpath_object_get_size, NULL, flexpath_object_size_doc, NULL},
+    {"properties", (getter)flexpath_object_get_properties, (setter)flexpath_object_set_properties,
+     object_properties_doc, NULL},
     {"repetition", (getter)flexpath_object_get_repetition, (setter)flexpath_object_set_repetition,
-     flexpath_object_repetition_doc, NULL},
+     object_repetition_doc, NULL},
     {NULL}};
