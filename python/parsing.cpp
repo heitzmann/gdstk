@@ -258,7 +258,8 @@ static PyObject* build_properties(Property* properties) {
                     py_value = PyFloat_FromDouble(value->real);
                     break;
                 case PropertyType::String:
-                    py_value = PyBytes_FromStringAndSize((char*)value->bytes, value->size);
+                    py_value =
+                        PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->size);
             }
             if (!py_value) {
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert property value to object.");
@@ -295,7 +296,7 @@ static PyObject* build_property(Property* properties, PyObject* args) {
                 py_value = PyFloat_FromDouble(value->real);
                 break;
             case PropertyType::String:
-                py_value = PyBytes_FromStringAndSize((char*)value->bytes, value->size);
+                py_value = PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->size);
         }
         if (!py_value) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert property value to object.");
@@ -308,7 +309,7 @@ static PyObject* build_property(Property* properties, PyObject* args) {
 }
 
 static bool add_value(PropertyValue* value, PyObject* item) {
-    int64_t string_len;
+    Py_ssize_t string_len;
     if (PyLong_Check(item)) {
         PyObject* zero = PyLong_FromLong(0);
         if (PyObject_RichCompareBool(item, zero, Py_GE)) {
@@ -336,7 +337,7 @@ static bool add_value(PropertyValue* value, PyObject* item) {
         const char* string = PyUnicode_AsUTF8AndSize(item, &string_len);
         if (!string) return false;
         value->type = PropertyType::String;
-        value->size = string_len;
+        value->size = (uint64_t)string_len;
         value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * string_len);
         memcpy(value->bytes, string, string_len);
         return true;
@@ -344,7 +345,7 @@ static bool add_value(PropertyValue* value, PyObject* item) {
         char* string = NULL;
         PyBytes_AsStringAndSize(item, &string, &string_len);
         value->type = PropertyType::String;
-        value->size = string_len;
+        value->size = (uint64_t)string_len;
         value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * string_len);
         memcpy(value->bytes, string, string_len);
         return true;
@@ -395,7 +396,7 @@ static int parse_properties(Property*& properties, PyObject* arg) {
             Py_DECREF(item);
             return -1;
         }
-        int64_t string_len = 0;
+        Py_ssize_t string_len = 0;
         const char* name = PyUnicode_AsUTF8AndSize(item, &string_len);
         if (!name) {
             PyErr_Format(PyExc_RuntimeError, "Unable to get name from property %" PRId64 ".", size);
