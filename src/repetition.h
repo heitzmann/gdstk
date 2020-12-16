@@ -46,6 +46,7 @@ struct Repetition {
     uint64_t get_size() const;
     // NOTE: the coordinates for the original (0, 0) are includded as 1st element
     void get_offsets(Array<Vec2>& result) const;
+    void get_extrema(Array<Vec2>& result) const;
     void transform(double magnification, bool x_reflection, double rotation);
 };
 

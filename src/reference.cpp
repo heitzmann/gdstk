@@ -67,7 +67,43 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     Array<Polygon*> array = {0};
-    polygons(true, true, -1, array);
+    if (type == ReferenceType::Cell &&
+        (rotation == 0 || rotation == 0.5 * M_PI || rotation == -0.5 * M_PI || rotation == M_PI ||
+         rotation == -M_PI || rotation == 1.5 * M_PI || rotation == -1.5 * M_PI)) {
+        Vec2 cmin, cmax;
+        cell->bounding_box(cmin, cmax);
+        if (cmin.x <= cmax.x) {
+            Polygon* src = (Polygon*)allocate_clear(sizeof(Polygon));
+            *src = rectangle(cmin, cmax, 0, 0);
+
+            Vec2 zero = {0, 0};
+            Array<Vec2> offsets = {0};
+            if (repetition.type != RepetitionType::None) {
+                repetition.get_extrema(offsets);
+            } else {
+                offsets.size = 1;
+                offsets.items = &zero;
+            }
+            array.ensure_slots(offsets.size);
+
+            Vec2* offset_p = offsets.items;
+            for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+                Polygon* dst;
+                // Avoid an extra allocation by moving the last polygon.
+                if (offset_count == 1) {
+                    dst = src;
+                } else {
+                    dst = (Polygon*)allocate_clear(sizeof(Polygon));
+                    dst->copy_from(*src);
+                }
+                dst->transform(magnification, x_reflection, rotation, origin + *offset_p++);
+                array.append_unsafe(dst);
+            }
+            if (repetition.type != RepetitionType::None) offsets.clear();
+        }
+    } else {
+        polygons(true, true, -1, array);
+    }
     Polygon** p_item = array.items;
     for (uint64_t i = 0; i < array.size; i++) {
         Polygon* poly = *p_item++;

@@ -102,7 +102,6 @@ uint64_t Repetition::get_size() const {
 }
 
 void Repetition::get_offsets(Array<Vec2>& result) const {
-    if (type == RepetitionType::None) return;
     uint64_t size = get_size();
     result.ensure_slots(size);
     double* c_item;
@@ -152,6 +151,116 @@ void Repetition::get_offsets(Array<Vec2>& result) const {
             result.append_unsafe(Vec2{0, 0});
             result.extend(offsets);
             break;
+        case RepetitionType::None:
+            return;
+    }
+}
+
+void Repetition::get_extrema(Array<Vec2>& result) const {
+    switch (type) {
+        case RepetitionType::Rectangular:
+            if (columns == 0 || rows == 0) return;
+            if (columns == 1) {
+                if (rows == 1) {
+                    result.append(Vec2{0, 0});
+                } else {
+                    result.ensure_slots(2);
+                    result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe(Vec2{0, (rows - 1) * spacing.y});
+                }
+            } else {
+                if (rows == 1) {
+                    result.ensure_slots(2);
+                    result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe(Vec2{(columns - 1) * spacing.x, 0});
+                } else {
+                    result.ensure_slots(2);
+                    result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe(Vec2{(columns - 1) * spacing.x, (rows - 1) * spacing.y});
+                }
+            }
+            break;
+        case RepetitionType::Regular:
+            if (columns == 0 || rows == 0) return;
+            if (columns == 1) {
+                if (rows == 1) {
+                    result.append(Vec2{0, 0});
+                } else {
+                    result.ensure_slots(2);
+                    result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe((double)(rows - 1) * v2);
+                }
+            } else {
+                if (rows == 1) {
+                    result.ensure_slots(2);
+                    result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe((double)(columns - 1) * v1);
+                } else {
+                    result.ensure_slots(4);
+                    Vec2 vi = (double)(columns - 1) * v1;
+                    Vec2 vj = (double)(rows - 1) * v2;
+                    result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe(vi);
+                    result.append_unsafe(vj);
+                    result.append_unsafe(vi + vj);
+                }
+            }
+            break;
+        case RepetitionType::ExplicitX: {
+            if (coords.size == 0) return;
+            double* c = coords.items;
+            double xmin = *c;
+            double xmax = *c;
+            ++c;
+            for (uint64_t i = coords.size; i > 0; i--, c++) {
+                if (*c < xmin) xmin = *c;
+                else if (*c > xmax) xmax = *c;
+            }
+            if (xmin != xmax) {
+                result.ensure_slots(2);
+                result.append_unsafe(Vec2{xmin, 0});
+                result.append_unsafe(Vec2{xmax, 0});
+            } else {
+                result.append(Vec2{xmin, 0});
+            }
+        } break;
+        case RepetitionType::ExplicitY: {
+            if (coords.size == 0) return;
+            double* c = coords.items;
+            double ymin = *c;
+            double ymax = *c;
+            ++c;
+            for (uint64_t i = coords.size; i > 0; i--, c++) {
+                if (*c < ymin) ymin = *c;
+                else if (*c > ymax) ymax = *c;
+            }
+            if (ymin != ymax) {
+                result.ensure_slots(2);
+                result.append_unsafe(Vec2{0, ymin});
+                result.append_unsafe(Vec2{0, ymax});
+            } else {
+                result.append(Vec2{0, ymin});
+            }
+        } break;
+        case RepetitionType::Explicit: {
+            if (offsets.size == 0) return;
+            Vec2* v = offsets.items;
+            Vec2 vxmin = *v;
+            Vec2 vxmax = *v;
+            Vec2 vymin = *v;
+            Vec2 vymax = *v;
+            for (uint64_t i = offsets.size; i > 0; i--, v++) {
+                if (v->x < vxmin.x) vxmin = *v;
+                else if (v->x > vxmax.x) vxmax = *v;
+                if (v->y < vymin.y) vymin = *v;
+                else if (v->y > vymax.y) vymax = *v;
+            }
+            result.ensure_slots(4);
+            result.append_unsafe(vxmin);
+            result.append_unsafe(vxmax);
+            result.append_unsafe(vymin);
+            result.append_unsafe(vymax);
+        } break;
         case RepetitionType::None:
             return;
     }

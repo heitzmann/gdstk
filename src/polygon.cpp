@@ -77,7 +77,7 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
     }
     if (repetition.type != RepetitionType::None) {
         Array<Vec2> offsets = {0};
-        repetition.get_offsets(offsets);
+        repetition.get_extrema(offsets);
         Vec2* off = offsets.items;
         Vec2 min0 = min;
         Vec2 max0 = max;

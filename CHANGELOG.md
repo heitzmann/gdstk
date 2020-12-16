@@ -3,6 +3,7 @@
 ## Unreleased
 ### Changed
 - Use cmake to properly intall library
+- More efficient bounding box calculation for rotations multiple of 90°
 
 ## 0.2.0 - 2020-11-23
 ### Added
