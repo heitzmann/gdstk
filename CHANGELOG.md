@@ -1,8 +1,13 @@
 # Change Log
 
 ## Unreleased
+### Added
+- Repetition property for geometric objects, labels and references
+- Library, cells and repetitions can have properties
+
 ### Changed
 - Use cmake to properly intall library
+- Properties can be general or GDSII-specific. Only the latter are stored in gds files.
 
 ## 0.2.0 - 2020-11-23
 ### Added

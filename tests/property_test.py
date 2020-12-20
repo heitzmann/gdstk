@@ -60,3 +60,13 @@ def test_properties():
             ["SECOND", 2.0],
             ["FIRST", 1],
         ]
+        obj.properties = (
+            ("ONE", -1),
+            ("TWO", -2.3e-4, "two"),
+            ("Three", b"\xFF\xEE", 0),
+        )
+        assert obj.properties == [
+            ["ONE", -1],
+            ["TWO", -2.3e-4, b"two"],
+            ["Three", b"\xFF\xEE", 0],
+        ]
