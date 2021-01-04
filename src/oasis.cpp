@@ -15,7 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-uint64_t oasis_read_uint(FILE* in) {
+uint64_t oasis_read_unsigned_integer(FILE* in) {
     uint8_t byte;
     if (fread(&byte, 1, 1, in) < 1) {
         fputs("[GDSTK] Error reading file.\n", stderr);
@@ -65,7 +65,7 @@ static uint8_t oasis_read_int_internal(FILE* in, uint8_t skip_bits, int64_t& res
     return bits;
 }
 
-int64_t oasis_read_int(FILE* in) {
+int64_t oasis_read_integer(FILE* in) {
     int64_t value;
     if (oasis_read_int_internal(in, 1, value) > 0) return -value;
     return value;
@@ -100,14 +100,18 @@ void oasis_read_3delta(FILE* in, int64_t& x, int64_t& y) {
     switch ((OasisDirection)oasis_read_int_internal(in, 3, value)) {
         case OasisDirection::E:
             x = value;
+            y = 0;
             break;
         case OasisDirection::N:
+            x = 0;
             y = value;
             break;
         case OasisDirection::W:
             x = -value;
+            y = 0;
             break;
         case OasisDirection::S:
+            x = 0;
             y = -value;
             break;
         case OasisDirection::NE:
@@ -139,14 +143,18 @@ void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y) {
         switch ((OasisDirection)(oasis_read_int_internal(in, 4, value) >> 1)) {
             case OasisDirection::E:
                 x = value;
+                y = 0;
                 break;
             case OasisDirection::N:
+                x = 0;
                 y = value;
                 break;
             case OasisDirection::W:
                 x = -value;
+                y = 0;
                 break;
             case OasisDirection::S:
+                x = 0;
                 y = -value;
                 break;
             case OasisDirection::NE:
@@ -176,21 +184,21 @@ double oasis_read_real(FILE* in) {
     if (fread(&byte, 1, 1, in) < 1) return 0;
     switch ((OasisDataType)byte) {
         case OasisDataType::RealPositiveInteger:
-            return (double)oasis_read_uint(in);
+            return (double)oasis_read_unsigned_integer(in);
         case OasisDataType::RealNegativeInteger:
-            return -(double)oasis_read_uint(in);
+            return -(double)oasis_read_unsigned_integer(in);
         case OasisDataType::RealPositiveReciprocal:
-            return 1.0 / (double)oasis_read_uint(in);
+            return 1.0 / (double)oasis_read_unsigned_integer(in);
         case OasisDataType::RealNegativeReciprocal:
-            return -1.0 / (double)oasis_read_uint(in);
+            return -1.0 / (double)oasis_read_unsigned_integer(in);
         case OasisDataType::RealPositiveRatio: {
-            double num = oasis_read_uint(in);
-            double den = oasis_read_uint(in);
+            double num = oasis_read_unsigned_integer(in);
+            double den = oasis_read_unsigned_integer(in);
             return num / den;
         }
         case OasisDataType::RealNegativeRatio: {
-            double num = oasis_read_uint(in);
-            double den = oasis_read_uint(in);
+            double num = oasis_read_unsigned_integer(in);
+            double den = oasis_read_unsigned_integer(in);
             return -num / den;
         }
         case OasisDataType::RealFloat: {
@@ -211,7 +219,213 @@ double oasis_read_real(FILE* in) {
     return 0;
 }
 
-void oasis_write_uint(FILE* out, uint64_t value) {
+uint64_t oasis_read_point_list(FILE* in, double scaling, bool polygon, Array<Vec2>& result) {
+    uint8_t byte;
+    if (fread(&byte, 1, 1, in) < 1) return 0;
+    uint64_t num = oasis_read_unsigned_integer(in);
+    switch ((OasisPointList)byte) {
+        case OasisPointList::ManhattanHorizontalFirst: {
+            result.ensure_slots(polygon ? num + 1 : num);
+            Vec2* cur = result.items + result.size;
+            Vec2* ref = cur - 1;
+            double initial_x = ref->x;
+            for (uint64_t i = num; i > 0; i--) {
+                cur->x = ref->x + oasis_read_1delta(in) * scaling;
+                cur->y = ref->y;
+                cur++;
+                ref++;
+                if (--i > 0) {
+                    cur->x = ref->x;
+                    cur->y = ref->y + oasis_read_1delta(in) * scaling;
+                    cur++;
+                    ref++;
+                }
+            }
+            if (polygon) {
+                cur->x = initial_x;
+                cur->y = ref->y;
+                num++;
+            }
+            result.size += num;
+        } break;
+        case OasisPointList::ManhattanVerticalFirst: {
+            result.ensure_slots(polygon ? num + 1 : num);
+            Vec2* cur = result.items + result.size;
+            Vec2* ref = cur - 1;
+            double initial_y = ref->y;
+            for (uint64_t i = num; i > 0; i--) {
+                cur->x = ref->x;
+                cur->y = ref->y + oasis_read_1delta(in) * scaling;
+                cur++;
+                ref++;
+                if (--i > 0) {
+                    cur->x = ref->x + oasis_read_1delta(in) * scaling;
+                    cur->y = ref->y;
+                    cur++;
+                    ref++;
+                }
+            }
+            if (polygon) {
+                cur->x = ref->x;
+                cur->y = initial_y;
+                num++;
+            }
+            result.size += num;
+        } break;
+        case OasisPointList::Manhattan: {
+            result.ensure_slots(num);
+            Vec2* cur = result.items + result.size;
+            Vec2* ref = cur - 1;
+            for (uint64_t i = num; i > 0; i--) {
+                int64_t x, y;
+                oasis_read_2delta(in, x, y);
+                *cur++ = Vec2{scaling * x, scaling * y} + *ref++;
+            }
+            result.size += num;
+        } break;
+        case OasisPointList::Octangular: {
+            result.ensure_slots(num);
+            Vec2* cur = result.items + result.size;
+            Vec2* ref = cur - 1;
+            for (uint64_t i = num; i > 0; i--) {
+                int64_t x, y;
+                oasis_read_3delta(in, x, y);
+                *cur++ = Vec2{scaling * x, scaling * y} + *ref++;
+            }
+            result.size += num;
+        } break;
+        case OasisPointList::General: {
+            result.ensure_slots(num);
+            Vec2* cur = result.items + result.size;
+            Vec2* ref = cur - 1;
+            for (uint64_t i = num; i > 0; i--) {
+                int64_t x, y;
+                oasis_read_gdelta(in, x, y);
+                *cur++ = Vec2{scaling * x, scaling * y} + *ref++;
+            }
+            result.size += num;
+        } break;
+        case OasisPointList::Relative: {
+            Vec2 delta = {0, 0};
+            result.ensure_slots(num);
+            Vec2* cur = result.items + result.size;
+            Vec2* ref = cur - 1;
+            for (uint64_t i = num; i > 0; i--) {
+                int64_t x, y;
+                oasis_read_gdelta(in, x, y);
+                delta.x += scaling * x;
+                delta.y += scaling * y;
+                *cur++ = delta + *ref++;
+            }
+            result.size += num;
+        } break;
+        default:
+            fputs("[GDSTK] Point list type not supported.\n", stderr);
+            return 0;
+    }
+    return num;
+}
+
+void oasis_read_repetition(FILE* in, double scaling, Repetition& repetition) {
+    uint8_t type;
+    if (fread(&type, 1, 1, in) < 1) {
+        fputs("[GDSTK] Error reading file.\n", stderr);
+        return 0;
+    }
+    switch (type) {
+        case 1: {
+            repetition.type = RepetitionType::Rectangular;
+            repetition.columns = 2 + oasis_read_unsigned_integer(in);
+            repetition.rows = 2 + oasis_read_unsigned_integer(in);
+            repetition.spacing.x = scaling * oasis_read_unsigned_integer(in);
+            repetition.spacing.y = scaling * oasis_read_unsigned_integer(in);
+        } break;
+        case 2: {
+            repetition.type = RepetitionType::Rectangular;
+            repetition.columns = 2 + oasis_read_unsigned_integer(in);
+            repetition.rows = 1;
+            repetition.spacing.x = scaling * oasis_read_unsigned_integer(in);
+            repetition.spacing.y = 0;
+        } break;
+        case 3: {
+            repetition.type = RepetitionType::Rectangular;
+            repetition.columns = 1;
+            repetition.rows = 2 + oasis_read_unsigned_integer(in);
+            repetition.spacing.x = 0;
+            repetition.spacing.y = scaling * oasis_read_unsigned_integer(in);
+        } break;
+        case 4:
+        case 5: {
+            repetition.type = RepetitionType::ExplicitX;
+            uint64_t count = 1 + oasis_read_unsigned_integer(in);
+            repetition.coords.ensure_slots(count);
+            double grid_factor = scaling;
+            if (type == 5) {
+                grid_factor *= oasis_read_unsigned_integer(in);
+            }
+            for (double x = 0; count > 0; count--) {
+                x += grid_factor * oasis_read_unsigned_integer(in);
+                repetition.coords.append_unsafe(x);
+            }
+        } break;
+        case 6:
+        case 7: {
+            repetition.type = RepetitionType::ExplicitY;
+            uint64_t count = 1 + oasis_read_unsigned_integer(in);
+            repetition.coords.ensure_slots(count);
+            double grid_factor = scaling;
+            if (type == 7) {
+                grid_factor *= oasis_read_unsigned_integer(in);
+            }
+            for (double y = 0; count > 0; count--) {
+                y += grid_factor * oasis_read_unsigned_integer(in);
+                repetition.coords.append_unsafe(y);
+            }
+        } break;
+        case 8: {
+            repetition.type = RepetitionType::Regular;
+            repetition.columns = 2 + oasis_read_unsigned_integer(in);
+            repetition.rows = 2 + oasis_read_unsigned_integer(in);
+            int64_t x, y;
+            oasis_read_gdelta(in, x, y);
+            repetition.v1.x = scaling * x;
+            repetition.v1.y = scaling * y;
+            oasis_read_gdelta(in, x, y);
+            repetition.v2.x = scaling * x;
+            repetition.v2.y = scaling * y;
+        } break;
+        case 9: {
+            repetition.type = RepetitionType::Regular;
+            repetition.columns = 2 + oasis_read_unsigned_integer(in);
+            repetition.rows = 1;
+            int64_t x, y;
+            oasis_read_gdelta(in, x, y);
+            repetition.v1.x = scaling * x;
+            repetition.v1.y = scaling * y;
+            repetition.v2.x = -repetition.v1.y;
+            repetition.v2.y = repetition.v1.x;
+        } break;
+        case 10:
+        case 11: {
+            repetition.type = RepetitionType::Explicit;
+            uint64_t count = 1 + oasis_read_unsigned_integer(in);
+            repetition.offsets.ensure_slots(count);
+            double grid_factor = scaling;
+            if (type == 11) {
+                grid_factor *= oasis_read_unsigned_integer(in);
+            }
+            for (Vec2 v = {0, 0}; count > 0; count--) {
+                int64_t x, y;
+                oasis_read_gdelta(in, x, y);
+                v.x += grid_factor * x;
+                v.y += grid_factor * y;
+                repetition.offsets.append_unsafe(v);
+            }
+        } break;
+    }
+}
+
+void oasis_write_unsigned_integer(FILE* out, uint64_t value) {
     uint8_t bytes[10] = {(uint8_t)(value & 0x7f)};
     uint8_t* b = bytes;
     value >>= 7;
@@ -238,7 +452,7 @@ static void oasis_write_int_internal(FILE* out, int64_t value, uint8_t num_bits,
     fwrite(bytes, 1, b - bytes + 1, out);
 }
 
-void oasis_write_int(FILE* out, int64_t value) {
+void oasis_write_integer(FILE* out, int64_t value) {
     if (value < 0) {
         oasis_write_int_internal(out, -value, 1, 1);
     } else {
@@ -338,11 +552,11 @@ void oasis_write_real(FILE* out, double value) {
         // value is integer
         if (value >= 0) {
             fputc((uint8_t)OasisDataType::RealPositiveInteger, out);
-            oasis_write_uint(out, (uint64_t)value);
+            oasis_write_unsigned_integer(out, (uint64_t)value);
             return;
         } else {
             fputc((uint8_t)OasisDataType::RealNegativeInteger, out);
-            oasis_write_uint(out, (uint64_t)(-value));
+            oasis_write_unsigned_integer(out, (uint64_t)(-value));
             return;
         }
     }
@@ -352,11 +566,11 @@ void oasis_write_real(FILE* out, double value) {
         // inverse is integer
         if (inverse >= 0) {
             fputc((uint8_t)OasisDataType::RealPositiveReciprocal, out);
-            oasis_write_uint(out, (uint64_t)inverse);
+            oasis_write_unsigned_integer(out, (uint64_t)inverse);
             return;
         } else {
             fputc((uint8_t)OasisDataType::RealNegativeReciprocal, out);
-            oasis_write_uint(out, (uint64_t)(-inverse));
+            oasis_write_unsigned_integer(out, (uint64_t)(-inverse));
             return;
         }
     }
@@ -364,6 +578,19 @@ void oasis_write_real(FILE* out, double value) {
     fputc((uint8_t)OasisDataType::RealDouble, out);
     little_endian_swap64((uint64_t*)&value, 1);
     fwrite(&value, sizeof(double), 1, out);
+}
+
+void oasis_write_point_list(FILE* out, const Array<Vec2> points, double scaling, bool polygon) {
+    // TODO: choose point list type to decrease file size
+    if (points.size < 1) return;
+    fputc((uint8_t)OasisPointList::General, out);
+    oasis_write_unsigned_integer(out, points.size - 1);
+    Vec2* ref = points.items;
+    Vec2* cur = ref + 1;
+    for (uint64_t i = points.size - 1; i > 0; i--) {
+        Vec2 v = *cur++ - *ref++;
+        oasis_write_gdelta(out, llround(scaling * v.x), llround(scaling * v.y));
+    }
 }
 
 }  // namespace gdstk

@@ -48,8 +48,9 @@ void Library::print(bool all) const {
 }
 
 void Library::copy_from(const Library& library, bool deep_copy) {
-    name = (char*)allocate(sizeof(char) * (strlen(library.name) + 1));
-    strcpy(name, library.name);
+    uint64_t len = 1 + strlen(library.name);
+    name = (char*)allocate(sizeof(char) * len);
+    memcpy(name, library.name, len);
     unit = library.unit;
     precision = library.precision;
     if (deep_copy) {
@@ -599,7 +600,7 @@ int oas_precision(const char* filename, double& precision) {
     // Skip magic bytes and START record
     fseek(in, 14, SEEK_SET);
 
-    uint64_t len = oasis_read_uint(in);
+    uint64_t len = oasis_read_unsigned_integer(in);
     // Skip version string
     fseek(in, len, SEEK_CUR);
 

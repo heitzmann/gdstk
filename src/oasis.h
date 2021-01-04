@@ -15,6 +15,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstdio>
 
+#include "array.h"
+
 namespace gdstk {
 
 enum struct OasisDataType : uint8_t {
@@ -28,9 +30,9 @@ enum struct OasisDataType : uint8_t {
     RealDouble = 7,
     UnsignedInteger = 8,
     SignedInteger = 9,
-    AString = 10,
-    BString = 11,
-    NString = 12,
+    AString = 10,  // printable characters + space (0x20 through 0x7e)
+    BString = 11,  // any bytes
+    NString = 12,  // printable characters (0x21 through 0x7e), size > 0
     ReferenceA = 13,
     ReferenceB = 14,
     ReferenceN = 15
@@ -52,8 +54,8 @@ enum struct OasisRepetition : uint8_t {
 };
 
 enum struct OasisPointList : uint8_t {
-    ManhattanHorizontal = 0,
-    ManhattanVertical = 1,
+    ManhattanHorizontalFirst = 0,
+    ManhattanVerticalFirst = 1,
     Manhattan = 2,
     Octangular = 3,
     General = 4,
@@ -110,11 +112,11 @@ enum struct OasisRecord : uint8_t {
     CBLOCK = 34
 };
 
-uint64_t oasis_read_uint(FILE* in);
+uint64_t oasis_read_unsigned_integer(FILE* in);
 
-int64_t oasis_read_int(FILE* in);
+int64_t oasis_read_integer(FILE* in);
 
-inline int64_t oasis_read_1delta(FILE* in) { return oasis_read_int(in); };
+inline int64_t oasis_read_1delta(FILE* in) { return oasis_read_integer(in); };
 
 void oasis_read_2delta(FILE* in, int64_t& x, int64_t& y);
 
@@ -124,11 +126,18 @@ void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y);
 
 double oasis_read_real(FILE* in);
 
-void oasis_write_uint(FILE* out, uint64_t value);
+// result must have at least 1 point in it, which will be used as reference for the relative deltas.
+// polygon indicates whether this is supposed to be a polygon point list (in which case there will
+// be an implicit extra delta for Manhattan types).
+uint64_t oasis_read_point_list(FILE* in, double scaling, bool polygon, Array<Vec2>& result);
 
-void oasis_write_int(FILE* out, int64_t value);
+void oasis_read_repetition(FILE* in, Repetition& repetition);
 
-inline void oasis_write_1delta(FILE* out, int64_t value) { oasis_write_int(out, value); };
+void oasis_write_unsigned_integer(FILE* out, uint64_t value);
+
+void oasis_write_integer(FILE* out, int64_t value);
+
+inline void oasis_write_1delta(FILE* out, int64_t value) { oasis_write_integer(out, value); };
 
 void oasis_write_2delta(FILE* out, int64_t x, int64_t y);
 
@@ -137,6 +146,8 @@ void oasis_write_3delta(FILE* out, int64_t x, int64_t y);
 void oasis_write_gdelta(FILE* out, int64_t x, int64_t y);
 
 void oasis_write_real(FILE* out, double value);
+
+void oasis_write_point_list(FILE* out, const Array<Vec2> points, double scaling, bool polygon);
 
 }  // namespace gdstk
 

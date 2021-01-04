@@ -53,6 +53,9 @@ int gds_units(const char* filename, double& unit, double& precision);
 
 int oas_precision(const char* filename, double& precision);
 
+// TODO: add function to perform validation
+// bool oas_validate(const char filename);
+
 }  // namespace gdstk
 
 #endif
