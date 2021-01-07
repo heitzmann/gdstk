@@ -15,6 +15,34 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+uint8_t* oasis_read_string(FILE* in, bool append_terminating_null, uint64_t& count) {
+    uint8_t* bytes;
+    count = oasis_read_unsigned_integer(in);
+    if (append_terminating_null) {
+        bytes = (uint8_t*)allocate(count + 1);
+    } else {
+        bytes = (uint8_t*)allocate(count);
+    }
+    if (fread(bytes, 1, count, in) < count) {
+        free_allocation(bytes);
+        bytes = NULL;
+        count = -1;
+    }
+    if (append_terminating_null) {
+        bytes[count++] = 0;
+    }
+
+    // printf("String (%d): [", count);
+    // for (uint64_t i = 0; i < count; i++)
+    //     if (bytes[i] >= 0x20 && bytes[i] < 0x7f)
+    //         putchar(bytes[i]);
+    //     else
+    //         printf("\\%02x", bytes[i]);
+    // puts("]");
+
+    return bytes;
+}
+
 uint64_t oasis_read_unsigned_integer(FILE* in) {
     uint8_t byte;
     if (fread(&byte, 1, 1, in) < 1) {
@@ -179,10 +207,8 @@ void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y) {
     }
 }
 
-double oasis_read_real(FILE* in) {
-    uint8_t byte;
-    if (fread(&byte, 1, 1, in) < 1) return 0;
-    switch ((OasisDataType)byte) {
+double oasis_read_real_by_type(FILE* in, OasisDataType type) {
+    switch ((OasisDataType)type) {
         case OasisDataType::RealPositiveInteger:
             return (double)oasis_read_unsigned_integer(in);
         case OasisDataType::RealNegativeInteger:
@@ -330,8 +356,11 @@ void oasis_read_repetition(FILE* in, double scaling, Repetition& repetition) {
     uint8_t type;
     if (fread(&type, 1, 1, in) < 1) {
         fputs("[GDSTK] Error reading file.\n", stderr);
-        return 0;
+        return;
     }
+    if (type == 0) return;
+
+    repetition.clear();
     switch (type) {
         case 1: {
             repetition.type = RepetitionType::Rectangular;

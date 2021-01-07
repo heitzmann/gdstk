@@ -80,7 +80,7 @@ void properties_clear(Property*& properties) {
     }
 }
 
-static PropertyValue* property_values_copy(const PropertyValue* values) {
+PropertyValue* property_values_copy(const PropertyValue* values) {
     PropertyValue* result = NULL;
     PropertyValue* dst;
     for (; values; values = values->next) {
@@ -178,7 +178,7 @@ void set_property(Property*& properties, const char* name, double real, bool cre
 void set_property(Property*& properties, const char* name, const char* string, bool create_new) {
     PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
-    value->size = strlen(string) + 1;
+    value->size = strlen(string);
     value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * value->size);
     memcpy(value->bytes, string, value->size);
 }

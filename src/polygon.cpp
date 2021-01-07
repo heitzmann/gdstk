@@ -416,9 +416,9 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32
     result.point_array.ensure_slots(4);
     result.point_array.size = 4;
     result.point_array[0] = corner1;
-    result.point_array[1] = Vec2{corner2.x, corner1.y};
+    result.point_array[1] = {corner2.x, corner1.y};
     result.point_array[2] = corner2;
-    result.point_array[3] = Vec2{corner1.x, corner2.y};
+    result.point_array[3] = {corner1.x, corner2.y};
     return result;
 };
 

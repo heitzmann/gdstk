@@ -23,6 +23,13 @@ extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int
 
 namespace gdstk {
 
+char* copy_string(const char* str, uint64_t& len) {
+    len = 1 + strlen(str);
+    char* result = (char*)allocate(len);
+    memcpy(result, str, len);
+    return result;
+}
+
 double modulo(double x, double y) {
     double m = fmod(x, y);
     return m < 0 ? m + y : m;

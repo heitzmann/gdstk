@@ -37,6 +37,7 @@ struct Repetition {
             };
             Vec2 v2;
         };
+        // The original element should not be explicitly included.
         Array<Vec2> offsets;   // Explicit (10, 11)
         Array<double> coords;  // ExplicitX, ExplicitY (Oasis 4, 5, 6, 7)
     };

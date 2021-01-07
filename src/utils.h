@@ -52,6 +52,8 @@ typedef Array<Vec2> (*JoinFunction)(const Vec2, const Vec2, const Vec2, const Ve
 // Arguments: radius, initial_angle, final_angle, center, data
 typedef Array<Vec2> (*BendFunction)(double, double, double, const Vec2, void*);
 
+char* copy_string(const char* str, uint64_t& len);
+
 double modulo(double x, double y);
 
 uint64_t arc_num_points(double angle, double radius, double tol);

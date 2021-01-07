@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 
 #include "array.h"
+#include "repetition.h"
 
 namespace gdstk {
 
@@ -112,6 +113,8 @@ enum struct OasisRecord : uint8_t {
     CBLOCK = 34
 };
 
+uint8_t* oasis_read_string(FILE* in, bool append_terminating_null, uint64_t& len);
+
 uint64_t oasis_read_unsigned_integer(FILE* in);
 
 int64_t oasis_read_integer(FILE* in);
@@ -124,14 +127,20 @@ void oasis_read_3delta(FILE* in, int64_t& x, int64_t& y);
 
 void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y);
 
-double oasis_read_real(FILE* in);
+double oasis_read_real_by_type(FILE* in, OasisDataType type);
+
+inline double oasis_read_real(FILE* in) {
+    OasisDataType type;
+    if (fread(&type, 1, 1, in) < 1) return 0;
+    return oasis_read_real_by_type(in, type);
+}
 
 // result must have at least 1 point in it, which will be used as reference for the relative deltas.
 // polygon indicates whether this is supposed to be a polygon point list (in which case there will
 // be an implicit extra delta for Manhattan types).
 uint64_t oasis_read_point_list(FILE* in, double scaling, bool polygon, Array<Vec2>& result);
 
-void oasis_read_repetition(FILE* in, Repetition& repetition);
+void oasis_read_repetition(FILE* in, double scaling, Repetition& repetition);
 
 void oasis_write_unsigned_integer(FILE* out, uint64_t value);
 
