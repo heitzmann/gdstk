@@ -2820,7 +2820,7 @@ Notes:
     Repetitions are not applied to any elements, except references and
     their contents.)!");
 
-PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0) -> gdstk.Library
+PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0, tolerance=1e-2) -> gdstk.Library
 
 Import a library from a GDSII stream file.
 
@@ -2828,6 +2828,7 @@ Args:
     infile (str or pathlib.Path): Name of the input file.
     unit (number): If greater than zero, convert the imported geometry
       to the this unit.
+    tolerance (number): Default tolerance for loaded paths.
 
 Returns:
     The imported library.

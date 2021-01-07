@@ -161,7 +161,7 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
     fclose(out);
 }
 
-Library read_gds(const char* filename, double unit) {
+Library read_gds(const char* filename, double unit, double tolerance) {
     const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
         "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
@@ -346,7 +346,7 @@ Library read_gds(const char* filename, double unit) {
                 } else if (path) {
                     Array<Vec2> point_array = {0};
                     if (path->spine.point_array.size == 0) {
-                        path->spine.tolerance = 0.01;
+                        path->spine.tolerance = tolerance;
                         path->spine.append(Vec2{factor * data32[0], factor * data32[1]});
                         path->elements[0].half_width_and_offset.append(Vec2{width / 2, 0});
                         point_array.ensure_slots(data_length / 2 - 1);

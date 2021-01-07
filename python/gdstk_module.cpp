@@ -1146,14 +1146,15 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
 static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* pybytes = NULL;
     double unit = 0;
-    const char* keywords[] = {"infile", "unit", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|d:read_gds", (char**)keywords,
-                                     PyUnicode_FSConverter, &pybytes, &unit))
+    double tolerance = 1e-2;
+    const char* keywords[] = {"infile", "unit", "tolerance", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dd:read_gds", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
         return NULL;
 
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
-    *library = read_gds(filename, unit);
+    *library = read_gds(filename, unit, tolerance);
     Py_DECREF(pybytes);
 
     LibraryObject* result = PyObject_New(LibraryObject, &library_object_type);

@@ -45,7 +45,7 @@ struct Library {
     void write_gds(const char* filename, uint64_t max_points, std::tm* timestamp) const;
 };
 
-Library read_gds(const char* filename, double unit);
+Library read_gds(const char* filename, double unit, double tolerance);
 
 Library read_oas(const char* filename, double unit);
 
