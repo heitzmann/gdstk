@@ -48,7 +48,7 @@ def assert_close(a, b, atol=1e-12):
 @pytest.fixture(scope="session")
 def proof_cells():
     infile = pathlib.Path(__file__).parent / "proof_lib.gds"
-    lib = gdstk.read_gds(infile)
+    lib = gdstk.read_gds(str(infile))
     cells = {c.name: c for c in lib.cells}
     return cells
 
