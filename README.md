@@ -45,7 +45,7 @@ The recipe works on MacOS and Linux as well.
 ### From source
 
 The C++ library is meant to be used straight from source.
-The only requirement is that it must be linked against LAPACK.
+It must be linked aginst LAPACK and zlib.
 The included CMakeLists.txt file can be used as a guide.
 
 Installation from source should follow the usual method:
@@ -57,6 +57,7 @@ python setup.py install
 ## Dependencies for the Python wrapper
 
 * LAPACK
+* [zlib](https://zlib.net/)
 * [CMake](https://cmake.org/)
 * [Python](https://www.python.org/)
 * [Numpy](https://numpy.org/)
