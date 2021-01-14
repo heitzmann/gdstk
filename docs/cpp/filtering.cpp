@@ -12,7 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = read_gds("layout.gds", 0);
+    Library lib = read_gds("layout.gds", 0, 1e-2);
     if (lib.unit == 0) {
         // File not found
         exit(EXIT_FAILURE);
