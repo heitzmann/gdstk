@@ -629,8 +629,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 library.name[1] = 'I';
                 library.name[2] = 'B';
                 library.name[3] = 0;
-                // TODO: Each name table might have associated properties, which must be copied to
-                // the correct element.
+
                 uint64_t c_size = library.cell_array.size;
                 Map<Cell*> map = {0};
                 map.resize((uint64_t)(1.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
@@ -642,13 +641,16 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                         ByteArray* cell_name = cell_name_table.items + (uint64_t)cell->owner;
                         cell->owner = NULL;
                         cell->name = copy_string((char*)cell_name->bytes, len);
-                        // TODO: move properties (cell->properties might already have something) but
-                        // cell_name->properties should not be reused
-
-                        // cell->properties = cell_name->properties;
-                        // cell_name->properties = NULL;
+                        if (cell_name->properties) {
+                            Property* last = cell_name->properties;
+                            while (last->next) last = last->next;
+                            last->next = cell->properties;
+                            cell->properties = cell_name->properties;
+                            cell_name->properties = NULL;
+                        }
                     }
                     map.set(cell->name, cell);
+
                     Label** label_p = cell->label_array.items;
                     for (uint64_t j = cell->label_array.size; j > 0; j--) {
                         Label* label = *label_p++;
@@ -656,12 +658,17 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                             ByteArray* label_text = label_text_table.items + (uint64_t)label->owner;
                             label->owner = NULL;
                             label->text = copy_string((char*)label_text->bytes, len);
-                            // TODO: copy properties (label_text->properties might be reused)
-
-                            // label->properties = label_text->properties;
+                            if (label_text->properties) {
+                                Property* copy = properties_copy(label_text->properties);
+                                Property* last = copy;
+                                while (last->next) last = last->next;
+                                last->next = label->properties;
+                                label->properties = copy;
+                            }
                         }
                     }
                 }
+
                 cell_p = library.cell_array.items;
                 for (uint64_t i = c_size; i > 0; i--, cell_p++) {
                     Reference** ref_p = (*cell_p)->reference_array.items;
@@ -681,6 +688,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     }
                 }
                 map.clear();
+
                 Property** prop_p = unfinished_property_name.items;
                 for (uint64_t i = unfinished_property_name.size; i > 0; i--) {
                     Property* property = *prop_p++;
