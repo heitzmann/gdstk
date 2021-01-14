@@ -113,50 +113,61 @@ enum struct OasisRecord : uint8_t {
     CBLOCK = 34
 };
 
-uint8_t* oasis_read_string(FILE* in, bool append_terminating_null, uint64_t& len);
+struct OasisStream {
+    FILE* file;
+    uint8_t* data;
+    uint8_t* cursor;
+    uint64_t data_size;
+};
 
-uint64_t oasis_read_unsigned_integer(FILE* in);
+size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);
 
-int64_t oasis_read_integer(FILE* in);
+size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& out);
 
-inline int64_t oasis_read_1delta(FILE* in) { return oasis_read_integer(in); };
+uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& len);
 
-void oasis_read_2delta(FILE* in, int64_t& x, int64_t& y);
+uint64_t oasis_read_unsigned_integer(OasisStream& in);
 
-void oasis_read_3delta(FILE* in, int64_t& x, int64_t& y);
+int64_t oasis_read_integer(OasisStream& in);
 
-void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y);
+inline int64_t oasis_read_1delta(OasisStream& in) { return oasis_read_integer(in); };
 
-double oasis_read_real_by_type(FILE* in, OasisDataType type);
+void oasis_read_2delta(OasisStream& in, int64_t& x, int64_t& y);
 
-inline double oasis_read_real(FILE* in) {
+void oasis_read_3delta(OasisStream& in, int64_t& x, int64_t& y);
+
+void oasis_read_gdelta(OasisStream& in, int64_t& x, int64_t& y);
+
+double oasis_read_real_by_type(OasisStream& in, OasisDataType type);
+
+inline double oasis_read_real(OasisStream& in) {
     OasisDataType type;
-    if (fread(&type, 1, 1, in) < 1) return 0;
+    if (oasis_read(&type, 1, 1, in) < 1) return 0;
     return oasis_read_real_by_type(in, type);
 }
 
 // result must have at least 1 point in it, which will be used as reference for the relative deltas.
 // polygon indicates whether this is supposed to be a polygon point list (in which case there will
 // be an implicit extra delta for Manhattan types).
-uint64_t oasis_read_point_list(FILE* in, double scaling, bool polygon, Array<Vec2>& result);
+uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Array<Vec2>& result);
 
-void oasis_read_repetition(FILE* in, double scaling, Repetition& repetition);
+void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetition);
 
-void oasis_write_unsigned_integer(FILE* out, uint64_t value);
+void oasis_write_unsigned_integer(OasisStream& out, uint64_t value);
 
-void oasis_write_integer(FILE* out, int64_t value);
+void oasis_write_integer(OasisStream& out, int64_t value);
 
-inline void oasis_write_1delta(FILE* out, int64_t value) { oasis_write_integer(out, value); };
+inline void oasis_write_1delta(OasisStream& out, int64_t value) { oasis_write_integer(out, value); };
 
-void oasis_write_2delta(FILE* out, int64_t x, int64_t y);
+void oasis_write_2delta(OasisStream& out, int64_t x, int64_t y);
 
-void oasis_write_3delta(FILE* out, int64_t x, int64_t y);
+void oasis_write_3delta(OasisStream& out, int64_t x, int64_t y);
 
-void oasis_write_gdelta(FILE* out, int64_t x, int64_t y);
+void oasis_write_gdelta(OasisStream& out, int64_t x, int64_t y);
 
-void oasis_write_real(FILE* out, double value);
+void oasis_write_real(OasisStream& out, double value);
 
-void oasis_write_point_list(FILE* out, const Array<Vec2> points, double scaling, bool polygon);
+void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling, bool polygon);
 
 }  // namespace gdstk
 

@@ -15,7 +15,40 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-uint8_t* oasis_read_string(FILE* in, bool append_terminating_null, uint64_t& count) {
+size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
+    if (in.data) {
+        uint64_t total = size * count;
+        memcpy(buffer, in.cursor, size * count);
+        in.cursor += total;
+        if (in.cursor >= in.data + in.data_size) {
+            free_allocation(in.data);
+            in.data = NULL;
+        }
+        return total;
+    }
+    return fread(buffer, size, count, in.file);
+}
+
+static inline uint8_t oasis_peek(OasisStream& in) {
+    uint8_t byte;
+    if (in.data) {
+        byte = *in.cursor;
+    } else {
+        fread(&byte, 1, 1, in.file);
+        fseek(in.file, -1, SEEK_CUR);
+    }
+    return byte;
+}
+
+size_t oasis_write(void* buffer, size_t size, size_t count, OasisStream& out) {
+    return fwrite(buffer, size, count, out.file);
+}
+
+int oasis_putc(int c, OasisStream& out) {
+    return fputc(c, out.file);
+}
+
+uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& count) {
     uint8_t* bytes;
     count = oasis_read_unsigned_integer(in);
     if (append_terminating_null) {
@@ -23,7 +56,7 @@ uint8_t* oasis_read_string(FILE* in, bool append_terminating_null, uint64_t& cou
     } else {
         bytes = (uint8_t*)allocate(count);
     }
-    if (fread(bytes, 1, count, in) < count) {
+    if (oasis_read(bytes, 1, count, in) < count) {
         free_allocation(bytes);
         bytes = NULL;
         count = -1;
@@ -43,9 +76,9 @@ uint8_t* oasis_read_string(FILE* in, bool append_terminating_null, uint64_t& cou
     return bytes;
 }
 
-uint64_t oasis_read_unsigned_integer(FILE* in) {
+uint64_t oasis_read_unsigned_integer(OasisStream& in) {
     uint8_t byte;
-    if (fread(&byte, 1, 1, in) < 1) {
+    if (oasis_read(&byte, 1, 1, in) < 1) {
         fputs("[GDSTK] Error reading file.\n", stderr);
         return 0;
     }
@@ -54,7 +87,7 @@ uint64_t oasis_read_unsigned_integer(FILE* in) {
 
     uint8_t num_bits = 7;
     while (byte & 0x80) {
-        if (fread(&byte, 1, 1, in) < 1) {
+        if (oasis_read(&byte, 1, 1, in) < 1) {
             fputs("[GDSTK] Error reading file.\n", stderr);
             return result;
         }
@@ -68,9 +101,9 @@ uint64_t oasis_read_unsigned_integer(FILE* in) {
     return result;
 }
 
-static uint8_t oasis_read_int_internal(FILE* in, uint8_t skip_bits, int64_t& result) {
+static uint8_t oasis_read_int_internal(OasisStream& in, uint8_t skip_bits, int64_t& result) {
     uint8_t byte;
-    if (fread(&byte, 1, 1, in) < 1) {
+    if (oasis_read(&byte, 1, 1, in) < 1) {
         fputs("[GDSTK] Error reading file.\n", stderr);
         return 0;
     }
@@ -78,7 +111,7 @@ static uint8_t oasis_read_int_internal(FILE* in, uint8_t skip_bits, int64_t& res
     uint8_t bits = byte & ((1 << skip_bits) - 1);
     uint8_t num_bits = 7 - skip_bits;
     while (byte & 0x80) {
-        if (fread(&byte, 1, 1, in) < 1) {
+        if (oasis_read(&byte, 1, 1, in) < 1) {
             fputs("[GDSTK] Error reading file.\n", stderr);
             return bits;
         }
@@ -93,13 +126,13 @@ static uint8_t oasis_read_int_internal(FILE* in, uint8_t skip_bits, int64_t& res
     return bits;
 }
 
-int64_t oasis_read_integer(FILE* in) {
+int64_t oasis_read_integer(OasisStream& in) {
     int64_t value;
     if (oasis_read_int_internal(in, 1, value) > 0) return -value;
     return value;
 }
 
-void oasis_read_2delta(FILE* in, int64_t& x, int64_t& y) {
+void oasis_read_2delta(OasisStream& in, int64_t& x, int64_t& y) {
     int64_t value;
     switch ((OasisDirection)oasis_read_int_internal(in, 2, value)) {
         case OasisDirection::E:
@@ -123,7 +156,7 @@ void oasis_read_2delta(FILE* in, int64_t& x, int64_t& y) {
     }
 }
 
-void oasis_read_3delta(FILE* in, int64_t& x, int64_t& y) {
+void oasis_read_3delta(OasisStream& in, int64_t& x, int64_t& y) {
     int64_t value;
     switch ((OasisDirection)oasis_read_int_internal(in, 3, value)) {
         case OasisDirection::E:
@@ -160,11 +193,8 @@ void oasis_read_3delta(FILE* in, int64_t& x, int64_t& y) {
     }
 }
 
-void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y) {
-    uint8_t bits;
-    if (fread(&bits, 1, 1, in) < 1) return;
-    // TODO: How inefficient is this?
-    fseek(in, -1, SEEK_CUR);
+void oasis_read_gdelta(OasisStream& in, int64_t& x, int64_t& y) {
+    uint8_t bits = oasis_peek(in);
 
     if ((bits & 0x01) == 0) {
         int64_t value;
@@ -207,7 +237,7 @@ void oasis_read_gdelta(FILE* in, int64_t& x, int64_t& y) {
     }
 }
 
-double oasis_read_real_by_type(FILE* in, OasisDataType type) {
+double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
     switch ((OasisDataType)type) {
         case OasisDataType::RealPositiveInteger:
             return (double)oasis_read_unsigned_integer(in);
@@ -229,13 +259,13 @@ double oasis_read_real_by_type(FILE* in, OasisDataType type) {
         }
         case OasisDataType::RealFloat: {
             float value;
-            fread(&value, sizeof(float), 1, in);
+            oasis_read(&value, sizeof(float), 1, in);
             little_endian_swap32((uint32_t*)&value, 1);
             return (double)value;
         }
         case OasisDataType::RealDouble: {
             double value;
-            fread(&value, sizeof(double), 1, in);
+            oasis_read(&value, sizeof(double), 1, in);
             little_endian_swap64((uint64_t*)&value, 1);
             return value;
         }
@@ -245,9 +275,9 @@ double oasis_read_real_by_type(FILE* in, OasisDataType type) {
     return 0;
 }
 
-uint64_t oasis_read_point_list(FILE* in, double scaling, bool polygon, Array<Vec2>& result) {
+uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Array<Vec2>& result) {
     uint8_t byte;
-    if (fread(&byte, 1, 1, in) < 1) return 0;
+    if (oasis_read(&byte, 1, 1, in) < 1) return 0;
     uint64_t num = oasis_read_unsigned_integer(in);
     switch ((OasisPointList)byte) {
         case OasisPointList::ManhattanHorizontalFirst: {
@@ -352,9 +382,9 @@ uint64_t oasis_read_point_list(FILE* in, double scaling, bool polygon, Array<Vec
     return num;
 }
 
-void oasis_read_repetition(FILE* in, double scaling, Repetition& repetition) {
+void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetition) {
     uint8_t type;
-    if (fread(&type, 1, 1, in) < 1) {
+    if (oasis_read(&type, 1, 1, in) < 1) {
         fputs("[GDSTK] Error reading file.\n", stderr);
         return;
     }
@@ -454,7 +484,7 @@ void oasis_read_repetition(FILE* in, double scaling, Repetition& repetition) {
     }
 }
 
-void oasis_write_unsigned_integer(FILE* out, uint64_t value) {
+void oasis_write_unsigned_integer(OasisStream& out, uint64_t value) {
     uint8_t bytes[10] = {(uint8_t)(value & 0x7f)};
     uint8_t* b = bytes;
     value >>= 7;
@@ -464,10 +494,11 @@ void oasis_write_unsigned_integer(FILE* out, uint64_t value) {
         *b = value & 0x7f;
         value >>= 7;
     }
-    fwrite(bytes, 1, b - bytes + 1, out);
+    oasis_write(bytes, 1, b - bytes + 1, out);
 }
 
-static void oasis_write_int_internal(FILE* out, int64_t value, uint8_t num_bits, uint8_t bits) {
+static void oasis_write_int_internal(OasisStream& out, int64_t value, uint8_t num_bits,
+                                     uint8_t bits) {
     uint8_t bytes[10];
     uint8_t* b = bytes;
     *b = bits;
@@ -478,10 +509,10 @@ static void oasis_write_int_internal(FILE* out, int64_t value, uint8_t num_bits,
         *b = value & 0x7f;
         value >>= 7;
     }
-    fwrite(bytes, 1, b - bytes + 1, out);
+    oasis_write(bytes, 1, b - bytes + 1, out);
 }
 
-void oasis_write_integer(FILE* out, int64_t value) {
+void oasis_write_integer(OasisStream& out, int64_t value) {
     if (value < 0) {
         oasis_write_int_internal(out, -value, 1, 1);
     } else {
@@ -489,7 +520,7 @@ void oasis_write_integer(FILE* out, int64_t value) {
     }
 }
 
-void oasis_write_2delta(FILE* out, int64_t x, int64_t y) {
+void oasis_write_2delta(OasisStream& out, int64_t x, int64_t y) {
     if (x == 0) {
         if (y < 0) {
             oasis_write_int_internal(out, -y, 2, (uint8_t)OasisDirection::S);
@@ -507,7 +538,7 @@ void oasis_write_2delta(FILE* out, int64_t x, int64_t y) {
     }
 }
 
-void oasis_write_3delta(FILE* out, int64_t x, int64_t y) {
+void oasis_write_3delta(OasisStream& out, int64_t x, int64_t y) {
     if (x == 0) {
         if (y < 0) {
             oasis_write_int_internal(out, -y, 3, (uint8_t)OasisDirection::S);
@@ -537,7 +568,7 @@ void oasis_write_3delta(FILE* out, int64_t x, int64_t y) {
     }
 }
 
-void oasis_write_gdelta(FILE* out, int64_t x, int64_t y) {
+void oasis_write_gdelta(OasisStream& out, int64_t x, int64_t y) {
     if (x == 0) {
         if (y < 0) {
             oasis_write_int_internal(out, -y, 4, (uint8_t)OasisDirection::S << 1);
@@ -576,15 +607,15 @@ void oasis_write_gdelta(FILE* out, int64_t x, int64_t y) {
     }
 }
 
-void oasis_write_real(FILE* out, double value) {
+void oasis_write_real(OasisStream& out, double value) {
     if (trunc(value) == value && fabs(value) < UINT64_MAX) {
         // value is integer
         if (value >= 0) {
-            fputc((uint8_t)OasisDataType::RealPositiveInteger, out);
+            oasis_putc((uint8_t)OasisDataType::RealPositiveInteger, out);
             oasis_write_unsigned_integer(out, (uint64_t)value);
             return;
         } else {
-            fputc((uint8_t)OasisDataType::RealNegativeInteger, out);
+            oasis_putc((uint8_t)OasisDataType::RealNegativeInteger, out);
             oasis_write_unsigned_integer(out, (uint64_t)(-value));
             return;
         }
@@ -594,25 +625,26 @@ void oasis_write_real(FILE* out, double value) {
     if (trunc(inverse) == inverse && fabs(inverse) < UINT64_MAX) {
         // inverse is integer
         if (inverse >= 0) {
-            fputc((uint8_t)OasisDataType::RealPositiveReciprocal, out);
+            oasis_putc((uint8_t)OasisDataType::RealPositiveReciprocal, out);
             oasis_write_unsigned_integer(out, (uint64_t)inverse);
             return;
         } else {
-            fputc((uint8_t)OasisDataType::RealNegativeReciprocal, out);
+            oasis_putc((uint8_t)OasisDataType::RealNegativeReciprocal, out);
             oasis_write_unsigned_integer(out, (uint64_t)(-inverse));
             return;
         }
     }
 
-    fputc((uint8_t)OasisDataType::RealDouble, out);
+    oasis_putc((uint8_t)OasisDataType::RealDouble, out);
     little_endian_swap64((uint64_t*)&value, 1);
-    fwrite(&value, sizeof(double), 1, out);
+    oasis_write(&value, sizeof(double), 1, out);
 }
 
-void oasis_write_point_list(FILE* out, const Array<Vec2> points, double scaling, bool polygon) {
+void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
+                            bool polygon) {
     // TODO: choose point list type to decrease file size
     if (points.size < 1) return;
-    fputc((uint8_t)OasisPointList::General, out);
+    oasis_putc((uint8_t)OasisPointList::General, out);
     oasis_write_unsigned_integer(out, points.size - 1);
     Vec2* ref = points.items;
     Vec2* cur = ref + 1;

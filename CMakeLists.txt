@@ -29,6 +29,11 @@ foreach(IT ${LAPACK_LIBRARIES})
     set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
 endforeach()
 
+find_package(ZLIB REQUIRED)
+foreach(IT ${ZLIB_LIBRARIES})
+    set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
+endforeach()
+
 FILE(GLOB GDSTK_SOURCES  src/*.cpp)
 add_library(gdstk STATIC
     src/allocator.cpp
@@ -50,7 +55,7 @@ add_library(gdstk STATIC
     src/utils.cpp
     src/clipperlib/clipper.cpp)
 
-target_link_libraries(gdstk ${LAPACK_LIBRARIES})
+target_link_libraries(gdstk ${LAPACK_LIBRARIES} ${ZLIB_LIBRARIES})
 
 set_target_properties(gdstk PROPERTIES
     POSITION_INDEPENDENT_CODE ON

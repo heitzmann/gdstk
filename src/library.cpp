@@ -14,6 +14,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 #include <cstring>
 #include <ctime>
+#include <zlib.h>
 
 #include "allocator.h"
 #include "cell.h"
@@ -538,18 +539,19 @@ Library read_gds(const char* filename, double unit, double tolerance) {
 Library read_oas(const char* filename, double unit, double tolerance) {
     Library library = {0};
 
-    FILE* in = fopen(filename, "rb");
-    if (in == NULL) {
+    OasisStream in = {0};
+    in.file = fopen(filename, "rb");
+    if (in.file == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
-        fclose(in);
+        fclose(in.file);
         return library;
     }
 
     // Check header bytes and START record
     char header[14];
-    if (fread(header, 1, 14, in) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
+    if (fread(header, 1, 14, in.file) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
         fputs("[GDSTK] Invalid OASIS header found.\n", stderr);
-        fclose(in);
+        fclose(in.file);
         return library;
     }
 
@@ -614,7 +616,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
     Cell* cell = NULL;
 
     OasisRecord record;
-    while (fread(&record, 1, 1, in) > 0) {
+    while (oasis_read(&record, 1, 1, in) > 0) {
         switch (record) {
             case OasisRecord::PAD:
                 break;
@@ -623,7 +625,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 fputs("[GDSTK] Unexpected START record out of position in file.\n", stderr);
                 break;
             case OasisRecord::END: {
-                fseek(in, 0, SEEK_END);
+                fseek(in.file, 0, SEEK_END);
                 library.name = (char*)allocate(4);
                 library.name[0] = 'L';
                 library.name[1] = 'I';
@@ -818,7 +820,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->reference_array.append(reference);
                 next_property = &reference->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x80) {
                     // Explicit reference
                     if (info & 0x40) {
@@ -893,7 +895,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->label_array.append(label);
                 next_property = &label->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x40) {
                     // Explicit text
                     if (info & 0x20) {
@@ -946,7 +948,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->polygon_array.append(polygon);
                 next_property = &polygon->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
                 }
@@ -989,7 +991,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->polygon_array.append(polygon);
                 next_property = &polygon->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
                 }
@@ -1042,7 +1044,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 path->gdsii_path = true;
                 path->scale_width = true;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
                 }
@@ -1057,7 +1059,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 element->half_width_and_offset.append(Vec2{modal_path_halfwidth, 0});
                 if (info & 0x80) {
                     uint8_t extension_scheme;
-                    fread(&extension_scheme, 1, 1, in);
+                    oasis_read(&extension_scheme, 1, 1, in);
                     switch (extension_scheme & 0x03) {
                         case 0x01:
                             modal_path_extensions.x = 0;
@@ -1122,7 +1124,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->polygon_array.append(polygon);
                 next_property = &polygon->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
                 }
@@ -1188,7 +1190,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->polygon_array.append(polygon);
                 next_property = &polygon->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
                 }
@@ -1198,7 +1200,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 }
                 polygon->datatype = modal_datatype;
                 if (info & 0x80) {
-                    fread(&modal_ctrapezoid_type, 1, 1, in);
+                    oasis_read(&modal_ctrapezoid_type, 1, 1, in);
                 }
                 if (info & 0x40) {
                     modal_geom_dim.x = factor * oasis_read_unsigned_integer(in);
@@ -1348,7 +1350,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell->polygon_array.append(polygon);
                 next_property = &polygon->properties;
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
                 }
@@ -1390,7 +1392,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 if (record == OasisRecord::LAST_PROPERTY) {
                     info = 0x08;
                 } else {
-                    fread(&info, 1, 1, in);
+                    oasis_read(&info, 1, 1, in);
                 }
                 if (info & 0x04) {
                     // Explicit name
@@ -1439,7 +1441,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                         *next = property_value;
                         next = &property_value->next;
                         OasisDataType data_type;
-                        fread(&data_type, 1, 1, in);
+                        oasis_read(&data_type, 1, 1, in);
                         switch (data_type) {
                             case OasisDataType::RealPositiveInteger:
                             case OasisDataType::RealNegativeInteger:
@@ -1497,7 +1499,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
             } break;
             case OasisRecord::XGEOMETRY: {
                 uint8_t info;
-                fread(&info, 1, 1, in);
+                oasis_read(&info, 1, 1, in);
                 oasis_read_unsigned_integer(in);
                 if (info & 0x01) {
                     modal_layer = oasis_read_unsigned_integer(in);
@@ -1528,24 +1530,40 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 fputs("[GDSTK] Record type XGEOMETRY ignored.\n", stderr);
             } break;
             case OasisRecord::CBLOCK: {
-                // TODO: Add support for CBLOCK records
                 if (oasis_read_unsigned_integer(in) != 0) {
                     fputs("[GDSTK] CBLOCK compression method not supported.\n", stderr);
                     oasis_read_unsigned_integer(in);
                     len = oasis_read_unsigned_integer(in);
-                    fseek(in, len, SEEK_SET);
+                    fseek(in.file, len, SEEK_SET);
                 } else {
-                    uint64_t uncompressed_size = oasis_read_unsigned_integer(in);
-                    len = oasis_read_unsigned_integer(in);
-                    fseek(in, len, SEEK_SET);
-                    fputs("[GDSTK] Record type CBLOCK unsupported.\n", stderr);
+                    z_stream s = {0};
+                    in.data_size = oasis_read_unsigned_integer(in);
+                    s.avail_out = in.data_size;
+                    s.avail_in = oasis_read_unsigned_integer(in);
+                    in.data = (uint8_t*)allocate(in.data_size);
+                    in.cursor = in.data;
+                    s.next_out = in.data;
+                    uint8_t* data = (uint8_t*)allocate(s.avail_in);
+                    s.next_in = (Bytef*)data;
+                    if (fread(s.next_in, 1, s.avail_in, in.file) != s.avail_in) {
+                        fputs("[GDSTK] Unable to read full CBLOCK.\n", stderr);
+                    }
+                    if (inflateInit2(&s, -15) != Z_OK) {
+                        fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
+                    }
+                    int ret = inflate(&s, Z_FINISH);
+                    if (ret != Z_STREAM_END) {
+                        fputs("[GDSTK] Unable to decompress CBLOCK.\n", stderr);
+                    }
+                    free_allocation(data);
+                    inflateEnd(&s);
                 }
             } break;
             default:
                 fprintf(stderr, "[GDSTK] Unknown record type <0x%02X>.\n", (uint8_t)record);
         }
     }
-    fclose(in);
+    fclose(in.file);
 
     ByteArray* ba = cell_name_table.items;
     for (uint64_t i = cell_name_table.size; i > 0; i--, ba++) {
@@ -1625,14 +1643,15 @@ int oas_precision(const char* filename, double& precision) {
     }
 
     // Process START record
+    OasisStream s = {in, NULL, NULL, 0};
     uint64_t len;
-    uint8_t* version = oasis_read_string(in, false, len);
+    uint8_t* version = oasis_read_string(s, false, len);
     if (memcmp(version, "1.0", 3) != 0) {
         fputs("[GDSTK] Unsupported OASIS file version.\n", stderr);
     }
     free_allocation(version);
 
-    precision = 1e-6 / oasis_read_real(in);
+    precision = 1e-6 / oasis_read_real(s);
     fclose(in);
     return 0;
 }
