@@ -34,7 +34,6 @@ foreach(IT ${ZLIB_LIBRARIES})
     set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
 endforeach()
 
-FILE(GLOB GDSTK_SOURCES  src/*.cpp)
 add_library(gdstk STATIC
     src/allocator.cpp
     src/cell.cpp
@@ -55,6 +54,7 @@ add_library(gdstk STATIC
     src/utils.cpp
     src/clipperlib/clipper.cpp)
 
+target_include_directories(gdstk PRIVATE ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(gdstk ${LAPACK_LIBRARIES} ${ZLIB_LIBRARIES})
 
 set_target_properties(gdstk PROPERTIES
