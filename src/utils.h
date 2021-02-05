@@ -56,6 +56,8 @@ char* copy_string(const char* str, uint64_t& len);
 
 double modulo(double x, double y);
 
+bool is_multiple_of_pi_over_2(double angle, int64_t& m);
+
 uint64_t arc_num_points(double angle, double radius, double tol);
 
 double elliptical_angle_transform(double angle, double radius_x, double radius_y);

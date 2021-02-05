@@ -635,6 +635,135 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
     }
 }
 
+void FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
+    const Array<Vec2> spine_points = spine.point_array;
+    const BendType bend_type = el->bend_type;
+    const double bend_radius = el->bend_radius;
+    const double* path_offsets = ((double*)el->half_width_and_offset.items) + 1;
+    Vec2 spine_normal = (spine_points[1] - spine_points[0]).ortho();
+    spine_normal.normalize();
+    Vec2 p0 = spine_points[0] + spine_normal * path_offsets[2 * 0];
+    Vec2 p1 = spine_points[1] + spine_normal * path_offsets[2 * 1];
+    Vec2 t0 = p1 - p0;
+    t0.normalize();
+    Vec2 n0 = t0.ortho();
+    result.append(p0);
+
+    if (spine_points.size > 2) {
+        Curve arc = {0};
+        arc.tolerance = spine.tolerance;
+        spine_normal = (spine_points[2] - spine_points[1]).ortho();
+        spine_normal.normalize();
+        Vec2 p2 = spine_points[1] + spine_normal * path_offsets[2 * 1];
+        Vec2 p3 = spine_points[2] + spine_normal * path_offsets[2 * 2];
+        Vec2 t1 = p3 - p2;
+        t1.normalize();
+        Vec2 n1 = t1.ortho();
+        double u0, u1;
+        segments_intersection(p1, t0, p2, t1, u0, u1);
+        Vec2 p_next = 0.5 * (p1 + u0 * t0 + p2 + u1 * t1);
+        Vec2 p = p0;
+        double len_sq_next = (p_next - p).length_sq();
+
+        for (uint64_t i = 1; i < spine_points.size - 1; i++) {
+            Vec2 t2, n2;
+            p0 = p2;
+            p1 = p3;
+            p = p_next;
+
+            if (i + 2 == spine_points.size) {
+                // Last point: no need to find an intersection
+                p_next = p1;
+                t2 = {0, 0};
+                n2 = {0, 0};
+            } else {
+                spine_normal = (spine_points[i + 2] - spine_points[i + 1]).ortho();
+                spine_normal.normalize();
+                p2 = spine_points[i + 1] + spine_normal * path_offsets[2 * (i + 1)];
+                p3 = spine_points[i + 2] + spine_normal * path_offsets[2 * (i + 2)];
+                t2 = p3 - p2;
+                t2.normalize();
+                n2 = t2.ortho();
+                segments_intersection(p1, t1, p2, t2, u0, u1);
+                p_next = 0.5 * (p1 + u0 * t1 + p2 + u1 * t2);
+            }
+
+            int8_t bend_dir = 0;
+            double radius = 0;
+            if (bend_type != BendType::None) {
+                const double len_sq_prev = len_sq_next;
+                len_sq_next = (p_next - p).length_sq();
+                if (t0.cross(t1) > 0) {
+                    radius = bend_radius - path_offsets[2 * i];
+                    const double min_len_sq = 4 * radius * radius;
+                    if ((len_sq_prev >= min_len_sq || (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
+                        (len_sq_next >= min_len_sq ||
+                         (i == spine_points.size - 2 && len_sq_next >= min_len_sq / 4)))
+                        bend_dir = 1;  // Left
+                } else {
+                    radius = bend_radius + path_offsets[2 * i];
+                    const double min_len_sq = 4 * radius * radius;
+                    if ((len_sq_prev >= min_len_sq || (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
+                        (len_sq_next >= min_len_sq ||
+                         (i == spine_points.size - 2 && len_sq_next >= min_len_sq / 4)))
+                        bend_dir = -1;  // Right
+                }
+            }
+
+            if (bend_dir < 0) {
+                const Vec2 sum_t = t0 + t1;
+                const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n1.x - n0.x) / sum_t.x
+                                                                 : (n1.y - n0.y) / sum_t.y;
+                const double initial_angle = n0.angle();
+                double final_angle = n1.angle();
+                if (final_angle > initial_angle) final_angle -= 2 * M_PI;
+                const Vec2 center = p - 0.5 * radius * (n0 + n1 + d * (t0 - t1));
+                if (bend_type == BendType::Circular) {
+                    const Vec2 arc_start = center + n0 * radius;
+                    arc.append(arc_start);
+                    arc.arc(radius, radius, initial_angle, final_angle, 0);
+                    result.extend(arc.point_array);
+                    arc.point_array.size = 0;
+                } else if (bend_type == BendType::Function) {
+                    Array<Vec2> bend_array = (*el->bend_function)(
+                        radius, initial_angle, final_angle, center, el->bend_function_data);
+                    result.extend(bend_array);
+                    bend_array.clear();
+                }
+            } else if (bend_dir > 0) {
+                const Vec2 sum_t = t0 + t1;
+                const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n0.x - n1.x) / sum_t.x
+                                                                 : (n0.y - n1.y) / sum_t.y;
+                const double initial_angle = (-n0).angle();
+                double final_angle = (-n1).angle();
+                if (final_angle < initial_angle) final_angle += 2 * M_PI;
+                Vec2 center = p + 0.5 * radius * (n0 + n1 + d * (t1 - t0));
+                if (bend_type == BendType::Circular) {
+                    const Vec2 arc_start = center - n0 * radius;
+                    arc.append(arc_start);
+                    arc.arc(radius, radius, initial_angle, final_angle, 0);
+                    result.extend(arc.point_array);
+                    arc.point_array.size = 0;
+                } else if (bend_type == BendType::Function) {
+                    Array<Vec2> bend_array = (*el->bend_function)(
+                        radius, initial_angle, final_angle, center, el->bend_function_data);
+                    result.extend(bend_array);
+                    bend_array.clear();
+                }
+            } else {
+                result.append(p);
+            }
+
+            t0 = t1;
+            n0 = n1;
+            t1 = t2;
+            n1 = n2;
+        }
+        arc.clear();
+    }
+    result.append(p1);
+}
+
 void FlexPath::to_gds(FILE* out, double scaling) {
     remove_overlapping_points();
     if (spine.point_array.size < 2) return;
@@ -651,10 +780,9 @@ void FlexPath::to_gds(FILE* out, double scaling) {
         offsets.items = &zero;
     }
 
-    const Array<Vec2> spine_points = spine.point_array;
     Array<int32_t> coords = {0};
     Array<Vec2> point_array = {0};
-    point_array.ensure_slots(spine_points.size);
+    point_array.ensure_slots(spine.point_array.size);
 
     FlexPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -695,136 +823,7 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             big_endian_swap32((uint32_t*)ext_size, COUNT(ext_size));
         }
 
-        {  // Calculate path coordinates (analogous to to_polygons)
-            const BendType bend_type = el->bend_type;
-            const double bend_radius = el->bend_radius;
-            const double* path_offsets = ((double*)el->half_width_and_offset.items) + 1;
-            Vec2 spine_normal = (spine_points[1] - spine_points[0]).ortho();
-            spine_normal.normalize();
-            Vec2 p0 = spine_points[0] + spine_normal * path_offsets[2 * 0];
-            Vec2 p1 = spine_points[1] + spine_normal * path_offsets[2 * 1];
-            Vec2 t0 = p1 - p0;
-            t0.normalize();
-            Vec2 n0 = t0.ortho();
-            point_array.append(p0);
-
-            if (spine_points.size > 2) {
-                Curve arc = {0};
-                arc.tolerance = spine.tolerance;
-                spine_normal = (spine_points[2] - spine_points[1]).ortho();
-                spine_normal.normalize();
-                Vec2 p2 = spine_points[1] + spine_normal * path_offsets[2 * 1];
-                Vec2 p3 = spine_points[2] + spine_normal * path_offsets[2 * 2];
-                Vec2 t1 = p3 - p2;
-                t1.normalize();
-                Vec2 n1 = t1.ortho();
-                double u0, u1;
-                segments_intersection(p1, t0, p2, t1, u0, u1);
-                Vec2 p_next = 0.5 * (p1 + u0 * t0 + p2 + u1 * t1);
-                Vec2 p = p0;
-                double len_sq_next = (p_next - p).length_sq();
-
-                for (uint64_t i = 1; i < spine_points.size - 1; i++) {
-                    Vec2 t2, n2;
-                    p0 = p2;
-                    p1 = p3;
-                    p = p_next;
-
-                    if (i + 2 == spine_points.size) {
-                        // Last point: no need to find an intersection
-                        p_next = p1;
-                        t2 = {0, 0};
-                        n2 = {0, 0};
-                    } else {
-                        spine_normal = (spine_points[i + 2] - spine_points[i + 1]).ortho();
-                        spine_normal.normalize();
-                        p2 = spine_points[i + 1] + spine_normal * path_offsets[2 * (i + 1)];
-                        p3 = spine_points[i + 2] + spine_normal * path_offsets[2 * (i + 2)];
-                        t2 = p3 - p2;
-                        t2.normalize();
-                        n2 = t2.ortho();
-                        segments_intersection(p1, t1, p2, t2, u0, u1);
-                        p_next = 0.5 * (p1 + u0 * t1 + p2 + u1 * t2);
-                    }
-
-                    int8_t bend_dir = 0;
-                    double radius = 0;
-                    if (bend_type != BendType::None) {
-                        const double len_sq_prev = len_sq_next;
-                        len_sq_next = (p_next - p).length_sq();
-                        if (t0.cross(t1) > 0) {
-                            radius = bend_radius - path_offsets[2 * i];
-                            const double min_len_sq = 4 * radius * radius;
-                            if ((len_sq_prev >= min_len_sq ||
-                                 (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
-                                (len_sq_next >= min_len_sq ||
-                                 (i == spine_points.size - 2 && len_sq_next >= min_len_sq / 4)))
-                                bend_dir = 1;  // Left
-                        } else {
-                            radius = bend_radius + path_offsets[2 * i];
-                            const double min_len_sq = 4 * radius * radius;
-                            if ((len_sq_prev >= min_len_sq ||
-                                 (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
-                                (len_sq_next >= min_len_sq ||
-                                 (i == spine_points.size - 2 && len_sq_next >= min_len_sq / 4)))
-                                bend_dir = -1;  // Right
-                        }
-                    }
-
-                    if (bend_dir < 0) {
-                        const Vec2 sum_t = t0 + t1;
-                        const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n1.x - n0.x) / sum_t.x
-                                                                         : (n1.y - n0.y) / sum_t.y;
-                        const double initial_angle = n0.angle();
-                        double final_angle = n1.angle();
-                        if (final_angle > initial_angle) final_angle -= 2 * M_PI;
-                        const Vec2 center = p - 0.5 * radius * (n0 + n1 + d * (t0 - t1));
-                        if (bend_type == BendType::Circular) {
-                            const Vec2 arc_start = center + n0 * radius;
-                            arc.append(arc_start);
-                            arc.arc(radius, radius, initial_angle, final_angle, 0);
-                            point_array.extend(arc.point_array);
-                            arc.point_array.size = 0;
-                        } else if (bend_type == BendType::Function) {
-                            Array<Vec2> bend_array = (*el->bend_function)(
-                                radius, initial_angle, final_angle, center, el->bend_function_data);
-                            point_array.extend(bend_array);
-                            bend_array.clear();
-                        }
-                    } else if (bend_dir > 0) {
-                        const Vec2 sum_t = t0 + t1;
-                        const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n0.x - n1.x) / sum_t.x
-                                                                         : (n0.y - n1.y) / sum_t.y;
-                        const double initial_angle = (-n0).angle();
-                        double final_angle = (-n1).angle();
-                        if (final_angle < initial_angle) final_angle += 2 * M_PI;
-                        Vec2 center = p + 0.5 * radius * (n0 + n1 + d * (t1 - t0));
-                        if (bend_type == BendType::Circular) {
-                            const Vec2 arc_start = center - n0 * radius;
-                            arc.append(arc_start);
-                            arc.arc(radius, radius, initial_angle, final_angle, 0);
-                            point_array.extend(arc.point_array);
-                            arc.point_array.size = 0;
-                        } else if (bend_type == BendType::Function) {
-                            Array<Vec2> bend_array = (*el->bend_function)(
-                                radius, initial_angle, final_angle, center, el->bend_function_data);
-                            point_array.extend(bend_array);
-                            bend_array.clear();
-                        }
-                    } else {
-                        point_array.append(p);
-                    }
-
-                    t0 = t1;
-                    n0 = n1;
-                    t1 = t2;
-                    n1 = n2;
-                }
-                arc.clear();
-            }
-            point_array.append(p1);
-        }
-
+        element_center(el, point_array);
         coords.ensure_slots(point_array.size * 2);
         coords.size = point_array.size * 2;
 
@@ -872,6 +871,70 @@ void FlexPath::to_gds(FILE* out, double scaling) {
     coords.clear();
     point_array.clear();
     if (repetition.type != RepetitionType::None) offsets.clear();
+}
+
+void FlexPath::to_oas(OasisStream& out, double scaling, uint16_t config_flags) {
+    remove_overlapping_points();
+    if (spine.point_array.size < 2) return;
+
+    bool has_repetition = repetition.get_size() > 1;
+
+    Array<Vec2> point_array = {0};
+    point_array.ensure_slots(spine.point_array.size);
+
+    FlexPathElement* el = elements;
+    for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
+        uint8_t info = 0xFB;
+        if (has_repetition) info |= 0x04;
+
+        oasis_putc((int)OasisRecord::PATH, out);
+        oasis_putc(info, out);
+        oasis_write_unsigned_integer(out, el->layer);
+        oasis_write_unsigned_integer(out, el->datatype);
+        uint64_t half_width = (uint64_t)llround(el->half_width_and_offset[0].u * scaling);
+        oasis_write_unsigned_integer(out, half_width);
+
+        switch (el->end_type) {
+            case EndType::Extended: {
+                uint8_t extension_scheme = 0;
+                int64_t start_extension = (int64_t)llround(el->end_extensions.u * scaling);
+                int64_t end_extension = (int64_t)llround(el->end_extensions.v * scaling);
+                if (start_extension == 0) {
+                    extension_scheme |= 0x04;
+                } else if (start_extension > 0 && (uint64_t)start_extension == half_width) {
+                    extension_scheme |= 0x08;
+                    start_extension = 0;
+                } else {
+                    extension_scheme |= 0x0C;
+                }
+                if (end_extension == 0) {
+                    extension_scheme |= 0x01;
+                } else if (end_extension > 0 && (uint64_t)end_extension == half_width) {
+                    extension_scheme |= 0x02;
+                    end_extension = 0;
+                } else {
+                    extension_scheme |= 0x03;
+                }
+                oasis_putc(extension_scheme, out);
+                if (start_extension != 0) oasis_write_integer(out, start_extension);
+                if (end_extension != 0) oasis_write_integer(out, end_extension);
+            } break;
+            case EndType::HalfWidth:
+                oasis_putc(0x0A, out);
+                break;
+            default:  // Flush
+                oasis_putc(0x05, out);
+        }
+
+        element_center(el, point_array);
+        oasis_write_point_list(out, point_array, scaling, false);
+        oasis_write_integer(out, (int64_t)llround(point_array[0].x * scaling));
+        oasis_write_integer(out, (int64_t)llround(point_array[0].y * scaling));
+        if (has_repetition) oasis_write_repetition(out, repetition, scaling);
+
+        point_array.size = 0;
+    }
+    point_array.clear();
 }
 
 void FlexPath::to_svg(FILE* out, double scaling) {

@@ -35,6 +35,40 @@ double modulo(double x, double y) {
     return m < 0 ? m + y : m;
 }
 
+bool is_multiple_of_pi_over_2(double angle, int64_t& m) {
+    if (angle == 0) {
+        m = 0;
+        return true;
+    } else if (angle == M_PI / 2) {
+        m = 1;
+        return true;
+    } else if (angle == -M_PI / 2) {
+        m = -1;
+        return true;
+    } else if (angle == M_PI) {
+        m = 2;
+        return true;
+    } else if (angle == -M_PI) {
+        m = -2;
+        return true;
+    } else if (angle == M_PI * 1.5) {
+        m = 3;
+        return true;
+    } else if (angle == -M_PI * 1.5) {
+        m = -3;
+        return true;
+    } else if (angle == M_PI * 2) {
+        m = 4;
+        return true;
+    } else if (angle == -M_PI * 2) {
+        m = -4;
+        return true;
+    }
+    m = (int64_t)llround(angle / (M_PI / 2));
+    if (fabs(m * (M_PI / 2) - angle) < 1e-16) return true;
+    return false;
+}
+
 uint64_t arc_num_points(double angle, double radius, double tol) {
     return (uint64_t)(0.5 + 0.5 * fabs(angle) / acos(1 - tol / radius));
 }

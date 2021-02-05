@@ -5,7 +5,7 @@
 [![Publish Docs](https://github.com/heitzmann/gdstk/workflows/Publish%20Docs/badge.svg)](http://heitzmann.github.io/gdstk)
 [![Downloads](https://img.shields.io/github/downloads/heitzmann/gdstk/total.svg)](https://github.com/heitzmann/gdstk/releases)
 
-Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII stream files.
+Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII and OASIS files.
 It is also available as a Python module meant to be a successor to [Gdspy](https://github.com/heitzmann/gdspy).
 
 Key features for the creation of complex CAD layouts are included:
@@ -35,7 +35,7 @@ cmake -S . -B build
 cmake --build build --install target
 ```
 
-The library depends only on LAPACK.
+The library depends on LAPACK and zlib.
 
 ### Conda
 

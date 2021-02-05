@@ -1327,6 +1327,27 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
     }
 }
 
+void RobustPath::element_center(const RobustPathElement* el, Array<Vec2> &result) const {
+    double u0 = 0;
+    SubPath *sub0 = subpath_array.items;
+    SubPath *sub1 = sub0 + 1;
+    Interpolation *offset0 = el->offset_array.items;
+    Interpolation *offset1 = offset0 + 1;
+    result.append(center_position(*sub0, *offset0, 0));
+    for (uint64_t ns = 1; ns < subpath_array.size; ns++, sub1++, offset1++) {
+        double u1 = 1;
+        double u2 = 0;
+        center_intersection(*sub0, *offset0, *sub1, *offset1, u1, u2);
+        if (u2 < 1) {
+            if (u1 > u0) center_points(*sub0, *offset0, u0, u1, result);
+            u0 = u2;
+            sub0 = sub1;
+            offset0 = offset1;
+        }
+    }
+    center_points(*sub0, *offset0, u0, 1, result);
+}
+
 void RobustPath::to_gds(FILE *out, double scaling) const {
     if (num_elements == 0 || subpath_array.size == 0) return;
 
@@ -1385,27 +1406,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             big_endian_swap32((uint32_t *)ext_size, COUNT(ext_size));
         }
 
-        {  // Calculate path coordinates (analogous to RobustPath::to_polygons)
-            double u0 = 0;
-            SubPath *sub0 = subpath_array.items;
-            SubPath *sub1 = sub0 + 1;
-            Interpolation *offset0 = el->offset_array.items;
-            Interpolation *offset1 = offset0 + 1;
-            point_array.append(center_position(*sub0, *offset0, 0));
-            for (uint64_t ns = 1; ns < subpath_array.size; ns++, sub1++, offset1++) {
-                double u1 = 1;
-                double u2 = 0;
-                center_intersection(*sub0, *offset0, *sub1, *offset1, u1, u2);
-                if (u2 < 1) {
-                    if (u1 > u0) center_points(*sub0, *offset0, u0, u1, point_array);
-                    u0 = u2;
-                    sub0 = sub1;
-                    offset0 = offset1;
-                }
-            }
-            center_points(*sub0, *offset0, u0, 1, point_array);
-        }
-
+        element_center(el, point_array);
         coords.ensure_slots(point_array.size * 2);
         coords.size = point_array.size * 2;
 
@@ -1453,6 +1454,70 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
     coords.clear();
     point_array.clear();
     if (repetition.type != RepetitionType::None) offsets.clear();
+}
+
+void RobustPath::to_oas(OasisStream &out, double scaling, uint16_t config_flags) const {
+    if (num_elements == 0 || subpath_array.size == 0) return;
+
+    bool has_repetition = repetition.get_size() > 1;
+
+    Array<Vec2> point_array = {0};
+    point_array.ensure_slots(subpath_array.size * MIN_POINTS);
+
+    RobustPathElement *el = elements;
+    for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
+        uint8_t info = 0xFB;
+        if (has_repetition) info |= 0x04;
+
+        oasis_putc((int)OasisRecord::PATH, out);
+        oasis_putc(info, out);
+        oasis_write_unsigned_integer(out, el->layer);
+        oasis_write_unsigned_integer(out, el->datatype);
+        uint64_t half_width =
+            (uint64_t)llround(interp(el->width_array[0], 0) * width_scale * scaling);
+        oasis_write_unsigned_integer(out, half_width);
+
+        switch (el->end_type) {
+            case EndType::Extended: {
+                uint8_t extension_scheme = 0;
+                int64_t start_extension = (int64_t)llround(el->end_extensions.u * scaling);
+                int64_t end_extension = (int64_t)llround(el->end_extensions.v * scaling);
+                if (start_extension == 0) {
+                    extension_scheme |= 0x04;
+                } else if (start_extension > 0 && (uint64_t)start_extension == half_width) {
+                    extension_scheme |= 0x08;
+                    start_extension = 0;
+                } else {
+                    extension_scheme |= 0x0C;
+                }
+                if (end_extension == 0) {
+                    extension_scheme |= 0x01;
+                } else if (end_extension > 0 && (uint64_t)end_extension == half_width) {
+                    extension_scheme |= 0x02;
+                    end_extension = 0;
+                } else {
+                    extension_scheme |= 0x03;
+                }
+                oasis_putc(extension_scheme, out);
+                if (start_extension != 0) oasis_write_integer(out, start_extension);
+                if (end_extension != 0) oasis_write_integer(out, end_extension);
+            } break;
+            case EndType::HalfWidth:
+                oasis_putc(0x0A, out);
+                break;
+            default:  // Flush
+                oasis_putc(0x05, out);
+        }
+
+        element_center(el, point_array);
+        oasis_write_point_list(out, point_array, scaling, false);
+        oasis_write_integer(out, (int64_t)llround(point_array[0].x * scaling));
+        oasis_write_integer(out, (int64_t)llround(point_array[0].y * scaling));
+        if (has_repetition) oasis_write_repetition(out, repetition, scaling);
+
+        point_array.size = 0;
+    }
+    point_array.clear();
 }
 
 void RobustPath::to_svg(FILE *out, double scaling) const {

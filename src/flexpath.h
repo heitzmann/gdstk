@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.h"
 #include "curve.h"
+#include "oasis.h"
 #include "pathcommon.h"
 #include "polygon.h"
 #include "property.h"
@@ -109,11 +110,14 @@ struct FlexPath {
     uint64_t commands(const CurveInstruction* items, uint64_t size);
 
     void to_polygons(Array<Polygon*>& result);
+    void element_center(const FlexPathElement* el, Array<Vec2>& result);
 
     // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
-    // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce
-    // true GDSII path elements.
+    // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce true
+    // GDSII path elements. The same is valid for to_oas, although no fracturing ever occurs for
+    // OASIS files.
     void to_gds(FILE* out, double scaling);
+    void to_oas(OasisStream& out, double scaling, uint16_t config_flags);
     void to_svg(FILE* out, double scaling);
 
    private:

@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "oasis.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -29,7 +30,7 @@ size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
     return fread(buffer, size, count, in.file);
 }
 
-static inline uint8_t oasis_peek(OasisStream& in) {
+static uint8_t oasis_peek(OasisStream& in) {
     uint8_t byte;
     if (in.data) {
         byte = *in.cursor;
@@ -41,10 +42,35 @@ static inline uint8_t oasis_peek(OasisStream& in) {
 }
 
 size_t oasis_write(void* buffer, size_t size, size_t count, OasisStream& out) {
+    if (out.cursor) {
+        uint64_t total = size * count;
+        uint64_t available = out.data + out.data_size - out.cursor;
+        if (total > available) {
+            uint64_t used = out.cursor - out.data;
+            out.data_size += (total > out.data_size ? 2 * total : out.data_size);
+            out.data = (uint8_t*)reallocate(out.data, out.data_size);
+            out.cursor = out.data + used;
+        }
+        memcpy(out.cursor, buffer, total);
+        out.cursor += total;
+        return total;
+    }
     return fwrite(buffer, size, count, out.file);
 }
 
 int oasis_putc(int c, OasisStream& out) {
+    if (out.cursor) {
+        uint64_t available = out.data + out.data_size - out.cursor;
+        if (available == 0) {
+            uint64_t used = out.cursor - out.data;
+            out.data_size *= 2;
+            out.data = (uint8_t*)reallocate(out.data, out.data_size);
+            out.cursor = out.data + used;
+        }
+        uint8_t c_cast = (uint8_t)c;
+        *out.cursor++ = c_cast;
+        return (int)c_cast;
+    }
     return fputc(c, out.file);
 }
 
@@ -651,6 +677,111 @@ void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double s
     for (uint64_t i = points.size - 1; i > 0; i--) {
         Vec2 v = *cur++ - *ref++;
         oasis_write_gdelta(out, llround(scaling * v.x), llround(scaling * v.y));
+    }
+}
+
+void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling) {
+    switch (repetition.type) {
+        case RepetitionType::Rectangular: {
+            if (repetition.columns > 1 && repetition.rows > 1) {
+                if (repetition.spacing.x >= 0 && repetition.spacing.y >= 0) {
+                    oasis_putc(1, out);
+                    oasis_write_unsigned_integer(out, repetition.columns - 2);
+                    oasis_write_unsigned_integer(out, repetition.rows - 2);
+                    oasis_write_unsigned_integer(out, repetition.spacing.x * scaling);
+                    oasis_write_unsigned_integer(out, repetition.spacing.y * scaling);
+                } else {
+                    oasis_putc(8, out);
+                    oasis_write_unsigned_integer(out, repetition.columns - 2);
+                    oasis_write_unsigned_integer(out, repetition.rows - 2);
+                    oasis_write_gdelta(out, repetition.spacing.x * scaling, 0);
+                    oasis_write_gdelta(out, 0, repetition.spacing.y * scaling);
+                }
+            } else if (repetition.columns > 1) {
+                if (repetition.spacing.x >= 0) {
+                    oasis_putc(2, out);
+                    oasis_write_unsigned_integer(out, repetition.columns - 2);
+                    oasis_write_unsigned_integer(out, repetition.spacing.x * scaling);
+                } else {
+                    oasis_putc(9, out);
+                    oasis_write_unsigned_integer(out, repetition.columns - 2);
+                    oasis_write_gdelta(out, repetition.spacing.x * scaling, 0);
+                }
+            } else {
+                if (repetition.spacing.y >= 0) {
+                    oasis_putc(3, out);
+                    oasis_write_unsigned_integer(out, repetition.rows - 2);
+                    oasis_write_unsigned_integer(out, repetition.spacing.y * scaling);
+                } else {
+                    oasis_putc(9, out);
+                    oasis_write_unsigned_integer(out, repetition.rows - 2);
+                    oasis_write_gdelta(out, 0, repetition.spacing.y * scaling);
+                }
+            }
+        } break;
+        case RepetitionType::Regular: {
+            if (repetition.columns > 1 && repetition.rows > 1) {
+                oasis_putc(8, out);
+                oasis_write_unsigned_integer(out, repetition.columns - 2);
+                oasis_write_unsigned_integer(out, repetition.rows - 2);
+                oasis_write_gdelta(out, repetition.v1.x * scaling, repetition.v1.y * scaling);
+                oasis_write_gdelta(out, repetition.v2.x * scaling, repetition.v2.y * scaling);
+            } else if (repetition.columns > 1) {
+                oasis_putc(9, out);
+                oasis_write_unsigned_integer(out, repetition.columns - 2);
+                oasis_write_gdelta(out, repetition.v1.x * scaling, repetition.v1.y * scaling);
+            } else {
+                oasis_putc(9, out);
+                oasis_write_unsigned_integer(out, repetition.rows - 2);
+                oasis_write_gdelta(out, repetition.v2.x * scaling, repetition.v2.y * scaling);
+            }
+        } break;
+        case RepetitionType::ExplicitX:
+            if (repetition.coords.size > 0) {
+                oasis_putc(4, out);
+                oasis_write_unsigned_integer(out, repetition.coords.size - 1);
+                double* items = (double*)allocate(sizeof(double) * repetition.coords.size);
+                memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.size);
+                std::sort(items, items + repetition.coords.size);
+                double* c0 = items;
+                double* c1 = c0 + 1;
+                oasis_write_unsigned_integer(out, *c0 * scaling);
+                for (uint64_t i = repetition.coords.size - 1; i > 0; --i) {
+                    oasis_write_unsigned_integer(out, (*c1++ - *c0++) * scaling);
+                }
+                free_allocation(items);
+            }
+            break;
+        case RepetitionType::ExplicitY:
+            if (repetition.coords.size > 0) {
+                oasis_putc(6, out);
+                oasis_write_unsigned_integer(out, repetition.coords.size - 1);
+                double* items = (double*)allocate(sizeof(double) * repetition.coords.size);
+                memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.size);
+                std::sort(items, items + repetition.coords.size);
+                double* c0 = items;
+                double* c1 = c0 + 1;
+                oasis_write_unsigned_integer(out, *c0 * scaling);
+                for (uint64_t i = repetition.coords.size - 1; i > 0; --i) {
+                    oasis_write_unsigned_integer(out, (*c1++ - *c0++) * scaling);
+                }
+                free_allocation(items);
+            }
+            break;
+        case RepetitionType::Explicit:
+            if (repetition.offsets.size > 0) {
+                oasis_putc(10, out);
+                oasis_write_unsigned_integer(out, repetition.offsets.size - 1);
+                Vec2* v0 = repetition.offsets.items;
+                Vec2* v1 = v0 + 1;
+                oasis_write_gdelta(out, v0->x * scaling, v0->y * scaling);
+                for (uint64_t i = repetition.coords.size - 1; i > 0; --i, ++v0, ++v1) {
+                    oasis_write_gdelta(out, (v1->x - v0->x) * scaling, (v1->y - v0->y) * scaling);
+                }
+            }
+            break;
+        case RepetitionType::None:
+            break;
     }
 }
 

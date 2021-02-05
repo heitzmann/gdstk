@@ -43,6 +43,8 @@ struct Library {
     void top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const;
 
     void write_gds(const char* filename, uint64_t max_points, std::tm* timestamp) const;
+    void write_oas(const char* filename, double tolerance, uint8_t deflate_level,
+                   uint16_t config_flags) const;
 };
 
 Library read_gds(const char* filename, double unit, double tolerance);

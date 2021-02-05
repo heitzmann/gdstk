@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.h"
 #include "curve.h"
+#include "oasis.h"
 #include "pathcommon.h"
 #include "polygon.h"
 #include "property.h"
@@ -178,9 +179,11 @@ struct RobustPath {
     void to_polygons(Array<Polygon*>& result) const;
 
     // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
-    // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce
-    // true GDSII path elements.
+    // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce true
+    // GDSII path elements. The same is valid for to_oas, although no fracturing ever occurs for
+    // OASIS files.
     void to_gds(FILE* out, double scaling) const;
+    void to_oas(OasisStream& out, double scaling, uint16_t config_flags) const;
     void to_svg(FILE* out, double scaling) const;
 
    private:
@@ -218,6 +221,7 @@ struct RobustPath {
                      const Interpolation& width, double u0, double u1, Array<Vec2>& result) const;
     void right_points(const SubPath& subpath, const Interpolation& offset,
                       const Interpolation& width, double u0, double u1, Array<Vec2>& result) const;
+    void element_center(const RobustPathElement* el, Array<Vec2>& result) const;
 };
 
 }  // namespace gdstk

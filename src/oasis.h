@@ -20,6 +20,27 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// TODO: CONFIG FLAGS
+// #define OASIS_CONFIG_PROPERTY_MAX_LENGTH 0x0001
+// #define OASIS_CONFIG_PROPERTY_TOP_LEVEL 0x0002
+// #define OASIS_CONFIG_PROPERTY_BOUNDING_BOX 0x0004
+// #define OASIS_CONFIG_PROPERTY_CELL_OFFSET 0x0008
+
+#define OASIS_CONFIG_USE_CBLOCK 0x0010
+
+// #define OASIS_CONFIG_DETECT_RECTANGLES 0x0020
+// #define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0040
+// #define OASIS_CONFIG_DETECT_CIRCLES 0x0080
+
+// point_list compression
+// g-delta compression
+// modal variable sorting
+// properties compression (repetition detection)
+
+// #define OASIS_CONFIG_STANDARD_PROPERTIES (OASIS_CONFIG_PROPERTY_MAX_LENGTH | OASIS_CONFIG_PROPERTY_TOP_LEVEL | OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
+// #define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS | OASIS_CONFIG_DETECT_CIRCLES)
+// #define OASIS_CONFIG_MAX_COMPRESSION (OASIS_CONFIG_USE_CBLOCK | OASIS_CONFIG_DETECT_ALL)
+
 enum struct OasisDataType : uint8_t {
     RealPositiveInteger = 0,
     RealNegativeInteger = 1,
@@ -73,7 +94,7 @@ enum struct OasisInterval : uint8_t {
     Bounded = 4
 };
 
-enum struct OasisDirection { E = 0, N = 1, W = 2, S = 3, NE = 4, NW = 5, SW = 6, SE = 7 };
+enum struct OasisDirection : uint8_t { E = 0, N = 1, W = 2, S = 3, NE = 4, NW = 5, SW = 6, SE = 7 };
 
 enum struct OasisRecord : uint8_t {
     PAD = 0,
@@ -89,7 +110,7 @@ enum struct OasisRecord : uint8_t {
     PROPSTRING = 10,
     LAYERNAME_DATA = 11,
     LAYERNAME_TEXT = 12,
-    CELL_REFNAME = 13,
+    CELL_REF_NUM = 13,
     CELL = 14,
     XYABSOLUTE = 15,
     XYRELATIVE = 16,
@@ -124,6 +145,8 @@ size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);
 
 size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& out);
 
+int oasis_putc(int c, OasisStream& out);
+
 uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& len);
 
 uint64_t oasis_read_unsigned_integer(OasisStream& in);
@@ -157,7 +180,9 @@ void oasis_write_unsigned_integer(OasisStream& out, uint64_t value);
 
 void oasis_write_integer(OasisStream& out, int64_t value);
 
-inline void oasis_write_1delta(OasisStream& out, int64_t value) { oasis_write_integer(out, value); };
+inline void oasis_write_1delta(OasisStream& out, int64_t value) {
+    oasis_write_integer(out, value);
+};
 
 void oasis_write_2delta(OasisStream& out, int64_t x, int64_t y);
 
@@ -167,7 +192,12 @@ void oasis_write_gdelta(OasisStream& out, int64_t x, int64_t y);
 
 void oasis_write_real(OasisStream& out, double value);
 
-void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling, bool polygon);
+// Uses first point as reference, does not output it.
+void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
+                            bool polygon);
+
+// This should only be called with repetition.get_size() > 1
+void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling);
 
 }  // namespace gdstk
 

@@ -385,6 +385,21 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     coords.clear();
 }
 
+void Polygon::to_oas(OasisStream& out, double scaling, uint16_t config_flags) const {
+    uint8_t info = 0x3B;
+    bool has_repetition = repetition.get_size() > 1;
+    if (has_repetition) info |= 0x04;
+    oasis_putc((int)OasisRecord::POLYGON, out);
+    oasis_putc(info, out);
+    oasis_write_unsigned_integer(out, layer);
+    oasis_write_unsigned_integer(out, datatype);
+    oasis_write_point_list(out, point_array, scaling, true);
+    Vec2 ref = point_array[0];
+    oasis_write_integer(out, ref.x * scaling);
+    oasis_write_integer(out, ref.y * scaling);
+    if (has_repetition) oasis_write_repetition(out, repetition, scaling);
+}
+
 void Polygon::to_svg(FILE* out, double scaling) const {
     if (point_array.size < 3) return;
     fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this, layer,
