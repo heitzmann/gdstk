@@ -42,7 +42,6 @@ def test_properties():
         gdstk.Label("Label", 0j),
         gdstk.Reference("EMPTY"),
         gdstk.Cell("CELL"),
-        gdstk.Repetition(1, 1, (1, 1)),
         gdstk.Library("Name"),
     ]:
         assert len(obj.properties) == 0

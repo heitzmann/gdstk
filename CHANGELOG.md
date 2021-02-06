@@ -9,6 +9,9 @@
 - Use cmake to properly intall library
 - Properties can be general or GDSII-specific. Only the latter are stored in gds files.
 
+### Removed
+- `Repetition` don't support properties
+
 ## 0.2.0 - 2020-11-23
 ### Added
 - How-tos and C++ examples
