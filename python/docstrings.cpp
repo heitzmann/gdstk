@@ -488,32 +488,6 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(polygon_object_set_property_doc, R"!(set_property(attr, value) -> self
-
-Set a GDSII property for this polygon.
-
-Args:
-    attr (number): Property number.
-    value (str): Property value.)!");
-
-PyDoc_STRVAR(polygon_object_get_property_doc, R"!(get_property(attr) -> str
-
-Return a property of this polygon.
-
-Args:
-    attr (number): Property number.
-
-Returns:
-   str or None: Property value. If the property number does not exist,
-   ``None`` is returned.)!");
-
-PyDoc_STRVAR(polygon_object_delete_property_doc, R"!(delete_property(attr) -> self
-
-Delete property of this polygon.
-
-Args:
-    attr (number): Property number.)!");
-
 PyDoc_STRVAR(polygon_object_points_doc, R"!(Vertiecs of the polygon.
 
 Notes:
@@ -527,8 +501,6 @@ PyDoc_STRVAR(polygon_object_size_doc, R"!(Number of vertices in this polygon.
 
 Notes:
     This attribute is read-only.)!");
-
-PyDoc_STRVAR(polygon_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // Reference
 
@@ -620,32 +592,6 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(reference_object_set_property_doc, R"!(set_property(attr, value) -> self
-
-Set a GDSII property for this reference.
-
-Args:
-    attr (number): Property number.
-    value (str): Property value.)!");
-
-PyDoc_STRVAR(reference_object_get_property_doc, R"!(get_property(attr) -> str
-
-Return a property of this polygon.
-
-Args:
-    attr (number): Property number.
-
-Returns:
-   str or None: Property value. If the property number does not exist,
-   ``None`` is returned.)!");
-
-PyDoc_STRVAR(reference_object_delete_property_doc, R"!(delete_property(attr) -> self
-
-Delete property of this polygon.
-
-Args:
-    attr (number): Property number.)!");
-
 PyDoc_STRVAR(reference_object_cell_doc, R"!(Cell referenced by this object.
 
 Notes:
@@ -658,8 +604,6 @@ PyDoc_STRVAR(reference_object_rotation_doc, R"!(Reference rotation angle (in rad
 PyDoc_STRVAR(reference_object_magnification_doc, R"!(Reference magnification.)!");
 
 PyDoc_STRVAR(reference_object_x_reflection_doc, R"!(Reference reflection across the x axis.)!");
-
-PyDoc_STRVAR(reference_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // FlexPath
 
@@ -1292,32 +1236,6 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(flexpath_object_set_property_doc, R"!(set_property(attr, value) -> self
-
-Set a GDSII property for this path.
-
-Args:
-    attr (number): Property number.
-    value (str): Property value.)!");
-
-PyDoc_STRVAR(flexpath_object_get_property_doc, R"!(get_property(attr) -> str
-
-Return a property of this path.
-
-Args:
-    attr (number): Property number.
-
-Returns:
-   str or None: Property value. If the property number does not exist,
-   ``None`` is returned.)!");
-
-PyDoc_STRVAR(flexpath_object_delete_property_doc, R"!(delete_property(attr) -> self
-
-Delete property of this path.
-
-Args:
-    attr (number): Property number.)!");
-
 PyDoc_STRVAR(flexpath_object_layers_doc, R"!(FlexPath layer.
 
 Notes:
@@ -1337,8 +1255,6 @@ PyDoc_STRVAR(flexpath_object_size_doc, R"!(Number of points in the path spine.
 
 Notes:
     This attribute is read-only.)!");
-
-PyDoc_STRVAR(flexpath_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // RobustPath
 
@@ -2010,32 +1926,6 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(robustpath_object_set_property_doc, R"!(set_property(attr, value) -> self
-
-Set a GDSII property for this path.
-
-Args:
-    attr (number): Property number.
-    value (str): Property value.)!");
-
-PyDoc_STRVAR(robustpath_object_get_property_doc, R"!(get_property(attr) -> str
-
-Return a property of this path.
-
-Args:
-    attr (number): Property number.
-
-Returns:
-   str or None: Property value. If the property number does not exist,
-   ``None`` is returned.)!");
-
-PyDoc_STRVAR(robustpath_object_delete_property_doc, R"!(delete_property(attr) -> self
-
-Delete property of this path.
-
-Args:
-    attr (number): Property number.)!");
-
 PyDoc_STRVAR(robustpath_object_layers_doc, R"!(RobustPath layer.
 
 Notes:
@@ -2055,8 +1945,6 @@ PyDoc_STRVAR(robustpath_object_size_doc, R"!(Number of sections in this path.
 
 Notes:
     This attribute is read-only.)!");
-
-PyDoc_STRVAR(robustpath_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // Label
 
@@ -2117,32 +2005,6 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(label_object_set_property_doc, R"!(set_property(attr, value) -> self
-
-Set a GDSII property for this label.
-
-Args:
-    attr (number): Property number.
-    value (str): Property value.)!");
-
-PyDoc_STRVAR(label_object_get_property_doc, R"!(get_property(attr) -> str
-
-Return a property of this label.
-
-Args:
-    attr (number): Property number.
-
-Returns:
-   str or None: Property value. If the property number does not exist,
-   ``None`` is returned.)!");
-
-PyDoc_STRVAR(label_object_delete_property_doc, R"!(delete_property(attr) -> self
-
-Delete property of this label.
-
-Args:
-    attr (number): Property number.)!");
-
 PyDoc_STRVAR(label_object_text_doc, R"!(Label text.)!");
 
 PyDoc_STRVAR(label_object_origin_doc, R"!(Label origin.)!");
@@ -2158,8 +2020,6 @@ PyDoc_STRVAR(label_object_x_reflection_doc, R"!(Label reflection across the x ax
 PyDoc_STRVAR(label_object_layer_doc, R"!(Label layer.)!");
 
 PyDoc_STRVAR(label_object_texttype_doc, R"!(Label text type.)!");
-
-PyDoc_STRVAR(label_object_repetition_doc, R"!(Repetition associated with this element.)!");
 
 // Cell
 
@@ -2463,6 +2323,20 @@ Args:
 See also:
     :ref:`getting-started`)!");
 
+PyDoc_STRVAR(library_object_write_oas_doc, R"!(write_oas(outfile, compress=False, deflate_level=6, tolerance=1e-2) -> None
+
+Save this library to an OASIS file.
+
+Args:
+    outfile (str or pathlib.Path): Name of the output file.
+    compress: Whether to compress cell blocks.
+    deflate_level: Level of compression between 1 and 9, 1 being the
+      fastest but with the least compression.
+    tolerance: Tolerance for detecting special shapes, such as circles.
+
+See also:
+    :ref:`getting-started`)!");
+
 PyDoc_STRVAR(library_object_name_doc, R"!(Library name.)!");
 PyDoc_STRVAR(library_object_cells_doc, R"!(List of library cells.
 
@@ -2588,6 +2462,78 @@ PyDoc_STRVAR(repetition_object_offsets_doc, R"!(Offsets for an explicit array.)!
 PyDoc_STRVAR(repetition_object_x_offsets_doc, R"!(X coordinates for an x-explicit array.)!");
 
 PyDoc_STRVAR(repetition_object_y_offsets_doc, R"!(Y coordinates for a y-explicit array.)!");
+
+// Common
+
+PyDoc_STRVAR(object_repetition_doc, R"!(Repetition associated with this element.)!");
+
+PyDoc_STRVAR(object_properties_doc, R"!(Properties of this element.
+
+Properties are represented as a list of lists, each containing the
+property name followed by its values.)!");
+
+PyDoc_STRVAR(object_set_property_doc, R"!(set_property(name, value) -> self
+
+Set a property for this element.
+
+The property name does not have to be unique. Multiple properties can
+have the same name.
+
+Args:
+    name (str): Property name.
+    value (str, bytes, number, or sequence of those): Values associated with
+      the property.
+
+Note:
+    General properties are not supported by GDSII files. Use the
+    specific methods to access GDSII properties.)!");
+
+PyDoc_STRVAR(object_get_property_doc, R"!(get_property(name) -> list
+
+Return the values of the first property of this element matching a name.
+
+Args:
+    name (str): Property name.
+
+Returns:
+    list or None: List of property values. If no property is found,
+    ``None`` is returned.)!");
+
+PyDoc_STRVAR(object_delete_property_doc, R"!(delete_property(name) -> self
+
+Delete the first property of this element matching a name.
+
+Args:
+    name (str): Property name.)!");
+
+PyDoc_STRVAR(object_set_gds_property_doc, R"!(set_gds_property(attr, value) -> self
+
+Set a GDSII property for this element.
+
+GDSII properties are stored under the special name "S_GDS_PROPERTY", as
+defined by the OASIS specification.
+
+Args:
+    attr (number): Property number.
+    value (str): Property value.)!");
+
+PyDoc_STRVAR(object_get_gds_property_doc, R"!(get_gds_property(attr) -> str
+
+Return a GDSII property of this element.
+
+Args:
+    attr (number): Property number.
+
+Returns:
+    str or None: Property value. If the property number does not exist,
+    ``None`` is returned.)!");
+
+PyDoc_STRVAR(object_delete_gds_property_doc, R"!(delete_gds_property(attr) -> self
+
+Delete a GDSII property of this element.
+
+Args:
+    attr (number): Property number.)!");
 
 // Module-level functions
 
@@ -2888,7 +2834,7 @@ Notes:
     Repetitions are not applied to any elements, except references and
     their contents.)!");
 
-PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0) -> gdstk.Library
+PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0, tolerance=1e-2) -> gdstk.Library
 
 Import a library from a GDSII stream file.
 
@@ -2896,12 +2842,30 @@ Args:
     infile (str or pathlib.Path): Name of the input file.
     unit (number): If greater than zero, convert the imported geometry
       to the this unit.
+    tolerance (number): Default tolerance for loaded paths.
 
 Returns:
     The imported library.
 
 Examples:
     >>> library = gdstk.read_gds("layout.gds")
+    >>> top_cells = library.top_level())!");
+
+PyDoc_STRVAR(read_oas_function_doc, R"!(read_oas(infile, unit=0, tolerance=1e-2) -> gdstk.Library
+
+Import a library from a GDSII stream file.
+
+Args:
+    infile (str or pathlib.Path): Name of the input file.
+    unit (number): If greater than zero, convert the imported geometry
+      to the this unit.
+    tolerance (number): Default tolerance for loaded paths.
+
+Returns:
+    The imported library.
+
+Examples:
+    >>> library = gdstk.read_gds("layout.oas")
     >>> top_cells = library.top_level())!");
 
 PyDoc_STRVAR(read_rawcells_function_doc, R"!(read_rawcells(infile) -> dict

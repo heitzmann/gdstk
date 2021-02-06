@@ -47,6 +47,8 @@ def assert_close(a, b, atol=1e-12):
 
 @pytest.fixture(scope="session")
 def proof_cells():
+    # infile = pathlib.Path(__file__).parent / "proof_lib.oas"
+    # lib = gdstk.read_oas(infile)
     infile = pathlib.Path(__file__).parent / "proof_lib.gds"
     lib = gdstk.read_gds(str(infile))
     cells = {c.name: c for c in lib.cells}
@@ -54,9 +56,6 @@ def proof_cells():
 
 
 def make_proof_lib():
-    outfile = pathlib.Path(__file__).parent / "proof_lib.gds"
-    if outfile.exists():
-        raise RuntimeError("Test library %s already exists." % outfile)
     lib = gdstk.Library("Test Library", unit=1e-6, precision=1e-12)
 
     cell = lib.new_cell("Polygon.fillet")
@@ -138,8 +137,19 @@ def make_proof_lib():
 
     lib.add(cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten())
 
-    lib.write_gds(outfile)
-    print("Test library saved as %s" % outfile)
+    gds_outfile = pathlib.Path(__file__).parent / "proof_lib.gds"
+    if gds_outfile.exists():
+        print(f"Test library {str(gds_outfile)} already exists.")
+    else:
+        lib.write_gds(gds_outfile)
+        print(f"Test library saved as {str(gds_outfile)}.")
+
+    oas_outfile = pathlib.Path(__file__).parent / "proof_lib.oas"
+    if oas_outfile.exists():
+        print(f"Test library {str(oas_outfile)} already exists.")
+    else:
+        lib.write_oas(oas_outfile)
+        print(f"Test library saved as {str(oas_outfile)}.")
 
 
 if __name__ == "__main__":

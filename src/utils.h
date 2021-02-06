@@ -52,11 +52,11 @@ typedef Array<Vec2> (*JoinFunction)(const Vec2, const Vec2, const Vec2, const Ve
 // Arguments: radius, initial_angle, final_angle, center, data
 typedef Array<Vec2> (*BendFunction)(double, double, double, const Vec2, void*);
 
-uint64_t gdsii_real_from_double(double value);
-
-double gdsii_real_to_double(uint64_t real);
+char* copy_string(const char* str, uint64_t& len);
 
 double modulo(double x, double y);
+
+bool is_multiple_of_pi_over_2(double angle, int64_t& m);
 
 uint64_t arc_num_points(double angle, double radius, double tol);
 
@@ -70,14 +70,17 @@ double distance_to_line(const Vec2 p, const Vec2 p1, const Vec2 p2);
 void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const Vec2 ut1, double& u0,
                            double& u1);
 
-void swap16(uint16_t* buffer, uint64_t n);
+void big_endian_swap16(uint16_t* buffer, uint64_t n);
 
-void swap32(uint32_t* buffer, uint64_t n);
+void big_endian_swap32(uint32_t* buffer, uint64_t n);
 
-void swap64(uint64_t* buffer, uint64_t n);
+void big_endian_swap64(uint64_t* buffer, uint64_t n);
 
-// Read record and make necessary swaps
-uint32_t read_record(FILE* in, uint8_t* buffer);
+void little_endian_swap16(uint16_t* buffer, uint64_t n);
+
+void little_endian_swap32(uint32_t* buffer, uint64_t n);
+
+void little_endian_swap64(uint64_t* buffer, uint64_t n);
 
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1);
 

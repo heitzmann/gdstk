@@ -14,6 +14,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 
 #include "array.h"
+#include "oasis.h"
 #include "property.h"
 #include "repetition.h"
 #include "vec.h"
@@ -44,6 +45,7 @@ struct Polygon {
     void fracture(uint64_t max_points, double precision, Array<Polygon*>& result) const;
     void apply_repetition(Array<Polygon*>& result);
     void to_gds(FILE* out, double scaling) const;
+    void to_oas(OasisStream& out, OasisState& state) const;
     void to_svg(FILE* out, double scaling) const;
 };
 

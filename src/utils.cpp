@@ -12,10 +12,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstring>
 
-// #ifdef _WIN32
-// #include <intrin.h>
-// #endif
-
 #include "allocator.h"
 #include "vec.h"
 
@@ -27,32 +23,50 @@ extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int
 
 namespace gdstk {
 
-uint64_t gdsii_real_from_double(double value) {
-    if (value == 0) return 0;
-    uint8_t u8_1 = 0;
-    if (value < 0) {
-        u8_1 = 0x80;
-        value = -value;
-    }
-    const double fexp = 0.25 * log2(value);
-    double exponent = ceil(fexp);
-    if (exponent == fexp) exponent++;
-    const uint64_t mantissa = (uint64_t)(value * pow(16, 14 - exponent));
-    u8_1 += (uint8_t)(64 + exponent);
-    const uint64_t result = ((uint64_t)u8_1 << 56) | (mantissa & 0x00FFFFFFFFFFFFFF);
+char* copy_string(const char* str, uint64_t& len) {
+    len = 1 + strlen(str);
+    char* result = (char*)allocate(len);
+    memcpy(result, str, len);
     return result;
-}
-
-double gdsii_real_to_double(uint64_t real) {
-    const int64_t exponent = ((real & 0x7F00000000000000) >> 54) - 256;
-    const double mantissa = ((double)(real & 0x00FFFFFFFFFFFFFF)) / 72057594037927936.0;
-    const double result = mantissa * exp2(exponent);
-    return (real & 0x8000000000000000) ? -result : result;
 }
 
 double modulo(double x, double y) {
     double m = fmod(x, y);
     return m < 0 ? m + y : m;
+}
+
+bool is_multiple_of_pi_over_2(double angle, int64_t& m) {
+    if (angle == 0) {
+        m = 0;
+        return true;
+    } else if (angle == M_PI / 2) {
+        m = 1;
+        return true;
+    } else if (angle == -M_PI / 2) {
+        m = -1;
+        return true;
+    } else if (angle == M_PI) {
+        m = 2;
+        return true;
+    } else if (angle == -M_PI) {
+        m = -2;
+        return true;
+    } else if (angle == M_PI * 1.5) {
+        m = 3;
+        return true;
+    } else if (angle == -M_PI * 1.5) {
+        m = -3;
+        return true;
+    } else if (angle == M_PI * 2) {
+        m = 4;
+        return true;
+    } else if (angle == -M_PI * 2) {
+        m = -4;
+        return true;
+    }
+    m = (int64_t)llround(angle / (M_PI / 2));
+    if (fabs(m * (M_PI / 2) - angle) < 1e-16) return true;
+    return false;
 }
 
 uint64_t arc_num_points(double angle, double radius, double tol) {
@@ -92,7 +106,7 @@ void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const V
     }
 }
 
-void swap16(uint16_t* buffer, uint64_t n) {
+void big_endian_swap16(uint16_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint16_t b = *buffer;
@@ -100,7 +114,7 @@ void swap16(uint16_t* buffer, uint64_t n) {
     }
 }
 
-void swap32(uint32_t* buffer, uint64_t n) {
+void big_endian_swap32(uint32_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint32_t b = *buffer;
@@ -108,7 +122,7 @@ void swap32(uint32_t* buffer, uint64_t n) {
     }
 }
 
-void swap64(uint64_t* buffer, uint64_t n) {
+void big_endian_swap64(uint64_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {
         uint64_t b = *buffer;
@@ -119,29 +133,31 @@ void swap64(uint64_t* buffer, uint64_t n) {
     }
 }
 
-// Read record and make necessary swaps
-uint32_t read_record(FILE* in, uint8_t* buffer) {
-    uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
-    if (read_length < 4) {
-        if (feof(in) != 0)
-            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
-        else
-            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
-        return 0;
+void little_endian_swap16(uint16_t* buffer, uint64_t n) {
+    if (!IS_BIG_ENDIAN) return;
+    for (; n > 0; n--) {
+        uint16_t b = *buffer;
+        *buffer++ = (b << 8) | (b >> 8);
     }
-    swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
-    const uint32_t record_length = *((uint16_t*)buffer);
-    if (record_length < 4) return 0;
-    if (record_length == 4) return record_length;
-    read_length = fread(buffer + 4, sizeof(uint8_t), record_length - 4, in);
-    if (read_length < record_length - 4) {
-        if (feof(in) != 0)
-            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
-        else
-            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
-        return 0;
+}
+
+void little_endian_swap32(uint32_t* buffer, uint64_t n) {
+    if (!IS_BIG_ENDIAN) return;
+    for (; n > 0; n--) {
+        uint32_t b = *buffer;
+        *buffer++ = (b << 24) | ((b & 0x0000FF00) << 8) | ((b & 0x00FF0000) >> 8) | (b >> 24);
     }
-    return record_length;
+}
+
+void little_endian_swap64(uint64_t* buffer, uint64_t n) {
+    if (!IS_BIG_ENDIAN) return;
+    for (; n > 0; n--) {
+        uint64_t b = *buffer;
+        *buffer++ = (b << 56) | ((b & 0x000000000000FF00) << 40) |
+                    ((b & 0x0000000000FF0000) << 24) | ((b & 0x00000000FF000000) << 8) |
+                    ((b & 0x000000FF00000000) >> 8) | ((b & 0x0000FF0000000000) >> 24) |
+                    ((b & 0x00FF000000000000) >> 40) | (b >> 56);
+    }
 }
 
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1) { return LERP(p0, p1, t); }

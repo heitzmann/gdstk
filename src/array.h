@@ -79,6 +79,20 @@ struct Array {
 
     void append_unsafe(T item) { items[size++] = item; }
 
+    void insert(uint64_t index, T item) {
+        if (index >= size) {
+            append(item);
+        } else {
+            if (size == capacity) {
+                capacity = capacity >= INITIAL_ARRAY_CAPACITY ? capacity * ARRAY_GROWTH_FACTOR
+                                                              : INITIAL_ARRAY_CAPACITY;
+                items = (T*)reallocate(items, sizeof(T) * capacity);
+            }
+            memmove(items + index + 1, items + index, sizeof(T) * (size - index));
+            items[index] = item;
+        }
+    }
+
     void remove_unordered(uint64_t index) { items[index] = items[--size]; }
 
     void remove(uint64_t index) {

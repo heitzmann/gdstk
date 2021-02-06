@@ -84,8 +84,6 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     label->x_reflection = x_reflection > 0;
     label->text = (char*)allocate((strlen(s) + 1) * sizeof(char));
     strcpy(label->text, s);
-    properties_clear(label->properties);
-    label->properties = NULL;
     label->owner = self;
     return 0;
 }
@@ -115,54 +113,47 @@ static PyObject* label_object_apply_repetition(LabelObject* self, PyObject* args
 }
 
 static PyObject* label_object_set_property(LabelObject* self, PyObject* args) {
-    int16_t attr;
-    char* value;
-    if (!PyArg_ParseTuple(args, "hs:set_property", &attr, &value)) return NULL;
-    set_property(self->label->properties, attr, value);
+    if (!parse_property(self->label->properties, args)) return NULL;
     Py_INCREF(self);
     return (PyObject*)self;
 }
 
 static PyObject* label_object_get_property(LabelObject* self, PyObject* args) {
-    Property* property = self->label->properties;
+    return build_property(self->label->properties, args);
+}
 
-    if (PyTuple_Size(args) == 0 || PyTuple_GetItem(args, 0) == Py_None) {
-        PyObject* result = PyDict_New();
-        for (; property; property = property->next) {
-            PyObject* key = PyLong_FromLong(property->key);
-            if (!key) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert key to int.");
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyObject* val = PyUnicode_FromString(property->value);
-            if (!val) {
-                PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
-                Py_DECREF(key);
-                Py_DECREF(result);
-                return NULL;
-            }
-            PyDict_SetItem(result, key, val);
-            Py_DECREF(key);
-            Py_DECREF(val);
-        }
-        return result;
-    }
+static PyObject* label_object_delete_property(LabelObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->label->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
 
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:get_property", &attr)) return NULL;
-    const char* value = get_property(property, attr);
+static PyObject* label_object_set_gds_property(LabelObject* self, PyObject* args) {
+    uint16_t attribute;
+    char* value;
+    if (!PyArg_ParseTuple(args, "Hs:set_gds_property", &attribute, &value)) return NULL;
+    set_gds_property(self->label->properties, attribute, value);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* label_object_get_gds_property(LabelObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:get_gds_property", &attribute)) return NULL;
+    const PropertyValue* value = get_gds_property(self->label->properties, attribute);
     if (!value) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString(value);
+    return PyUnicode_FromString((char*)value->bytes);
 }
 
-static PyObject* label_object_delete_property(LabelObject* self, PyObject* args) {
-    int16_t attr;
-    if (!PyArg_ParseTuple(args, "h:delete_property", &attr)) return NULL;
-    delete_property(self->label->properties, attr);
+static PyObject* label_object_delete_gds_property(LabelObject* self, PyObject* args) {
+    uint16_t attribute;
+    if (!PyArg_ParseTuple(args, "H:delete_gds_property", &attribute)) return NULL;
+    remove_gds_property(self->label->properties, attribute);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -171,12 +162,16 @@ static PyMethodDef label_object_methods[] = {
     {"copy", (PyCFunction)label_object_copy, METH_NOARGS, label_object_copy_doc},
     {"apply_repetition", (PyCFunction)label_object_apply_repetition, METH_NOARGS,
      label_object_apply_repetition_doc},
-    {"set_property", (PyCFunction)label_object_set_property, METH_VARARGS,
-     label_object_set_property_doc},
-    {"get_property", (PyCFunction)label_object_get_property, METH_VARARGS,
-     label_object_get_property_doc},
+    {"set_property", (PyCFunction)label_object_set_property, METH_VARARGS, object_set_property_doc},
+    {"get_property", (PyCFunction)label_object_get_property, METH_VARARGS, object_get_property_doc},
     {"delete_property", (PyCFunction)label_object_delete_property, METH_VARARGS,
-     label_object_delete_property_doc},
+     object_delete_property_doc},
+    {"set_gds_property", (PyCFunction)label_object_set_gds_property, METH_VARARGS,
+     object_set_gds_property_doc},
+    {"get_gds_property", (PyCFunction)label_object_get_gds_property, METH_VARARGS,
+     object_get_gds_property_doc},
+    {"delete_gds_property", (PyCFunction)label_object_delete_gds_property, METH_VARARGS,
+     object_delete_gds_property_doc},
     {NULL}};
 
 PyObject* label_object_get_text(LabelObject* self, void*) {
@@ -356,6 +351,14 @@ static int label_object_set_texttype(LabelObject* self, PyObject* arg, void*) {
     return 0;
 }
 
+static PyObject* label_object_get_properties(LabelObject* self, void*) {
+    return build_properties(self->label->properties);
+}
+
+int label_object_set_properties(LabelObject* self, PyObject* arg, void*) {
+    return parse_properties(self->label->properties, arg);
+}
+
 static PyObject* label_object_get_repetition(LabelObject* self, void*) {
     RepetitionObject* obj = PyObject_New(RepetitionObject, &repetition_object_type);
     obj = (RepetitionObject*)PyObject_Init((PyObject*)obj, &repetition_object_type);
@@ -394,6 +397,8 @@ static PyGetSetDef label_object_getset[] = {
      label_object_layer_doc, NULL},
     {"texttype", (getter)label_object_get_texttype, (setter)label_object_set_texttype,
      label_object_texttype_doc, NULL},
+    {"properties", (getter)label_object_get_properties, (setter)label_object_set_properties,
+     object_properties_doc, NULL},
     {"repetition", (getter)label_object_get_repetition, (setter)label_object_set_repetition,
-     label_object_repetition_doc, NULL},
+     object_repetition_doc, NULL},
     {NULL}};

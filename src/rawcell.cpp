@@ -12,6 +12,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 
 #include "allocator.h"
+#include "gdsii.h"
+
 namespace gdstk {
 
 void RawCell::print(bool all) const {
@@ -99,7 +101,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
         return result;
     }
 
-    while ((record_length = read_record(source->file, buffer)) > 0) {
+    while ((record_length = gdsii_read_record(source->file, buffer)) > 0) {
         switch (buffer[2]) {
             case 0x04:  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {

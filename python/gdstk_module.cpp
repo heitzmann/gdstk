@@ -1143,19 +1143,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     return result;
 }
 
-static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds) {
-    PyObject* pybytes = NULL;
-    double unit = 0;
-    const char* keywords[] = {"infile", "unit", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|d:read_gds", (char**)keywords,
-                                     PyUnicode_FSConverter, &pybytes, &unit))
-        return NULL;
-
-    const char* filename = PyBytes_AS_STRING(pybytes);
-    Library* library = (Library*)allocate_clear(sizeof(Library));
-    *library = read_gds(filename, unit);
-    Py_DECREF(pybytes);
-
+static PyObject* link_library(Library* library) {
     LibraryObject* result = PyObject_New(LibraryObject, &library_object_type);
     result = (LibraryObject*)PyObject_Init((PyObject*)result, &library_object_type);
     result->library = library;
@@ -1224,6 +1212,40 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     return (PyObject*)result;
 }
 
+static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+    PyObject* pybytes = NULL;
+    double unit = 0;
+    double tolerance = 1e-2;
+    const char* keywords[] = {"infile", "unit", "tolerance", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dd:read_gds", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
+        return NULL;
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    Library* library = (Library*)allocate_clear(sizeof(Library));
+    *library = read_gds(filename, unit, tolerance);
+    Py_DECREF(pybytes);
+
+    return link_library(library);
+}
+
+static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+    PyObject* pybytes = NULL;
+    double unit = 0;
+    double tolerance = 1e-2;
+    const char* keywords[] = {"infile", "unit", "tolerance", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dd:read_oas", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
+        return NULL;
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    Library* library = (Library*)allocate_clear(sizeof(Library));
+    *library = read_oas(filename, unit, tolerance);
+    Py_DECREF(pybytes);
+
+    return link_library(library);
+}
+
 static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:read_rawcells", PyUnicode_FSConverter, &pybytes)) return NULL;
@@ -1286,6 +1308,8 @@ static PyMethodDef gdstk_methods[] = {
     {"inside", (PyCFunction)inside_function, METH_VARARGS | METH_KEYWORDS, inside_function_doc},
     {"read_gds", (PyCFunction)read_gds_function, METH_VARARGS | METH_KEYWORDS,
      read_gds_function_doc},
+    {"read_oas", (PyCFunction)read_oas_function, METH_VARARGS | METH_KEYWORDS,
+     read_oas_function_doc},
     {"read_rawcells", (PyCFunction)read_rawcells_function, METH_VARARGS,
      read_rawcells_function_doc},
     {"gds_units", (PyCFunction)gds_units_function, METH_VARARGS, gds_units_function_doc},

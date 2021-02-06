@@ -49,6 +49,7 @@ void Cell::print(bool all) const {
             label_array[i]->print();
         }
     }
+    properties_print(properties);
 }
 
 void Cell::clear() {
@@ -59,6 +60,7 @@ void Cell::clear() {
     flexpath_array.clear();
     robustpath_array.clear();
     label_array.clear();
+    properties_clear(properties);
 }
 
 void Cell::bounding_box(Vec2& min, Vec2& max) const {
@@ -127,6 +129,7 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
         name = (char*)allocate(sizeof(char) * (strlen(cell.name) + 1));
         strcpy(name, cell.name);
     }
+    properties = properties_copy(cell.properties);
 
     if (deep_copy) {
         polygon_array.capacity = cell.polygon_array.capacity;
@@ -383,7 +386,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
                                (uint16_t)timestamp->tm_sec,
                                (uint16_t)(4 + len),
                                0x0606};
-    swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
     fwrite(name, sizeof(char), len, out);
 
@@ -478,7 +481,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
         (*reference)->to_gds(out, scaling);
 
     uint16_t buffer_end[] = {4, 0x0700};
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 }
 

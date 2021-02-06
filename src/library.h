@@ -24,6 +24,7 @@ struct Library {
     double precision;
     Array<Cell*> cell_array;
     Array<RawCell*> rawcell_array;
+    Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
@@ -35,17 +36,27 @@ struct Library {
         name = NULL;
         cell_array.clear();
         rawcell_array.clear();
+        properties_clear(properties);
     }
 
     void copy_from(const Library& library, bool deep_copy);
     void top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const;
 
     void write_gds(const char* filename, uint64_t max_points, std::tm* timestamp) const;
+    void write_oas(const char* filename, double tolerance, uint8_t deflate_level,
+                   uint16_t config_flags) const;
 };
 
-Library read_gds(const char* filename, double unit);
+Library read_gds(const char* filename, double unit, double tolerance);
+
+Library read_oas(const char* filename, double unit, double tolerance);
 
 int gds_units(const char* filename, double& unit, double& precision);
+
+int oas_precision(const char* filename, double& precision);
+
+// TODO: add function to perform validation
+// bool oas_validate(const char filename);
 
 }  // namespace gdstk
 

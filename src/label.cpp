@@ -11,6 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdint>
 #include <cstdio>
 
+#include "gdsii.h"
 #include "utils.h"
 
 namespace gdstk {
@@ -20,6 +21,7 @@ void Label::print() {
            ", texttype %" PRIu32 ", properties <%p>, owner <%p>\n",
            this, text, origin.x, origin.y, rotation, magnification, x_reflection, layer, texttype,
            properties, owner);
+    properties_print(properties);
     repetition.print();
 }
 
@@ -30,7 +32,6 @@ void Label::clear() {
     }
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Label::copy_from(const Label& label) {
@@ -86,18 +87,18 @@ void Label::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_start[] = {
         4,      0x0C00,          6, 0x0D02, (uint16_t)layer, 6, 0x1602, (uint16_t)texttype, 6,
         0x1701, (uint16_t)anchor};
-    swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
 
     uint16_t buffer_end[] = {4, 0x1100};
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
 
     uint16_t buffer_xy[] = {12, 0x1003};
-    swap16(buffer_xy, COUNT(buffer_xy));
+    big_endian_swap16(buffer_xy, COUNT(buffer_xy));
 
     uint64_t len = strlen(text);
     if (len % 2) len++;
     uint16_t buffer_text[] = {(uint16_t)(4 + len), 0x1906};
-    swap16(buffer_text, COUNT(buffer_text));
+    big_endian_swap16(buffer_text, COUNT(buffer_text));
 
     bool transform = rotation != 0 || magnification != 1 || x_reflection;
     uint16_t buffer_flags[] = {6, 0x1A01, 0};
@@ -110,17 +111,17 @@ void Label::to_gds(FILE* out, double scaling) const {
         }
         if (magnification != 1) {
             // if ("absolute magnification") buffer_flags[2] |= 0x0004; // UNSUPPORTED
-            swap16(buffer_mag, COUNT(buffer_mag));
+            big_endian_swap16(buffer_mag, COUNT(buffer_mag));
             mag_real = gdsii_real_from_double(magnification);
-            swap64(&mag_real, 1);
+            big_endian_swap64(&mag_real, 1);
         }
         if (rotation != 0) {
             // if ("absolute rotation") buffer_flags[2] |= 0x0002; // UNSUPPORTED
-            swap16(buffer_rot, COUNT(buffer_rot));
+            big_endian_swap16(buffer_rot, COUNT(buffer_rot));
             rot_real = gdsii_real_from_double(rotation * (180.0 / M_PI));
-            swap64(&rot_real, 1);
+            big_endian_swap64(&rot_real, 1);
         }
-        swap16(buffer_flags, COUNT(buffer_flags));
+        big_endian_swap16(buffer_flags, COUNT(buffer_flags));
     }
 
     Vec2 zero = {0, 0};
@@ -150,7 +151,7 @@ void Label::to_gds(FILE* out, double scaling) const {
 
         int32_t buffer_pos[] = {(int32_t)(lround((origin.x + offset_p->x) * scaling)),
                                 (int32_t)(lround((origin.y + offset_p->y) * scaling))};
-        swap32((uint32_t*)buffer_pos, COUNT(buffer_pos));
+        big_endian_swap32((uint32_t*)buffer_pos, COUNT(buffer_pos));
 
         fwrite(buffer_xy, sizeof(uint16_t), COUNT(buffer_xy), out);
         fwrite(buffer_pos, sizeof(uint32_t), COUNT(buffer_pos), out);

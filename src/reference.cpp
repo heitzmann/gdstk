@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "allocator.h"
 #include "cell.h"
+#include "gdsii.h"
 #include "rawcell.h"
 #include "utils.h"
 
@@ -33,6 +34,7 @@ void Reference::print() const {
     }
     printf(", at (%lg, %lg), %lg rad, mag %lg, reflection %d, properties <%p>, owner <%p>\n",
            origin.x, origin.y, rotation, magnification, x_reflection, properties, owner);
+    properties_print(properties);
     repetition.print();
 }
 
@@ -43,7 +45,6 @@ void Reference::clear() {
     }
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Reference::copy_from(const Reference& reference) {
@@ -314,7 +315,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_array[] = {8, 0x1302, 0, 0, 28, 0x1003};
     int32_t buffer_coord[6];
     uint16_t buffer_single[] = {12, 0x1003};
-    swap16(buffer_single, COUNT(buffer_single));
+    big_endian_swap16(buffer_single, COUNT(buffer_single));
 
     if (repetition.type != RepetitionType::None) {
         if (repetition.type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
@@ -351,14 +352,14 @@ void Reference::to_gds(FILE* out, double scaling) const {
             // TODO: Deal with columns or rows > INT16_MAX
             buffer_array[2] = (uint16_t)repetition.columns;
             buffer_array[3] = (uint16_t)repetition.rows;
-            swap16(buffer_array, COUNT(buffer_array));
+            big_endian_swap16(buffer_array, COUNT(buffer_array));
             buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
             buffer_coord[1] = (int32_t)(lround(origin.y * scaling));
             buffer_coord[2] = (int32_t)(lround(x2 * scaling));
             buffer_coord[3] = (int32_t)(lround(y2 * scaling));
             buffer_coord[4] = (int32_t)(lround(x3 * scaling));
             buffer_coord[5] = (int32_t)(lround(y3 * scaling));
-            swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
+            big_endian_swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
         } else {
             offsets.size = 0;
             offsets.items = NULL;
@@ -375,10 +376,10 @@ void Reference::to_gds(FILE* out, double scaling) const {
     if (len % 2) len++;
     uint16_t buffer_start[] = {4, 0x0A00, (uint16_t)(4 + len), 0x1206};
     if (array) buffer_start[1] = 0x0B00;
-    swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
 
     uint16_t buffer_end[] = {4, 0x1100};
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
 
     bool transform = rotation != 0 || magnification != 1 || x_reflection;
     uint16_t buffer_flags[] = {6, 0x1A01, 0};
@@ -391,17 +392,17 @@ void Reference::to_gds(FILE* out, double scaling) const {
         }
         if (magnification != 1) {
             // if("absolute magnification") buffer_flags[2] |= 0x0004; UNSUPPORTED
-            swap16(buffer_mag, COUNT(buffer_mag));
+            big_endian_swap16(buffer_mag, COUNT(buffer_mag));
             mag_real = gdsii_real_from_double(magnification);
-            swap64(&mag_real, 1);
+            big_endian_swap64(&mag_real, 1);
         }
         if (rotation != 0) {
             // if("absolute rotation") buffer_flags[2] |= 0x0002; UNSUPPORTED
-            swap16(buffer_rot, COUNT(buffer_rot));
+            big_endian_swap16(buffer_rot, COUNT(buffer_rot));
             rot_real = gdsii_real_from_double(rotation * (180.0 / M_PI));
-            swap64(&rot_real, 1);
+            big_endian_swap64(&rot_real, 1);
         }
-        swap16(buffer_flags, COUNT(buffer_flags));
+        big_endian_swap16(buffer_flags, COUNT(buffer_flags));
     }
 
     Vec2* offset_p = offsets.items;
@@ -428,7 +429,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
             fwrite(buffer_single, sizeof(uint16_t), COUNT(buffer_single), out);
             int32_t buffer_single_coord[] = {(int32_t)(lround((origin.x + offset_p->x) * scaling)),
                                              (int32_t)(lround((origin.y + offset_p->y) * scaling))};
-            swap32((uint32_t*)buffer_single_coord, COUNT(buffer_single_coord));
+            big_endian_swap32((uint32_t*)buffer_single_coord, COUNT(buffer_single_coord));
             fwrite(buffer_single_coord, sizeof(int32_t), COUNT(buffer_single_coord), out);
         }
 

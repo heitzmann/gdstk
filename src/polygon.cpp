@@ -32,6 +32,7 @@ void Polygon::print(bool all) const {
         printf("Points: ");
         point_array.print(true);
     }
+    properties_print(properties);
     repetition.print();
 }
 
@@ -39,7 +40,6 @@ void Polygon::clear() {
     point_array.clear();
     repetition.clear();
     properties_clear(properties);
-    properties = NULL;
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
@@ -327,8 +327,8 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_start[] = {
         4, 0x0800, 6, 0x0D02, (uint16_t)layer, 6, 0x0E02, (uint16_t)datatype};
     uint16_t buffer_end[] = {4, 0x1100};
-    swap16(buffer_start, COUNT(buffer_start));
-    swap16(buffer_end, COUNT(buffer_end));
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
+    big_endian_swap16(buffer_end, COUNT(buffer_end));
 
     uint64_t total = point_array.size + 1;
     if (total > 8190) {
@@ -364,13 +364,13 @@ void Polygon::to_gds(FILE* out, double scaling) const {
         }
         *c++ = coords[0];
         *c++ = coords[1];
-        swap32((uint32_t*)coords.items, coords.size);
+        big_endian_swap32((uint32_t*)coords.items, coords.size);
 
         uint64_t i0 = 0;
         while (i0 < total) {
             uint64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
             uint16_t buffer_pts[] = {(uint16_t)(4 + 8 * (i1 - i0)), 0x1003};
-            swap16(buffer_pts, COUNT(buffer_pts));
+            big_endian_swap16(buffer_pts, COUNT(buffer_pts));
             fwrite(buffer_pts, sizeof(uint16_t), COUNT(buffer_pts), out);
             fwrite(coords.items + 2 * i0, sizeof(int32_t), 2 * (i1 - i0), out);
             i0 = i1;
@@ -383,6 +383,22 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
     if (repetition.type != RepetitionType::None) offsets.clear();
     coords.clear();
+}
+
+void Polygon::to_oas(OasisStream& out, OasisState& state) const {
+    uint8_t info = 0x3B;
+    bool has_repetition = repetition.get_size() > 1;
+    if (has_repetition) info |= 0x04;
+    oasis_putc((int)OasisRecord::POLYGON, out);
+    oasis_putc(info, out);
+    oasis_write_unsigned_integer(out, layer);
+    oasis_write_unsigned_integer(out, datatype);
+    oasis_write_point_list(out, point_array, state.scaling, true);
+    Vec2 ref = point_array[0];
+    oasis_write_integer(out, (int64_t)llround(ref.x * state.scaling));
+    oasis_write_integer(out, (int64_t)llround(ref.y * state.scaling));
+    if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
+    properties_to_oas(properties, out, state);
 }
 
 void Polygon::to_svg(FILE* out, double scaling) const {
@@ -416,9 +432,9 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32
     result.point_array.ensure_slots(4);
     result.point_array.size = 4;
     result.point_array[0] = corner1;
-    result.point_array[1] = Vec2{corner2.x, corner1.y};
+    result.point_array[1] = {corner2.x, corner1.y};
     result.point_array[2] = corner2;
-    result.point_array[3] = Vec2{corner1.x, corner2.y};
+    result.point_array[3] = {corner1.x, corner2.y};
     return result;
 };
 

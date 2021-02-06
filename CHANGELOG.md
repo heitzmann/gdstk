@@ -1,9 +1,15 @@
 # Change Log
 
 ## Unreleased
+### Added
+- Support for OASIS files
+- Repetition property for geometric objects, labels and references
+- Library, cells and repetitions can have properties
+
 ### Changed
 - Use cmake to properly intall library
 - More efficient bounding box calculation for rotations multiple of 90°
+- Properties can be general or GDSII-specific. Only the latter are stored in gds files.
 
 ## 0.2.0 - 2020-11-23
 ### Added

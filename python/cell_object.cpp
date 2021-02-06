@@ -524,6 +524,24 @@ static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
     return result;
 }
 
+static PyObject* cell_object_set_property(CellObject* self, PyObject* args) {
+    if (!parse_property(self->cell->properties, args)) return NULL;
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* cell_object_get_property(CellObject* self, PyObject* args) {
+    return build_property(self->cell->properties, args);
+}
+
+static PyObject* cell_object_delete_property(CellObject* self, PyObject* args) {
+    char* name;
+    if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
+    remove_property(self->cell->properties, name);
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyMethodDef cell_object_methods[] = {
     {"add", (PyCFunction)cell_object_add, METH_VARARGS, cell_object_add_doc},
     {"area", (PyCFunction)cell_object_area, METH_VARARGS, cell_object_area_doc},
@@ -537,6 +555,10 @@ static PyMethodDef cell_object_methods[] = {
     {"remove", (PyCFunction)cell_object_remove, METH_VARARGS, cell_object_remove_doc},
     {"dependencies", (PyCFunction)cell_object_dependencies, METH_VARARGS,
      cell_object_dependencies_doc},
+    {"set_property", (PyCFunction)cell_object_set_property, METH_VARARGS, object_set_property_doc},
+    {"get_property", (PyCFunction)cell_object_get_property, METH_VARARGS, object_get_property_doc},
+    {"delete_property", (PyCFunction)cell_object_delete_property, METH_VARARGS,
+     object_delete_property_doc},
     {NULL}};
 
 PyObject* cell_object_get_name(CellObject* self, void*) {
@@ -642,6 +664,14 @@ PyObject* cell_object_get_labels(CellObject* self, void*) {
     return result;
 }
 
+static PyObject* cell_object_get_properties(CellObject* self, void*) {
+    return build_properties(self->cell->properties);
+}
+
+int cell_object_set_properties(CellObject* self, PyObject* arg, void*) {
+    return parse_properties(self->cell->properties, arg);
+}
+
 static PyGetSetDef cell_object_getset[] = {
     {"name", (getter)cell_object_get_name, (setter)cell_object_set_name, cell_object_name_doc,
      NULL},
@@ -649,4 +679,6 @@ static PyGetSetDef cell_object_getset[] = {
     {"references", (getter)cell_object_get_references, NULL, cell_object_references_doc, NULL},
     {"paths", (getter)cell_object_get_paths, NULL, cell_object_paths_doc, NULL},
     {"labels", (getter)cell_object_get_labels, NULL, cell_object_labels_doc, NULL},
+    {"properties", (getter)cell_object_get_properties, (setter)cell_object_set_properties,
+     object_properties_doc, NULL},
     {NULL}};
