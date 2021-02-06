@@ -1282,12 +1282,23 @@ static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
 
     double unit = 0;
     double precision = 0;
-
     const char* filename = PyBytes_AS_STRING(pybytes);
     gds_units(filename, unit, precision);
     Py_DECREF(pybytes);
 
     return Py_BuildValue("dd", unit, precision);
+}
+
+static PyObject* oas_precision_function(PyObject* mod, PyObject* args) {
+    PyObject* pybytes = NULL;
+    if (!PyArg_ParseTuple(args, "O&:oas_precision", PyUnicode_FSConverter, &pybytes)) return NULL;
+
+    double precision = 0;
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    oas_precision(filename, precision);
+    Py_DECREF(pybytes);
+
+    return PyFloat_FromDouble(precision);
 }
 
 extern "C" {
@@ -1313,6 +1324,7 @@ static PyMethodDef gdstk_methods[] = {
     {"read_rawcells", (PyCFunction)read_rawcells_function, METH_VARARGS,
      read_rawcells_function_doc},
     {"gds_units", (PyCFunction)gds_units_function, METH_VARARGS, gds_units_function_doc},
+    {"oas_precision", (PyCFunction)oas_precision_function, METH_VARARGS, oas_precision_function_doc},
     {NULL, NULL, 0, NULL}};
 
 static int gdstk_exec(PyObject* module) {

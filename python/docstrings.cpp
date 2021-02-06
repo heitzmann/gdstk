@@ -2906,3 +2906,13 @@ Args:
 
 Returns:
     Tuple with the unit and precision of the library in the file.)!");
+
+PyDoc_STRVAR(oas_precision_function_doc, R"!(oas_precision(infile) -> float
+
+Read the precision of an OASIS file.
+
+Args:
+    infile (str or pathlib.Path): Name of the input file.
+
+Returns:
+    Precision of the library in the file.)!");

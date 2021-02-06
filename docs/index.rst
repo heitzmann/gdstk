@@ -2,7 +2,7 @@
 Gdstk Documentation
 ###################
 
-Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII stream files.
+Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII and OASIS files.
 It is also available as a Python module meant to be a successor to `Gdspy <https://github.com/heitzmann/gdspy>`_.
 
 Key features for the creation of complex CAD layouts are included:

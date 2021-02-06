@@ -46,8 +46,9 @@ Let's create our first GDSII file:
    rect = gdstk.rectangle((0, 0), (2, 1))
    cell.add(rect)
 
-   # Save the library in a file called "first.gds".
+   # Save the library in a GDSII or OASIS file.
    lib.write_gds("first.gds")
+   lib.write_oas("first.oas")
 
    # Optionally, save an image of the cell as SVG.
    cell.write_svg("first.svg")
@@ -61,8 +62,8 @@ Later, a cell can reference others to build hierarchical designs, as if stamping
 
 We create a :class:`gdstk.Cell` with name "FIRST" (cells are identified by name, therefore cell names must be unique within a library) and add a :func:`gdstk.rectangle` to it.
 
-Finally, the whole library is saved in a file called "first.gds" in the current directory.
-The GDSII file can be opened in a number of viewers and editors, such as `KLayout <https://klayout.de/>`_.
+Finally, the whole library is saved in a GDSII file called "first.gds" and an OASIS file "first.oas" in the current directory.
+The GDSII or OASIS files can be opened in a number of viewers and editors, such as `KLayout <https://klayout.de/>`_.
 
 
 ********
@@ -190,11 +191,11 @@ The transformations are applied in-place, i.e., no new polygons are created.
 Layer and Datatype
 ==================
 
-All shapes in the GDSII format are tagged with 2 properties: layer and data type (or text type in the case of :class:`gdstk.Label`).
+All shapes are tagged with 2 properties: layer and data type (or text type in the case of :class:`gdstk.Label`).
 They are always 0 by default, but can be any integer in the range from 0 to 255.
 
 These properties have no predefined meaning.
-It is up to the system using the GDSII file to chose with to do with those tags.
+It is up to the system using the file to chose with to do with those tags.
 For example, in the CMOS fabrication process, each layer could represent a different lithography level.
 
 In the example below, a single file stores different fabrication masks in separate layer and data type configurations.
@@ -242,17 +243,17 @@ Both uses are exemplified below.
 Paths
 *****
 
-Besides polygons, the GDSII format defines paths, witch are `polygonal chains <https://en.wikipedia.org/wiki/Polygonal_chain>`_ with associated width and end caps.
-The width is a single number, constant throughout the path, and the end caps can be flush, round, or extended by a custom distance.
+Besides polygons, the GDSII and OASIS formats define paths, witch are `polygonal chains <https://en.wikipedia.org/wiki/Polygonal_chain>`_ with associated width and end caps.
+The width is a single number, constant throughout the path, and the end caps can be flush, round (GDSII only), or extended by a custom distance.
 
-There is no specification for the joins between adjacent segments, so it is up to the system using the GDSII file to specify those.
+There is no specification for the joins between adjacent segments, so it is up to the system using the file to specify those.
 Usually the joins are straight extensions of the path boundaries up to some beveling limit.
 Gdstk also uses this specification for the joins.
 
-It is possible to circumvent all of the above limitations within Gdstk by storing paths as polygons in the GDSII file.
+It is possible to circumvent all of the above limitations within Gdstk by storing paths as polygons in the GDSII or OASIS file.
 The disadvantage of this solution is that other software will not be able to edit the geometry as paths, since that information is lost.
 
-The construction of paths (either GDSII paths or polygonal paths) in Gdstk is based on :class:`gdstk.FlexPath` and :class:`gdstk.RobustPath`.
+The construction of paths (either GDSII/OASIS paths or polygonal paths) in Gdstk is based on :class:`gdstk.FlexPath` and :class:`gdstk.RobustPath`.
 
 
 Flexible Paths
@@ -293,7 +294,7 @@ The corner type "circular bend" (together with the `bend_radius` argument) can b
 
 Width and offset variations are possible throughout the path.
 Changes are linearly tapered in the path section they are defined.
-Note that, because width changes are not possible for GDSII paths, they will be stored as polygonal objects.
+Note that, because width changes are not possible for GDSII/OASIS paths, they will be stored as polygonal objects.
 
 .. literalinclude:: tutorial_images.py
    :language: python
@@ -329,14 +330,14 @@ The advantages are, as mentioned earlier, more robustness when generating the fi
 .. image:: tutorial/robust_paths.*
    :align: center
 
-Note that, analogously to :class:`gdstk.FlexPath`, :class:`gdstk.RobustPath` can be stored as a GDSII path as long as its width is kept constant.
+Note that, analogously to :class:`gdstk.FlexPath`, :class:`gdstk.RobustPath` can be stored as a GDSII/OASIS path as long as its width is kept constant.
 
 
 ****
 Text
 ****
 
-In the context of a GDSII file, text is supported in the form of labels, which are ASCII annotations placed somewhere in the geometry of a given cell.
+In the context of a GDSII/OASIS file, text is supported in the form of labels, which are ASCII annotations placed somewhere in the geometry of a given cell.
 Similar to polygons, labels are tagged with layer and text type values (text type is the label equivalent of the polygon data type).
 They are supported by the class :class:`gdstk.Label`.
 
@@ -437,13 +438,13 @@ The method :meth:`gdstk.Polygon.fillet` can be used to round polygon corners.
    :align: center
 
 
-*************
-GDSII Library
-*************
+*******************
+GDSII/OASIS Library
+*******************
 
-All the information used to create a GDSII file is kept within an instance of :class:`gdstk.Library`.
+All the information used to create a GDSII/OASIS file is kept within an instance of :class:`gdstk.Library`.
 Besides all the geometric and hierarchical information, this class also holds a name and the units for all entities.
-The name can be any ASCII string — it is simply stored in the GDSII file and has no other purpose in Gdstk.
+The name can be any ASCII string — it is simply stored in the file and has no other purpose in Gdstk.
 The units require some attention because they can impact the resolution of the polygons in the library when written to a file.
 
 .. _units-in-gds:

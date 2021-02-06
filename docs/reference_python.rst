@@ -43,7 +43,7 @@ Classes and functions for construction and manipulation of geometric objects.
 Library Organization
 ********************
 
-Classes and functions used to create and organize the library in a GDSII file.
+Classes and functions used to create and organize the library in a GDSII/OASIS file.
 
 .. rubric:: Classes
 
@@ -64,5 +64,7 @@ Classes and functions used to create and organize the library in a GDSII file.
    :toctree: library
 
    gdstk.read_gds
+   gdstk.read_oas
    gdstk.read_rawcells
    gdstk.gds_units
+   gdstk.oas_precision
