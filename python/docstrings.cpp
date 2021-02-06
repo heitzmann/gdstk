@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 // Docstring should have 72 characters per line at maximum.
 
-PyDoc_STRVAR(gdstk_module_doc, "Module for creation and manipulation of GDSII stream files.");
+PyDoc_STRVAR(gdstk_module_doc, "Module for creation and manipulation of GDSII and OASIS files.");
 
 // Curve
 
@@ -358,8 +358,8 @@ Polygonal geometric object.
 Args:
     points (sequence): Vertices of the polygon. Each element can be a
       pair of coordinates or a complex value.
-    layer: GDSII layer number assigned to this polygon.
-    datatype: GDSII data type number assigned to this polygon.
+    layer: layer number assigned to this polygon.
+    datatype: data type number assigned to this polygon.
 
 Examples:
     >>> polygon_1 = gdstk.Polygon([(0, 0), (1, 0), 1 + 1.5j, 1j])
@@ -654,8 +654,8 @@ Args:
       callable joins and end caps, or width changes along the path.
     scale_width: If ``False``, the path widths are not scaled when
       transforming this path.
-    layer: GDSII layer number assigned to this path.
-    datatype: GDSII data type number assigned to this path.
+    layer: layer number assigned to this path.
+    datatype: data type number assigned to this path.
 
 Notes:
     If ``width`` is a number and ``offset`` a sequence, the number of
@@ -770,14 +770,14 @@ PyDoc_STRVAR(flexpath_object_set_layers_doc, R"!(set_layers(*layers) -> self
 Sets the layers for all paths.
 
 Args:
-    layers: GDSII layer numbers for all paths.)!");
+    layers: layer numbers for all paths.)!");
 
 PyDoc_STRVAR(flexpath_object_set_datatypes_doc, R"!(set_datatypes(*datatypes) -> self
 
 Sets the datatypes for all paths.
 
 Args:
-    datatypes: GDSII data type numbers for all paths.)!");
+    datatypes: data type numbers for all paths.)!");
 
 PyDoc_STRVAR(flexpath_object_horizontal_doc,
              R"!(horizontal(x, width=None, offset=None, relative=False) -> self
@@ -1293,8 +1293,8 @@ Args:
       callable joins and end caps, or width changes along the path.
     scale_width: If ``False``, the path widths are not scaled when
       transforming this path.
-    layer: GDSII layer number assigned to this path.
-    datatype: GDSII data type number assigned to this path.
+    layer: layer number assigned to this path.
+    datatype: data type number assigned to this path.
 
 Notes:
     If ``width`` is a number and ``offset`` a sequence, the number of
@@ -1303,7 +1303,7 @@ Notes:
     Arguments ``ends``, ``layer``, and ``datatype`` can also be lists
     with one definition for each path created.
 
-Examples: 
+Examples:
     >>> fpath = gdstk.FlexPath((0, 0), 0.5, tolerance=1e-3)
     >>> fpath.arc(1, 0, numpy.pi/2)
     >>> fpath.arc(1, 0, -numpy.pi/2)
@@ -1406,14 +1406,14 @@ PyDoc_STRVAR(robustpath_object_set_layers_doc, R"!(set_layers(*layers) -> self
 Sets the layers for all paths.
 
 Args:
-    layers: GDSII layer numbers for all paths.)!");
+    layers: layer numbers for all paths.)!");
 
 PyDoc_STRVAR(robustpath_object_set_datatypes_doc, R"!(set_datatypes(*datatypes) -> self
 
 Sets the datatypes for all paths.
 
 Args:
-    datatypes: GDSII data type numbers for all paths.)!");
+    datatypes: data type numbers for all paths.)!");
 
 PyDoc_STRVAR(robustpath_object_horizontal_doc,
              R"!(horizontal(x, width=None, offset=None, relative=False) -> self
@@ -1967,8 +1967,8 @@ Args:
     magnification: Scaling factor.
     x_reflection: If ``True``, the label is reflected across the
       horizontal axis before rotation.
-    layer: GDSII layer number assigned to this label.
-    texttype: GDSII text type number assigned to this label.
+    layer: layer number assigned to this label.
+    texttype: text type number assigned to this label.
 
 Examples:
     >>> frame = gdstk.rectangle((-2, -1), (2, 1), datatype=1)
@@ -2027,15 +2027,15 @@ PyDoc_STRVAR(cell_object_type_doc, R"!(Cell(name)
 
 Cell structure.
 
-A cell is a fundamental structure in the GDSII layout. It stores the
+A cell is a fundamental structure in the layout. It stores the
 geometry, labels and references that make up the final layout. A single
-GDSII library can contain any number of independent cells, which can,
+library can contain any number of independent cells, which can,
 themselves, contain references to other cells in the form of
 :class:`gdstk.Reference`.
 
 Args:
-    name (str): Cell name. It must be unique within a library and,
-      according to the GDSII specifications, it must be ASCII-encoded.)!");
+    name (str): Cell name. It must be ASCII encoded and unique within a
+      library.)!");
 
 PyDoc_STRVAR(cell_object_add_doc, R"!(add(*elements) -> self
 
@@ -2261,17 +2261,16 @@ Notes:
 
 PyDoc_STRVAR(library_object_type_doc, R"!(Library(name="library", unit=1e-6, precision=1e-9)
 
-GDSII library.
+GDSII/OASIS library.
 
 The library is a container for multiple cells which keeps track of the
-units used to generate the design. The library can be saved to a GDSII
-stream file and vice-versa.
+units used to generate the design.
 
 Args:
     name: Library name.
     unit: User units in meters.
     precision: Desired precision to store the units once written to a
-      GDSII file.
+      GDSII/OASIS file.
 
 See also:
     :ref:`units-in-gds`)!");
@@ -2545,8 +2544,8 @@ Create a rectangle.
 Args:
     corner1 (coordinate pair or complex): First rectangle corner.
     corner2 (coordinate pair or complex): Opposing corner.
-    layer: GDSII layer number assigned to this polygon.
-    datatype: GDSII data type number assigned to this polygon.)!");
+    layer: layer number assigned to this polygon.
+    datatype: data type number assigned to this polygon.)!");
 
 PyDoc_STRVAR(cross_function_doc,
              R"!(cross(center, full_size, arm_width, layer=0, datatype=0) -> gdstk.Polygon
@@ -2557,8 +2556,8 @@ Args:
     center (coordinate pair or complex): Center of the cross.
     full_size (number): Total length of the cross.
     arm_width (number): Width of the arms.
-    layer: GDSII layer number assigned to this polygon.
-    datatype: GDSII data type number assigned to this polygon.
+    layer: layer number assigned to this polygon.
+    datatype: data type number assigned to this polygon.
 
 Examples:
     >>> cross1 = gdstk.cross((0, 0), 10, 1)
@@ -2578,8 +2577,8 @@ Args:
     side_length (number): Length of the sides of the polygon.
     sides (integer): Number of polygon sides.
     rotation: Rotation angle (in radians).
-    layer: GDSII layer number assigned to this polygon.
-    datatype: GDSII data type number assigned to this polygon.
+    layer: layer number assigned to this polygon.
+    datatype: data type number assigned to this polygon.
 
 Examples:
     >>> poly3 = gdstk.regular_polygon((0, 0), 9, 3)
@@ -2605,8 +2604,8 @@ Args:
     final_angle: Final slice angle.
     tolerance: Tolerance used for calculating the polygonal
       approximation of this shape.
-    layer: GDSII layer number assigned to this polygon.
-    datatype: GDSII data type number assigned to this polygon.
+    layer: layer number assigned to this polygon.
+    datatype: data type number assigned to this polygon.
 
 Examples:
     >>> circle = gdstk.ellipse((0, 0), 40)
@@ -2638,8 +2637,8 @@ Args:
     vertical: If ``True``, the racetrack is created vertically.
     tolerance: Tolerance used for calculating the polygonal
       approximation for the circular arcs.
-    layer: GDSII layer number assigned to this polygon.
-    datatype: GDSII data type number assigned to this polygon.
+    layer: layer number assigned to this polygon.
+    datatype: data type number assigned to this polygon.
 
 Examples:
     >>> racetrack1 = gdstk.racetrack((0, 0), 8, 5)
@@ -2658,8 +2657,8 @@ Args:
     size (number): Full height of the font.
     position (coordinate pair or complex): Text starting position.
     vertical: Writing direction.
-    layer: GDSII layer number assigned to the polygons.
-    datatype: GDSII data type number assigned to the polygons.
+    layer: layer number assigned to the polygons.
+    datatype: data type number assigned to the polygons.
 
 Returns:
     List of :class:`gdstk.Polygon`.
@@ -2702,8 +2701,8 @@ Args:
     precision: Desired precision for rounding vertex coordinates.
     use_union: Apply a union operation before the offset to merge
       adjacent polygons.
-    layer: GDSII layer number assigned to the resulting polygons.
-    datatype: GDSII data type number assigned to the resulting polygons.
+    layer: layer number assigned to the resulting polygons.
+    datatype: data type number assigned to the resulting polygons.
 
 Returns:
     List of :class:`gdstk.Polygon`.
@@ -2740,8 +2739,8 @@ Args:
       "and", "xor", or "not". The "not" operation performs the set
       difference ``operand1 - operand2``.
     precision: Desired precision for rounding vertex coordinates.
-    layer: GDSII layer number assigned to the resulting polygons.
-    datatype: GDSII data type number assigned to the resulting polygons.
+    layer: layer number assigned to the resulting polygons.
+    datatype: data type number assigned to the resulting polygons.
 
 Returns:
     List of :class:`gdstk.Polygon`.
@@ -2853,7 +2852,7 @@ Examples:
 
 PyDoc_STRVAR(read_oas_function_doc, R"!(read_oas(infile, unit=0, tolerance=1e-2) -> gdstk.Library
 
-Import a library from a GDSII stream file.
+Import a library from an OASIS stream file.
 
 Args:
     infile (str or pathlib.Path): Name of the input file.
