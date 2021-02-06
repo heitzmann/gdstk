@@ -363,7 +363,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         }
     }
 
-    uint64_t cell_name_offset = ftell(out.file);
+    uint64_t cell_name_offset = c_size > 0 ? ftell(out.file) : 0;
     cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
         fputc((int)OasisRecord::CELLNAME_IMPLICIT, out.file);
@@ -374,7 +374,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         properties_to_oas(cell_property_map.get(name_), out, state);
     }
 
-    uint64_t text_string_offset = ftell(out.file);
+    uint64_t text_string_offset = text_string_map.size > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = text_string_map.next(NULL); item;
          item = text_string_map.next(item)) {
         fputc((int)OasisRecord::TEXTSTRING, out.file);
@@ -384,7 +384,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         oasis_write_unsigned_integer(out, item->value);
     }
 
-    uint64_t prop_name_offset = ftell(out.file);
+    uint64_t prop_name_offset = state.property_name_map.size > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = state.property_name_map.next(NULL); item;
          item = state.property_name_map.next(item)) {
         fputc((int)OasisRecord::PROPNAME, out.file);
@@ -394,7 +394,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         oasis_write_unsigned_integer(out, item->value);
     }
 
-    uint64_t prop_string_offset = ftell(out.file);
+    uint64_t prop_string_offset = state.property_value_array.size > 0 ? ftell(out.file) : 0;
     PropertyValue** value_p = state.property_value_array.items;
     for (uint64_t i = state.property_value_array.size; i > 0; i--) {
         PropertyValue* value = *value_p++;
@@ -405,11 +405,23 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
 
     fputc((int)OasisRecord::END, out.file);
 
-    // END header (1) + table-offsets (?) + b-string length (2) + validation (1 or 5) = 256
+    // END header (1) + table-offsets (?) + b-string length (2) + padding + validation (1 or 5) =
+    // 256
     uint64_t pad_len = 252 + ftell(out.file);
 
-    // TODO: table-offsets
-    for (uint64_t i = 0; i < 12; i++) fputc(0, out.file);
+    // Table offsets
+    fputc(1, out.file);
+    oasis_write_unsigned_integer(out, cell_name_offset);
+    fputc(1, out.file);
+    oasis_write_unsigned_integer(out, text_string_offset);
+    fputc(1, out.file);
+    oasis_write_unsigned_integer(out, prop_name_offset);
+    fputc(1, out.file);
+    oasis_write_unsigned_integer(out, prop_string_offset);
+    fputc(1, out.file);
+    fputc(0, out.file);  // LAYERNAME table
+    fputc(1, out.file);
+    fputc(0, out.file);  // XNAME table
 
     pad_len -= ftell(out.file);
     oasis_write_unsigned_integer(out, pad_len);
