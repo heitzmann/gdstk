@@ -171,6 +171,9 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
 
 void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_level,
                         uint16_t config_flags) const {
+    OasisState state = {0};
+    state.config_flags = config_flags;
+
     OasisStream out;
     out.data_size = 1024 * 1024;
     out.cursor = NULL;
@@ -185,25 +188,27 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
                      3,   '1', '.', '0'};
     fwrite(header, 1, COUNT(header), out.file);
 
-    double scaling = unit / precision;
+    state.scaling = unit / precision;
     oasis_write_real(out, 1e-6 / precision);
     fputc(1, out.file);  // flag indicating that table-offsets will be stored in the END record
 
     Map<uint64_t> cell_name_map = {0};
+    Map<Property*> cell_property_map = {0};
+
     Map<uint64_t> text_string_map = {0};
-    Map<uint64_t> property_name_map = {0};
-    Array<PropertyValue*> property_value_array = {0};
-    uint64_t next_text_index = 0;
+
+    properties_to_oas(properties, out, state);
 
     // Build cell name map. Other maps are built as the file is written.
     uint64_t c_size = cell_array.size;
     cell_name_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+    cell_property_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
     Cell** cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
-        cell_name_map.set((*cell_p++)->name, i);
+        Cell* cell = (*cell_p++);
+        cell_name_map.set(cell->name, i);
+        cell_property_map.set(cell->name, cell->properties);
     }
-
-    // TODO: Properties
 
     bool use_cblock = config_flags & OASIS_CONFIG_USE_CBLOCK;
     cell_p = cell_array.items;
@@ -220,21 +225,21 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         // Cell contents
         Polygon** poly_p = cell->polygon_array.items;
         for (uint64_t j = cell->polygon_array.size; j > 0; j--) {
-            (*poly_p++)->to_oas(out, scaling, config_flags);
+            (*poly_p++)->to_oas(out, state);
         }
 
         FlexPath** flexpath_p = cell->flexpath_array.items;
         for (uint64_t j = cell->flexpath_array.size; j > 0; j--) {
             FlexPath* path = *flexpath_p++;
             if (path->gdsii_path) {
-                path->to_oas(out, scaling, config_flags);
+                path->to_oas(out, state);
             } else {
                 Array<Polygon*> array = {0};
                 path->to_polygons(array);
                 poly_p = array.items;
                 for (uint64_t k = array.size; k > 0; k--) {
                     Polygon* poly = *poly_p++;
-                    poly->to_oas(out, scaling, config_flags);
+                    poly->to_oas(out, state);
                     poly->clear();
                     free_allocation(poly);
                 }
@@ -246,14 +251,14 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         for (uint64_t j = cell->robustpath_array.size; j > 0; j--) {
             RobustPath* path = *robustpath_p++;
             if (path->gdsii_path) {
-                path->to_oas(out, scaling, config_flags);
+                path->to_oas(out, state);
             } else {
                 Array<Polygon*> array = {0};
                 path->to_polygons(array);
                 poly_p = array.items;
                 for (uint64_t k = array.size; k > 0; k--) {
                     Polygon* poly = *poly_p++;
-                    poly->to_oas(out, scaling, config_flags);
+                    poly->to_oas(out, state);
                     poly->clear();
                     free_allocation(poly);
                 }
@@ -299,9 +304,10 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
                     oasis_write_real(out, ref->rotation * (180.0 / M_PI));
                 }
             }
-            oasis_write_integer(out, ref->origin.x * scaling);
-            oasis_write_integer(out, ref->origin.y * scaling);
-            if (has_repetition) oasis_write_repetition(out, ref->repetition, scaling);
+            oasis_write_integer(out, (int64_t)llround(ref->origin.x * state.scaling));
+            oasis_write_integer(out, (int64_t)llround(ref->origin.y * state.scaling));
+            if (has_repetition) oasis_write_repetition(out, ref->repetition, state.scaling);
+            properties_to_oas(ref->properties, out, state);
         }
 
         Label** label_p = cell->label_array.items;
@@ -316,15 +322,16 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
             if (text_string_map.has_key(label->text)) {
                 index = text_string_map.get(label->text);
             } else {
-                text_string_map.set(label->text, next_text_index);
-                index = next_text_index++;
+                index = text_string_map.size;
+                text_string_map.set(label->text, index);
             }
             oasis_write_unsigned_integer(out, index);
             oasis_write_unsigned_integer(out, label->layer);
             oasis_write_unsigned_integer(out, label->texttype);
-            oasis_write_integer(out, label->origin.x * scaling);
-            oasis_write_integer(out, label->origin.y * scaling);
-            if (has_repetition) oasis_write_repetition(out, label->repetition, scaling);
+            oasis_write_integer(out, (int64_t)llround(label->origin.x * state.scaling));
+            oasis_write_integer(out, (int64_t)llround(label->origin.y * state.scaling));
+            if (has_repetition) oasis_write_repetition(out, label->repetition, state.scaling);
+            properties_to_oas(label->properties, out, state);
         }
 
         if (use_cblock) {
@@ -356,6 +363,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         }
     }
 
+    uint64_t cell_name_offset = ftell(out.file);
     cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
         fputc((int)OasisRecord::CELLNAME_IMPLICIT, out.file);
@@ -363,8 +371,10 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         uint64_t len = strlen(name_);
         oasis_write_unsigned_integer(out, len);
         fwrite(name_, sizeof(char), len, out.file);
+        properties_to_oas(cell_property_map.get(name_), out, state);
     }
 
+    uint64_t text_string_offset = ftell(out.file);
     for (MapItem<uint64_t>* item = text_string_map.next(NULL); item;
          item = text_string_map.next(item)) {
         fputc((int)OasisRecord::TEXTSTRING, out.file);
@@ -372,6 +382,25 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         oasis_write_unsigned_integer(out, len);
         fwrite(item->key, sizeof(char), len, out.file);
         oasis_write_unsigned_integer(out, item->value);
+    }
+
+    uint64_t prop_name_offset = ftell(out.file);
+    for (MapItem<uint64_t>* item = state.property_name_map.next(NULL); item;
+         item = state.property_name_map.next(item)) {
+        fputc((int)OasisRecord::PROPNAME, out.file);
+        uint64_t len = strlen(item->key);
+        oasis_write_unsigned_integer(out, len);
+        fwrite(item->key, sizeof(char), len, out.file);
+        oasis_write_unsigned_integer(out, item->value);
+    }
+
+    uint64_t prop_string_offset = ftell(out.file);
+    PropertyValue** value_p = state.property_value_array.items;
+    for (uint64_t i = state.property_value_array.size; i > 0; i--) {
+        PropertyValue* value = *value_p++;
+        fputc((int)OasisRecord::PROPSTRING_IMPLICIT, out.file);
+        oasis_write_unsigned_integer(out, value->size);
+        fwrite(value->bytes, sizeof(uint8_t), value->size, out.file);
     }
 
     fputc((int)OasisRecord::END, out.file);
@@ -391,6 +420,12 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
 
     free_allocation(out.data);
     fclose(out.file);
+
+    cell_name_map.clear();
+    cell_property_map.clear();
+    text_string_map.clear();
+    state.property_name_map.clear();
+    state.property_value_array.clear();
 }
 
 Library read_gds(const char* filename, double unit, double tolerance) {

@@ -1456,7 +1456,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void RobustPath::to_oas(OasisStream &out, double scaling, uint16_t config_flags) const {
+void RobustPath::to_oas(OasisStream &out, OasisState& state) const {
     if (num_elements == 0 || subpath_array.size == 0) return;
 
     bool has_repetition = repetition.get_size() > 1;
@@ -1474,14 +1474,14 @@ void RobustPath::to_oas(OasisStream &out, double scaling, uint16_t config_flags)
         oasis_write_unsigned_integer(out, el->layer);
         oasis_write_unsigned_integer(out, el->datatype);
         uint64_t half_width =
-            (uint64_t)llround(interp(el->width_array[0], 0) * width_scale * scaling);
+            (uint64_t)llround(interp(el->width_array[0], 0) * width_scale * state.scaling);
         oasis_write_unsigned_integer(out, half_width);
 
         switch (el->end_type) {
             case EndType::Extended: {
                 uint8_t extension_scheme = 0;
-                int64_t start_extension = (int64_t)llround(el->end_extensions.u * scaling);
-                int64_t end_extension = (int64_t)llround(el->end_extensions.v * scaling);
+                int64_t start_extension = (int64_t)llround(el->end_extensions.u * state.scaling);
+                int64_t end_extension = (int64_t)llround(el->end_extensions.v * state.scaling);
                 if (start_extension == 0) {
                     extension_scheme |= 0x04;
                 } else if (start_extension > 0 && (uint64_t)start_extension == half_width) {
@@ -1510,10 +1510,11 @@ void RobustPath::to_oas(OasisStream &out, double scaling, uint16_t config_flags)
         }
 
         element_center(el, point_array);
-        oasis_write_point_list(out, point_array, scaling, false);
-        oasis_write_integer(out, (int64_t)llround(point_array[0].x * scaling));
-        oasis_write_integer(out, (int64_t)llround(point_array[0].y * scaling));
-        if (has_repetition) oasis_write_repetition(out, repetition, scaling);
+        oasis_write_point_list(out, point_array, state.scaling, false);
+        oasis_write_integer(out, (int64_t)llround(point_array[0].x * state.scaling));
+        oasis_write_integer(out, (int64_t)llround(point_array[0].y * state.scaling));
+        if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
+        properties_to_oas(properties, out, state);
 
         point_array.size = 0;
     }

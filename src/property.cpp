@@ -13,6 +13,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstring>
 
 #include "allocator.h"
+#include "map.h"
+#include "oasis.h"
 #include "utils.h"
 
 namespace gdstk {
@@ -315,6 +317,85 @@ void properties_to_gds(const Property* properties, FILE* out) {
         fputs(
             "[GDSTK] Properties with size larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
             stderr);
+}
+
+void properties_to_oas(const Property* properties, OasisStream& out, OasisState& state) {
+    while (properties) {
+        uint8_t info = 0x06;
+        if (is_gds_property(properties)) info |= 0x01;
+
+        uint64_t value_count = 0;
+        for (PropertyValue* value = properties->value; value; value = value->next) value_count++;
+        if (value_count > 14) {
+            info |= 0xF0;
+        } else {
+            info |= (uint8_t)(value_count & 0x0F) << 4;
+        }
+
+        oasis_putc((int)OasisRecord::PROPERTY, out);
+        oasis_putc(info, out);
+
+        uint64_t index;
+        if (state.property_name_map.has_key(properties->name)) {
+            index = state.property_name_map.get(properties->name);
+        } else {
+            index = state.property_name_map.size;
+            state.property_name_map.set(properties->name, index);
+        }
+        oasis_write_unsigned_integer(out, index);
+
+        if (value_count > 14) {
+            oasis_write_unsigned_integer(out, value_count);
+        }
+
+        for (PropertyValue* value = properties->value; value; value = value->next) {
+            switch (value->type) {
+                case PropertyType::Real:
+                    oasis_write_real(out, value->real);
+                    break;
+                case PropertyType::UnsignedInteger:
+                    oasis_putc(8, out);
+                    oasis_write_unsigned_integer(out, value->unsigned_integer);
+                    break;
+                case PropertyType::Integer:
+                    oasis_putc(9, out);
+                    oasis_write_integer(out, value->integer);
+                    break;
+                case PropertyType::String: {
+                    // TODO: Use a map to find duplicates faster and stoe string type
+                    bool space = false;
+                    bool binary = false;
+                    uint8_t* byte = value->bytes;
+                    for (uint64_t i = value->size; i > 0; i--, byte++) {
+                        if (*byte < 0x20 || *byte > 0x7E) {
+                            binary = true;
+                            break;
+                        } else if (*byte == 0x20) {
+                            space = true;
+                        }
+                    }
+                    if (binary) {
+                        oasis_putc(14, out);
+                    } else if (space) {
+                        oasis_putc(13, out);
+                    } else {
+                        oasis_putc(15, out);
+                    }
+                    for (index = 0; index < state.property_value_array.size; index++) {
+                        PropertyValue* it = state.property_value_array[index];
+                        if (it->size == value->size &&
+                            memcmp(it->bytes, value->bytes, it->size) == 0)
+                            break;
+                    }
+                    if (index == state.property_value_array.size)
+                        state.property_value_array.append(value);
+                    oasis_write_unsigned_integer(out, index);
+                }
+            }
+        }
+
+        properties = properties->next;
+    }
 }
 
 }  // namespace gdstk

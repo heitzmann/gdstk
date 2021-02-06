@@ -385,7 +385,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     coords.clear();
 }
 
-void Polygon::to_oas(OasisStream& out, double scaling, uint16_t config_flags) const {
+void Polygon::to_oas(OasisStream& out, OasisState& state) const {
     uint8_t info = 0x3B;
     bool has_repetition = repetition.get_size() > 1;
     if (has_repetition) info |= 0x04;
@@ -393,11 +393,12 @@ void Polygon::to_oas(OasisStream& out, double scaling, uint16_t config_flags) co
     oasis_putc(info, out);
     oasis_write_unsigned_integer(out, layer);
     oasis_write_unsigned_integer(out, datatype);
-    oasis_write_point_list(out, point_array, scaling, true);
+    oasis_write_point_list(out, point_array, state.scaling, true);
     Vec2 ref = point_array[0];
-    oasis_write_integer(out, ref.x * scaling);
-    oasis_write_integer(out, ref.y * scaling);
-    if (has_repetition) oasis_write_repetition(out, repetition, scaling);
+    oasis_write_integer(out, (int64_t)llround(ref.x * state.scaling));
+    oasis_write_integer(out, (int64_t)llround(ref.y * state.scaling));
+    if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
+    properties_to_oas(properties, out, state);
 }
 
 void Polygon::to_svg(FILE* out, double scaling) const {

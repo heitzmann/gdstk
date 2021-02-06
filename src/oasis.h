@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstdio>
 
 #include "array.h"
+#include "map.h"
 #include "repetition.h"
 
 namespace gdstk {
@@ -139,6 +140,13 @@ struct OasisStream {
     uint8_t* data;
     uint8_t* cursor;
     uint64_t data_size;
+};
+
+struct OasisState {
+    double scaling;
+    Map<uint64_t> property_name_map;
+    Array<PropertyValue*> property_value_array;
+    uint16_t config_flags;
 };
 
 size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);

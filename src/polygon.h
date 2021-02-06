@@ -45,7 +45,7 @@ struct Polygon {
     void fracture(uint64_t max_points, double precision, Array<Polygon*>& result) const;
     void apply_repetition(Array<Polygon*>& result);
     void to_gds(FILE* out, double scaling) const;
-    void to_oas(OasisStream& out, double scaling, uint16_t config_flags) const;
+    void to_oas(OasisStream& out, OasisState& state) const;
     void to_svg(FILE* out, double scaling) const;
 };
 

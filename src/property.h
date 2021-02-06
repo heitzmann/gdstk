@@ -15,6 +15,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+struct OasisStream;
+struct OasisState;
+
 // Properties (and their members) are assumed to always be allocated through allocate,
 // allocate_clear, or reallocate.
 
@@ -70,6 +73,7 @@ bool remove_gds_property(Property*& properties, uint16_t attribute);
 PropertyValue* get_property(Property* properties, const char* name);
 PropertyValue* get_gds_property(Property* properties, uint16_t attribute);
 void properties_to_gds(const Property* properties, FILE* out);
+void properties_to_oas(const Property* properties, OasisStream& out, OasisState& state);
 
 }  // namespace gdstk
 

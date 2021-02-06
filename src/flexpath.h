@@ -117,7 +117,7 @@ struct FlexPath {
     // GDSII path elements. The same is valid for to_oas, although no fracturing ever occurs for
     // OASIS files.
     void to_gds(FILE* out, double scaling);
-    void to_oas(OasisStream& out, double scaling, uint16_t config_flags);
+    void to_oas(OasisStream& out, OasisState& state);
     void to_svg(FILE* out, double scaling);
 
    private:
