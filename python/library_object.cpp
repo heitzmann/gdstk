@@ -188,6 +188,33 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
     return Py_None;
 }
 
+static PyObject* library_object_write_oas(LibraryObject* self, PyObject* args, PyObject* kwds) {
+    const char* keywords[] = {"outfile", "compress", "deflate_level", "tolerance", NULL};
+    PyObject* pybytes = NULL;
+    int compress = 0;
+    uint8_t deflate_level = 6;
+    double tolerance = 1e-2;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|pbd:write_oas", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &compress, &deflate_level,
+                                     &tolerance))
+        return NULL;
+
+    if (deflate_level < 1)
+        deflate_level = 1;
+    else if (deflate_level > 9)
+        deflate_level = 9;
+
+    uint8_t config_flags = 0;
+    if (compress == 1) config_flags |= OASIS_CONFIG_USE_CBLOCK;
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    self->library->write_oas(filename, tolerance, deflate_level, config_flags);
+    Py_DECREF(pybytes);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject* library_object_set_property(LibraryObject* self, PyObject* args) {
     if (!parse_property(self->library->properties, args)) return NULL;
     Py_INCREF(self);
@@ -213,6 +240,8 @@ static PyMethodDef library_object_methods[] = {
     {"top_level", (PyCFunction)library_object_top_level, METH_NOARGS, library_object_top_level_doc},
     {"write_gds", (PyCFunction)library_object_write_gds, METH_VARARGS | METH_KEYWORDS,
      library_object_write_gds_doc},
+    {"write_oas", (PyCFunction)library_object_write_oas, METH_VARARGS | METH_KEYWORDS,
+     library_object_write_oas_doc},
     {"set_property", (PyCFunction)library_object_set_property, METH_VARARGS,
      object_set_property_doc},
     {"get_property", (PyCFunction)library_object_get_property, METH_VARARGS,

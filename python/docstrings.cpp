@@ -2323,6 +2323,20 @@ Args:
 See also:
     :ref:`getting-started`)!");
 
+PyDoc_STRVAR(library_object_write_oas_doc, R"!(write_oas(outfile, compress=False, deflate_level=6, tolerance=1e-2) -> None
+
+Save this library to an OASIS file.
+
+Args:
+    outfile (str or pathlib.Path): Name of the output file.
+    compress: Whether to compress cell blocks.
+    deflate_level: Level of compression between 1 and 9, 1 being the
+      fastest but with the least compression.
+    tolerance: Tolerance for detecting special shapes, such as circles.
+
+See also:
+    :ref:`getting-started`)!");
+
 PyDoc_STRVAR(library_object_name_doc, R"!(Library name.)!");
 PyDoc_STRVAR(library_object_cells_doc, R"!(List of library cells.
 
@@ -2835,6 +2849,23 @@ Returns:
 
 Examples:
     >>> library = gdstk.read_gds("layout.gds")
+    >>> top_cells = library.top_level())!");
+
+PyDoc_STRVAR(read_oas_function_doc, R"!(read_oas(infile, unit=0, tolerance=1e-2) -> gdstk.Library
+
+Import a library from a GDSII stream file.
+
+Args:
+    infile (str or pathlib.Path): Name of the input file.
+    unit (number): If greater than zero, convert the imported geometry
+      to the this unit.
+    tolerance (number): Default tolerance for loaded paths.
+
+Returns:
+    The imported library.
+
+Examples:
+    >>> library = gdstk.read_gds("layout.oas")
     >>> top_cells = library.top_level())!");
 
 PyDoc_STRVAR(read_rawcells_function_doc, R"!(read_rawcells(infile) -> dict
