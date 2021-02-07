@@ -8,7 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 static PyObject* robustpath_object_str(RobustPathObject* self) {
     char buffer[64];
     snprintf(buffer, COUNT(buffer), "RobustPath with %" PRIu64 " paths and %" PRIu64 " sections",
-             self->robustpath->num_elements, self->robustpath->subpath_array.size);
+             self->robustpath->num_elements, self->robustpath->subpath_array.count);
     return PyUnicode_FromString(buffer);
 }
 
@@ -18,14 +18,14 @@ static void robustpath_cleanup(RobustPathObject* self) {
     for (uint64_t j = path->num_elements; j > 0; j--, el++) {
         Py_XDECREF(el->end_function_data);
         Interpolation* interp = el->width_array.items;
-        for (uint64_t i = el->width_array.size; i > 0; i--, interp++)
+        for (uint64_t i = el->width_array.count; i > 0; i--, interp++)
             if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
         interp = el->offset_array.items;
-        for (uint64_t i = el->offset_array.size; i > 0; i--, interp++)
+        for (uint64_t i = el->offset_array.count; i > 0; i--, interp++)
             if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
     }
     SubPath* sub = path->subpath_array.items;
-    for (uint64_t j = path->subpath_array.size; j > 0; j--, sub++)
+    for (uint64_t j = path->subpath_array.count; j > 0; j--, sub++)
         if (sub->type == SubPathType::Parametric) {
             Py_XDECREF(sub->func_data);
             if (sub->path_gradient != NULL) Py_XDECREF(sub->grad_data);
@@ -66,14 +66,14 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
         for (uint64_t j = 0; j < robustpath->num_elements; j++, el++) {
             Py_XDECREF(el->end_function_data);
             Interpolation* interp = el->width_array.items;
-            for (uint64_t i = el->width_array.size; i > 0; i--, interp++)
+            for (uint64_t i = el->width_array.count; i > 0; i--, interp++)
                 if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
             interp = el->offset_array.items;
-            for (uint64_t i = el->offset_array.size; i > 0; i--, interp++)
+            for (uint64_t i = el->offset_array.count; i > 0; i--, interp++)
                 if (interp->type == InterpolationType::Parametric) Py_XDECREF(interp->data);
         }
         SubPath* sub = self->robustpath->subpath_array.items;
-        for (uint64_t j = self->robustpath->subpath_array.size; j > 0; j--, sub++)
+        for (uint64_t j = self->robustpath->subpath_array.count; j > 0; j--, sub++)
             if (sub->type == SubPathType::Parametric) {
                 Py_XDECREF(sub->func_data);
                 if (sub->path_gradient != NULL) Py_XDECREF(sub->grad_data);
@@ -415,7 +415,7 @@ static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject* args) 
 static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args) {
     Array<Vec2> point_array = {0};
     self->robustpath->spine(point_array);
-    npy_intp dims[] = {(npy_intp)point_array.size, 2};
+    npy_intp dims[] = {(npy_intp)point_array.count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         point_array.clear();
@@ -423,7 +423,7 @@ static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args)
         return NULL;
     }
     double* data = (double*)PyArray_DATA((PyArrayObject*)result);
-    memcpy(data, point_array.items, sizeof(double) * point_array.size * 2);
+    memcpy(data, point_array.items, sizeof(double) * point_array.count * 2);
     point_array.clear();
     return (PyObject*)result;
 }
@@ -505,17 +505,17 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
 static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject* args) {
     Array<Polygon*> array = {0};
     self->robustpath->to_polygons(array);
-    PyObject* result = PyList_New(array.size);
+    PyObject* result = PyList_New(array.count);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
-        for (uint64_t i = 0; i < array.size; i++) {
+        for (uint64_t i = 0; i < array.count; i++) {
             array[i]->clear();
             free_allocation(array[i]);
         }
         array.clear();
         return NULL;
     }
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         PolygonObject* item = PyObject_New(PolygonObject, &polygon_object_type);
         item = (PolygonObject*)PyObject_Init((PyObject*)item, &polygon_object_type);
         item->polygon = array[i];
@@ -585,8 +585,8 @@ static PyObject* robustpath_object_set_datatypes(RobustPathObject* self, PyObjec
     return (PyObject*)self;
 }
 
-// Note: offset must be an array of size at least robustpath.num_elements.  If py_offset is a single
-// number, it's the new distance between paths (analogous to what is used in init).
+// Note: offset must be an array of count at least robustpath.num_elements.  If py_offset is a
+// single number, it's the new distance between paths (analogous to what is used in init).
 static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
                                    Interpolation* offset) {
     if (PyList_Check(py_offset)) {
@@ -703,7 +703,7 @@ static int parse_robustpath_offset(RobustPath& robustpath, PyObject* py_offset,
     return 0;
 }
 
-// Note: width must be an array of size at least robustpath.num_elements.
+// Note: width must be an array of count at least robustpath.num_elements.
 static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                                   Interpolation* width) {
     if (PyList_Check(py_width)) {
@@ -921,7 +921,7 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
                                      &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size != 3) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count != 3) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of 3 coordinates.");
         return NULL;
@@ -958,7 +958,7 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
                                      &py_width, &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size != 2) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count != 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of 2 coordinates.");
         return NULL;
@@ -995,7 +995,7 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
                                      &py_width, &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size != 2) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count != 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of 2 coordinates.");
         return NULL;
@@ -1063,7 +1063,7 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
                                      &py_offset, &relative))
         return NULL;
     Array<Vec2> point_array = {0};
-    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.size < 1) {
+    if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count < 1) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError, "Argument xy must be a sequence of coordinates.");
         return NULL;
@@ -1119,24 +1119,24 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
         point_array.clear();
         return NULL;
     }
-    const uint64_t size = point_array.size;
+    const uint64_t count = point_array.count;
 
-    tension = (Vec2*)allocate((sizeof(Vec2) + sizeof(double) + sizeof(bool)) * (size + 1));
-    angles = (double*)(tension + (size + 1));
-    angle_constraints = (bool*)(angles + (size + 1));
+    tension = (Vec2*)allocate((sizeof(Vec2) + sizeof(double) + sizeof(bool)) * (count + 1));
+    angles = (double*)(tension + (count + 1));
+    angle_constraints = (bool*)(angles + (count + 1));
 
     if (!py_angles || py_angles == Py_None) {
-        memset(angle_constraints, 0, sizeof(bool) * (size + 1));
+        memset(angle_constraints, 0, sizeof(bool) * (count + 1));
     } else {
-        if ((uint64_t)PySequence_Length(py_angles) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_angles) != count + 1) {
             free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
-                "Argument angles must be None or a sequence with size len(points) + 1.");
+                "Argument angles must be None or a sequence with count len(points) + 1.");
             return NULL;
         }
-        for (uint64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < count + 1; i++) {
             PyObject* item = PySequence_ITEM(py_angles, i);
             if (!item) {
                 free_allocation(tension);
@@ -1165,7 +1165,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
 
     if (!py_tension_in) {
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = 1;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->u = 1;
     } else if (!PySequence_Check(py_tension_in)) {
         double t_in = PyFloat_AsDouble(py_tension_in);
         if (PyErr_Occurred()) {
@@ -1175,17 +1175,17 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
             return NULL;
         }
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->u = t_in;
     } else {
-        if ((uint64_t)PySequence_Length(py_tension_in) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_in) != count + 1) {
             free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
-                "Argument tension_in must be a number or a sequence with size len(points) + 1.");
+                "Argument tension_in must be a number or a sequence with count len(points) + 1.");
             return NULL;
         }
-        for (uint64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < count + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_in, i);
             if (!item) {
                 free_allocation(tension);
@@ -1208,7 +1208,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
 
     if (!py_tension_out) {
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = 1;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->v = 1;
     } else if (!PySequence_Check(py_tension_out)) {
         double t_out = PyFloat_AsDouble(py_tension_out);
         if (PyErr_Occurred()) {
@@ -1218,17 +1218,17 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
             return NULL;
         }
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->v = t_out;
     } else {
-        if ((uint64_t)PySequence_Length(py_tension_out) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_out) != count + 1) {
             free_allocation(tension);
             point_array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
-                "Argument tension_out must be a number or a sequence with size len(points) + 1.");
+                "Argument tension_out must be a number or a sequence with count len(points) + 1.");
             return NULL;
         }
-        for (uint64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < count + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_out, i);
             if (!item) {
                 free_allocation(tension);
@@ -1423,12 +1423,12 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
 }
 
 static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* args) {
-    uint64_t size = PyTuple_GET_SIZE(args);
+    uint64_t count = PyTuple_GET_SIZE(args);
     CurveInstruction* instructions =
-        (CurveInstruction*)allocate(sizeof(CurveInstruction) * size * 2);
+        (CurveInstruction*)allocate(sizeof(CurveInstruction) * count * 2);
     CurveInstruction* instr = instructions;
 
-    for (uint64_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < count; i++) {
         PyObject* item = PyTuple_GET_ITEM(args, i);
         if (PyUnicode_Check(item)) {
             Py_ssize_t len = 0;
@@ -1539,8 +1539,8 @@ static PyObject* robustpath_object_rotate(RobustPathObject* self, PyObject* args
 static PyObject* robustpath_object_apply_repetition(RobustPathObject* self, PyObject* args) {
     Array<RobustPath*> array = {0};
     self->robustpath->apply_repetition(array);
-    PyObject* result = PyList_New(array.size);
-    for (uint64_t i = 0; i < array.size; i++) {
+    PyObject* result = PyList_New(array.count);
+    for (uint64_t i = 0; i < array.count; i++) {
         RobustPathObject* obj = PyObject_New(RobustPathObject, &robustpath_object_type);
         obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
         obj->robustpath = array[i];
@@ -1707,7 +1707,7 @@ static PyObject* robustpath_object_get_num_paths(RobustPathObject* self, void*) 
 }
 
 static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->robustpath->subpath_array.size);
+    return PyLong_FromUnsignedLongLong(self->robustpath->subpath_array.count);
 }
 
 static PyObject* robustpath_object_get_properties(RobustPathObject* self, void*) {

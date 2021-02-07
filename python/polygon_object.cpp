@@ -9,7 +9,7 @@ static PyObject* polygon_object_str(PolygonObject* self) {
     char buffer[128];
     snprintf(buffer, COUNT(buffer),
              "Polygon at layer %" PRIu32 ", datatype %" PRIu32 ", with %" PRIu64 " points",
-             self->polygon->layer, self->polygon->datatype, self->polygon->point_array.size);
+             self->polygon->layer, self->polygon->datatype, self->polygon->point_array.count);
     return PyUnicode_FromString(buffer);
 }
 
@@ -152,7 +152,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
             PyErr_SetString(PyExc_TypeError, "Unable to convert radius to float.");
             return NULL;
         }
-        radius_array.size = 1;
+        radius_array.count = 1;
         radius_array.items = &radius;
     }
     self->polygon->fillet(radius_array, tol);
@@ -172,8 +172,8 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
 
     Array<Polygon*> array = {0};
     self->polygon->fracture(max_points, precision, array);
-    PyObject* result = PyList_New(array.size);
-    for (uint64_t i = 0; i < array.size; i++) {
+    PyObject* result = PyList_New(array.count);
+    for (uint64_t i = 0; i < array.count; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = array[i];
@@ -187,8 +187,8 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
 static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject* args) {
     Array<Polygon*> array = {0};
     self->polygon->apply_repetition(array);
-    PyObject* result = PyList_New(array.size);
-    for (uint64_t i = 0; i < array.size; i++) {
+    PyObject* result = PyList_New(array.count);
+    for (uint64_t i = 0; i < array.count; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = array[i];
@@ -280,14 +280,14 @@ static PyMethodDef polygon_object_methods[] = {
 
 static PyObject* polygon_object_get_points(PolygonObject* self, void*) {
     const Array<Vec2>* point_array = &self->polygon->point_array;
-    npy_intp dims[] = {(npy_intp)point_array->size, 2};
+    npy_intp dims[] = {(npy_intp)point_array->count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
         return NULL;
     }
     double* data = (double*)PyArray_DATA((PyArrayObject*)result);
-    memcpy(data, point_array->items, sizeof(double) * point_array->size * 2);
+    memcpy(data, point_array->items, sizeof(double) * point_array->count * 2);
     return (PyObject*)result;
 }
 
@@ -318,7 +318,7 @@ static int polygon_object_set_datatype(PolygonObject* self, PyObject* arg, void*
 }
 
 static PyObject* polygon_object_get_size(PolygonObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->polygon->point_array.size);
+    return PyLong_FromUnsignedLongLong(self->polygon->point_array.count);
 }
 
 static PyObject* polygon_object_get_properties(PolygonObject* self, void*) {

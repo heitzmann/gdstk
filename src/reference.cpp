@@ -80,13 +80,13 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
             if (repetition.type != RepetitionType::None) {
                 repetition.get_extrema(offsets);
             } else {
-                offsets.size = 1;
+                offsets.count = 1;
                 offsets.items = &zero;
             }
-            array.ensure_slots(offsets.size);
+            array.ensure_slots(offsets.count);
 
             Vec2* offset_p = offsets.items;
-            for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+            for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
                 Polygon* dst;
                 // Avoid an extra allocation by moving the last polygon.
                 if (offset_count == 1) {
@@ -104,7 +104,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
         polygons(true, true, -1, array);
     }
     Polygon** p_item = array.items;
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         Polygon* poly = *p_item++;
         Vec2 pmin, pmax;
         poly->bounding_box(pmin, pmax);
@@ -140,8 +140,8 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
-    result.ensure_slots(offsets.size - 1);
-    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    result.ensure_slots(offsets.count - 1);
+    for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
         Reference* reference = (Reference*)allocate_clear(sizeof(Reference));
         reference->copy_from(*this);
         reference->origin.x += *offset_p++;
@@ -166,16 +166,16 @@ void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t dep
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
-    result.ensure_slots(array.size * offsets.size);
+    result.ensure_slots(array.count * offsets.count);
 
     Polygon** a_item = array.items;
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         Polygon* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             Polygon* dst;
             // Avoid an extra allocation by moving the last polygon.
             if (offset_count == 1) {
@@ -203,16 +203,16 @@ void Reference::flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
-    result.ensure_slots(array.size * offsets.size);
+    result.ensure_slots(array.count * offsets.count);
 
     FlexPath** a_item = array.items;
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         FlexPath* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             FlexPath* dst;
             if (offset_count == 1) {
                 dst = src;
@@ -240,16 +240,16 @@ void Reference::robustpaths(bool apply_repetitions, int64_t depth,
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
-    result.ensure_slots(array.size * offsets.size);
+    result.ensure_slots(array.count * offsets.count);
 
     RobustPath** a_item = array.items;
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         RobustPath* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             RobustPath* dst;
             if (offset_count == 1) {
                 dst = src;
@@ -276,16 +276,16 @@ void Reference::labels(bool apply_repetitions, int64_t depth, Array<Label*>& res
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
-    result.ensure_slots(array.size * offsets.size);
+    result.ensure_slots(array.count * offsets.count);
 
     Label** a_item = array.items;
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         Label* src = *a_item++;
         Vec2* offset_p = offsets.items;
-        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             Label* dst;
             if (offset_count == 1) {
                 dst = src;
@@ -307,7 +307,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
     double x2, y2, x3, y3;
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
-    offsets.size = 1;
+    offsets.count = 1;
     offsets.items = &zero;
 
     uint16_t buffer_array[] = {8, 0x1302, 0, 0, 28, 0x1003};
@@ -359,7 +359,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
             buffer_coord[5] = (int32_t)(lround(y3 * scaling));
             big_endian_swap32((uint32_t*)buffer_coord, COUNT(buffer_coord));
         } else {
-            offsets.size = 0;
+            offsets.count = 0;
             offsets.items = NULL;
             repetition.get_offsets(offsets);
             // printf("Repeated SREF: ");  // DEBUG
@@ -404,7 +404,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
     }
 
     Vec2* offset_p = offsets.items;
-    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
+    for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--, offset_p++) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
         fwrite(ref_name, 1, len, out);
 
@@ -454,12 +454,12 @@ void Reference::to_svg(FILE* out, double scaling) const {
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
 
     double* offset_p = (double*)offsets.items;
-    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
         double offset_x = scaling * (origin.x + *offset_p++);
         double offset_y = scaling * (origin.y + *offset_p++);
         fprintf(out, "<use transform=\"translate(%lf %lf)", offset_x, offset_y);

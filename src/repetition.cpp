@@ -38,8 +38,8 @@ void Repetition::print() const {
         case RepetitionType::ExplicitY:
             printf("Explicit %c repetition <%p>:", type == RepetitionType::ExplicitX ? 'X' : 'Y',
                    this);
-            for (uint64_t i = 0; i < coords.size; i += n) {
-                for (uint64_t j = 0; j < n && i + j < coords.size; j++) {
+            for (uint64_t i = 0; i < coords.count; i += n) {
+                for (uint64_t j = 0; j < n && i + j < coords.count; j++) {
                     printf(" %lg", coords[i + j]);
                 }
                 putchar('\n');
@@ -85,16 +85,16 @@ void Repetition::copy_from(const Repetition repetition) {
     }
 }
 
-uint64_t Repetition::get_size() const {
+uint64_t Repetition::get_count() const {
     switch (type) {
         case RepetitionType::Rectangular:
         case RepetitionType::Regular:
             return columns * rows;
         case RepetitionType::Explicit:
-            return offsets.size + 1;  // Assume (0, 0) is not included.
+            return offsets.count + 1;  // Assume (0, 0) is not included.
         case RepetitionType::ExplicitX:
         case RepetitionType::ExplicitY:
-            return coords.size + 1;  // Assume 0 is not included.
+            return coords.count + 1;  // Assume 0 is not included.
         case RepetitionType::None:
             return 0;
     }
@@ -102,10 +102,10 @@ uint64_t Repetition::get_size() const {
 }
 
 void Repetition::get_offsets(Array<Vec2>& result) const {
-    uint64_t size = get_size();
-    result.ensure_slots(size);
+    uint64_t count = get_count();
+    result.ensure_slots(count);
     double* c_item;
-    double* c = (double*)(result.items + result.size);
+    double* c = (double*)(result.items + result.count);
     switch (type) {
         case RepetitionType::Rectangular:
             for (uint64_t i = 0; i < columns; i++) {
@@ -115,7 +115,7 @@ void Repetition::get_offsets(Array<Vec2>& result) const {
                     *c++ = j * spacing.y;
                 }
             }
-            result.size += size;
+            result.count += count;
             break;
         case RepetitionType::Regular:
             for (uint64_t i = 0; i < columns; i++) {
@@ -125,27 +125,27 @@ void Repetition::get_offsets(Array<Vec2>& result) const {
                     *c++ = vi.y + j * v2.y;
                 }
             }
-            result.size += size;
+            result.count += count;
             break;
         case RepetitionType::ExplicitX:
             *c++ = 0;
             *c++ = 0;
             c_item = coords.items;
-            for (uint64_t j = 1; j < size; j++) {
+            for (uint64_t j = 1; j < count; j++) {
                 *c++ = *c_item++;
                 *c++ = 0;
             }
-            result.size += size;
+            result.count += count;
             break;
         case RepetitionType::ExplicitY:
             *c++ = 0;
             *c++ = 0;
             c_item = coords.items;
-            for (uint64_t j = 1; j < size; j++) {
+            for (uint64_t j = 1; j < count; j++) {
                 *c++ = 0;
                 *c++ = *c_item++;
             }
-            result.size += size;
+            result.count += count;
             break;
         case RepetitionType::Explicit:
             result.append_unsafe(Vec2{0, 0});
@@ -207,12 +207,12 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             }
             break;
         case RepetitionType::ExplicitX: {
-            if (coords.size == 0) return;
+            if (coords.count == 0) return;
             double* c = coords.items;
             double xmin = *c;
             double xmax = *c;
             ++c;
-            for (uint64_t i = coords.size; i > 0; i--, c++) {
+            for (uint64_t i = coords.count; i > 0; i--, c++) {
                 if (*c < xmin) {
                     xmin = *c;
                 } else if (*c > xmax) {
@@ -228,12 +228,12 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             }
         } break;
         case RepetitionType::ExplicitY: {
-            if (coords.size == 0) return;
+            if (coords.count == 0) return;
             double* c = coords.items;
             double ymin = *c;
             double ymax = *c;
             ++c;
-            for (uint64_t i = coords.size; i > 0; i--, c++) {
+            for (uint64_t i = coords.count; i > 0; i--, c++) {
                 if (*c < ymin) {
                     ymin = *c;
                 } else if (*c > ymax) {
@@ -249,13 +249,13 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             }
         } break;
         case RepetitionType::Explicit: {
-            if (offsets.size == 0) return;
+            if (offsets.count == 0) return;
             Vec2* v = offsets.items;
             Vec2 vxmin = *v;
             Vec2 vxmax = *v;
             Vec2 vymin = *v;
             Vec2 vymax = *v;
-            for (uint64_t i = offsets.size; i > 0; i--, v++) {
+            for (uint64_t i = offsets.count; i > 0; i--, v++) {
                 if (v->x < vxmin.x) {
                     vxmin = *v;
                 } else if (v->x > vxmax.x) {
@@ -315,11 +315,11 @@ void Repetition::transform(double magnification, bool x_reflection, double rotat
                 double ca = magnification * cos(rotation);
                 double sa = magnification * sin(rotation);
                 Array<Vec2> temp = {0};
-                temp.ensure_slots(coords.size);
-                temp.size = coords.size;
+                temp.ensure_slots(coords.count);
+                temp.count = coords.count;
                 Vec2* v = temp.items;
                 double* c = coords.items;
-                for (uint64_t i = coords.size; i > 0; i--, c++, v++) {
+                for (uint64_t i = coords.count; i > 0; i--, c++, v++) {
                     v->x = *c * ca;
                     v->y = *c * sa;
                 }
@@ -328,7 +328,7 @@ void Repetition::transform(double magnification, bool x_reflection, double rotat
                 offsets = temp;
             } else if (magnification != 1) {
                 double* c = coords.items;
-                for (uint64_t i = coords.size; i > 0; i--) {
+                for (uint64_t i = coords.count; i > 0; i--) {
                     *c++ *= magnification;
                 }
             }
@@ -342,11 +342,11 @@ void Repetition::transform(double magnification, bool x_reflection, double rotat
                     sa = -sa;
                 }
                 Array<Vec2> temp = {0};
-                temp.ensure_slots(coords.size);
-                temp.size = coords.size;
+                temp.ensure_slots(coords.count);
+                temp.count = coords.count;
                 Vec2* v = temp.items;
                 double* c = coords.items;
-                for (uint64_t i = coords.size; i > 0; i--, c++, v++) {
+                for (uint64_t i = coords.count; i > 0; i--, c++, v++) {
                     v->x = *c * sa;
                     v->y = *c * ca;
                 }
@@ -356,7 +356,7 @@ void Repetition::transform(double magnification, bool x_reflection, double rotat
             } else if (x_reflection || magnification != 1) {
                 if (x_reflection) magnification = -magnification;
                 double* c = coords.items;
-                for (uint64_t i = coords.size; i > 0; i--) {
+                for (uint64_t i = coords.count; i > 0; i--) {
                     *c++ *= magnification;
                 }
             }
@@ -366,25 +366,25 @@ void Repetition::transform(double magnification, bool x_reflection, double rotat
             if (rotation != 0) {
                 Vec2 r = {magnification * cos(rotation), magnification * sin(rotation)};
                 if (x_reflection) {
-                    for (uint64_t i = offsets.size; i > 0; i--, v++) {
+                    for (uint64_t i = offsets.count; i > 0; i--, v++) {
                         *v = cplx_mul(cplx_conj(*v), r);
                     }
                 } else {
-                    for (uint64_t i = offsets.size; i > 0; i--, v++) {
+                    for (uint64_t i = offsets.count; i > 0; i--, v++) {
                         *v = cplx_mul(*v, r);
                     }
                 }
             } else if (x_reflection && magnification != 1) {
-                for (uint64_t i = offsets.size; i > 0; i--, v++) {
+                for (uint64_t i = offsets.count; i > 0; i--, v++) {
                     v->x *= magnification;
                     v->y *= -magnification;
                 }
             } else if (x_reflection) {
-                for (uint64_t i = offsets.size; i > 0; i--, v++) {
+                for (uint64_t i = offsets.count; i > 0; i--, v++) {
                     v->y = -v->y;
                 }
             } else if (magnification != 1) {
-                for (uint64_t i = offsets.size; i > 0; i--, v++) {
+                for (uint64_t i = offsets.count; i > 0; i--, v++) {
                     *v *= magnification;
                 }
             }

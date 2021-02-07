@@ -308,7 +308,7 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Ar
     switch ((OasisPointList)byte) {
         case OasisPointList::ManhattanHorizontalFirst: {
             result.ensure_slots(polygon ? num + 1 : num);
-            Vec2* cur = result.items + result.size;
+            Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
             double initial_x = ref->x;
             for (uint64_t i = num; i > 0; i--) {
@@ -328,11 +328,11 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Ar
                 cur->y = ref->y;
                 num++;
             }
-            result.size += num;
+            result.count += num;
         } break;
         case OasisPointList::ManhattanVerticalFirst: {
             result.ensure_slots(polygon ? num + 1 : num);
-            Vec2* cur = result.items + result.size;
+            Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
             double initial_y = ref->y;
             for (uint64_t i = num; i > 0; i--) {
@@ -352,45 +352,45 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Ar
                 cur->y = initial_y;
                 num++;
             }
-            result.size += num;
+            result.count += num;
         } break;
         case OasisPointList::Manhattan: {
             result.ensure_slots(num);
-            Vec2* cur = result.items + result.size;
+            Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
             for (uint64_t i = num; i > 0; i--) {
                 int64_t x, y;
                 oasis_read_2delta(in, x, y);
                 *cur++ = Vec2{scaling * x, scaling * y} + *ref++;
             }
-            result.size += num;
+            result.count += num;
         } break;
         case OasisPointList::Octangular: {
             result.ensure_slots(num);
-            Vec2* cur = result.items + result.size;
+            Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
             for (uint64_t i = num; i > 0; i--) {
                 int64_t x, y;
                 oasis_read_3delta(in, x, y);
                 *cur++ = Vec2{scaling * x, scaling * y} + *ref++;
             }
-            result.size += num;
+            result.count += num;
         } break;
         case OasisPointList::General: {
             result.ensure_slots(num);
-            Vec2* cur = result.items + result.size;
+            Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
             for (uint64_t i = num; i > 0; i--) {
                 int64_t x, y;
                 oasis_read_gdelta(in, x, y);
                 *cur++ = Vec2{scaling * x, scaling * y} + *ref++;
             }
-            result.size += num;
+            result.count += num;
         } break;
         case OasisPointList::Relative: {
             Vec2 delta = {0, 0};
             result.ensure_slots(num);
-            Vec2* cur = result.items + result.size;
+            Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
             for (uint64_t i = num; i > 0; i--) {
                 int64_t x, y;
@@ -399,7 +399,7 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Ar
                 delta.y += scaling * y;
                 *cur++ = delta + *ref++;
             }
-            result.size += num;
+            result.count += num;
         } break;
         default:
             fputs("[GDSTK] Point list type not supported.\n", stderr);
@@ -668,13 +668,13 @@ void oasis_write_real(OasisStream& out, double value) {
 
 void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
                             bool polygon) {
-    // TODO: choose point list type to decrease file size
-    if (points.size < 1) return;
+    // TODO: choose point list type to decrease file count
+    if (points.count < 1) return;
     oasis_putc((uint8_t)OasisPointList::General, out);
-    oasis_write_unsigned_integer(out, points.size - 1);
+    oasis_write_unsigned_integer(out, points.count - 1);
     Vec2* ref = points.items;
     Vec2* cur = ref + 1;
-    for (uint64_t i = points.size - 1; i > 0; i--) {
+    for (uint64_t i = points.count - 1; i > 0; i--) {
         Vec2 v = *cur++ - *ref++;
         oasis_write_gdelta(out, llround(scaling * v.x), llround(scaling * v.y));
     }
@@ -737,45 +737,45 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
             }
         } break;
         case RepetitionType::ExplicitX:
-            if (repetition.coords.size > 0) {
+            if (repetition.coords.count > 0) {
                 oasis_putc(4, out);
-                oasis_write_unsigned_integer(out, repetition.coords.size - 1);
-                double* items = (double*)allocate(sizeof(double) * repetition.coords.size);
-                memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.size);
-                std::sort(items, items + repetition.coords.size);
+                oasis_write_unsigned_integer(out, repetition.coords.count - 1);
+                double* items = (double*)allocate(sizeof(double) * repetition.coords.count);
+                memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.count);
+                std::sort(items, items + repetition.coords.count);
                 double* c0 = items;
                 double* c1 = c0 + 1;
                 oasis_write_unsigned_integer(out, *c0 * scaling);
-                for (uint64_t i = repetition.coords.size - 1; i > 0; --i) {
+                for (uint64_t i = repetition.coords.count - 1; i > 0; --i) {
                     oasis_write_unsigned_integer(out, (*c1++ - *c0++) * scaling);
                 }
                 free_allocation(items);
             }
             break;
         case RepetitionType::ExplicitY:
-            if (repetition.coords.size > 0) {
+            if (repetition.coords.count > 0) {
                 oasis_putc(6, out);
-                oasis_write_unsigned_integer(out, repetition.coords.size - 1);
-                double* items = (double*)allocate(sizeof(double) * repetition.coords.size);
-                memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.size);
-                std::sort(items, items + repetition.coords.size);
+                oasis_write_unsigned_integer(out, repetition.coords.count - 1);
+                double* items = (double*)allocate(sizeof(double) * repetition.coords.count);
+                memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.count);
+                std::sort(items, items + repetition.coords.count);
                 double* c0 = items;
                 double* c1 = c0 + 1;
                 oasis_write_unsigned_integer(out, *c0 * scaling);
-                for (uint64_t i = repetition.coords.size - 1; i > 0; --i) {
+                for (uint64_t i = repetition.coords.count - 1; i > 0; --i) {
                     oasis_write_unsigned_integer(out, (*c1++ - *c0++) * scaling);
                 }
                 free_allocation(items);
             }
             break;
         case RepetitionType::Explicit:
-            if (repetition.offsets.size > 0) {
+            if (repetition.offsets.count > 0) {
                 oasis_putc(10, out);
-                oasis_write_unsigned_integer(out, repetition.offsets.size - 1);
+                oasis_write_unsigned_integer(out, repetition.offsets.count - 1);
                 Vec2* v0 = repetition.offsets.items;
                 Vec2* v1 = v0 + 1;
                 oasis_write_gdelta(out, v0->x * scaling, v0->y * scaling);
-                for (uint64_t i = repetition.coords.size - 1; i > 0; --i, ++v0, ++v1) {
+                for (uint64_t i = repetition.coords.count - 1; i > 0; --i, ++v0, ++v1) {
                     oasis_write_gdelta(out, (v1->x - v0->x) * scaling, (v1->y - v0->y) * scaling);
                 }
             }

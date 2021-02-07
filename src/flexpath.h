@@ -75,7 +75,7 @@ struct FlexPath {
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
     void apply_repetition(Array<FlexPath*>& result);
 
-    // Note: width and offset must be NULL or arrays of size at least path.num_elements.
+    // Note: width and offset must be NULL or arrays of count at least path.num_elements.
     void horizontal(double coord_x, const double* width, const double* offset, bool relative);
     void horizontal(const Array<double> coord_x, const double* width, const double* offset,
                     bool relative);
@@ -105,9 +105,9 @@ struct FlexPath {
     void parametric(ParametricVec2 curve_function, void* data, const double* width,
                     const double* offset, bool relative);
 
-    // Return n = number of items processed.  If n < size, item n could not be parsed.  Width and
+    // Return n = number of items processed.  If n < count, item n could not be parsed.  Width and
     // offset remain unchainged.
-    uint64_t commands(const CurveInstruction* items, uint64_t size);
+    uint64_t commands(const CurveInstruction* items, uint64_t count);
 
     void to_polygons(Array<Polygon*>& result);
     void element_center(const FlexPathElement* el, Array<Vec2>& result);

@@ -25,9 +25,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Polygon::print(bool all) const {
-    printf("Polygon <%p>, size %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
+    printf("Polygon <%p>, count %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
            ", properties <%p>, owner <%p>\n",
-           this, point_array.size, layer, datatype, properties, owner);
+           this, point_array.count, layer, datatype, properties, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);
@@ -51,17 +51,17 @@ void Polygon::copy_from(const Polygon& polygon) {
 }
 
 double Polygon::area() const {
-    if (point_array.size < 3) return 0;
+    if (point_array.count < 3) return 0;
     double result = 0;
     Vec2* p = point_array.items;
     Vec2 v0 = *p++;
     Vec2 v1 = *p++ - v0;
-    for (uint64_t num = point_array.size - 2; num > 0; num--) {
+    for (uint64_t num = point_array.count - 2; num > 0; num--) {
         Vec2 v2 = *p++ - v0;
         result += v1.cross(v2);
         v1 = v2;
     }
-    if (repetition.type != RepetitionType::None) result *= repetition.get_size();
+    if (repetition.type != RepetitionType::None) result *= repetition.get_count();
     return 0.5 * fabs(result);
 }
 
@@ -69,7 +69,7 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.size; num > 0; num--, p++) {
+    for (uint64_t num = point_array.count; num > 0; num--, p++) {
         if (p->x < min.x) min.x = p->x;
         if (p->x > max.x) max.x = p->x;
         if (p->y < min.y) min.y = p->y;
@@ -81,7 +81,7 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
         Vec2* off = offsets.items;
         Vec2 min0 = min;
         Vec2 max0 = max;
-        for (uint64_t i = offsets.size; i > 0; i--, off++) {
+        for (uint64_t i = offsets.count; i > 0; i--, off++) {
             if (min0.x + off->x < min.x) min.x = min0.x + off->x;
             if (max0.x + off->x > max.x) max.x = max0.x + off->x;
             if (min0.y + off->y < min.y) min.y = min0.y + off->y;
@@ -93,12 +93,12 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
 
 void Polygon::translate(const Vec2 v) {
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.size; num > 0; num--) *p++ += v;
+    for (uint64_t num = point_array.count; num > 0; num--) *p++ += v;
 }
 
 void Polygon::scale(const Vec2 scale, const Vec2 center) {
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.size; num > 0; num--, p++) *p = (*p - center) * scale + center;
+    for (uint64_t num = point_array.count; num > 0; num--, p++) *p = (*p - center) * scale + center;
 }
 
 void Polygon::mirror(const Vec2 p0, const Vec2 p1) {
@@ -108,7 +108,7 @@ void Polygon::mirror(const Vec2 p0, const Vec2 p1) {
     Vec2 r = v * (2 / tmp);
     Vec2 p2 = p0 * 2;
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.size; num > 0; num--, p++)
+    for (uint64_t num = point_array.count; num > 0; num--, p++)
         *p = v * (*p - p0).inner(r) - *p + p2;
 }
 
@@ -116,7 +116,7 @@ void Polygon::rotate(double angle, const Vec2 center) {
     double ca = cos(angle);
     double sa = sin(angle);
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.size; num > 0; num--, p++) {
+    for (uint64_t num = point_array.count; num > 0; num--, p++) {
         Vec2 q = *p - center;
         p->x = q.x * ca - q.y * sa + center.x;
         p->y = q.x * sa + q.y * ca + center.y;
@@ -128,7 +128,7 @@ void Polygon::transform(double magnification, bool x_reflection, double rotation
     double ca = cos(rotation);
     double sa = sin(rotation);
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.size; num > 0; num--, p++) {
+    for (uint64_t num = point_array.count; num > 0; num--, p++) {
         Vec2 q = *p * magnification;
         if (x_reflection) q.y = -q.y;
         p->x = q.x * ca - q.y * sa + origin.x;
@@ -137,13 +137,13 @@ void Polygon::transform(double magnification, bool x_reflection, double rotation
 }
 
 void Polygon::fillet(const Array<double> radii, double tol) {
-    if (point_array.size < 3) return;
+    if (point_array.count < 3) return;
 
     Array<Vec2> old_pts;
     old_pts.copy_from(point_array);
-    point_array.size = 0;
+    point_array.count = 0;
 
-    const uint64_t old_size = old_pts.size;
+    const uint64_t old_size = old_pts.count;
     uint64_t j = 0;
     if (old_pts[old_size - 1] == old_pts[0]) {
         j = old_size - 1;
@@ -174,7 +174,7 @@ void Polygon::fillet(const Array<double> radii, double tol) {
             const double fac = 1 / (cost * dv.length());
             dv *= fac;
 
-            double radius = radii[j % radii.size];
+            double radius = radii[j % radii.count];
             double max_len = radius * tant;
             if (max_len > 0.5 * (len0 - tol)) {
                 max_len = 0.5 * (len0 - tol);
@@ -230,9 +230,9 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
     result.append(poly);
 
     double scaling = 1.0 / precision;
-    for (uint64_t i = 0; i < result.size;) {
+    for (uint64_t i = 0; i < result.count;) {
         Polygon* subj = result[i];
-        uint64_t num_points = subj->point_array.size;
+        uint64_t num_points = subj->point_array.count;
         if (num_points <= max_points) {
             i++;
             continue;
@@ -246,7 +246,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
         const double frac = num_points / (num_cuts + 1.0);
         Array<double> cuts = {0};
         cuts.ensure_slots(num_cuts);
-        cuts.size = num_cuts;
+        cuts.count = num_cuts;
         bool x_axis;
         double* coords = (double*)allocate(sizeof(double) * num_points);
         if (max.x - min.x > max.y - min.y) {
@@ -271,7 +271,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
         free_allocation(coords);
 
         Array<Polygon*>* chopped =
-            (Array<Polygon*>*)allocate_clear((cuts.size + 1) * sizeof(Array<Polygon*>));
+            (Array<Polygon*>*)allocate_clear((cuts.count + 1) * sizeof(Array<Polygon*>));
         slice(*subj, cuts, x_axis, scaling, chopped);
         cuts.clear();
 
@@ -280,7 +280,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
         free_allocation(subj);
 
         uint64_t total = 0;
-        for (uint64_t j = 0; j <= num_cuts; j++) total += chopped[j].size;
+        for (uint64_t j = 0; j <= num_cuts; j++) total += chopped[j].count;
         result.ensure_slots(total);
 
         for (uint64_t j = 0; j <= num_cuts; j++) {
@@ -291,7 +291,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
         free_allocation(chopped);
     }
 
-    for (uint64_t i = 0; i < result.size; i++) {
+    for (uint64_t i = 0; i < result.count; i++) {
         poly = result[i];
         poly->layer = layer;
         poly->datatype = datatype;
@@ -309,8 +309,8 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
 
     // Skip first offset (0, 0)
     Vec2* offset_p = offsets.items + 1;
-    result.ensure_slots(offsets.size - 1);
-    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    result.ensure_slots(offsets.count - 1);
+    for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
         Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
         poly->copy_from(*this);
         poly->translate(*offset_p++);
@@ -322,7 +322,7 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
 }
 
 void Polygon::to_gds(FILE* out, double scaling) const {
-    if (point_array.size < 3) return;
+    if (point_array.count < 3) return;
 
     uint16_t buffer_start[] = {
         4, 0x0800, 6, 0x0D02, (uint16_t)layer, 6, 0x0E02, (uint16_t)datatype};
@@ -330,7 +330,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     big_endian_swap16(buffer_start, COUNT(buffer_start));
     big_endian_swap16(buffer_end, COUNT(buffer_end));
 
-    uint64_t total = point_array.size + 1;
+    uint64_t total = point_array.count + 1;
     if (total > 8190) {
         fputs(
             "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
@@ -338,33 +338,33 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     }
     Array<int32_t> coords = {0};
     coords.ensure_slots(2 * total);
-    coords.size = 2 * total;
+    coords.count = 2 * total;
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
 
     double* offset_p = (double*)offsets.items;
-    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+    for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
 
         double offset_x = *offset_p++;
         double offset_y = *offset_p++;
         int32_t* c = coords.items;
         Vec2* p = point_array.items;
-        for (uint64_t j = point_array.size; j > 0; j--) {
+        for (uint64_t j = point_array.count; j > 0; j--) {
             *c++ = (int32_t)lround((offset_x + p->x) * scaling);
             *c++ = (int32_t)lround((offset_y + p->y) * scaling);
             p++;
         }
         *c++ = coords[0];
         *c++ = coords[1];
-        big_endian_swap32((uint32_t*)coords.items, coords.size);
+        big_endian_swap32((uint32_t*)coords.items, coords.count);
 
         uint64_t i0 = 0;
         while (i0 < total) {
@@ -387,7 +387,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
 void Polygon::to_oas(OasisStream& out, OasisState& state) const {
     uint8_t info = 0x3B;
-    bool has_repetition = repetition.get_size() > 1;
+    bool has_repetition = repetition.get_count() > 1;
     if (has_repetition) info |= 0x04;
     oasis_putc((int)OasisRecord::POLYGON, out);
     oasis_putc(info, out);
@@ -402,11 +402,11 @@ void Polygon::to_oas(OasisStream& out, OasisState& state) const {
 }
 
 void Polygon::to_svg(FILE* out, double scaling) const {
-    if (point_array.size < 3) return;
+    if (point_array.count < 3) return;
     fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this, layer,
             datatype);
     Vec2* p = point_array.items;
-    for (uint64_t j = 0; j < point_array.size - 1; j++) {
+    for (uint64_t j = 0; j < point_array.count - 1; j++) {
         fprintf(out, "%lf,%lf ", p->x * scaling, p->y * scaling);
         p++;
     }
@@ -415,7 +415,7 @@ void Polygon::to_svg(FILE* out, double scaling) const {
         Array<Vec2> offsets = {0};
         repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
-        for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
             fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,
@@ -430,7 +430,7 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32
     result.layer = layer;
     result.datatype = datatype;
     result.point_array.ensure_slots(4);
-    result.point_array.size = 4;
+    result.point_array.count = 4;
     result.point_array[0] = corner1;
     result.point_array[1] = {corner2.x, corner1.y};
     result.point_array[2] = corner2;
@@ -446,7 +446,7 @@ Polygon cross(const Vec2 center, double full_size, double arm_width, uint32_t la
     result.layer = layer;
     result.datatype = datatype;
     result.point_array.ensure_slots(12);
-    result.point_array.size = 12;
+    result.point_array.count = 12;
     result.point_array[0] = center + Vec2{len, half_width};
     result.point_array[1] = center + Vec2{half_width, half_width};
     result.point_array[2] = center + Vec2{half_width, len};
@@ -468,7 +468,7 @@ Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, d
     result.layer = layer;
     result.datatype = datatype;
     result.point_array.ensure_slots(sides);
-    result.point_array.size = sides;
+    result.point_array.count = sides;
     rotation += M_PI / sides - 0.5 * M_PI;
     const double radius = side_length / (2 * sin(M_PI / sides));
     Vec2* v = result.point_array.items;
@@ -498,7 +498,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
         if (num_points2 < MIN_POINTS) num_points2 = MIN_POINTS;
 
         result.point_array.ensure_slots(num_points1 + num_points2);
-        result.point_array.size = num_points1 + num_points2;
+        result.point_array.count = num_points1 + num_points2;
         Vec2* v = result.point_array.items;
         if (full_angle == 2 * M_PI) {
             // Ring
@@ -537,7 +537,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
         if (full_angle == 2 * M_PI) {
             // Full ellipse
             result.point_array.ensure_slots(num_points);
-            result.point_array.size = num_points;
+            result.point_array.count = num_points;
             Vec2* v = result.point_array.items;
             for (uint64_t i = 0; i < num_points; i++) {
                 const double angle = i * 2 * M_PI / num_points;
@@ -550,7 +550,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
             const double final_ell_angle =
                 elliptical_angle_transform(final_angle, radius_x, radius_y);
             result.point_array.ensure_slots(num_points + 1);
-            result.point_array.size = num_points + 1;
+            result.point_array.count = num_points + 1;
             Vec2* v = result.point_array.items;
             *v++ = center;
             for (uint64_t i = 0; i < num_points; i++) {
@@ -584,7 +584,7 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     uint64_t num_points = 1 + arc_num_points(M_PI, radius, tolerance);
     if (num_points < MIN_POINTS) num_points = MIN_POINTS;
     result.point_array.ensure_slots(2 * num_points);
-    result.point_array.size = 2 * num_points;
+    result.point_array.count = 2 * num_points;
     Vec2* v1 = result.point_array.items;
     Vec2* v2 = result.point_array.items + num_points;
     for (uint64_t i = 0; i < num_points; i++) {
@@ -597,8 +597,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
         num_points = 1 + arc_num_points(M_PI, inner_radius, tolerance);
         if (num_points < MIN_POINTS) num_points = MIN_POINTS;
         result.point_array.ensure_slots(2 * num_points + 2);
-        v2 = result.point_array.items + result.point_array.size;
-        result.point_array.size += 2 * num_points + 2;
+        v2 = result.point_array.items + result.point_array.count;
+        result.point_array.count += 2 * num_points + 2;
         *v2++ = result.point_array[0];
         *v2++ = c1 + Vec2{inner_radius * cos(initial_angle), inner_radius * sin(initial_angle)};
         v1 = v2 + num_points;
@@ -612,31 +612,31 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     return result;
 }
 
-void text(const char* s, double size, const Vec2 position, bool vertical, uint32_t layer,
+void text(const char* s, double count, const Vec2 position, bool vertical, uint32_t layer,
           uint32_t datatype, Array<Polygon*>& result) {
-    size /= 16;
+    count /= 16;
     Vec2 cursor = position;
     for (; *s != 0; s++) {
         switch (*s) {
             case 0x20:  // Space
                 if (vertical)
-                    cursor.y -= size * VERTICAL_STEP;
+                    cursor.y -= count * VERTICAL_STEP;
                 else
-                    cursor.x += size * HORIZONTAL_STEP;
+                    cursor.x += count * HORIZONTAL_STEP;
                 break;
             case 0x09:  // Horizontal tab
                 if (vertical)
-                    cursor.y += size * VERTICAL_TAB;
+                    cursor.y += count * VERTICAL_TAB;
                 else
-                    cursor.x += size * HORIZONTAL_TAB;
+                    cursor.x += count * HORIZONTAL_TAB;
                 break;
             case 0x0A:  // Carriage return
                 if (vertical) {
                     cursor.y = position.y;
-                    cursor.x += size * VERTICAL_LINESKIP;
+                    cursor.x += count * VERTICAL_LINESKIP;
                 } else {
                     cursor.x = position.x;
-                    cursor.y -= size * HORIZONTAL_LINESKIP;
+                    cursor.y -= count * HORIZONTAL_LINESKIP;
                 }
                 break;
             default: {
@@ -650,14 +650,14 @@ void text(const char* s, double size, const Vec2 position, bool vertical, uint32
                         p->point_array.ensure_slots(_num_coords[p_idx]);
                         uint16_t c_idx = _first_coord[p_idx];
                         for (uint16_t j = _num_coords[p_idx]; j > 0; j--, c_idx++) {
-                            p->point_array.append_unsafe(cursor + size * _all_coords[c_idx]);
+                            p->point_array.append_unsafe(cursor + count * _all_coords[c_idx]);
                         }
                         result.append(p);
                     }
                     if (vertical)
-                        cursor.y -= size * VERTICAL_STEP;
+                        cursor.y -= count * VERTICAL_STEP;
                     else
-                        cursor.x += size * HORIZONTAL_STEP;
+                        cursor.x += count * HORIZONTAL_STEP;
                 }
             }
         }

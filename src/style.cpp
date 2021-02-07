@@ -62,11 +62,11 @@ void StyleMap::clear() {
         style = NULL;
     }
     capacity = 0;
-    size = 0;
+    count = 0;
 }
 
 void StyleMap::copy_from(const StyleMap& map) {
-    size = 0;
+    count = 0;
     capacity = map.capacity;
     style = (Style*)allocate_clear(capacity * sizeof(Style));
     for (Style* s = map.next(NULL); s; s = map.next(s)) set(s->layer, s->type, s->value);
@@ -95,7 +95,7 @@ void StyleMap::resize(uint64_t new_capacity) {
 
 void StyleMap::set(uint32_t layer, uint32_t type, const char* value) {
     // Equallity is important for capacity == 0
-    if (size * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
+    if (count * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
         resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
                                                 : INITIAL_MAP_CAPACITY);
 
@@ -108,7 +108,7 @@ void StyleMap::set(uint32_t layer, uint32_t type, const char* value) {
         s->next->type = type;
         s->next->value = NULL;
         s->next->next = NULL;
-        size++;
+        count++;
     }
     s = s->next;
 
@@ -126,7 +126,7 @@ void StyleMap::set(uint32_t layer, uint32_t type, const char* value) {
 }
 
 const char* StyleMap::get(uint32_t layer, uint32_t type) const {
-    if (size == 0) return default_style(layer, type);
+    if (count == 0) return default_style(layer, type);
     uint64_t i = hash2(layer, type) % capacity;
     Style* s = style[i].next;
     while (!(s == NULL || (s->layer == layer && s->type == type))) s = s->next;
@@ -136,7 +136,7 @@ const char* StyleMap::get(uint32_t layer, uint32_t type) const {
 }
 
 void StyleMap::del(uint32_t layer, uint32_t type) {
-    if (size == 0) return;
+    if (count == 0) return;
 
     uint64_t i = hash2(layer, type) % capacity;
     Style* s = style + i;
@@ -147,7 +147,7 @@ void StyleMap::del(uint32_t layer, uint32_t type) {
     s->next = rem->next;
     if (rem->value) free_allocation(rem->value);
     free_allocation(rem);
-    size--;
+    count--;
 }
 
 Style* StyleMap::next(const Style* current) const {

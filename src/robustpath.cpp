@@ -80,13 +80,13 @@ Vec2 SubPath::gradient(double u, const double *trafo) const {
             grad = Vec2{dx * cos_rot - dy * sin_rot, dx * sin_rot + dy * cos_rot};
         } break;
         case SubPathType::Bezier: {
-            const uint64_t size = ctrl.size - 1;
-            Vec2 *_ctrl = (Vec2 *)allocate(sizeof(Vec2) * size);
+            const uint64_t count = ctrl.count - 1;
+            Vec2 *_ctrl = (Vec2 *)allocate(sizeof(Vec2) * count);
             Vec2 *dst = _ctrl;
             const Vec2 *src = ctrl.items;
-            for (uint64_t i = 0; i < size; i++, src++, dst++)
-                *dst = (double)size * (*(src + 1) - *src);
-            grad = eval_bezier(u, _ctrl, size);
+            for (uint64_t i = 0; i < count; i++, src++, dst++)
+                *dst = (double)count * (*(src + 1) - *src);
+            grad = eval_bezier(u, _ctrl, count);
             free_allocation(_ctrl);
         } break;
         case SubPathType::Bezier2: {
@@ -144,7 +144,7 @@ Vec2 SubPath::eval(double u, const double *trafo) const {
             point = center + Vec2{x * cos_rot - y * sin_rot, x * sin_rot + y * cos_rot};
         } break;
         case SubPathType::Bezier: {
-            point = eval_bezier(u, ctrl.items, ctrl.size);
+            point = eval_bezier(u, ctrl.items, ctrl.count);
         } break;
         case SubPathType::Bezier2: {
             point = eval_bezier2(u, p0, p1, p2);
@@ -380,12 +380,12 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
 }
 
 void RobustPath::print(bool all) const {
-    printf("RobustPath <%p> at (%lg, %lg), size %" PRIu64 ", %" PRIu64
+    printf("RobustPath <%p> at (%lg, %lg), count %" PRIu64 ", %" PRIu64
            " elements, tol %lg, max_evals %" PRIu64 ", properties <%p>, owner <%p>\n",
-           this, end_point.x, end_point.y, subpath_array.size, num_elements, tolerance, max_evals,
+           this, end_point.x, end_point.y, subpath_array.count, num_elements, tolerance, max_evals,
            properties, owner);
     if (all) {
-        for (uint64_t ns = 0; ns < subpath_array.size; ns++) {
+        for (uint64_t ns = 0; ns < subpath_array.count; ns++) {
             printf("(%" PRIu64 ") ", ns);
             subpath_array[ns].print();
         }
@@ -541,8 +541,8 @@ void RobustPath::apply_repetition(Array<RobustPath *> &result) {
 
     // Skip first offset (0, 0)
     Vec2 *offset_p = offsets.items + 1;
-    result.ensure_slots(offsets.size - 1);
-    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    result.ensure_slots(offsets.count - 1);
+    for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
         RobustPath *path = (RobustPath *)allocate_clear(sizeof(RobustPath));
         path->copy_from(*this);
         path->translate(*offset_p++);
@@ -629,8 +629,8 @@ void RobustPath::cubic_smooth(const Vec2 point2, const Vec2 point3, const Interp
     SubPath sub = {SubPathType::Bezier3};
     sub.p0 = end_point;
     sub.p1 = end_point;
-    if (subpath_array.size > 0)
-        sub.p1 += subpath_array[subpath_array.size - 1].gradient(1, trafo) / 3;
+    if (subpath_array.count > 0)
+        sub.p1 += subpath_array[subpath_array.count - 1].gradient(1, trafo) / 3;
     sub.p2 = point2;
     sub.p3 = point3;
     if (relative) {
@@ -662,8 +662,8 @@ void RobustPath::quadratic_smooth(const Vec2 point2, const Interpolation *width,
     SubPath sub = {SubPathType::Bezier2};
     sub.p0 = end_point;
     sub.p1 = end_point;
-    if (subpath_array.size > 0)
-        sub.p1 += subpath_array[subpath_array.size - 1].gradient(1, trafo) / 2;
+    if (subpath_array.count > 0)
+        sub.p1 += subpath_array[subpath_array.count - 1].gradient(1, trafo) / 2;
     sub.p2 = point2;
     if (relative) sub.p2 += end_point;
     end_point = sub.p2;
@@ -677,9 +677,9 @@ void RobustPath::bezier(const Array<Vec2> point_array, const Interpolation *widt
     sub.ctrl.append(end_point);
     sub.ctrl.extend(point_array);
     if (relative) {
-        for (uint64_t i = 1; i <= point_array.size; i++) sub.ctrl[i] += end_point;
+        for (uint64_t i = 1; i <= point_array.count; i++) sub.ctrl[i] += end_point;
     }
-    end_point = sub.ctrl[sub.ctrl.size - 1];
+    end_point = sub.ctrl[sub.ctrl.count - 1];
     subpath_array.append(sub);
     fill_widths_and_offsets(width, offset);
 }
@@ -689,21 +689,21 @@ void RobustPath::interpolation(const Array<Vec2> point_array, double *angles,
                                double final_curl, bool cycle, const Interpolation *width,
                                const Interpolation *offset, bool relative) {
     Array<Vec2> hobby_vec = {0};
-    hobby_vec.ensure_slots(3 * (point_array.size + 1));
-    hobby_vec.size = 3 * (point_array.size + 1);
+    hobby_vec.ensure_slots(3 * (point_array.count + 1));
+    hobby_vec.count = 3 * (point_array.count + 1);
     const Vec2 ref = end_point;
     const Vec2 *src = point_array.items;
     Vec2 *dst = hobby_vec.items + 3;
     hobby_vec[0] = ref;
     if (relative) {
-        for (uint64_t i = 0; i < point_array.size; i++, dst += 3) *dst = ref + *src++;
+        for (uint64_t i = 0; i < point_array.count; i++, dst += 3) *dst = ref + *src++;
     } else {
-        for (uint64_t i = 0; i < point_array.size; i++, dst += 3) *dst = *src++;
+        for (uint64_t i = 0; i < point_array.count; i++, dst += 3) *dst = *src++;
     }
-    hobby_interpolation(point_array.size + 1, hobby_vec.items, angles, angle_constraints, tension,
+    hobby_interpolation(point_array.count + 1, hobby_vec.items, angles, angle_constraints, tension,
                         initial_curl, final_curl, cycle);
     dst = hobby_vec.items + 1;
-    for (uint64_t i = 0; i < point_array.size; i++, dst += 3) {
+    for (uint64_t i = 0; i < point_array.count; i++, dst += 3) {
         cubic(*dst, *(dst + 1), *(dst + 2), width, offset, false);
     }
     if (cycle) cubic(*dst, *(dst + 1), ref, width, offset, false);
@@ -734,8 +734,8 @@ void RobustPath::arc(double radius_x, double radius_y, double initial_angle, dou
 void RobustPath::turn(double radius, double angle, const Interpolation *width,
                       const Interpolation *offset) {
     Vec2 direction = Vec2{1, 0};
-    if (subpath_array.size > 0)
-        direction = subpath_array[subpath_array.size - 1].gradient(1, trafo);
+    if (subpath_array.count > 0)
+        direction = subpath_array[subpath_array.count - 1].gradient(1, trafo);
     const double initial_angle = direction.angle() + (angle < 0 ? 0.5 * M_PI : -0.5 * M_PI);
     arc(radius, radius, initial_angle, initial_angle + angle, 0, width, offset);
 }
@@ -759,9 +759,9 @@ void RobustPath::parametric(ParametricVec2 curve_function, void *func_data,
     fill_widths_and_offsets(width, offset);
 }
 
-uint64_t RobustPath::commands(const CurveInstruction *items, uint64_t size) {
+uint64_t RobustPath::commands(const CurveInstruction *items, uint64_t count) {
     const CurveInstruction *item = items;
-    const CurveInstruction *end = items + size;
+    const CurveInstruction *end = items + count;
     while (item < end) {
         const char instruction = (item++)->command;
         switch (instruction) {
@@ -835,12 +835,12 @@ uint64_t RobustPath::commands(const CurveInstruction *items, uint64_t size) {
                 return item - items - 1;
         }
     }
-    return size;
+    return count;
 }
 
 Vec2 RobustPath::position(double u, bool from_below) const {
-    if (u >= subpath_array.size)
-        u = (double)subpath_array.size;
+    if (u >= subpath_array.count)
+        u = (double)subpath_array.count;
     else if (u < 0)
         u = 0;
     uint64_t idx = (uint64_t)u;
@@ -848,7 +848,7 @@ Vec2 RobustPath::position(double u, bool from_below) const {
     if (from_below && u == 0 && idx > 0) {
         idx--;
         u = 1;
-    } else if (idx == subpath_array.size) {
+    } else if (idx == subpath_array.count) {
         idx--;
         u = 1;
     }
@@ -856,8 +856,8 @@ Vec2 RobustPath::position(double u, bool from_below) const {
 }
 
 Vec2 RobustPath::gradient(double u, bool from_below) const {
-    if (u >= subpath_array.size)
-        u = (double)subpath_array.size;
+    if (u >= subpath_array.count)
+        u = (double)subpath_array.count;
     else if (u < 0)
         u = 0;
     uint64_t idx = (uint64_t)u;
@@ -865,7 +865,7 @@ Vec2 RobustPath::gradient(double u, bool from_below) const {
     if (from_below && u == 0 && idx > 0) {
         idx--;
         u = 1;
-    } else if (idx == subpath_array.size) {
+    } else if (idx == subpath_array.count) {
         idx--;
         u = 1;
     }
@@ -873,8 +873,8 @@ Vec2 RobustPath::gradient(double u, bool from_below) const {
 }
 
 void RobustPath::width(double u, bool from_below, double *result) const {
-    if (u >= subpath_array.size)
-        u = (double)subpath_array.size;
+    if (u >= subpath_array.count)
+        u = (double)subpath_array.count;
     else if (u < 0)
         u = 0;
     uint64_t idx = (uint64_t)u;
@@ -882,7 +882,7 @@ void RobustPath::width(double u, bool from_below, double *result) const {
     if (from_below && u == 0 && idx > 0) {
         idx--;
         u = 1;
-    } else if (idx == subpath_array.size) {
+    } else if (idx == subpath_array.count) {
         idx--;
         u = 1;
     }
@@ -892,8 +892,8 @@ void RobustPath::width(double u, bool from_below, double *result) const {
 }
 
 void RobustPath::offset(double u, bool from_below, double *result) const {
-    if (u >= subpath_array.size)
-        u = (double)subpath_array.size;
+    if (u >= subpath_array.count)
+        u = (double)subpath_array.count;
     else if (u < 0)
         u = 0;
     uint64_t idx = (uint64_t)u;
@@ -901,7 +901,7 @@ void RobustPath::offset(double u, bool from_below, double *result) const {
     if (from_below && u == 0 && idx > 0) {
         idx--;
         u = 1;
-    } else if (idx == subpath_array.size) {
+    } else if (idx == subpath_array.count) {
         idx--;
         u = 1;
     }
@@ -930,9 +930,9 @@ void RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, do
     du1 /= norm_v1;
 
     double step = 1;
-    uint64_t count = max_evals;
+    uint64_t evals = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
+    while (evals-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = spine_position(sub0, new_u0);
@@ -980,9 +980,9 @@ void RobustPath::center_intersection(const SubPath &sub0, const Interpolation &o
     du1 /= norm_v1;
 
     double step = 1;
-    uint64_t count = max_evals;
+    uint64_t evals = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
+    while (evals-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = center_position(sub0, offset0, new_u0);
@@ -1031,9 +1031,9 @@ void RobustPath::left_intersection(const SubPath &sub0, const Interpolation &off
     du1 /= norm_v1;
 
     double step = 1;
-    uint64_t count = max_evals;
+    uint64_t evals = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
+    while (evals-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = left_position(sub0, offset0, width0, new_u0);
@@ -1082,9 +1082,9 @@ void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &of
     du1 /= norm_v1;
 
     double step = 1;
-    uint64_t count = max_evals;
+    uint64_t evals = max_evals;
     const double step_min = 1.0 / (10.0 * max_evals);
-    while (count-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
+    while (evals-- > 0 || fabs(step * du0) > step_min || fabs(step * du1) > step_min) {
         double new_u0 = u0 + step * du0;
         double new_u1 = u1 + step * du1;
         p0 = right_position(sub0, offset0, width0, new_u0);
@@ -1112,13 +1112,13 @@ void RobustPath::right_intersection(const SubPath &sub0, const Interpolation &of
 }
 
 void RobustPath::spine(Array<Vec2> &result) const {
-    if (subpath_array.size == 0) return;
-    result.ensure_slots(subpath_array.size + 1);
+    if (subpath_array.count == 0) return;
+    result.ensure_slots(subpath_array.count + 1);
     double u0 = 0;
     SubPath *sub0 = subpath_array.items;
     SubPath *sub1 = sub0 + 1;
     result.append(spine_position(*sub0, 0));
-    for (uint64_t ns = 1; ns < subpath_array.size; ns++, sub1++) {
+    for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++) {
         double u1 = 1;
         double u2 = 0;
         spine_intersection(*sub0, *sub1, u1, u2);
@@ -1132,7 +1132,7 @@ void RobustPath::spine(Array<Vec2> &result) const {
 }
 
 void RobustPath::to_polygons(Array<Polygon *> &result) const {
-    if (num_elements == 0 || subpath_array.size == 0) return;
+    if (num_elements == 0 || subpath_array.count == 0) return;
 
     const double tolerance_sq = tolerance * tolerance;
     result.ensure_slots(num_elements);
@@ -1140,8 +1140,8 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
         Array<Vec2> left_side = {0};
         Array<Vec2> right_side = {0};
-        left_side.ensure_slots(subpath_array.size);
-        right_side.ensure_slots(subpath_array.size);
+        left_side.ensure_slots(subpath_array.count);
+        right_side.ensure_slots(subpath_array.count);
         Curve initial_cap = {0};
         Curve final_cap = {0};
         initial_cap.tolerance = tolerance;
@@ -1175,7 +1175,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
                 initial_cap.append(cap_l);
                 Array<Vec2> point_array = {0};
                 point_array.items = (Vec2 *)&cap_r;
-                point_array.size = 1;
+                point_array.count = 1;
                 bool angle_constraints[2] = {true, true};
                 const Vec2 grad_l =
                     left_gradient(subpath_array[0], el->offset_array[0], el->width_array[0], 0);
@@ -1207,7 +1207,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
             Interpolation *offset1 = offset0 + 1;
             Interpolation *width0 = el->width_array.items;
             Interpolation *width1 = width0 + 1;
-            for (uint64_t ns = 1; ns < subpath_array.size; ns++, sub1++, offset1++, width1++) {
+            for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++, offset1++, width1++) {
                 double u1 = 1;
                 double u2 = 0;
                 left_intersection(*sub0, *offset0, *width0, *sub1, *offset1, *width1, u1, u2);
@@ -1230,7 +1230,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
             Interpolation *offset1 = offset0 + 1;
             Interpolation *width0 = el->width_array.items;
             Interpolation *width1 = width0 + 1;
-            for (uint64_t ns = 1; ns < subpath_array.size; ns++, sub1++, offset1++, width1++) {
+            for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++, offset1++, width1++) {
                 double u1 = 1;
                 double u2 = 0;
                 right_intersection(*sub0, *offset0, *width0, *sub1, *offset1, *width1, u1, u2);
@@ -1246,7 +1246,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
         }
 
         {  // End cap
-            const uint64_t last = subpath_array.size - 1;
+            const uint64_t last = subpath_array.count - 1;
             const Vec2 cap_l = left_position(subpath_array[last], el->offset_array[last],
                                              el->width_array[last], 1);
             const Vec2 cap_r = right_position(subpath_array[last], el->offset_array[last],
@@ -1275,7 +1275,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
                 final_cap.append(cap_r);
                 Array<Vec2> point_array = {0};
                 point_array.items = (Vec2 *)&cap_l;
-                point_array.size = 1;
+                point_array.count = 1;
                 bool angle_constraints[2] = {true, true};
                 const Vec2 grad_l = left_gradient(subpath_array[last], el->offset_array[last],
                                                   el->width_array[last], 1);
@@ -1300,22 +1300,22 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
         }
 
         uint64_t num =
-            left_side.size + initial_cap.point_array.size + final_cap.point_array.size - 2;
+            left_side.count + initial_cap.point_array.count + final_cap.point_array.count - 2;
         right_side.ensure_slots(num);
-        Vec2 *dst = right_side.items + right_side.size;
+        Vec2 *dst = right_side.items + right_side.count;
 
         memcpy(dst, final_cap.point_array.items + 1,
-               sizeof(Vec2) * (final_cap.point_array.size - 2));
-        dst += final_cap.point_array.size - 2;
+               sizeof(Vec2) * (final_cap.point_array.count - 2));
+        dst += final_cap.point_array.count - 2;
         final_cap.clear();
 
-        Vec2 *src = left_side.items + left_side.size - 1;
-        for (uint64_t i = left_side.size; i > 0; i--) *dst++ = *src--;
+        Vec2 *src = left_side.items + left_side.count - 1;
+        for (uint64_t i = left_side.count; i > 0; i--) *dst++ = *src--;
         left_side.clear();
 
-        memcpy(dst, initial_cap.point_array.items, sizeof(Vec2) * initial_cap.point_array.size);
+        memcpy(dst, initial_cap.point_array.items, sizeof(Vec2) * initial_cap.point_array.count);
         initial_cap.clear();
-        right_side.size += num;
+        right_side.count += num;
 
         Polygon *result_polygon = (Polygon *)allocate_clear(sizeof(Polygon));
         result_polygon->layer = el->layer;
@@ -1334,7 +1334,7 @@ void RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result
     Interpolation *offset0 = el->offset_array.items;
     Interpolation *offset1 = offset0 + 1;
     result.append(center_position(*sub0, *offset0, 0));
-    for (uint64_t ns = 1; ns < subpath_array.size; ns++, sub1++, offset1++) {
+    for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++, offset1++) {
         double u1 = 1;
         double u2 = 0;
         center_intersection(*sub0, *offset0, *sub1, *offset1, u1, u2);
@@ -1349,7 +1349,7 @@ void RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result
 }
 
 void RobustPath::to_gds(FILE *out, double scaling) const {
-    if (num_elements == 0 || subpath_array.size == 0) return;
+    if (num_elements == 0 || subpath_array.count == 0) return;
 
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -1359,13 +1359,13 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
 
     Array<int32_t> coords = {0};
     Array<Vec2> point_array = {0};
-    point_array.ensure_slots(subpath_array.size * MIN_POINTS);
+    point_array.ensure_slots(subpath_array.count * MIN_POINTS);
 
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -1407,11 +1407,11 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
         }
 
         element_center(el, point_array);
-        coords.ensure_slots(point_array.size * 2);
-        coords.size = point_array.size * 2;
+        coords.ensure_slots(point_array.count * 2);
+        coords.count = point_array.count * 2;
 
         double *offset_p = (double *)offsets.items;
-        for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
             fwrite(&width, sizeof(int32_t), 1, out);
             if (end_type == 4) {
@@ -1425,13 +1425,13 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             double *p = (double *)point_array.items;
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
-            for (uint64_t i = point_array.size; i > 0; i--) {
+            for (uint64_t i = point_array.count; i > 0; i--) {
                 *c++ = (int32_t)lround((*p++ + offset_x) * scaling);
                 *c++ = (int32_t)lround((*p++ + offset_y) * scaling);
             }
-            big_endian_swap32((uint32_t *)coords.items, coords.size);
+            big_endian_swap32((uint32_t *)coords.items, coords.count);
 
-            uint64_t total = point_array.size;
+            uint64_t total = point_array.count;
             uint64_t i0 = 0;
             while (i0 < total) {
                 uint64_t i1 = total < i0 + 8190 ? total : i0 + 8190;
@@ -1447,8 +1447,8 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
         }
 
-        point_array.size = 0;
-        coords.size = 0;
+        point_array.count = 0;
+        coords.count = 0;
     }
 
     coords.clear();
@@ -1457,12 +1457,12 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
 }
 
 void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
-    if (num_elements == 0 || subpath_array.size == 0) return;
+    if (num_elements == 0 || subpath_array.count == 0) return;
 
-    bool has_repetition = repetition.get_size() > 1;
+    bool has_repetition = repetition.get_count() > 1;
 
     Array<Vec2> point_array = {0};
-    point_array.ensure_slots(subpath_array.size * MIN_POINTS);
+    point_array.ensure_slots(subpath_array.count * MIN_POINTS);
 
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -1516,7 +1516,7 @@ void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
         if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
         properties_to_oas(properties, out, state);
 
-        point_array.size = 0;
+        point_array.count = 0;
     }
     point_array.clear();
 }
@@ -1524,7 +1524,7 @@ void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
 void RobustPath::to_svg(FILE *out, double scaling) const {
     Array<Polygon *> array = {0};
     to_polygons(array);
-    for (uint64_t i = 0; i < array.size; i++) {
+    for (uint64_t i = 0; i < array.count; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();
         free_allocation(array[i]);

@@ -9,7 +9,7 @@ static PyObject* rawcell_object_str(RawCellObject* self) {
     char buffer[256];
     snprintf(buffer, COUNT(buffer),
              "RawCell '%s' with %" PRIu64 " bytes and %" PRIu64 " dependencies",
-             self->rawcell->name, self->rawcell->size, self->rawcell->dependencies.size);
+             self->rawcell->name, self->rawcell->size, self->rawcell->dependencies.count);
     return PyUnicode_FromString(buffer);
 }
 
@@ -44,7 +44,7 @@ static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
     Map<RawCell*> rawcell_map = {0};
     self->rawcell->get_dependencies(recursive > 0, rawcell_map);
-    PyObject* result = PyList_New(rawcell_map.size);
+    PyObject* result = PyList_New(rawcell_map.count);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create list.");
         rawcell_map.clear();

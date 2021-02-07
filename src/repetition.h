@@ -45,7 +45,7 @@ struct Repetition {
     void print() const;
     void clear();
     void copy_from(const Repetition repetition);
-    uint64_t get_size() const;
+    uint64_t get_count() const;
     // NOTE: the coordinates for the original (0, 0) are includded as 1st element
     void get_offsets(Array<Vec2>& result) const;
     void get_extrema(Array<Vec2>& result) const;

@@ -55,7 +55,7 @@ enum struct OasisDataType : uint8_t {
     SignedInteger = 9,
     AString = 10,  // printable characters + space (0x20 through 0x7e)
     BString = 11,  // any bytes
-    NString = 12,  // printable characters (0x21 through 0x7e), size > 0
+    NString = 12,  // printable characters (0x21 through 0x7e), count > 0
     ReferenceA = 13,
     ReferenceB = 14,
     ReferenceN = 15
@@ -204,7 +204,7 @@ void oasis_write_real(OasisStream& out, double value);
 void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
                             bool polygon);
 
-// This should only be called with repetition.get_size() > 1
+// This should only be called with repetition.get_count() > 1
 void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling);
 
 }  // namespace gdstk

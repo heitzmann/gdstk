@@ -88,10 +88,10 @@ Vec2 eval_bezier2(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2);
 
 Vec2 eval_bezier3(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2, const Vec2 p3);
 
-Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t size);
+Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t count);
 
 // Defaults for tension and curl arguments should be 1
-void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angle_constraints,
+void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle);
 
 }  // namespace gdstk

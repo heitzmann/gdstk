@@ -69,7 +69,7 @@ static int64_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, con
         Py_DECREF(py_point);
         p++;
     }
-    dest.size = len;
+    dest.count = len;
     return len;
 }
 
@@ -92,7 +92,7 @@ static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, co
             return -1;
         }
     }
-    dest.size = len;
+    dest.count = len;
     return len;
 }
 
@@ -115,7 +115,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
             if (arg == NULL) {
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to retrieve item %" PRIu64 " from sequence %s.", i, name);
-                for (int64_t j = polygon_array.size - 1; j >= 0; j--) {
+                for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
                     polygon_array[j]->clear();
                     free_allocation(polygon_array[j]);
                 }
@@ -151,7 +151,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
             name);
         return -1;
     }
-    return polygon_array.size;
+    return polygon_array.count;
 }
 
 static int update_style(PyObject* dict, StyleMap& map, const char* name) {
@@ -185,7 +185,7 @@ static int update_style(PyObject* dict, StyleMap& map, const char* name) {
             return -1;
         }
 
-        buffer.size = 0;
+        buffer.count = 0;
         PyObject* key;
         PyObject* value;
         Py_ssize_t i = 0;
@@ -211,11 +211,11 @@ static int update_style(PyObject* dict, StyleMap& map, const char* name) {
             }
 
             buffer.ensure_slots(key_len + value_len + 2);
-            memcpy(buffer.items + buffer.size, key_str, key_len);
-            buffer.size += key_len;
+            memcpy(buffer.items + buffer.count, key_str, key_len);
+            buffer.count += key_len;
             buffer.append(':');
-            memcpy(buffer.items + buffer.size, value_str, value_len);
-            buffer.size += value_len;
+            memcpy(buffer.items + buffer.count, value_str, value_len);
+            buffer.count += value_len;
             buffer.append(';');
         }
         buffer.append('\0');
@@ -259,7 +259,7 @@ static PyObject* build_properties(Property* properties) {
                     break;
                 case PropertyType::String:
                     py_value =
-                        PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->size);
+                        PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->count);
             }
             if (!py_value) {
                 PyErr_SetString(PyExc_RuntimeError, "Unable to convert property value to object.");
@@ -296,7 +296,7 @@ static PyObject* build_property(Property* properties, PyObject* args) {
                 py_value = PyFloat_FromDouble(value->real);
                 break;
             case PropertyType::String:
-                py_value = PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->size);
+                py_value = PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->count);
         }
         if (!py_value) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert property value to object.");
@@ -337,7 +337,7 @@ static bool add_value(PropertyValue* value, PyObject* item) {
         const char* string = PyUnicode_AsUTF8AndSize(item, &string_len);
         if (!string) return false;
         value->type = PropertyType::String;
-        value->size = (uint64_t)string_len;
+        value->count = (uint64_t)string_len;
         value->bytes = (uint8_t*)allocate(string_len);
         memcpy(value->bytes, string, string_len);
         return true;
@@ -345,7 +345,7 @@ static bool add_value(PropertyValue* value, PyObject* item) {
         char* string = NULL;
         PyBytes_AsStringAndSize(item, &string, &string_len);
         value->type = PropertyType::String;
-        value->size = (uint64_t)string_len;
+        value->count = (uint64_t)string_len;
         value->bytes = (uint8_t*)allocate(string_len);
         memcpy(value->bytes, string, string_len);
         return true;
@@ -359,15 +359,15 @@ static int parse_properties(Property*& properties, PyObject* arg) {
         PyErr_SetString(PyExc_TypeError, "Properties must be a sequence.");
         return -1;
     }
-    int64_t size = PySequence_Size(arg);
-    if (size < 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to get sequence size.");
+    int64_t count = PySequence_Size(arg);
+    if (count < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to get sequence count.");
         return -1;
     }
-    for (size--; size >= 0; size--) {
-        PyObject* py_property = PySequence_ITEM(arg, size);
+    for (count--; count >= 0; count--) {
+        PyObject* py_property = PySequence_ITEM(arg, count);
         if (!py_property) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get sequence item %" PRId64 ".", size);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get sequence item %" PRId64 ".", count);
             return -1;
         }
         if (!PySequence_Check(py_property)) {
@@ -385,7 +385,7 @@ static int parse_properties(Property*& properties, PyObject* arg) {
 
         PyObject* item = PySequence_ITEM(py_property, 0);
         if (!item) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get property %" PRId64 " name.", size);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get property %" PRId64 " name.", count);
             Py_DECREF(py_property);
             return -1;
         }
@@ -399,7 +399,8 @@ static int parse_properties(Property*& properties, PyObject* arg) {
         Py_ssize_t string_len = 0;
         const char* name = PyUnicode_AsUTF8AndSize(item, &string_len);
         if (!name) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get name from property %" PRId64 ".", size);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get name from property %" PRId64 ".",
+                         count);
             Py_DECREF(py_property);
             Py_DECREF(item);
             return -1;
@@ -417,7 +418,7 @@ static int parse_properties(Property*& properties, PyObject* arg) {
             item = PySequence_ITEM(py_property, num_values);
             if (!item) {
                 PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get property %" PRId64 " item %" PRId64 ".", size,
+                             "Unable to get property %" PRId64 " item %" PRId64 ".", count,
                              num_values);
                 Py_DECREF(py_property);
                 return -1;
@@ -429,7 +430,7 @@ static int parse_properties(Property*& properties, PyObject* arg) {
                 PyErr_Format(PyExc_RuntimeError,
                              "Item %" PRId64 " from property %" PRId64
                              " could not be converted to integer, float, or string.",
-                             num_values, size);
+                             num_values, count);
                 Py_DECREF(item);
                 Py_DECREF(py_property);
                 return -1;
@@ -458,29 +459,30 @@ static bool parse_property(Property*& properties, PyObject* args) {
             "Property value must be integer, float, string, bytes, or sequence of those.");
         return false;
     }
-    int64_t size = PySequence_Size(py_value);
-    if (size < 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to get sequence size.");
+    int64_t count = PySequence_Size(py_value);
+    if (count < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to get sequence count.");
         return false;
-    } else if (size == 0) {
+    } else if (count == 0) {
         PyErr_SetString(PyExc_RuntimeError, "No values found in property sequence.");
         return false;
     }
-    for (size--; size >= 0; size--) {
-        PyObject* item = PySequence_ITEM(py_value, size);
+    for (count--; count >= 0; count--) {
+        PyObject* item = PySequence_ITEM(py_value, count);
         if (!item) {
-            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 ".", size);
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRId64 ".", count);
             return false;
         }
         if (!add_value(property->value, item)) {
-            PyErr_Format(
-                PyExc_RuntimeError,
-                "Item %" PRId64 " from could not be converted to integer, float, or string.", size);
+            PyErr_Format(PyExc_RuntimeError,
+                         "Item %" PRId64
+                         " from could not be converted to integer, float, or string.",
+                         count);
             Py_DECREF(item);
             return false;
         }
         Py_DECREF(item);
-        if (size > 0) {
+        if (count > 0) {
             PropertyValue* value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));
             value->next = property->value;
             property->value = value;

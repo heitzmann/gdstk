@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     waveguide.segment(Vec2{-100, -150}, &w, NULL, false);
 
     Vec2 p[] = {{-70, -150}, {-70, -1}, {-40, -1}};
-    waveguide.segment({.size = COUNT(p), .items = p}, NULL, NULL, false);
+    waveguide.segment({.count = COUNT(p), .items = p}, NULL, NULL, false);
 
     char wg_cell_name[] = "Waveguide";
     Cell wg_cell = {.name = wg_cell_name};
@@ -127,7 +127,7 @@ int main(int argc, char* argv[]) {
         },
     };
     Reference* wg_ref_p[] = {wg_ref, wg_ref + 1, wg_ref + 2, wg_ref + 3};
-    dev_cell.reference_array.extend({.size = 4, .items = wg_ref_p});
+    dev_cell.reference_array.extend({.count = 4, .items = wg_ref_p});
 
     char main_cell_name[] = "Main";
     Cell main_cell = {.name = main_cell_name};
@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
         },
     };
     Reference* dev_ref_p[] = {dev_ref, dev_ref + 1, dev_ref + 2};
-    main_cell.reference_array.extend({.size = 3, .items = dev_ref_p});
+    main_cell.reference_array.extend({.count = 3, .items = dev_ref_p});
 
     char lib_name[] = "library";
     Library lib = {.name = lib_name, .unit = unit, .precision = precision};

@@ -32,7 +32,7 @@ struct PropertyValue {
         int64_t integer;
         double real;
         struct {
-            uint64_t size;
+            uint64_t count;
             uint8_t* bytes;
         };
     };
@@ -61,7 +61,7 @@ void set_property(Property*& properties, const char* name, int64_t integer, bool
 void set_property(Property*& properties, const char* name, double real, bool create_new);
 // The null byte at the end of string is NOT included in the property value.
 void set_property(Property*& properties, const char* name, const char* string, bool create_new);
-void set_property(Property*& properties, const char* name, const uint8_t* bytes, uint64_t size,
+void set_property(Property*& properties, const char* name, const uint8_t* bytes, uint64_t count,
                   bool create_new);
 
 // Overwrite properties with the same attribute number. The null byte is included in the property

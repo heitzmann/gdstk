@@ -127,8 +127,8 @@ static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject* 
 static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject* args) {
     Array<Reference*> array = {0};
     self->reference->apply_repetition(array);
-    PyObject* result = PyList_New(array.size);
-    for (uint64_t i = 0; i < array.size; i++) {
+    PyObject* result = PyList_New(array.count);
+    for (uint64_t i = 0; i < array.count; i++) {
         ReferenceObject* obj = PyObject_New(ReferenceObject, &reference_object_type);
         obj = (ReferenceObject*)PyObject_Init((PyObject*)obj, &reference_object_type);
         obj->reference = array[i];

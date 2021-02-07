@@ -790,8 +790,8 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     Array<Polygon*> array = {0};
     text(s, size, position, vertical > 0, layer, datatype, array);
 
-    PyObject* result = PyList_New(array.size);
-    for (uint64_t i = 0; i < array.size; i++) {
+    PyObject* result = PyList_New(array.count);
+    for (uint64_t i = 0; i < array.count; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = array[i];
@@ -840,8 +840,8 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     offset(polygon_array, distance, offset_join, tolerance, 1 / precision, use_union > 0,
            result_array);
 
-    PyObject* result = PyList_New(result_array.size);
-    for (uint64_t i = 0; i < result_array.size; i++) {
+    PyObject* result = PyList_New(result_array.count);
+    for (uint64_t i = 0; i < result_array.count; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = result_array[i];
@@ -851,7 +851,7 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
 
-    for (uint64_t j = 0; j < polygon_array.size; j++) {
+    for (uint64_t j = 0; j < polygon_array.count; j++) {
         polygon_array[j]->clear();
         free_allocation(polygon_array[j]);
     }
@@ -893,7 +893,7 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     Array<Polygon*> polygon_array2 = {0};
     if (parse_polygons(py_polygons1, polygon_array1, "operand1") < 0) return NULL;
     if (parse_polygons(py_polygons2, polygon_array2, "operand2") < 0) {
-        for (uint64_t j = 0; j < polygon_array1.size; j++) {
+        for (uint64_t j = 0; j < polygon_array1.count; j++) {
             polygon_array1[j]->clear();
             free_allocation(polygon_array1[j]);
         }
@@ -904,8 +904,8 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     Array<Polygon*> result_array = {0};
     boolean(polygon_array1, polygon_array2, oper, 1 / precision, result_array);
 
-    PyObject* result = PyList_New(result_array.size);
-    for (uint64_t i = 0; i < result_array.size; i++) {
+    PyObject* result = PyList_New(result_array.count);
+    for (uint64_t i = 0; i < result_array.count; i++) {
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = result_array[i];
@@ -915,11 +915,11 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
 
-    for (uint64_t j = 0; j < polygon_array1.size; j++) {
+    for (uint64_t j = 0; j < polygon_array1.count; j++) {
         polygon_array1[j]->clear();
         free_allocation(polygon_array1[j]);
     }
-    for (uint64_t j = 0; j < polygon_array2.size; j++) {
+    for (uint64_t j = 0; j < polygon_array2.count; j++) {
         polygon_array2[j]->clear();
         free_allocation(polygon_array2[j]);
     }
@@ -961,7 +961,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
             return NULL;
         }
         positions.items = &single_position;
-        positions.size = 1;
+        positions.count = 1;
     }
 
     Array<Polygon*> polygon_array = {0};
@@ -970,7 +970,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
         return NULL;
     }
 
-    PyObject* result = PyList_New(positions.size + 1);
+    PyObject* result = PyList_New(positions.count + 1);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
         if (positions.items != &single_position) positions.clear();
@@ -978,21 +978,21 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     }
 
     Array<PyObject*> parts = {0};
-    parts.ensure_slots(positions.size + 1);
-    for (uint64_t s = 0; s <= positions.size; s++) {
+    parts.ensure_slots(positions.count + 1);
+    for (uint64_t s = 0; s <= positions.count; s++) {
         parts[s] = PyList_New(0);
         PyList_SET_ITEM(result, s, parts[s]);
     }
 
-    for (uint64_t i = 0; i < polygon_array.size; i++) {
+    for (uint64_t i = 0; i < polygon_array.count; i++) {
         uint32_t layer = polygon_array[i]->layer;
         uint32_t datatype = polygon_array[i]->datatype;
         Array<Polygon*>* slices =
-            (Array<Polygon*>*)allocate_clear((positions.size + 1) * sizeof(Array<Polygon*>));
+            (Array<Polygon*>*)allocate_clear((positions.count + 1) * sizeof(Array<Polygon*>));
         slice(*polygon_array[i], positions, x_axis, 1 / precision, slices);
         Array<Polygon*>* slice_array = slices;
-        for (uint64_t s = 0; s <= positions.size; s++, slice_array++) {
-            for (uint64_t j = 0; j < slice_array->size; j++) {
+        for (uint64_t s = 0; s <= positions.count; s++, slice_array++) {
+            for (uint64_t j = 0; j < slice_array->count; j++) {
                 PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
                 obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
                 obj->polygon = slice_array->items[j];
@@ -1044,7 +1044,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         Py_DECREF(item);
         sc = ShortCircuit::None;
         points.ensure_slots(1);
-        points.size = 1;
+        points.count = 1;
         points[0] = (Polygon*)allocate_clear(sizeof(Polygon));
         if (parse_point_sequence(py_points, points[0]->point_array, "") < 0) {
             free_allocation(points[0]);
@@ -1060,7 +1060,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         sc = ShortCircuit::Any;
         uint64_t num_groups = PySequence_Length(py_points);
         points.ensure_slots(num_groups);
-        points.size = num_groups;
+        points.count = num_groups;
         for (uint64_t j = 0; j < num_groups; j++) {
             points[j] = (Polygon*)allocate_clear(sizeof(Polygon));
             item = PySequence_ITEM(py_points, j);
@@ -1089,7 +1089,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         else {
             PyErr_SetString(PyExc_RuntimeError,
                             "Argument short_circuit must be 'none', 'any' or 'all'.");
-            for (uint64_t j = 0; j < points.size; j++) {
+            for (uint64_t j = 0; j < points.count; j++) {
                 points[j]->clear();
                 free_allocation(points[j]);
             }
@@ -1100,7 +1100,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
 
     Array<Polygon*> polygon_array = {0};
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) {
-        for (uint64_t j = 0; j < points.size; j++) {
+        for (uint64_t j = 0; j < points.count; j++) {
             points[j]->clear();
             free_allocation(points[j]);
         }
@@ -1111,13 +1111,13 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     Array<bool> result_array = {0};
     inside(points, polygon_array, sc, 1 / precision, result_array);
 
-    PyObject* result = PyTuple_New(result_array.size);
+    PyObject* result = PyTuple_New(result_array.count);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
         return NULL;
     }
     bool* r_item = result_array.items;
-    for (uint64_t i = 0; i < result_array.size; i++) {
+    for (uint64_t i = 0; i < result_array.count; i++) {
         if (*r_item++) {
             Py_INCREF(Py_True);
             PyTuple_SET_ITEM(result, i, Py_True);
@@ -1128,13 +1128,13 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     }
     result_array.clear();
 
-    for (uint64_t j = 0; j < polygon_array.size; j++) {
+    for (uint64_t j = 0; j < polygon_array.count; j++) {
         polygon_array[j]->clear();
         free_allocation(polygon_array[j]);
     }
     polygon_array.clear();
 
-    for (uint64_t j = 0; j < polygon_array.size; j++) {
+    for (uint64_t j = 0; j < polygon_array.count; j++) {
         points[j]->clear();
         free_allocation(points[j]);
     }
@@ -1150,14 +1150,14 @@ static PyObject* link_library(Library* library) {
     library->owner = result;
 
     Cell** cell = library->cell_array.items;
-    for (uint64_t i = 0; i < library->cell_array.size; i++, cell++) {
+    for (uint64_t i = 0; i < library->cell_array.count; i++, cell++) {
         CellObject* cell_obj = PyObject_New(CellObject, &cell_object_type);
         cell_obj = (CellObject*)PyObject_Init((PyObject*)cell_obj, &cell_object_type);
         cell_obj->cell = *cell;
         cell_obj->cell->owner = cell_obj;
 
         Polygon** polygon = (*cell)->polygon_array.items;
-        for (uint64_t j = 0; j < (*cell)->polygon_array.size; j++, polygon++) {
+        for (uint64_t j = 0; j < (*cell)->polygon_array.count; j++, polygon++) {
             PolygonObject* polygon_obj = PyObject_New(PolygonObject, &polygon_object_type);
             polygon_obj =
                 (PolygonObject*)PyObject_Init((PyObject*)polygon_obj, &polygon_object_type);
@@ -1166,7 +1166,7 @@ static PyObject* link_library(Library* library) {
         }
 
         FlexPath** flexpath = (*cell)->flexpath_array.items;
-        for (uint64_t j = 0; j < (*cell)->flexpath_array.size; j++, flexpath++) {
+        for (uint64_t j = 0; j < (*cell)->flexpath_array.count; j++, flexpath++) {
             FlexPathObject* flexpath_obj = PyObject_New(FlexPathObject, &flexpath_object_type);
             flexpath_obj =
                 (FlexPathObject*)PyObject_Init((PyObject*)flexpath_obj, &flexpath_object_type);
@@ -1175,7 +1175,7 @@ static PyObject* link_library(Library* library) {
         }
 
         RobustPath** robustpath = (*cell)->robustpath_array.items;
-        for (uint64_t j = 0; j < (*cell)->robustpath_array.size; j++, robustpath++) {
+        for (uint64_t j = 0; j < (*cell)->robustpath_array.count; j++, robustpath++) {
             RobustPathObject* robustpath_obj =
                 PyObject_New(RobustPathObject, &robustpath_object_type);
             robustpath_obj = (RobustPathObject*)PyObject_Init((PyObject*)robustpath_obj,
@@ -1185,7 +1185,7 @@ static PyObject* link_library(Library* library) {
         }
 
         Reference** reference = (*cell)->reference_array.items;
-        for (uint64_t j = 0; j < (*cell)->reference_array.size; j++, reference++) {
+        for (uint64_t j = 0; j < (*cell)->reference_array.count; j++, reference++) {
             ReferenceObject* reference_obj = PyObject_New(ReferenceObject, &reference_object_type);
             reference_obj =
                 (ReferenceObject*)PyObject_Init((PyObject*)reference_obj, &reference_object_type);
@@ -1194,7 +1194,7 @@ static PyObject* link_library(Library* library) {
         }
 
         Label** label = (*cell)->label_array.items;
-        for (uint64_t j = 0; j < (*cell)->label_array.size; j++, label++) {
+        for (uint64_t j = 0; j < (*cell)->label_array.count; j++, label++) {
             LabelObject* label_obj = PyObject_New(LabelObject, &label_object_type);
             label_obj = (LabelObject*)PyObject_Init((PyObject*)label_obj, &label_object_type);
             label_obj->label = *label;
@@ -1203,9 +1203,9 @@ static PyObject* link_library(Library* library) {
     }
 
     cell = library->cell_array.items;
-    for (uint64_t i = 0; i < library->cell_array.size; i++, cell++) {
+    for (uint64_t i = 0; i < library->cell_array.count; i++, cell++) {
         Reference** reference = (*cell)->reference_array.items;
-        for (uint64_t j = 0; j < (*cell)->reference_array.size; j++, reference++)
+        for (uint64_t j = 0; j < (*cell)->reference_array.count; j++, reference++)
             Py_INCREF((*reference)->cell->owner);
     }
 

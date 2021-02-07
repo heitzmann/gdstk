@@ -180,12 +180,12 @@ Vec2 eval_bezier3(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2, const V
     return result;
 }
 
-Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t size) {
+Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t count) {
     Vec2 result;
-    Vec2* p = (Vec2*)allocate(sizeof(Vec2) * size);
-    memcpy(p, ctrl, sizeof(Vec2) * size);
+    Vec2* p = (Vec2*)allocate(sizeof(Vec2) * count);
+    memcpy(p, ctrl, sizeof(Vec2) * count);
     const double r = 1 - t;
-    for (uint64_t j = size - 1; j > 0; j--)
+    for (uint64_t j = count - 1; j > 0; j--)
         for (uint64_t i = 0; i < j; i++) p[i] = r * p[i] + t * p[i + 1];
     result = p[0];
     free_allocation(p);
@@ -193,13 +193,13 @@ Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t size) {
 }
 
 // Calculated control points `a` and `b` are stored in `points`, which must
-// have the appropriate size and layout:
-// points[3 * size] = {p[0], ca[0], cb[0],
+// have the appropriate count and layout:
+// points[3 * count] = {p[0], ca[0], cb[0],
 //                     p[1], ca[1], cb[1],
 //                     ...,
-//                     p[size - 1], ca[size - 1], cb[size - 1]};
+//                     p[count - 1], ca[count - 1], cb[count - 1]};
 // The last controls are only present if `cycle == true`.
-void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angle_constraints,
+void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle) {
     const int nrhs = 1;
     const double A = sqrt(2.0);
@@ -207,34 +207,34 @@ void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angl
     const double C = 0.5 * (3.0 - sqrt(5.0));
 
     int info = 0;
-    int* ipiv = (int*)allocate(sizeof(int) * 2 * size);
-    double* a = (double*)allocate(sizeof(double) * (4 * size * size + 2 * size));
-    double* b = a + 4 * size * size;
+    int* ipiv = (int*)allocate(sizeof(int) * 2 * count);
+    double* a = (double*)allocate(sizeof(double) * (4 * count * count + 2 * count));
+    double* b = a + 4 * count * count;
 
     Vec2* pts = points;
     Vec2* tens = tension;
     double* ang = angles;
     bool* ang_c = angle_constraints;
-    uint64_t points_size = size;
+    uint64_t points_size = count;
 
     uint64_t rotate = 0;
     if (cycle) {
-        while (rotate < size && !angle_constraints[rotate]) rotate++;
-        if (rotate == size) {
+        while (rotate < count && !angle_constraints[rotate]) rotate++;
+        if (rotate == count) {
             // No angle constraints
-            const uint64_t dim = 2 * size;
+            const uint64_t dim = 2 * count;
             Vec2 v = points[3] - points[0];
-            Vec2 v_prev = points[0] - points[3 * (size - 1)];
+            Vec2 v_prev = points[0] - points[3 * (count - 1)];
             double length_v = v.length();
             double delta_prev = v_prev.angle();
             memset(a, 0, sizeof(double) * dim * dim);
-            for (uint64_t i = 0; i < size; i++) {
-                const uint64_t i_1 = i == 0 ? size - 1 : i - 1;
-                const uint64_t i1 = i == size - 1 ? 0 : i + 1;
-                const uint64_t i2 = i < size - 2 ? i + 2 : (i == size - 2 ? 0 : 1);
-                const uint64_t j = size + i;
-                const uint64_t j_1 = size + i_1;
-                const uint64_t j1 = size + i1;
+            for (uint64_t i = 0; i < count; i++) {
+                const uint64_t i_1 = i == 0 ? count - 1 : i - 1;
+                const uint64_t i1 = i == count - 1 ? 0 : i + 1;
+                const uint64_t i2 = i < count - 2 ? i + 2 : (i == count - 2 ? 0 : 1);
+                const uint64_t j = count + i;
+                const uint64_t j_1 = count + i_1;
+                const uint64_t j1 = count + i1;
 
                 const double delta = v.angle();
                 const Vec2 v_next = points[3 * i2] - points[3 * i1];
@@ -267,15 +267,15 @@ void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angl
 
             dgesv_((const int*)&dim, &nrhs, a, (const int*)&dim, ipiv, b, (const int*)&dim, &info);
             double* theta = b;
-            double* phi = b + size;
+            double* phi = b + count;
 
             Vec2* cta = points + 1;
             Vec2* ctb = points + 2;
             v = points[3] - points[0];
             Vec2 w = cplx_from_angle(theta[0] + v.angle());
-            for (uint64_t i = 0; i < size; i++, cta += 3, ctb += 3) {
-                const uint64_t i1 = i == size - 1 ? 0 : i + 1;
-                const uint64_t i2 = i < size - 2 ? i + 2 : (i == size - 2 ? 0 : 1);
+            for (uint64_t i = 0; i < count; i++, cta += 3, ctb += 3) {
+                const uint64_t i1 = i == count - 1 ? 0 : i + 1;
+                const uint64_t i2 = i < count - 2 ? i + 2 : (i == count - 2 ? 0 : 1);
                 const double st = sin(theta[i]);
                 const double ct = cos(theta[i]);
                 const double sp = sin(phi[i]);
@@ -304,20 +304,20 @@ void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angl
         points_size++;
 
         pts = (Vec2*)allocate(sizeof(Vec2) * 3 * points_size);
-        memcpy(pts, points + 3 * rotate, sizeof(Vec2) * 3 * (size - rotate));
-        memcpy(pts + 3 * (size - rotate), points, sizeof(Vec2) * 3 * (rotate + 1));
+        memcpy(pts, points + 3 * rotate, sizeof(Vec2) * 3 * (count - rotate));
+        memcpy(pts + 3 * (count - rotate), points, sizeof(Vec2) * 3 * (rotate + 1));
 
         tens = (Vec2*)allocate(sizeof(Vec2) * points_size);
-        memcpy(tens, tension + rotate, sizeof(Vec2) * (size - rotate));
-        memcpy(tens + size - rotate, tension, sizeof(Vec2) * (rotate + 1));
+        memcpy(tens, tension + rotate, sizeof(Vec2) * (count - rotate));
+        memcpy(tens + count - rotate, tension, sizeof(Vec2) * (rotate + 1));
 
         ang = (double*)allocate(sizeof(double) * points_size);
-        memcpy(ang, angles + rotate, sizeof(double) * (size - rotate));
-        memcpy(ang + size - rotate, angles, sizeof(double) * (rotate + 1));
+        memcpy(ang, angles + rotate, sizeof(double) * (count - rotate));
+        memcpy(ang + count - rotate, angles, sizeof(double) * (rotate + 1));
 
         ang_c = (bool*)allocate(sizeof(bool) * points_size);
-        memcpy(ang_c, angle_constraints + rotate, sizeof(bool) * (size - rotate));
-        memcpy(ang_c + size - rotate, angle_constraints, sizeof(bool) * (rotate + 1));
+        memcpy(ang_c, angle_constraints + rotate, sizeof(bool) * (count - rotate));
+        memcpy(ang_c + count - rotate, angle_constraints, sizeof(bool) * (rotate + 1));
     }
 
     {
@@ -438,7 +438,7 @@ void hobby_interpolation(uint64_t size, Vec2* points, double* angles, bool* angl
         for (uint64_t ii = 0; ii < n; ii++) {
             const uint64_t i1 = ii + 1;
             const uint64_t i2 = ii == n - 1 ? 0 : ii + 2;
-            const uint64_t ci = ii + rotate >= size ? ii + rotate - size : ii + rotate;
+            const uint64_t ci = ii + rotate >= count ? ii + rotate - count : ii + rotate;
             const double st = sin(theta[ii]);
             const double ct = cos(theta[ii]);
             const double sp = sin(phi[ii]);

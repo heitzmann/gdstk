@@ -23,7 +23,7 @@ struct Style {
 
 struct StyleMap {
     uint64_t capacity;
-    uint64_t size;
+    uint64_t count;
     Style* style;
 
     void clear();

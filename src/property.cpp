@@ -40,7 +40,7 @@ void properties_print(Property* properties) {
                 case PropertyType::String: {
                     putchar(' ');
                     uint8_t* c = value->bytes;
-                    for (uint64_t i = 0; i < value->size; i++, c++)
+                    for (uint64_t i = 0; i < value->count; i++, c++)
                         if (*c >= 0x20 && *c < 0x7f)
                             putchar(*c);
                         else
@@ -105,9 +105,9 @@ PropertyValue* property_values_copy(const PropertyValue* values) {
                 dst->real = values->real;
                 break;
             case PropertyType::String: {
-                dst->size = values->size;
-                dst->bytes = (uint8_t*)allocate(dst->size);
-                memcpy(dst->bytes, values->bytes, dst->size);
+                dst->count = values->count;
+                dst->bytes = (uint8_t*)allocate(dst->count);
+                memcpy(dst->bytes, values->bytes, dst->count);
             }
         }
         dst->next = NULL;
@@ -178,18 +178,18 @@ void set_property(Property*& properties, const char* name, double real, bool cre
 void set_property(Property*& properties, const char* name, const char* string, bool create_new) {
     PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
-    value->size = strlen(string);
-    value->bytes = (uint8_t*)allocate(value->size);
-    memcpy(value->bytes, string, value->size);
+    value->count = strlen(string);
+    value->bytes = (uint8_t*)allocate(value->count);
+    memcpy(value->bytes, string, value->count);
 }
 
-void set_property(Property*& properties, const char* name, const uint8_t* bytes, uint64_t size,
+void set_property(Property*& properties, const char* name, const uint8_t* bytes, uint64_t count,
                   bool create_new) {
     PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
-    value->size = size;
-    value->bytes = (uint8_t*)allocate(size);
-    memcpy(value->bytes, bytes, size);
+    value->count = count;
+    value->bytes = (uint8_t*)allocate(count);
+    memcpy(value->bytes, bytes, count);
 }
 
 void set_gds_property(Property*& properties, uint16_t attribute, const char* value) {
@@ -199,9 +199,9 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
     for (; property; property = property->next) {
         if (is_gds_property(property) && property->value->unsigned_integer == attribute) {
             gds_value = property->value->next;
-            gds_value->size = strlen(value) + 1;
-            gds_value->bytes = (uint8_t*)reallocate(gds_value->bytes, gds_value->size);
-            memcpy(gds_value->bytes, value, gds_value->size);
+            gds_value->count = strlen(value) + 1;
+            gds_value->bytes = (uint8_t*)reallocate(gds_value->bytes, gds_value->count);
+            memcpy(gds_value->bytes, value, gds_value->count);
             return;
         }
     }
@@ -211,7 +211,7 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
     gds_attribute->unsigned_integer = attribute;
     gds_attribute->next = gds_value;
     gds_value->type = PropertyType::String;
-    gds_value->bytes = (uint8_t*)copy_string(value, gds_value->size);
+    gds_value->bytes = (uint8_t*)copy_string(value, gds_value->count);
     gds_value->next = NULL;
     property = (Property*)allocate(sizeof(Property));
     property->name = (char*)allocate(COUNT(gds_property_name));
@@ -280,12 +280,12 @@ PropertyValue* get_gds_property(Property* properties, uint16_t attribute) {
 }
 
 void properties_to_gds(const Property* properties, FILE* out) {
-    uint64_t size = 0;
+    uint64_t count = 0;
     for (; properties; properties = properties->next) {
         if (!is_gds_property(properties)) continue;
         PropertyValue* attribute = properties->value;
         PropertyValue* value = attribute->next;
-        uint64_t len = value->size;
+        uint64_t len = value->count;
         uint8_t* bytes = value->bytes;
         bool free_bytes = false;
         if (len % 2) {
@@ -301,16 +301,16 @@ void properties_to_gds(const Property* properties, FILE* out) {
 
         uint16_t buffer_prop[] = {6, 0x2B02, (uint16_t)attribute->unsigned_integer,
                                   (uint16_t)(4 + len), 0x2C06};
-        size += len;
+        count += len;
         big_endian_swap16(buffer_prop, COUNT(buffer_prop));
         fwrite(buffer_prop, sizeof(uint16_t), COUNT(buffer_prop), out);
         fwrite(bytes, 1, len, out);
 
         if (free_bytes) free_allocation(bytes);
     }
-    if (size > 128)
+    if (count > 128)
         fputs(
-            "[GDSTK] Properties with size larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
+            "[GDSTK] Properties with count larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
             stderr);
 }
 
@@ -334,7 +334,7 @@ void properties_to_oas(const Property* properties, OasisStream& out, OasisState&
         if (state.property_name_map.has_key(properties->name)) {
             index = state.property_name_map.get(properties->name);
         } else {
-            index = state.property_name_map.size;
+            index = state.property_name_map.count;
             state.property_name_map.set(properties->name, index);
         }
         oasis_write_unsigned_integer(out, index);
@@ -361,7 +361,7 @@ void properties_to_oas(const Property* properties, OasisStream& out, OasisState&
                     bool space = false;
                     bool binary = false;
                     uint8_t* byte = value->bytes;
-                    for (uint64_t i = value->size; i > 0; i--, byte++) {
+                    for (uint64_t i = value->count; i > 0; i--, byte++) {
                         if (*byte < 0x20 || *byte > 0x7E) {
                             binary = true;
                             break;
@@ -376,13 +376,13 @@ void properties_to_oas(const Property* properties, OasisStream& out, OasisState&
                     } else {
                         oasis_putc(15, out);
                     }
-                    for (index = 0; index < state.property_value_array.size; index++) {
+                    for (index = 0; index < state.property_value_array.count; index++) {
                         PropertyValue* it = state.property_value_array[index];
-                        if (it->size == value->size &&
-                            memcmp(it->bytes, value->bytes, it->size) == 0)
+                        if (it->count == value->count &&
+                            memcmp(it->bytes, value->bytes, it->count) == 0)
                             break;
                     }
-                    if (index == state.property_value_array.size)
+                    if (index == state.property_value_array.count)
                         state.property_value_array.append(value);
                     oasis_write_unsigned_integer(out, index);
                 }

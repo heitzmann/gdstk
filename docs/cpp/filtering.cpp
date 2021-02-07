@@ -18,15 +18,15 @@ int main(int argc, char* argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    for (int64_t i = 0; i < lib.cell_array.size; i++) {
+    for (int64_t i = 0; i < lib.cell_array.count; i++) {
         Cell* cell = lib.cell_array[i];
-        for (int64_t j = 0; j < cell->polygon_array.size; j++) {
+        for (int64_t j = 0; j < cell->polygon_array.count; j++) {
             Polygon* poly = cell->polygon_array[j];
             // Decrement j so that we don't skip over the next polygon.
             if (poly->layer == 2) cell->polygon_array.remove(j--);
         }
         // Loaded libraries have no RobustPath elements
-        for (int64_t j = 0; j < cell->flexpath_array.size; j++) {
+        for (int64_t j = 0; j < cell->flexpath_array.count; j++) {
             FlexPath* fp = cell->flexpath_array[j];
             // All paths in loaded libraries have only 1 element.
             // Decrement j so that we don't skip over the next path.

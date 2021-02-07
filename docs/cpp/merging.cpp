@@ -88,9 +88,9 @@ int main(int argc, char* argv[]) {
     Library lib2 = read_gds("lib2.gds", 0, 1e-2);
 
     // We could use a hash table to make this more efficient, but we're aiming for simplicity
-    for (uint64_t i = 0; i < lib2.cell_array.size; i++) {
+    for (uint64_t i = 0; i < lib2.cell_array.count; i++) {
         Cell* cell = lib2.cell_array[i];
-        for (uint64_t j = 0; j < lib1.cell_array.size; j++) {
+        for (uint64_t j = 0; j < lib1.cell_array.count; j++) {
             if (strcmp(cell->name, lib1.cell_array[j]->name) == 0) {
                 uint64_t len = strlen(cell->name);
                 cell->name = (char*)reallocate(cell->name, len + 5);

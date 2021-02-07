@@ -33,7 +33,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 struct ByteArray {
-    uint64_t size;
+    uint64_t count;
     uint8_t* bytes;
     Property* properties;
 };
@@ -41,13 +41,13 @@ struct ByteArray {
 void Library::print(bool all) const {
     printf("Library <%p> %s, unit %lg, precision %lg, %" PRIu64 " cells, %" PRIu64
            " raw cells, owner <%p>\n",
-           this, name, unit, precision, cell_array.size, rawcell_array.size, owner);
+           this, name, unit, precision, cell_array.count, rawcell_array.count, owner);
     if (all) {
-        for (uint64_t i = 0; i < cell_array.size; i++) {
+        for (uint64_t i = 0; i < cell_array.count; i++) {
             printf("{%" PRIu64 "} ", i);
             cell_array[i]->print(true);
         }
-        for (uint64_t i = 0; i < rawcell_array.size; i++) {
+        for (uint64_t i = 0; i < rawcell_array.count; i++) {
             printf("{%" PRIu64 "} ", i);
             rawcell_array[i]->print(true);
         }
@@ -62,11 +62,11 @@ void Library::copy_from(const Library& library, bool deep_copy) {
     precision = library.precision;
     if (deep_copy) {
         cell_array.capacity = library.cell_array.capacity;
-        cell_array.size = library.cell_array.size;
+        cell_array.count = library.cell_array.count;
         cell_array.items = (Cell**)allocate(sizeof(Cell*) * cell_array.capacity);
         Cell** src = library.cell_array.items;
         Cell** dst = cell_array.items;
-        for (uint64_t i = 0; i < library.cell_array.size; i++, src++, dst++) {
+        for (uint64_t i = 0; i < library.cell_array.count; i++, src++, dst++) {
             *dst = (Cell*)allocate_clear(sizeof(Cell));
             (*dst)->copy_from(**src, NULL, true);
         }
@@ -80,29 +80,29 @@ void Library::copy_from(const Library& library, bool deep_copy) {
 void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const {
     Map<Cell*> cell_deps = {0};
     Map<RawCell*> rawcell_deps = {0};
-    cell_deps.resize(cell_array.size * 2);
-    rawcell_deps.resize(rawcell_array.size * 2);
+    cell_deps.resize(cell_array.count * 2);
+    rawcell_deps.resize(rawcell_array.count * 2);
 
     Cell** c_item = cell_array.items;
-    for (uint64_t i = 0; i < cell_array.size; i++, c_item++) {
+    for (uint64_t i = 0; i < cell_array.count; i++, c_item++) {
         Cell* cell = *c_item;
         cell->get_dependencies(false, cell_deps);
         cell->get_raw_dependencies(false, rawcell_deps);
     }
 
     RawCell** r_item = rawcell_array.items;
-    for (uint64_t i = 0; i < rawcell_array.size; i++) {
+    for (uint64_t i = 0; i < rawcell_array.count; i++) {
         (*r_item++)->get_dependencies(false, rawcell_deps);
     }
 
     c_item = cell_array.items;
-    for (uint64_t i = 0; i < cell_array.size; i++) {
+    for (uint64_t i = 0; i < cell_array.count; i++) {
         Cell* cell = *c_item++;
         if (cell_deps.get(cell->name) != cell) top_cells.append(cell);
     }
 
     r_item = rawcell_array.items;
-    for (uint64_t i = 0; i < rawcell_array.size; i++) {
+    for (uint64_t i = 0; i < rawcell_array.count; i++) {
         RawCell* rawcell = *r_item++;
         if (rawcell_deps.get(rawcell->name) != rawcell) top_rawcells.append(rawcell);
     }
@@ -154,12 +154,12 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
 
     double scaling = unit / precision;
     Cell** cell = cell_array.items;
-    for (uint64_t i = 0; i < cell_array.size; i++, cell++) {
+    for (uint64_t i = 0; i < cell_array.count; i++, cell++) {
         (*cell)->to_gds(out, scaling, max_points, precision, timestamp);
     }
 
     RawCell** rawcell = rawcell_array.items;
-    for (uint64_t i = 0; i < rawcell_array.size; i++, rawcell++) (*rawcell)->to_gds(out);
+    for (uint64_t i = 0; i < rawcell_array.count; i++, rawcell++) (*rawcell)->to_gds(out);
 
     uint16_t buffer_end[] = {4, 0x0400};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -199,7 +199,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
     properties_to_oas(properties, out, state);
 
     // Build cell name map. Other maps are built as the file is written.
-    uint64_t c_size = cell_array.size;
+    uint64_t c_size = cell_array.count;
     cell_name_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
     cell_property_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
     Cell** cell_p = cell_array.items;
@@ -223,12 +223,12 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         // TODO: Use modal variables
         // Cell contents
         Polygon** poly_p = cell->polygon_array.items;
-        for (uint64_t j = cell->polygon_array.size; j > 0; j--) {
+        for (uint64_t j = cell->polygon_array.count; j > 0; j--) {
             (*poly_p++)->to_oas(out, state);
         }
 
         FlexPath** flexpath_p = cell->flexpath_array.items;
-        for (uint64_t j = cell->flexpath_array.size; j > 0; j--) {
+        for (uint64_t j = cell->flexpath_array.count; j > 0; j--) {
             FlexPath* path = *flexpath_p++;
             if (path->gdsii_path) {
                 path->to_oas(out, state);
@@ -236,7 +236,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
                 Array<Polygon*> array = {0};
                 path->to_polygons(array);
                 poly_p = array.items;
-                for (uint64_t k = array.size; k > 0; k--) {
+                for (uint64_t k = array.count; k > 0; k--) {
                     Polygon* poly = *poly_p++;
                     poly->to_oas(out, state);
                     poly->clear();
@@ -247,7 +247,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         }
 
         RobustPath** robustpath_p = cell->robustpath_array.items;
-        for (uint64_t j = cell->robustpath_array.size; j > 0; j--) {
+        for (uint64_t j = cell->robustpath_array.count; j > 0; j--) {
             RobustPath* path = *robustpath_p++;
             if (path->gdsii_path) {
                 path->to_oas(out, state);
@@ -255,7 +255,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
                 Array<Polygon*> array = {0};
                 path->to_polygons(array);
                 poly_p = array.items;
-                for (uint64_t k = array.size; k > 0; k--) {
+                for (uint64_t k = array.count; k > 0; k--) {
                     Polygon* poly = *poly_p++;
                     poly->to_oas(out, state);
                     poly->clear();
@@ -266,14 +266,14 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         }
 
         Reference** ref_p = cell->reference_array.items;
-        for (uint64_t j = cell->reference_array.size; j > 0; j--) {
+        for (uint64_t j = cell->reference_array.count; j > 0; j--) {
             Reference* ref = *ref_p++;
             if (ref->type == ReferenceType::RawCell) {
                 fputs("[GDSTK] Reference to a RawCell cannot be used in a OASIS file.\n", stderr);
                 continue;
             }
             uint8_t info = 0xF0;
-            bool has_repetition = ref->repetition.get_size() > 1;
+            bool has_repetition = ref->repetition.get_count() > 1;
             if (has_repetition) info |= 0x08;
             if (ref->x_reflection) info |= 0x01;
             int64_t m;
@@ -310,10 +310,10 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         }
 
         Label** label_p = cell->label_array.items;
-        for (uint64_t j = cell->label_array.size; j > 0; j--) {
+        for (uint64_t j = cell->label_array.count; j > 0; j--) {
             Label* label = *label_p++;
             uint8_t info = 0x7B;
-            bool has_repetition = label->repetition.get_size() > 1;
+            bool has_repetition = label->repetition.get_count() > 1;
             if (has_repetition) info |= 0x04;
             oasis_putc((int)OasisRecord::TEXT, out);
             oasis_putc(info, out);
@@ -321,7 +321,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
             if (text_string_map.has_key(label->text)) {
                 index = text_string_map.get(label->text);
             } else {
-                index = text_string_map.size;
+                index = text_string_map.count;
                 text_string_map.set(label->text, index);
             }
             oasis_write_unsigned_integer(out, index);
@@ -373,7 +373,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         properties_to_oas(cell_property_map.get(name_), out, state);
     }
 
-    uint64_t text_string_offset = text_string_map.size > 0 ? ftell(out.file) : 0;
+    uint64_t text_string_offset = text_string_map.count > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = text_string_map.next(NULL); item;
          item = text_string_map.next(item)) {
         fputc((int)OasisRecord::TEXTSTRING, out.file);
@@ -383,7 +383,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         oasis_write_unsigned_integer(out, item->value);
     }
 
-    uint64_t prop_name_offset = state.property_name_map.size > 0 ? ftell(out.file) : 0;
+    uint64_t prop_name_offset = state.property_name_map.count > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = state.property_name_map.next(NULL); item;
          item = state.property_name_map.next(item)) {
         fputc((int)OasisRecord::PROPNAME, out.file);
@@ -393,13 +393,13 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         oasis_write_unsigned_integer(out, item->value);
     }
 
-    uint64_t prop_string_offset = state.property_value_array.size > 0 ? ftell(out.file) : 0;
+    uint64_t prop_string_offset = state.property_value_array.count > 0 ? ftell(out.file) : 0;
     PropertyValue** value_p = state.property_value_array.items;
-    for (uint64_t i = state.property_value_array.size; i > 0; i--) {
+    for (uint64_t i = state.property_value_array.count; i > 0; i--) {
         PropertyValue* value = *value_p++;
         fputc((int)OasisRecord::PROPSTRING_IMPLICIT, out.file);
-        oasis_write_unsigned_integer(out, value->size);
-        fwrite(value->bytes, 1, value->size, out.file);
+        oasis_write_unsigned_integer(out, value->count);
+        fwrite(value->bytes, 1, value->count, out.file);
     }
 
     fputc((int)OasisRecord::END, out.file);
@@ -453,7 +453,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
         "FORMAT",    "MASK",     "ENDMASKS",  "LIBDIRSIZE", "SRFNAME",     "LIBSECUR"};
 
     Library library = {0};
-    // One extra char in case we need a 0-terminated string with max size (should never happen, but
+    // One extra char in case we need a 0-terminated string with max count (should never happen, but
     // it doesn't hurt to be prepared).
     uint8_t buffer[65537];
     int16_t* data16 = (int16_t*)(buffer + 4);
@@ -534,7 +534,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             } break;
             case GdsiiRecord::ENDLIB: {
                 Map<Cell*> map = {0};
-                uint64_t c_size = library.cell_array.size;
+                uint64_t c_size = library.cell_array.count;
                 map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
                 Cell** c_item = library.cell_array.items;
                 for (uint64_t i = c_size; i > 0; i--, c_item++) map.set((*c_item)->name, *c_item);
@@ -542,7 +542,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
                 for (uint64_t i = c_size; i > 0; i--) {
                     cell = *c_item++;
                     Reference** ref = cell->reference_array.items;
-                    for (uint64_t j = cell->reference_array.size; j > 0; j--) {
+                    for (uint64_t j = cell->reference_array.count; j > 0; j--) {
                         reference = *ref++;
                         Cell* cp = map.get(reference->name);
                         if (cp) {
@@ -617,13 +617,13 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             case GdsiiRecord::XY:
                 if (polygon) {
                     polygon->point_array.ensure_slots(data_length / 2);
-                    double* d = (double*)polygon->point_array.items + polygon->point_array.size;
+                    double* d = (double*)polygon->point_array.items + polygon->point_array.count;
                     int32_t* s = data32;
                     for (uint32_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
-                    polygon->point_array.size += data_length / 2;
+                    polygon->point_array.count += data_length / 2;
                 } else if (path) {
                     Array<Vec2> point_array = {0};
-                    if (path->spine.point_array.size == 0) {
+                    if (path->spine.point_array.count == 0) {
                         path->spine.tolerance = tolerance;
                         path->spine.append(Vec2{factor * data32[0], factor * data32[1]});
                         path->elements[0].half_width_and_offset.append(Vec2{width / 2, 0});
@@ -631,13 +631,13 @@ Library read_gds(const char* filename, double unit, double tolerance) {
                         double* d = (double*)point_array.items;
                         int32_t* s = data32 + 2;
                         for (uint32_t i = data_length - 2; i > 0; i--) *d++ = factor * (*s++);
-                        point_array.size += data_length / 2 - 1;
+                        point_array.count += data_length / 2 - 1;
                     } else {
                         point_array.ensure_slots(data_length / 2);
                         double* d = (double*)point_array.items;
                         int32_t* s = data32;
                         for (uint32_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
-                        point_array.size += data_length / 2;
+                        point_array.count += data_length / 2;
                     }
                     path->segment(point_array, NULL, NULL, false);
                     point_array.clear();
@@ -669,7 +669,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             case GdsiiRecord::ENDEL:
                 if (polygon) {
                     // Polygons are closed in GDSII (first and last points are the same)
-                    polygon->point_array.size--;
+                    polygon->point_array.count--;
                     polygon = NULL;
                 }
                 path = NULL;
@@ -903,7 +903,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 library.name[2] = 'B';
                 library.name[3] = 0;
 
-                uint64_t c_size = library.cell_array.size;
+                uint64_t c_size = library.cell_array.count;
                 Map<Cell*> map = {0};
                 map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
 
@@ -925,7 +925,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     map.set(cell->name, cell);
 
                     Label** label_p = cell->label_array.items;
-                    for (uint64_t j = cell->label_array.size; j > 0; j--) {
+                    for (uint64_t j = cell->label_array.count; j > 0; j--) {
                         Label* label = *label_p++;
                         if (label->text == NULL) {
                             ByteArray* label_text = label_text_table.items + (uint64_t)label->owner;
@@ -945,7 +945,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 cell_p = library.cell_array.items;
                 for (uint64_t i = c_size; i > 0; i--, cell_p++) {
                     Reference** ref_p = (*cell_p)->reference_array.items;
-                    for (uint64_t j = (*cell_p)->reference_array.size; j > 0; j--, ref_p++) {
+                    for (uint64_t j = (*cell_p)->reference_array.count; j > 0; j--, ref_p++) {
                         Reference* ref = *ref_p;
                         if (ref->type == ReferenceType::Cell) {
                             // Using reference number
@@ -963,36 +963,36 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 map.clear();
 
                 Property** prop_p = unfinished_property_name.items;
-                for (uint64_t i = unfinished_property_name.size; i > 0; i--) {
+                for (uint64_t i = unfinished_property_name.count; i > 0; i--) {
                     Property* property = *prop_p++;
                     ByteArray* prop_name = property_name_table.items + (uint64_t)property->name;
                     property->name = copy_string((char*)prop_name->bytes, len);
                 }
                 PropertyValue** prop_value_p = unfinished_property_value.items;
-                for (uint64_t i = unfinished_property_value.size; i > 0; i--) {
+                for (uint64_t i = unfinished_property_value.count; i > 0; i--) {
                     PropertyValue* property_value = *prop_value_p++;
                     ByteArray* prop_string =
                         property_value_table.items + (uint64_t)property_value->unsigned_integer;
                     property_value->type = PropertyType::String;
-                    property_value->size = prop_string->size;
-                    property_value->bytes = (uint8_t*)allocate(prop_string->size);
-                    memcpy(property_value->bytes, prop_string->bytes, prop_string->size);
+                    property_value->count = prop_string->count;
+                    property_value->bytes = (uint8_t*)allocate(prop_string->count);
+                    memcpy(property_value->bytes, prop_string->bytes, prop_string->count);
                 }
             } break;
             case OasisRecord::CELLNAME_IMPLICIT: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
                 cell_name_table.append(ByteArray{len, bytes, NULL});
-                next_property = &cell_name_table[cell_name_table.size - 1].properties;
+                next_property = &cell_name_table[cell_name_table.count - 1].properties;
             } break;
             case OasisRecord::CELLNAME: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
                 uint64_t ref_number = oasis_read_unsigned_integer(in);
-                if (ref_number >= cell_name_table.size) {
-                    cell_name_table.ensure_slots(ref_number + 1 - cell_name_table.size);
-                    for (uint64_t i = cell_name_table.size; i < ref_number; i++) {
+                if (ref_number >= cell_name_table.count) {
+                    cell_name_table.ensure_slots(ref_number + 1 - cell_name_table.count);
+                    for (uint64_t i = cell_name_table.count; i < ref_number; i++) {
                         cell_name_table[i] = ByteArray{0, NULL, NULL};
                     }
-                    cell_name_table.size = ref_number + 1;
+                    cell_name_table.count = ref_number + 1;
                 }
                 cell_name_table[ref_number] = ByteArray{len, bytes, NULL};
                 next_property = &cell_name_table[ref_number].properties;
@@ -1000,17 +1000,17 @@ Library read_oas(const char* filename, double unit, double tolerance) {
             case OasisRecord::TEXTSTRING_IMPLICIT: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
                 label_text_table.append(ByteArray{len, bytes, NULL});
-                next_property = &label_text_table[label_text_table.size - 1].properties;
+                next_property = &label_text_table[label_text_table.count - 1].properties;
             } break;
             case OasisRecord::TEXTSTRING: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
                 uint64_t ref_number = oasis_read_unsigned_integer(in);
-                if (ref_number >= label_text_table.size) {
-                    label_text_table.ensure_slots(ref_number + 1 - label_text_table.size);
-                    for (uint64_t i = label_text_table.size; i < ref_number; i++) {
+                if (ref_number >= label_text_table.count) {
+                    label_text_table.ensure_slots(ref_number + 1 - label_text_table.count);
+                    for (uint64_t i = label_text_table.count; i < ref_number; i++) {
                         label_text_table[i] = ByteArray{0, NULL, NULL};
                     }
-                    label_text_table.size = ref_number + 1;
+                    label_text_table.count = ref_number + 1;
                 }
                 label_text_table[ref_number] = ByteArray{len, bytes, NULL};
                 next_property = &label_text_table[ref_number].properties;
@@ -1018,17 +1018,17 @@ Library read_oas(const char* filename, double unit, double tolerance) {
             case OasisRecord::PROPNAME_IMPLICIT: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
                 property_name_table.append(ByteArray{len, bytes, NULL});
-                next_property = &property_name_table[property_name_table.size - 1].properties;
+                next_property = &property_name_table[property_name_table.count - 1].properties;
             } break;
             case OasisRecord::PROPNAME: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
                 uint64_t ref_number = oasis_read_unsigned_integer(in);
-                if (ref_number >= property_name_table.size) {
-                    property_name_table.ensure_slots(ref_number + 1 - property_name_table.size);
-                    for (uint64_t i = property_name_table.size; i < ref_number; i++) {
+                if (ref_number >= property_name_table.count) {
+                    property_name_table.ensure_slots(ref_number + 1 - property_name_table.count);
+                    for (uint64_t i = property_name_table.count; i < ref_number; i++) {
                         property_name_table[i] = ByteArray{0, NULL, NULL};
                     }
-                    property_name_table.size = ref_number + 1;
+                    property_name_table.count = ref_number + 1;
                 }
                 property_name_table[ref_number] = ByteArray{len, bytes, NULL};
                 next_property = &property_name_table[ref_number].properties;
@@ -1036,17 +1036,17 @@ Library read_oas(const char* filename, double unit, double tolerance) {
             case OasisRecord::PROPSTRING_IMPLICIT: {
                 uint8_t* bytes = oasis_read_string(in, false, len);
                 property_value_table.append(ByteArray{len, bytes, NULL});
-                next_property = &property_value_table[property_value_table.size - 1].properties;
+                next_property = &property_value_table[property_value_table.count - 1].properties;
             } break;
             case OasisRecord::PROPSTRING: {
                 uint8_t* bytes = oasis_read_string(in, false, len);
                 uint64_t ref_number = oasis_read_unsigned_integer(in);
-                if (ref_number >= property_value_table.size) {
-                    property_value_table.ensure_slots(ref_number + 1 - property_value_table.size);
-                    for (uint64_t i = property_value_table.size; i < ref_number; i++) {
+                if (ref_number >= property_value_table.count) {
+                    property_value_table.ensure_slots(ref_number + 1 - property_value_table.count);
+                    for (uint64_t i = property_value_table.count; i < ref_number; i++) {
                         property_value_table[i] = ByteArray{0, NULL, NULL};
                     }
-                    property_value_table.size = ref_number + 1;
+                    property_value_table.count = ref_number + 1;
                 }
                 property_value_table[ref_number] = ByteArray{len, bytes, NULL};
                 next_property = &property_value_table[ref_number].properties;
@@ -1272,10 +1272,10 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 }
                 polygon->datatype = modal_datatype;
                 if (info & 0x20) {
-                    modal_polygon_points.size = 0;
+                    modal_polygon_points.count = 0;
                     oasis_read_point_list(in, factor, true, modal_polygon_points);
                 }
-                polygon->point_array.ensure_slots(1 + modal_polygon_points.size);
+                polygon->point_array.ensure_slots(1 + modal_polygon_points.count);
                 polygon->point_array.append_unsafe(Vec2{0, 0});
                 polygon->point_array.extend(modal_polygon_points);
                 if (info & 0x10) {
@@ -1295,7 +1295,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     }
                 }
                 Vec2* v = polygon->point_array.items;
-                for (uint64_t i = polygon->point_array.size; i > 0; i--) {
+                for (uint64_t i = polygon->point_array.count; i > 0; i--) {
                     *v++ += modal_geom_pos;
                 }
                 if (info & 0x04) {
@@ -1362,7 +1362,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     element->end_extensions = modal_path_extensions;
                 }
                 if (info & 0x20) {
-                    modal_path_points.size = 0;
+                    modal_path_points.count = 0;
                     oasis_read_point_list(in, factor, false, modal_path_points);
                 }
                 if (info & 0x10) {
@@ -1439,7 +1439,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 }
                 Array<Vec2>* point_array = &polygon->point_array;
                 point_array->ensure_slots(4);
-                point_array->size = 4;
+                point_array->count = 4;
                 if (info & 0x80) {
                     point_array->items[0] = modal_geom_pos;
                     point_array->items[1] = modal_geom_pos + Vec2{modal_geom_dim.x, -delta_a};
@@ -1503,7 +1503,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     v[0] = modal_geom_pos;
                     v[1] = modal_geom_pos;
                     v[2] = modal_geom_pos;
-                    point_array->size = 3;
+                    point_array->count = 3;
                 } else {
                     point_array->ensure_slots(4);
                     v = point_array->items;
@@ -1511,7 +1511,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     v[1] = modal_geom_pos + Vec2{modal_geom_dim.x, 0};
                     v[2] = modal_geom_pos + modal_geom_dim;
                     v[3] = modal_geom_pos + Vec2{0, modal_geom_dim.y};
-                    point_array->size = 4;
+                    point_array->count = 4;
                 }
                 switch (modal_ctrapezoid_type) {
                     case 0:
@@ -1701,12 +1701,12 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     }
                 } else {
                     // Explicit value list
-                    uint64_t count = info >> 4;
-                    if (count == 15) {
-                        count = oasis_read_unsigned_integer(in);
+                    uint64_t num_values = info >> 4;
+                    if (num_values == 15) {
+                        num_values = oasis_read_unsigned_integer(in);
                     }
                     PropertyValue** next = &property->value;
-                    for (; count > 0; count--) {
+                    for (; num_values > 0; num_values--) {
                         PropertyValue* property_value =
                             (PropertyValue*)allocate_clear(sizeof(PropertyValue));
                         *next = property_value;
@@ -1738,7 +1738,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                             case OasisDataType::NString: {
                                 property_value->type = PropertyType::String;
                                 property_value->bytes =
-                                    oasis_read_string(in, false, property_value->size);
+                                    oasis_read_string(in, false, property_value->count);
                             } break;
                             case OasisDataType::ReferenceA:
                             case OasisDataType::ReferenceB:
@@ -1838,28 +1838,28 @@ Library read_oas(const char* filename, double unit, double tolerance) {
     fclose(in.file);
 
     ByteArray* ba = cell_name_table.items;
-    for (uint64_t i = cell_name_table.size; i > 0; i--, ba++) {
+    for (uint64_t i = cell_name_table.count; i > 0; i--, ba++) {
         if (ba->bytes) free_allocation(ba->bytes);
         properties_clear(ba->properties);
     }
     cell_name_table.clear();
 
     ba = label_text_table.items;
-    for (uint64_t i = label_text_table.size; i > 0; i--, ba++) {
+    for (uint64_t i = label_text_table.count; i > 0; i--, ba++) {
         if (ba->bytes) free_allocation(ba->bytes);
         properties_clear(ba->properties);
     }
     label_text_table.clear();
 
     ba = property_name_table.items;
-    for (uint64_t i = property_name_table.size; i > 0; i--, ba++) {
+    for (uint64_t i = property_name_table.count; i > 0; i--, ba++) {
         if (ba->bytes) free_allocation(ba->bytes);
         properties_clear(ba->properties);
     }
     property_name_table.clear();
 
     ba = property_value_table.items;
-    for (uint64_t i = property_value_table.size; i > 0; i--, ba++) {
+    for (uint64_t i = property_value_table.count; i > 0; i--, ba++) {
         if (ba->bytes) free_allocation(ba->bytes);
         properties_clear(ba->properties);
     }

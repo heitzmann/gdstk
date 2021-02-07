@@ -19,8 +19,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Curve::print(bool all) const {
-    printf("Curve <%p>, size %" PRIu64 ", tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
-           point_array.size, tolerance, last_ctrl.x, last_ctrl.y, owner);
+    printf("Curve <%p>, count %" PRIu64 ", tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
+           point_array.count, tolerance, last_ctrl.x, last_ctrl.y, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);
@@ -133,32 +133,32 @@ void Curve::append_quad(const Vec2 p0, const Vec2 p1, const Vec2 p2) {
 }
 
 void Curve::append_bezier(const Array<Vec2> ctrl) {
-    const uint64_t size = ctrl.size;
+    const uint64_t count = ctrl.count;
     // Sampling based on curvature
     // dp : 1st derivative
     Array<Vec2> dp = {0};
     // d2p : 2nd derivative
     Array<Vec2> d2p = {0};
 
-    dp.ensure_slots(size - 1 + size - 2);
-    d2p.items = dp.items + size - 1;
+    dp.ensure_slots(count - 1 + count - 2);
+    d2p.items = dp.items + count - 1;
     Vec2* dst0 = dp.items;
     Vec2* dst1 = d2p.items;
     const Vec2* src = ctrl.items;
-    for (uint64_t i = 0; i < size - 1; i++, src++, dst0++) {
-        *dst0 = (double)(size - 1) * (*(src + 1) - *src);
-        if (i > 0) *dst1++ = (double)(size - 2) * (*dst0 - *(dst0 - 1));
+    for (uint64_t i = 0; i < count - 1; i++, src++, dst0++) {
+        *dst0 = (double)(count - 1) * (*(src + 1) - *src);
+        if (i > 0) *dst1++ = (double)(count - 2) * (*dst0 - *(dst0 - 1));
     }
-    dp.size = size - 1;
-    d2p.size = size - 2;
+    dp.count = count - 1;
+    d2p.count = count - 2;
 
     const double tolerance_sq = tolerance * tolerance;
-    const double dt_max = 1.0 / size;
+    const double dt_max = 1.0 / count;
     Vec2 last = ctrl[0];
     double t = 0;
     while (t < 1) {
-        Vec2 dc = eval_bezier(t, dp.items, dp.size);
-        Vec2 d2c = eval_bezier(t, d2p.items, d2p.size);
+        Vec2 dc = eval_bezier(t, dp.items, dp.count);
+        Vec2 d2c = eval_bezier(t, d2p.items, d2p.count);
         double len_dc = dc.length();
         double dt = 0.5 * dt_max;
         if (len_dc > 0) {
@@ -173,20 +173,20 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
         if (t + dt > 1) dt = 1 - t;
         if (dt > dt_max) dt = dt_max;
 
-        Vec2 next = eval_bezier(t + dt, ctrl.items, ctrl.size);
-        Vec2 mid = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.size);
+        Vec2 next = eval_bezier(t + dt, ctrl.items, ctrl.count);
+        Vec2 mid = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.count);
         double err_sq = distance_to_line_sq(mid, last, next);
         if (err_sq <= tolerance_sq) {
-            const Vec2 extra = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.size);
+            const Vec2 extra = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.count);
             err_sq = distance_to_line_sq(extra, last, next);
         }
         while (err_sq > tolerance_sq) {
             dt *= 0.5;
             next = mid;
-            mid = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.size);
+            mid = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.count);
             err_sq = distance_to_line_sq(mid, last, next);
             if (err_sq <= tolerance_sq) {
-                const Vec2 extra = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.size);
+                const Vec2 extra = eval_bezier(t + 0.5 * dt, ctrl.items, ctrl.count);
                 err_sq = distance_to_line_sq(extra, last, next);
             }
         }
@@ -199,7 +199,7 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
 }
 
 void Curve::horizontal(double coord_x, bool relative) {
-    last_ctrl = point_array[point_array.size - 1];
+    last_ctrl = point_array[point_array.count - 1];
     if (relative) {
         Vec2 v = last_ctrl;
         v.x += coord_x;
@@ -210,28 +210,28 @@ void Curve::horizontal(double coord_x, bool relative) {
 }
 
 void Curve::horizontal(const Array<double> coord_x, bool relative) {
-    ensure_slots(coord_x.size);
-    Vec2* dst = point_array.items + point_array.size;
+    ensure_slots(coord_x.count);
+    Vec2* dst = point_array.items + point_array.count;
     const double* src_x = coord_x.items;
     if (relative) {
-        const Vec2 ref = point_array[point_array.size - 1];
-        for (uint64_t i = 0; i < coord_x.size; i++, dst++) {
+        const Vec2 ref = point_array[point_array.count - 1];
+        for (uint64_t i = 0; i < coord_x.count; i++, dst++) {
             dst->x = ref.x + *src_x++;
             dst->y = ref.y;
         }
     } else {
-        const double ref_y = point_array[point_array.size - 1].y;
-        for (uint64_t i = 0; i < coord_x.size; i++, dst++) {
+        const double ref_y = point_array[point_array.count - 1].y;
+        for (uint64_t i = 0; i < coord_x.count; i++, dst++) {
             dst->x = *src_x++;
             dst->y = ref_y;
         }
     }
-    point_array.size += coord_x.size;
-    last_ctrl = point_array[point_array.size - 2];
+    point_array.count += coord_x.count;
+    last_ctrl = point_array[point_array.count - 2];
 }
 
 void Curve::vertical(double coord_y, bool relative) {
-    last_ctrl = point_array[point_array.size - 1];
+    last_ctrl = point_array[point_array.count - 1];
     if (relative) {
         Vec2 v = last_ctrl;
         v.y += coord_y;
@@ -242,28 +242,28 @@ void Curve::vertical(double coord_y, bool relative) {
 }
 
 void Curve::vertical(const Array<double> coord_y, bool relative) {
-    ensure_slots(coord_y.size);
-    Vec2* dst = point_array.items + point_array.size;
+    ensure_slots(coord_y.count);
+    Vec2* dst = point_array.items + point_array.count;
     const double* src_y = coord_y.items;
     if (relative) {
-        const Vec2 ref = point_array[point_array.size - 1];
-        for (uint64_t i = 0; i < coord_y.size; i++, dst++) {
+        const Vec2 ref = point_array[point_array.count - 1];
+        for (uint64_t i = 0; i < coord_y.count; i++, dst++) {
             dst->x = ref.x;
             dst->y = ref.y + *src_y++;
         }
     } else {
-        const double ref_x = point_array[point_array.size - 1].x;
-        for (uint64_t i = 0; i < coord_y.size; i++, dst++) {
+        const double ref_x = point_array[point_array.count - 1].x;
+        for (uint64_t i = 0; i < coord_y.count; i++, dst++) {
             dst->x = ref_x;
             dst->y = *src_y++;
         }
     }
-    point_array.size += coord_y.size;
-    last_ctrl = point_array[point_array.size - 2];
+    point_array.count += coord_y.count;
+    last_ctrl = point_array[point_array.count - 2];
 }
 
 void Curve::segment(Vec2 end_point, bool relative) {
-    last_ctrl = point_array[point_array.size - 1];
+    last_ctrl = point_array[point_array.count - 1];
     if (relative) {
         point_array.append(end_point + last_ctrl);
     } else {
@@ -273,44 +273,44 @@ void Curve::segment(Vec2 end_point, bool relative) {
 
 void Curve::segment(const Array<Vec2> points, bool relative) {
     if (relative) {
-        ensure_slots(points.size);
-        const Vec2 ref = point_array[point_array.size - 1];
+        ensure_slots(points.count);
+        const Vec2 ref = point_array[point_array.count - 1];
         const Vec2* src = points.items;
-        Vec2* dst = point_array.items + point_array.size;
-        for (uint64_t i = 0; i < points.size; i++) *dst++ = ref + *src++;
-        point_array.size += points.size;
+        Vec2* dst = point_array.items + point_array.count;
+        for (uint64_t i = 0; i < points.count; i++) *dst++ = ref + *src++;
+        point_array.count += points.count;
     } else {
         point_array.extend(points);
     }
-    last_ctrl = point_array[point_array.size - 2];
+    last_ctrl = point_array[point_array.count - 2];
 }
 
 void Curve::cubic(const Array<Vec2> points, bool relative) {
-    Vec2 last_point = point_array[point_array.size - 1];
+    Vec2 last_point = point_array[point_array.count - 1];
     if (relative) {
-        const Vec2 ref = point_array[point_array.size - 1];
-        for (uint64_t i = 0; i < points.size - 2; i += 3) {
+        const Vec2 ref = point_array[point_array.count - 1];
+        for (uint64_t i = 0; i < points.count - 2; i += 3) {
             Vec2 first_point = last_point;
             last_point = ref + points[i + 2];
             append_cubic(first_point, ref + points[i], ref + points[i + 1], last_point);
         }
-        last_ctrl = ref + points[points.size - 2];
+        last_ctrl = ref + points[points.count - 2];
     } else {
-        for (uint64_t i = 0; i < points.size - 2; i += 3) {
+        for (uint64_t i = 0; i < points.count - 2; i += 3) {
             Vec2 first_point = last_point;
             last_point = points[i + 2];
             append_cubic(first_point, points[i], points[i + 1], last_point);
         }
-        last_ctrl = points[points.size - 2];
+        last_ctrl = points[points.count - 2];
     }
 }
 
 void Curve::cubic_smooth(const Array<Vec2> points, bool relative) {
-    Vec2 last_point = point_array[point_array.size - 1];
+    Vec2 last_point = point_array[point_array.count - 1];
     const Vec2* point = points.items;
     if (relative) {
-        const Vec2 ref = point_array[point_array.size - 1];
-        for (uint64_t i = 0; i < points.size - 1; i += 2) {
+        const Vec2 ref = point_array[point_array.count - 1];
+        for (uint64_t i = 0; i < points.count - 1; i += 2) {
             Vec2 first_point = last_point;
             Vec2 smooth_ctrl = last_point * 2 - last_ctrl;
             last_ctrl = ref + *point++;
@@ -318,7 +318,7 @@ void Curve::cubic_smooth(const Array<Vec2> points, bool relative) {
             append_cubic(first_point, smooth_ctrl, last_ctrl, last_point);
         }
     } else {
-        for (uint64_t i = 0; i < points.size - 1; i += 2) {
+        for (uint64_t i = 0; i < points.count - 1; i += 2) {
             Vec2 first_point = last_point;
             Vec2 smooth_ctrl = last_point * 2 - last_ctrl;
             last_ctrl = *point++;
@@ -329,27 +329,27 @@ void Curve::cubic_smooth(const Array<Vec2> points, bool relative) {
 }
 
 void Curve::quadratic(const Array<Vec2> points, bool relative) {
-    Vec2 last_point = point_array[point_array.size - 1];
+    Vec2 last_point = point_array[point_array.count - 1];
     if (relative) {
-        const Vec2 ref = point_array[point_array.size - 1];
-        for (uint64_t i = 0; i < points.size - 1; i += 2) {
+        const Vec2 ref = point_array[point_array.count - 1];
+        for (uint64_t i = 0; i < points.count - 1; i += 2) {
             Vec2 first_point = last_point;
             last_point = ref + points[i + 1];
             append_quad(first_point, ref + points[i], last_point);
         }
-        last_ctrl = ref + points[points.size - 2];
+        last_ctrl = ref + points[points.count - 2];
     } else {
-        for (uint64_t i = 0; i < points.size - 1; i += 2) {
+        for (uint64_t i = 0; i < points.count - 1; i += 2) {
             Vec2 first_point = last_point;
             last_point = points[i + 1];
             append_quad(first_point, points[i], last_point);
         }
-        last_ctrl = points[points.size - 2];
+        last_ctrl = points[points.count - 2];
     }
 }
 
 void Curve::quadratic_smooth(Vec2 end_point, bool relative) {
-    const Vec2 first_point = point_array[point_array.size - 1];
+    const Vec2 first_point = point_array[point_array.count - 1];
     last_ctrl = first_point * 2 - last_ctrl;
     if (relative) {
         append_quad(first_point, last_ctrl, first_point + end_point);
@@ -359,18 +359,18 @@ void Curve::quadratic_smooth(Vec2 end_point, bool relative) {
 }
 
 void Curve::quadratic_smooth(const Array<Vec2> points, bool relative) {
-    Vec2 last_point = point_array[point_array.size - 1];
+    Vec2 last_point = point_array[point_array.count - 1];
     const Vec2* point = points.items;
     if (relative) {
-        const Vec2 ref = point_array[point_array.size - 1];
-        for (uint64_t i = 0; i < points.size; i += 1) {
+        const Vec2 ref = point_array[point_array.count - 1];
+        for (uint64_t i = 0; i < points.count; i += 1) {
             Vec2 first_point = last_point;
             last_ctrl = last_point * 2 - last_ctrl;
             last_point = ref + *point++;
             append_quad(first_point, last_ctrl, last_point);
         }
     } else {
-        for (uint64_t i = 0; i < points.size; i += 1) {
+        for (uint64_t i = 0; i < points.count; i += 1) {
             Vec2 first_point = last_point;
             last_ctrl = last_point * 2 - last_ctrl;
             last_point = *point++;
@@ -381,20 +381,20 @@ void Curve::quadratic_smooth(const Array<Vec2> points, bool relative) {
 
 void Curve::bezier(const Array<Vec2> points, bool relative) {
     Array<Vec2> ctrl = {0};
-    ctrl.ensure_slots(points.size + 1);
+    ctrl.ensure_slots(points.count + 1);
     if (relative) {
         const Vec2* point = points.items;
-        const Vec2 ref = point_array[point_array.size - 1];
+        const Vec2 ref = point_array[point_array.count - 1];
         ctrl[0] = ref;
         Vec2* dst = ctrl.items + 1;
-        for (uint64_t i = 0; i < points.size; i++, dst++) *dst = ref + *point++;
+        for (uint64_t i = 0; i < points.count; i++, dst++) *dst = ref + *point++;
     } else {
-        ctrl[0] = point_array[point_array.size - 1];
-        memcpy(ctrl.items + 1, points.items, sizeof(Vec2) * points.size);
+        ctrl[0] = point_array[point_array.count - 1];
+        memcpy(ctrl.items + 1, points.items, sizeof(Vec2) * points.count);
     }
-    ctrl.size = points.size + 1;
+    ctrl.count = points.count + 1;
     append_bezier(ctrl);
-    last_ctrl = points[points.size - 2];
+    last_ctrl = points[points.count - 2];
     ctrl.clear();
 }
 
@@ -402,26 +402,26 @@ void Curve::interpolation(const Array<Vec2> points, double* angles, bool* angle_
                           Vec2* tension, double initial_curl, double final_curl, bool cycle,
                           bool relative) {
     Array<Vec2> hobby_vec = {0};
-    hobby_vec.ensure_slots(3 * (points.size + 1) + 1);
-    hobby_vec.size = 3 * (points.size + 1) + 1;
-    const Vec2 ref = point_array[point_array.size - 1];
+    hobby_vec.ensure_slots(3 * (points.count + 1) + 1);
+    hobby_vec.count = 3 * (points.count + 1) + 1;
+    const Vec2 ref = point_array[point_array.count - 1];
     const Vec2* src = points.items;
     Vec2* dst = hobby_vec.items + 3;
     hobby_vec[0] = ref;
     if (relative) {
-        for (uint64_t i = 0; i < points.size; i++, dst += 3) *dst = ref + *src++;
+        for (uint64_t i = 0; i < points.count; i++, dst += 3) *dst = ref + *src++;
     } else {
-        for (uint64_t i = 0; i < points.size; i++, dst += 3) *dst = *src++;
+        for (uint64_t i = 0; i < points.count; i++, dst += 3) *dst = *src++;
     }
-    hobby_interpolation(points.size + 1, hobby_vec.items, angles, angle_constraints, tension,
+    hobby_interpolation(points.count + 1, hobby_vec.items, angles, angle_constraints, tension,
                         initial_curl, final_curl, cycle);
     Array<Vec2> tmp;
     tmp.items = hobby_vec.items + 1;
     if (cycle) {
-        tmp.size = 3 * (points.size + 1);
-        hobby_vec[3 * (points.size + 1)] = ref;
+        tmp.count = 3 * (points.count + 1);
+        hobby_vec[3 * (points.count + 1)] = ref;
     } else {
-        tmp.size = 3 * points.size;
+        tmp.count = 3 * points.count;
     }
     cubic(tmp, false);
     hobby_vec.clear();
@@ -441,9 +441,9 @@ void Curve::arc(double radius_x, double radius_y, double initial_angle, double f
     double x = radius_x * cos(initial_angle);
     double y = radius_y * sin(initial_angle);
     const Vec2 point0 = {x * cr - y * sr, x * sr + y * cr};
-    const Vec2 delta = point_array[point_array.size - 1] - point0;
+    const Vec2 delta = point_array[point_array.count - 1] - point0;
     ensure_slots(num_points - 1);
-    Vec2* dst = point_array.items + point_array.size;
+    Vec2* dst = point_array.items + point_array.count;
     for (uint64_t i = 1; i < num_points; i++) {
         double t = i / (num_points - 1.0);
         double angle = LERP(initial_angle, final_angle, t);
@@ -452,15 +452,15 @@ void Curve::arc(double radius_x, double radius_y, double initial_angle, double f
         Vec2 point = {x * cr - y * sr, x * sr + y * cr};
         *dst++ = point + delta;
     }
-    point_array.size += num_points - 1;
+    point_array.count += num_points - 1;
 
-    Vec2 v = point_array[point_array.size - 2] - point_array[point_array.size - 1];
+    Vec2 v = point_array[point_array.count - 2] - point_array[point_array.count - 1];
     v *= 0.5 * (radius_x + radius_y) / v.length();
-    last_ctrl = point_array[point_array.size - 1] + v;
+    last_ctrl = point_array[point_array.count - 1] + v;
 }
 
 void Curve::parametric(ParametricVec2 curve_function, void* data, bool relative) {
-    const Vec2 last_curve_point = point_array[point_array.size - 1];
+    const Vec2 last_curve_point = point_array[point_array.count - 1];
     const Vec2 ref = relative ? last_curve_point : Vec2{0, 0};
     const double tolerance_sq = tolerance * tolerance;
     double u = 0;
@@ -494,9 +494,9 @@ void Curve::parametric(ParametricVec2 curve_function, void* data, bool relative)
     }
 }
 
-uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
+uint64_t Curve::commands(const CurveInstruction* items, uint64_t count) {
     const CurveInstruction* item = items;
-    const CurveInstruction* end = items + size;
+    const CurveInstruction* end = items + count;
     Array<Vec2> points = {0};
     while (item < end) {
         const char instruction = (item++)->command;
@@ -523,7 +523,7 @@ uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
             case 'C':
                 if (end - item < 6) return item - items - 1;
                 points.items = (Vec2*)item;
-                points.size = 3;
+                points.count = 3;
                 cubic(points, instruction == 'c');
                 item += 6;
                 break;
@@ -531,7 +531,7 @@ uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
             case 'S':
                 if (end - item < 4) return item - items - 1;
                 points.items = (Vec2*)item;
-                points.size = 2;
+                points.count = 2;
                 cubic_smooth(points, instruction == 's');
                 item += 4;
                 break;
@@ -539,7 +539,7 @@ uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
             case 'Q':
                 if (end - item < 4) return item - items - 1;
                 points.items = (Vec2*)item;
-                points.size = 2;
+                points.count = 2;
                 quadratic(points, instruction == 'q');
                 item += 4;
                 break;
@@ -547,7 +547,7 @@ uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
             case 'T':
                 if (end - item < 2) return item - items - 1;
                 points.items = (Vec2*)item;
-                points.size = 1;
+                points.count = 1;
                 quadratic_smooth(points, instruction == 't');
                 item += 2;
                 break;
@@ -574,7 +574,7 @@ uint64_t Curve::commands(const CurveInstruction* items, uint64_t size) {
                 return item - items - 1;
         }
     }
-    return size;
+    return count;
 }
 
 }  // namespace gdstk

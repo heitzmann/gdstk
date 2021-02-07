@@ -70,8 +70,8 @@ void Label::apply_repetition(Array<Label*>& result) {
 
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
-    result.ensure_slots(offsets.size - 1);
-    for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+    result.ensure_slots(offsets.count - 1);
+    for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
         Label* label = (Label*)allocate_clear(sizeof(Label));
         label->copy_from(*this);
         label->origin.x += *offset_p++;
@@ -129,12 +129,12 @@ void Label::to_gds(FILE* out, double scaling) const {
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
-        offsets.size = 1;
+        offsets.count = 1;
         offsets.items = &zero;
     }
 
     Vec2* offset_p = offsets.items;
-    for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
+    for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--, offset_p++) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
 
         if (transform) {
@@ -233,7 +233,7 @@ void Label::to_svg(FILE* out, double scaling) const {
         Array<Vec2> offsets = {0};
         repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
-        for (uint64_t offset_count = offsets.size - 1; offset_count > 0; offset_count--) {
+        for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
             fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,

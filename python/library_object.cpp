@@ -8,17 +8,17 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 static PyObject* library_object_str(LibraryObject* self) {
     char buffer[256];
     snprintf(buffer, COUNT(buffer), "Library '%s' with %" PRIu64 " cells and %" PRIu64 " raw cells",
-             self->library->name, self->library->cell_array.size,
-             self->library->rawcell_array.size);
+             self->library->name, self->library->cell_array.count,
+             self->library->rawcell_array.count);
     return PyUnicode_FromString(buffer);
 }
 
 static void library_object_dealloc(LibraryObject* self) {
     Library* library = self->library;
     if (library) {
-        for (uint64_t i = 0; i < library->cell_array.size; i++)
+        for (uint64_t i = 0; i < library->cell_array.count; i++)
             Py_DECREF(library->cell_array[i]->owner);
-        for (uint64_t i = 0; i < library->rawcell_array.size; i++)
+        for (uint64_t i = 0; i < library->rawcell_array.count; i++)
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
         free_allocation(library);
@@ -37,9 +37,9 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
         return -1;
     Library* library = self->library;
     if (library) {
-        for (uint64_t i = 0; i < library->cell_array.size; i++)
+        for (uint64_t i = 0; i < library->cell_array.count; i++)
             Py_DECREF(library->cell_array[i]->owner);
-        for (uint64_t i = 0; i < library->rawcell_array.size; i++)
+        for (uint64_t i = 0; i < library->rawcell_array.count; i++)
             Py_DECREF(library->rawcell_array[i]->owner);
         library->clear();
     } else {
@@ -140,8 +140,8 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject* args) {
     Array<RawCell*> top_rawcells = {0};
     library->top_level(top_cells, top_rawcells);
 
-    const uint64_t i0 = top_cells.size;
-    const uint64_t i1 = top_rawcells.size;
+    const uint64_t i0 = top_cells.count;
+    const uint64_t i1 = top_rawcells.count;
 
     PyObject* result = PyList_New(i0 + i1);
     if (!result) {
@@ -277,19 +277,19 @@ int library_object_set_name(LibraryObject* self, PyObject* arg, void*) {
 PyObject* library_object_get_cells(LibraryObject* self, void*) {
     Array<Cell*>* cell_array = &self->library->cell_array;
     Array<RawCell*>* rawcell_array = &self->library->rawcell_array;
-    const uint64_t size = cell_array->size + rawcell_array->size;
-    PyObject* result = PyList_New(size);
+    const uint64_t count = cell_array->count + rawcell_array->count;
+    PyObject* result = PyList_New(count);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create list.");
         return NULL;
     }
     uint64_t i = 0;
-    for (Cell** cell = cell_array->items; i < cell_array->size; i++, cell++) {
+    for (Cell** cell = cell_array->items; i < cell_array->count; i++, cell++) {
         PyObject* cell_obj = (PyObject*)(*cell)->owner;
         Py_INCREF(cell_obj);
         PyList_SET_ITEM(result, i, cell_obj);
     }
-    for (RawCell** rawcell = rawcell_array->items; i < size; i++, rawcell++) {
+    for (RawCell** rawcell = rawcell_array->items; i < count; i++, rawcell++) {
         PyObject* rawcell_obj = (PyObject*)(*rawcell)->owner;
         Py_INCREF(rawcell_obj);
         PyList_SET_ITEM(result, i, rawcell_obj);

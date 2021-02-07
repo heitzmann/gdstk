@@ -25,9 +25,9 @@ void RawCell::print(bool all) const {
                data, owner);
     }
     if (all) {
-        printf("Dependencies (%" PRIu64 "/%" PRIu64 "):\n", dependencies.size,
+        printf("Dependencies (%" PRIu64 "/%" PRIu64 "):\n", dependencies.count,
                dependencies.capacity);
-        for (uint64_t i = 0; i < dependencies.size; i++) {
+        for (uint64_t i = 0; i < dependencies.count; i++) {
             printf("(%" PRIu64 ")", i);
             dependencies[i]->print(false);
         }
@@ -57,7 +57,7 @@ void RawCell::clear() {
 
 void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
     RawCell** r_item = dependencies.items;
-    for (uint64_t i = 0; i < dependencies.size; i++) {
+    for (uint64_t i = 0; i < dependencies.count; i++) {
         RawCell* rawcell = *r_item++;
         if (recursive && result.get(rawcell->name) != rawcell) {
             rawcell->get_dependencies(true, result);
@@ -106,7 +106,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
             case 0x04:  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
                     Array<RawCell*>* dependencies = &item->value->dependencies;
-                    for (uint64_t i = 0; i < dependencies->size;) {
+                    for (uint64_t i = 0; i < dependencies->count;) {
                         char* name = (char*)((*dependencies)[i]);
                         rawcell = result.get(name);
                         if (rawcell) {

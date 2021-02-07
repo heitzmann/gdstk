@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     Polygon circle = ellipse(Vec2{3.5, 0}, 0.1, 0.1, 0, 0, 0, 0, 0.01, 0, 0);
     Vec2 offsets[] = {{0.5, 1}, {2, 0}, {1.5, 0.5}};
     circle.repetition.type = RepetitionType::Explicit;
-    circle.repetition.offsets.size = COUNT(offsets);
+    circle.repetition.offsets.count = COUNT(offsets);
     circle.repetition.offsets.items = offsets;
     main_cell.polygon_array.append(&circle);
 
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
-    vline.repetition.coords.size = COUNT(vcoords);
+    vline.repetition.coords.count = COUNT(vcoords);
     vline.repetition.coords.items = vcoords;
     main_cell.flexpath_array.append(&vline);
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;
-    hline.repetition.coords.size = COUNT(hcoords);
+    hline.repetition.coords.count = COUNT(hcoords);
     hline.repetition.coords.items = hcoords;
     main_cell.robustpath_array.append(&hline);
 

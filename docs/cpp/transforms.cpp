@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         },
     };
     Reference* unit_refs_p[] = {unit_refs, unit_refs + 1, unit_refs + 2, unit_refs + 3};
-    resonator_cell.reference_array.extend({.size = 4, .items = unit_refs_p});
+    resonator_cell.reference_array.extend({.count = 4, .items = unit_refs_p});
 
     Polygon rect = rectangle(Vec2{-r / 2, -r / 2}, Vec2{r / 2, r / 2}, 0, 0);
     resonator_cell.polygon_array.append(&rect);
@@ -91,19 +91,19 @@ int main(int argc, char* argv[]) {
     Cell resonator_cell_copy = {0};
     lib.cell_array.append(&resonator_cell_copy);
     resonator_cell_copy.copy_from(resonator_cell, "Resonator Copy", true);
-    for (int64_t i = 0; i < resonator_cell_copy.polygon_array.size; i++) {
+    for (int64_t i = 0; i < resonator_cell_copy.polygon_array.count; i++) {
         Polygon* p = resonator_cell_copy.polygon_array[i];
         p->scale(Vec2{s, s}, Vec2{0, 0});
     }
-    for (int64_t i = 0; i < resonator_cell_copy.flexpath_array.size; i++) {
+    for (int64_t i = 0; i < resonator_cell_copy.flexpath_array.count; i++) {
         FlexPath* fp = resonator_cell_copy.flexpath_array[i];
         fp->scale(s, Vec2{0, 0});
     }
-    for (int64_t i = 0; i < resonator_cell_copy.robustpath_array.size; i++) {
+    for (int64_t i = 0; i < resonator_cell_copy.robustpath_array.count; i++) {
         RobustPath* rp = resonator_cell_copy.robustpath_array[i];
         rp->scale(s, Vec2{0, 0});
     }
-    for (int64_t i = 0; i < resonator_cell_copy.reference_array.size; i++) {
+    for (int64_t i = 0; i < resonator_cell_copy.reference_array.count; i++) {
         Reference* ref = resonator_cell_copy.reference_array[i];
         ref->transform(s, false, 0, Vec2{0, 0});
         ref->repetition.transform(s, false, 0);
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
         },
     };
     Reference* resonator_refs_p[] = {resonator_refs, resonator_refs + 1, resonator_refs + 2};
-    main_cell.reference_array.extend({.size = 3, .items = resonator_refs_p});
+    main_cell.reference_array.extend({.count = 3, .items = resonator_refs_p});
 
     Array<Polygon*> all_text = {0};
     text("Original", d, Vec2{(n + 1) * d, -d / 2}, false, 0, 0, all_text);

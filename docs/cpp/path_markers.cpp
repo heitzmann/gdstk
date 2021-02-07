@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
     double angles[] = {0, 0, 0, 0, -M_PI / 4};
     bool angle_constraints[] = {true, false, false, false, true};
     Vec2 tension[] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
-    path.interpolation({.size = COUNT(points), .items = points}, angles, angle_constraints, tension,
-                       1, 1, false, NULL, NULL, true);
+    path.interpolation({.count = COUNT(points), .items = points}, angles, angle_constraints,
+                       tension, 1, 1, false, NULL, NULL, true);
 
     path.segment(Vec2{3, -3}, NULL, NULL, true);
     main_cell.robustpath_array.append(&path);
@@ -44,15 +44,15 @@ int main(int argc, char* argv[]) {
     Polygon major = regular_polygon(Vec2{0, 0}, 0.5, 6, 0, 1, 0);
     Polygon minor = rectangle(Vec2{-0.1, -0.5}, Vec2{0.1, 0.5}, 1, 0);
 
-    int64_t size = path.subpath_array.size;
+    int64_t count = path.subpath_array.count;
 
     // Allocate enough memory for all markers
-    Polygon* poly = (Polygon*)allocate_clear(4 * size * sizeof(Polygon));
+    Polygon* poly = (Polygon*)allocate_clear(4 * count * sizeof(Polygon));
 
     // Reserve space for all markers in the main cell
-    main_cell.polygon_array.ensure_slots(1 + 4 * size);
+    main_cell.polygon_array.ensure_slots(1 + 4 * count);
 
-    for (int64_t i = 0; i < path.subpath_array.size; i++) {
+    for (int64_t i = 0; i < path.subpath_array.count; i++) {
         poly->copy_from(major);
         poly->translate(path.position(i, true));
         main_cell.polygon_array.append(poly++);

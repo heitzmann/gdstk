@@ -7,25 +7,25 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* repetition_object_str(RepetitionObject* self) {
     char buffer[64];
-    uint64_t size = self->repetition.get_size();
+    uint64_t count = self->repetition.get_count();
     switch (self->repetition.type) {
         case RepetitionType::None:
             snprintf(buffer, COUNT(buffer), "No repetition");
             break;
         case RepetitionType::Rectangular:
-            snprintf(buffer, COUNT(buffer), "Repetition (rectangular) of size %" PRIu64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (rectangular) of count %" PRIu64, count);
             break;
         case RepetitionType::Regular:
-            snprintf(buffer, COUNT(buffer), "Repetition (regular) of size %" PRIu64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (regular) of count %" PRIu64, count);
             break;
         case RepetitionType::Explicit:
-            snprintf(buffer, COUNT(buffer), "Repetition (explicit) of size %" PRIu64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (explicit) of count %" PRIu64, count);
             break;
         case RepetitionType::ExplicitX:
-            snprintf(buffer, COUNT(buffer), "Repetition (x-explicit) of size %" PRIu64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (x-explicit) of count %" PRIu64, count);
             break;
         case RepetitionType::ExplicitY:
-            snprintf(buffer, COUNT(buffer), "Repetition (y-explicit) of size %" PRIu64, size);
+            snprintf(buffer, COUNT(buffer), "Repetition (y-explicit) of count %" PRIu64, count);
             break;
         default:
             PyErr_SetString(PyExc_RuntimeError, "Uknown repetition type.");
@@ -87,14 +87,14 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
 static PyObject* repetition_object_getoffsets(RepetitionObject* self, PyObject* args) {
     Array<Vec2> offsets = {0};
     self->repetition.get_offsets(offsets);
-    npy_intp dims[] = {(npy_intp)offsets.size, 2};
+    npy_intp dims[] = {(npy_intp)offsets.count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
         PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
         return NULL;
     }
     double* data = (double*)PyArray_DATA((PyArrayObject*)result);
-    memcpy(data, offsets.items, sizeof(double) * offsets.size * 2);
+    memcpy(data, offsets.items, sizeof(double) * offsets.count * 2);
     offsets.clear();
     return (PyObject*)result;
 }
@@ -106,7 +106,7 @@ static PyMethodDef repetition_object_methods[] = {
     {NULL}};
 
 static PyObject* repetition_object_get_size(RepetitionObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->repetition.get_size());
+    return PyLong_FromUnsignedLongLong(self->repetition.get_count());
 }
 
 static PyObject* repetition_object_get_columns(RepetitionObject* self, void*) {
@@ -195,14 +195,14 @@ static PyObject* repetition_object_get_v2(RepetitionObject* self, void*) {
 static PyObject* repetition_object_get_offsets(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::Explicit) {
-        npy_intp dims[] = {(npy_intp)repetition->offsets.size, 2};
+        npy_intp dims[] = {(npy_intp)repetition->offsets.count, 2};
         PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
         if (!result) {
             PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
             return NULL;
         }
         double* data = (double*)PyArray_DATA((PyArrayObject*)result);
-        memcpy(data, repetition->offsets.items, sizeof(double) * repetition->offsets.size * 2);
+        memcpy(data, repetition->offsets.items, sizeof(double) * repetition->offsets.count * 2);
         return (PyObject*)result;
     }
     Py_INCREF(Py_None);
@@ -212,14 +212,14 @@ static PyObject* repetition_object_get_offsets(RepetitionObject* self, void*) {
 static PyObject* repetition_object_get_x_offsets(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::ExplicitX) {
-        npy_intp dims[] = {(npy_intp)repetition->coords.size};
+        npy_intp dims[] = {(npy_intp)repetition->coords.count};
         PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
         if (!result) {
             PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
             return NULL;
         }
         double* data = (double*)PyArray_DATA((PyArrayObject*)result);
-        memcpy(data, repetition->coords.items, sizeof(double) * repetition->coords.size);
+        memcpy(data, repetition->coords.items, sizeof(double) * repetition->coords.count);
         return (PyObject*)result;
     }
     Py_INCREF(Py_None);
@@ -229,14 +229,14 @@ static PyObject* repetition_object_get_x_offsets(RepetitionObject* self, void*) 
 static PyObject* repetition_object_get_y_offsets(RepetitionObject* self, void*) {
     Repetition* repetition = &self->repetition;
     if (repetition->type == RepetitionType::ExplicitY) {
-        npy_intp dims[] = {(npy_intp)repetition->coords.size};
+        npy_intp dims[] = {(npy_intp)repetition->coords.count};
         PyObject* result = PyArray_SimpleNew(1, dims, NPY_DOUBLE);
         if (!result) {
             PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
             return NULL;
         }
         double* data = (double*)PyArray_DATA((PyArrayObject*)result);
-        memcpy(data, repetition->coords.items, sizeof(double) * repetition->coords.size);
+        memcpy(data, repetition->coords.items, sizeof(double) * repetition->coords.count);
         return (PyObject*)result;
     }
     Py_INCREF(Py_None);

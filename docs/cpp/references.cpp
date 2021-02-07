@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     contact_poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, layer_lift_off, dt_lift_off);
 
     Polygon* p[] = {contact_poly, contact_poly + 1, contact_poly + 2, contact_poly + 3};
-    contact_cell.polygon_array.extend({.size = 4, .items = p});
+    contact_cell.polygon_array.extend({.count = 4, .items = p});
 
     // DEVICE
 
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     Vec2 cutout_points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0},
                             {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
     Polygon* cutout_poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    cutout_poly->point_array.extend({.size = COUNT(cutout_points), .items = cutout_points});
+    cutout_poly->point_array.extend({.count = COUNT(cutout_points), .items = cutout_points});
     device_cell.polygon_array.append(cutout_poly);
 
     Reference contact_ref1 = {

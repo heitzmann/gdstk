@@ -7,7 +7,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 static PyObject* curve_object_str(CurveObject* self) {
     char buffer[64];
-    snprintf(buffer, COUNT(buffer), "Curve with %" PRIu64 " points", self->curve->point_array.size);
+    snprintf(buffer, COUNT(buffer), "Curve with %" PRIu64 " points",
+             self->curve->point_array.count);
     return PyUnicode_FromString(buffer);
 }
 
@@ -40,7 +41,7 @@ static int curve_object_init(CurveObject* self, PyObject* args, PyObject* kwds) 
 
 static PyObject* curve_object_points(CurveObject* self, PyObject* args) {
     const Curve* curve = self->curve;
-    npy_intp dims[] = {(npy_intp)curve->point_array.size, 2};
+    npy_intp dims[] = {(npy_intp)curve->point_array.count, 2};
     if (curve->closed()) dims[0] -= 1;
 
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
@@ -239,24 +240,24 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
         array.clear();
         return NULL;
     }
-    const uint64_t size = array.size;
+    const uint64_t count = array.count;
 
-    tension = (Vec2*)allocate((sizeof(Vec2) + sizeof(double) + sizeof(bool)) * (size + 1));
-    angles = (double*)(tension + (size + 1));
-    angle_constraints = (bool*)(angles + (size + 1));
+    tension = (Vec2*)allocate((sizeof(Vec2) + sizeof(double) + sizeof(bool)) * (count + 1));
+    angles = (double*)(tension + (count + 1));
+    angle_constraints = (bool*)(angles + (count + 1));
 
     if (!py_angles || py_angles == Py_None) {
-        memset(angle_constraints, 0, sizeof(bool) * (size + 1));
+        memset(angle_constraints, 0, sizeof(bool) * (count + 1));
     } else {
-        if ((uint64_t)PySequence_Length(py_angles) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_angles) != count + 1) {
             free_allocation(tension);
             array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
-                "Argument angles must be None or a sequence with size len(points) + 1.");
+                "Argument angles must be None or a sequence with count len(points) + 1.");
             return NULL;
         }
-        for (uint64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < count + 1; i++) {
             PyObject* item = PySequence_ITEM(py_angles, i);
             if (!item) {
                 free_allocation(tension);
@@ -285,7 +286,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
 
     if (!py_tension_in) {
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = 1;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->u = 1;
     } else if (!PySequence_Check(py_tension_in)) {
         double t_in = PyFloat_AsDouble(py_tension_in);
         if (PyErr_Occurred()) {
@@ -295,17 +296,17 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             return NULL;
         }
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->u = t_in;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->u = t_in;
     } else {
-        if ((uint64_t)PySequence_Length(py_tension_in) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_in) != count + 1) {
             free_allocation(tension);
             array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
-                "Argument tension_in must be a number or a sequence with size len(points) + 1.");
+                "Argument tension_in must be a number or a sequence with count len(points) + 1.");
             return NULL;
         }
-        for (uint64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < count + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_in, i);
             if (!item) {
                 free_allocation(tension);
@@ -328,7 +329,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
 
     if (!py_tension_out) {
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = 1;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->v = 1;
     } else if (!PySequence_Check(py_tension_out)) {
         double t_out = PyFloat_AsDouble(py_tension_out);
         if (PyErr_Occurred()) {
@@ -338,17 +339,17 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
             return NULL;
         }
         Vec2* t = tension;
-        for (uint64_t i = 0; i < size + 1; i++) (t++)->v = t_out;
+        for (uint64_t i = 0; i < count + 1; i++) (t++)->v = t_out;
     } else {
-        if ((uint64_t)PySequence_Length(py_tension_out) != size + 1) {
+        if ((uint64_t)PySequence_Length(py_tension_out) != count + 1) {
             free_allocation(tension);
             array.clear();
             PyErr_SetString(
                 PyExc_TypeError,
-                "Argument tension_out must be a number or a sequence with size len(points) + 1.");
+                "Argument tension_out must be a number or a sequence with count len(points) + 1.");
             return NULL;
         }
-        for (uint64_t i = 0; i < size + 1; i++) {
+        for (uint64_t i = 0; i < count + 1; i++) {
             PyObject* item = PySequence_ITEM(py_tension_out, i);
             if (!item) {
                 free_allocation(tension);
@@ -463,12 +464,12 @@ static PyObject* curve_object_parametric(CurveObject* self, PyObject* args, PyOb
 }
 
 static PyObject* curve_object_commands(CurveObject* self, PyObject* args) {
-    uint64_t size = PyTuple_GET_SIZE(args);
+    uint64_t count = PyTuple_GET_SIZE(args);
     CurveInstruction* instructions =
-        (CurveInstruction*)allocate(sizeof(CurveInstruction) * size * 2);
+        (CurveInstruction*)allocate(sizeof(CurveInstruction) * count * 2);
     CurveInstruction* instr = instructions;
 
-    for (uint64_t i = 0; i < size; i++) {
+    for (uint64_t i = 0; i < count; i++) {
         PyObject* item = PyTuple_GET_ITEM(args, i);
         if (PyUnicode_Check(item)) {
             Py_ssize_t len = 0;

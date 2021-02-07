@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
     offset2[1].final_value = 0.25;
     offset2[2].final_value = -0.75;
     offset2[3].final_value = 0.75;
-    rp.interpolation({.size = 1, .items = &point}, angles, angle_constraints, tension, 1, 1, false,
+    rp.interpolation({.count = 1, .items = &point}, angles, angle_constraints, tension, 1, 1, false,
                      width2, offset2, false);
 
     Interpolation offset3[] = {

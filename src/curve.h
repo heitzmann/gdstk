@@ -53,8 +53,8 @@ struct Curve {
     void ensure_slots(uint64_t free_slots) { point_array.ensure_slots(free_slots); }
 
     bool closed() const {
-        if (point_array.size < 2) return false;
-        const Vec2 v = point_array[0] - point_array[point_array.size - 1];
+        if (point_array.count < 2) return false;
+        const Vec2 v = point_array[0] - point_array[point_array.count - 1];
         return v.length_sq() <= tolerance * tolerance;
     }
 
@@ -77,12 +77,12 @@ struct Curve {
              double rotation);
     void parametric(ParametricVec2 curve_function, void* data, bool relative);
 
-    // Return n = number of items processed.  If n < size, item n could not be
+    // Return n = number of items processed.  If n < count, item n could not be
     // parsed.
-    uint64_t commands(const CurveInstruction* items, uint64_t size);
+    uint64_t commands(const CurveInstruction* items, uint64_t count);
 
     void turn(double radius, double angle) {
-        const Vec2 direction = point_array[point_array.size - 1] - last_ctrl;
+        const Vec2 direction = point_array[point_array.count - 1] - last_ctrl;
         double initial_angle = direction.angle() + (angle < 0 ? 0.5 * M_PI : -0.5 * M_PI);
         arc(radius, radius, initial_angle, initial_angle + angle, 0);
     }

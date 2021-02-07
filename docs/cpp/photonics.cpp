@@ -101,19 +101,19 @@ void mach_zenhder_interferometer(Library& lib) {
     }
 
     Vec2 arm_points[] = {{25, 1}, {25, 40}, {55, 40}, {55, 1}, {75, 1}};
-    path[0].segment({.size = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
+    path[0].segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
 
     for (int64_t i = 0; i < COUNT(arm_points); i++) arm_points[i].y = -arm_points[i].y;
-    path[1].segment({.size = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
+    path[1].segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
 
     Vec2 heater_points[] = {{25, 40}, {55, 40}, {55, 20}};
-    path[2].segment({.size = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
+    path[2].segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
 
     for (int64_t i = 0; i < COUNT(heater_points); i++) heater_points[i].y = -heater_points[i].y;
-    path[3].segment({.size = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
+    path[3].segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
 
     FlexPath* path_p[] = {path, path + 1, path + 2, path + 3};
-    cell->flexpath_array.extend({.size = 4, .items = path_p});
+    cell->flexpath_array.extend({.count = 4, .items = path_p});
 }
 
 int main(int argc, char* argv[]) {

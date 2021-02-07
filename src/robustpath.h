@@ -138,7 +138,7 @@ struct RobustPath {
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
     void apply_repetition(Array<RobustPath*>& result);
 
-    // Note: width and offset must be NULL or arrays of size at least path.num_elements.
+    // Note: width and offset must be NULL or arrays of count at least path.num_elements.
     void horizontal(double coord_x, const Interpolation* width, const Interpolation* offset,
                     bool relative);
     void vertical(double coord_y, const Interpolation* width, const Interpolation* offset,
@@ -164,11 +164,11 @@ struct RobustPath {
     void parametric(ParametricVec2 curve_function, void* func_data, ParametricVec2 curve_gradient,
                     void* grad_data, const Interpolation* width, const Interpolation* offset,
                     bool relative);
-    // Return n = number of items processed.  If n < size, item n could not be parsed.
+    // Return n = number of items processed.  If n < count, item n could not be parsed.
     // Width and offset remain unchainged.
-    uint64_t commands(const CurveInstruction* items, uint64_t size);
+    uint64_t commands(const CurveInstruction* items, uint64_t count);
 
-    // 0 <= u <= path.subpath_array.size
+    // 0 <= u <= path.subpath_array.count
     Vec2 position(double u, bool from_below) const;
     Vec2 gradient(double u, bool from_below) const;
     // Result must be an array with at least path.num_elements elements

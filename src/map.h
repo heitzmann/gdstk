@@ -47,11 +47,12 @@ struct MapItem {
 template <class T>
 struct Map {
     uint64_t capacity;  // allocated capacity
-    uint64_t size;      // number of slots used
+    uint64_t count;     // number of slots used
     MapItem<T>* items;  // slots
 
     void print(bool all) const {
-        printf("Map <%p>, size %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, size, capacity, items);
+        printf("Map <%p>, count %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, count, capacity,
+               items);
         if (all) {
             MapItem<T>* item = items;
             for (uint64_t i = 0; i < capacity; i++, item++) {
@@ -66,7 +67,7 @@ struct Map {
     }
 
     void copy_from(const Map<T>& map) {
-        size = 0;
+        count = 0;
         capacity = map.capacity;
         items = (MapItem<T>*)allocate_clear(capacity * sizeof(MapItem<T>));
         for (MapItem<T>* item = map.next(NULL); item; item = map.next(item))
@@ -75,13 +76,13 @@ struct Map {
 
     void resize(uint64_t new_capacity) {
         Map<T> new_map;
-        new_map.size = 0;
+        new_map.count = 0;
         new_map.capacity = new_capacity;
         new_map.items = (MapItem<T>*)allocate_clear(new_capacity * sizeof(MapItem<T>));
         for (MapItem<T>* it = next(NULL); it; it = next(it)) new_map.set(it->key, it->value);
         clear();
         capacity = new_map.capacity;
-        size = new_map.size;
+        count = new_map.count;
         items = new_map.items;
     }
 
@@ -98,7 +99,7 @@ struct Map {
     }
 
     void to_array(Array<T>& result) const {
-        result.ensure_slots(size);
+        result.ensure_slots(count);
         for (MapItem<T>* it = next(NULL); it; it = next(it)) result.append_unsafe(it->value);
     }
 
@@ -122,12 +123,12 @@ struct Map {
             items = NULL;
         }
         capacity = 0;
-        size = 0;
+        count = 0;
     }
 
     void set(const char* key, T value) {
         // Equallity is important for capacity == 0
-        if (size * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
+        if (count * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
             resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
                                                     : INITIAL_MAP_CAPACITY);
 
@@ -137,7 +138,7 @@ struct Map {
             uint64_t len;
             item->key = copy_string(key, len);
             item->value = value;
-            size++;
+            count++;
         } else if (strcmp(item->key, key) == 0) {
             item->value = value;
         } else {
@@ -151,13 +152,13 @@ struct Map {
                 item->key = copy_string(key, len);
                 item->value = value;
                 item->next = NULL;
-                size++;
+                count++;
             }
         }
     }
 
     bool has_key(const char* key) const {
-        if (size == 0) return false;
+        if (count == 0) return false;
         uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return false;
@@ -168,7 +169,7 @@ struct Map {
     }
 
     T get(const char* key) const {
-        if (size == 0) return T{0};
+        if (count == 0) return T{0};
         uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return T{0};
@@ -179,7 +180,7 @@ struct Map {
     }
 
     void del(const char* key) {
-        if (size == 0) return;
+        if (count == 0) return;
         uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) return;
