@@ -10,9 +10,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __CELL_H__
 #define __CELL_H__
 
-#include <cstdint>
-#include <cstdio>
-#include <ctime>
+#include <stdint.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "array.h"
 #include "flexpath.h"
@@ -58,7 +58,7 @@ struct Cell {
     void flatten(bool apply_repetitions, Array<Reference*>& removed_references);
 
     void to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
-                const std::tm* timestamp) const;
+                const tm* timestamp) const;
 
     void to_svg(FILE* out, double scaling, const char* attributes) const;
 

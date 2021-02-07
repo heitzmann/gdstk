@@ -10,8 +10,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __PROPERTY_H__
 #define __PROPERTY_H__
 
-#include <cstdint>
-#include <cstdio>
+#include <stdint.h>
+#include <stdio.h>
 
 namespace gdstk {
 

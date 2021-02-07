@@ -10,7 +10,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __STYLE_H__
 #define __STYLE_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 namespace gdstk {
 

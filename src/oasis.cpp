@@ -7,10 +7,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "oasis.h"
 
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+
 #include <algorithm>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
 
 #include "utils.h"
 

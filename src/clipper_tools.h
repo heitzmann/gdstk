@@ -10,7 +10,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __CLIPPER_TOOLS_H__
 #define __CLIPPER_TOOLS_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 #include "array.h"
 #include "polygon.h"

@@ -10,8 +10,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __LIBRARY_H__
 #define __LIBRARY_H__
 
-#include <cstdio>
-#include <ctime>
+#include <stdio.h>
+#include <time.h>
 
 #include "array.h"
 #include "cell.h"
@@ -42,7 +42,7 @@ struct Library {
     void copy_from(const Library& library, bool deep_copy);
     void top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const;
 
-    void write_gds(const char* filename, uint64_t max_points, std::tm* timestamp) const;
+    void write_gds(const char* filename, uint64_t max_points, tm* timestamp) const;
     void write_oas(const char* filename, double tolerance, uint8_t deflate_level,
                    uint16_t config_flags) const;
 };

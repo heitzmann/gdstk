@@ -10,8 +10,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __FLEXPATH_H__
 #define __FLEXPATH_H__
 
-#include <cstdint>
-#include <cstring>
+#include <stdint.h>
+#include <string.h>
 
 #include "array.h"
 #include "curve.h"

@@ -7,9 +7,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "gdsii.h"
 
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "utils.h"
 

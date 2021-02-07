@@ -7,9 +7,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "rawcell.h"
 
-#include <cinttypes>
-#include <cstdint>
-#include <cstdio>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "allocator.h"
 #include "gdsii.h"

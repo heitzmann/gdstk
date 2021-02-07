@@ -18,10 +18,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <sys/mman.h>
 #endif
 
-#include <cerrno>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
+#include <errno.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "utils.h"
 

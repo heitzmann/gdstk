@@ -13,11 +13,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define ARRAY_GROWTH_FACTOR 2
 #define INITIAL_ARRAY_CAPACITY 4
 
-#include <cinttypes>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "allocator.h"
 #include "vec.h"

@@ -28,8 +28,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 // From http://esr.ibiblio.org/?p=5095
 #define IS_BIG_ENDIAN (*(uint16_t*)"\0\xFF" < 0x100)
 
-#include <cmath>
-#include <cstdint>
+#include <math.h>
+#include <stdint.h>
 
 #include "array.h"
 #include "vec.h"

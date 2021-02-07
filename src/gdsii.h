@@ -12,8 +12,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define _USE_MATH_DEFINES
 
-#include <cstdint>
-#include <cstdio>
+#include <stdint.h>
+#include <stdio.h>
 
 namespace gdstk {
 

@@ -7,15 +7,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "library.h"
 
+#include <float.h>
+#include <inttypes.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 #include <zlib.h>
-
-#include <cfloat>
-#include <cinttypes>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
 
 #include "allocator.h"
 #include "cell.h"
@@ -108,7 +107,7 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     }
 }
 
-void Library::write_gds(const char* filename, uint64_t max_points, std::tm* timestamp) const {
+void Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
     FILE* out = fopen(filename, "wb");
     if (out == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);

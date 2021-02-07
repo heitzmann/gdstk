@@ -28,10 +28,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define __STDC_FORMAT_MACROS
 #include <Python.h>
+#include <inttypes.h>
 #include <numpy/arrayobject.h>
 #include <structmember.h>
-
-#include <cinttypes>
 
 #include "docstrings.cpp"
 #include "gdstk.h"

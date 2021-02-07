@@ -10,7 +10,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __GDSWRITER_H__
 #define __GDSWRITER_H__
 
-#include <cstdio>
+#include <stdio.h>
 
 #include "cell.h"
 #include "rawcell.h"
@@ -22,7 +22,7 @@ struct GdsWriter {
     double unit;
     double precision;
     uint64_t max_points;
-    std::tm timestamp;
+    tm timestamp;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;

@@ -10,8 +10,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __RAWCELL_H__
 #define __RAWCELL_H__
 
-#include <cstdint>
-#include <cstdio>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "array.h"
 #include "map.h"

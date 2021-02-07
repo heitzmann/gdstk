@@ -10,10 +10,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __LABEL_H__
 #define __LABEL_H__
 
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "allocator.h"
 #include "property.h"

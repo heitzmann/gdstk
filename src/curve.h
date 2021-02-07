@@ -10,9 +10,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __CURVE_H__
 #define __CURVE_H__
 
-#include <cmath>
-#include <cstdint>
-#include <cstring>
+#include <math.h>
+#include <stdint.h>
+#include <string.h>
 
 #include "array.h"
 #include "utils.h"

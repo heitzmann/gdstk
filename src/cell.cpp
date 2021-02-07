@@ -7,12 +7,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "cell.h"
 
-#include <cfloat>
-#include <cinttypes>
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
+#include <float.h>
+#include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 #include "allocator.h"
 #include "cell.h"
@@ -362,7 +362,7 @@ void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
 }
 
 void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
-                  const std::tm* timestamp) const {
+                  const tm* timestamp) const {
     uint64_t len = strlen(name);
     if (len % 2) len++;
     uint16_t buffer_start[] = {28,

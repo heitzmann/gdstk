@@ -7,10 +7,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "utils.h"
 
-#include <cinttypes>
-#include <cmath>
-#include <cstdint>
-#include <cstring>
+#include <inttypes.h>
+#include <math.h>
+#include <stdint.h>
+#include <string.h>
 
 #include "allocator.h"
 #include "vec.h"

@@ -7,10 +7,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "property.h"
 
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "allocator.h"
 #include "map.h"

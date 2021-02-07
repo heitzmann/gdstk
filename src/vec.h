@@ -10,7 +10,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __VEC_H__
 #define __VEC_H__
 
-#include <cmath>
+#include <math.h>
 
 namespace gdstk {
 

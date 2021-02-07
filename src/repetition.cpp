@@ -9,8 +9,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "repetition.h"
 
-#include <cstdint>
-#include <cstdio>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "array.h"
 #include "vec.h"

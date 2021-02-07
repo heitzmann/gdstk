@@ -7,13 +7,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "polygon.h"
 
+#include <float.h>
+#include <inttypes.h>
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <algorithm>
-#include <cfloat>
-#include <cinttypes>
-#include <cmath>
-#include <cstdint>
-#include <cstdio>
-#include <cstring>
 
 #include "allocator.h"
 #include "clipper_tools.h"
