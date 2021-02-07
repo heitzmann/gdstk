@@ -74,7 +74,7 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert cell argument to string.");
             return -1;
         }
-        reference->name = (char*)allocate(sizeof(char) * (++len));
+        reference->name = (char*)allocate(++len);
         memcpy(reference->name, name, len);
     } else {
         PyErr_SetString(PyExc_TypeError, "Argument cell must be a Cell, RawCell, or string.");

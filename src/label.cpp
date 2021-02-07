@@ -35,10 +35,10 @@ void Label::clear() {
 }
 
 void Label::copy_from(const Label& label) {
+    uint64_t len;
     layer = label.layer;
     texttype = label.texttype;
-    text = (char*)allocate((strlen(label.text) + 1) * sizeof(char));
-    strcpy(text, label.text);
+    text = copy_string(label.text, len);
     origin = label.origin;
     anchor = label.anchor;
     rotation = label.rotation;
@@ -157,7 +157,7 @@ void Label::to_gds(FILE* out, double scaling) const {
         fwrite(buffer_pos, sizeof(uint32_t), COUNT(buffer_pos), out);
 
         fwrite(buffer_text, sizeof(uint16_t), COUNT(buffer_text), out);
-        fwrite(text, sizeof(char), len, out);
+        fwrite(text, 1, len, out);
 
         properties_to_gds(properties, out);
         fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);

@@ -1324,7 +1324,8 @@ static PyMethodDef gdstk_methods[] = {
     {"read_rawcells", (PyCFunction)read_rawcells_function, METH_VARARGS,
      read_rawcells_function_doc},
     {"gds_units", (PyCFunction)gds_units_function, METH_VARARGS, gds_units_function_doc},
-    {"oas_precision", (PyCFunction)oas_precision_function, METH_VARARGS, oas_precision_function_doc},
+    {"oas_precision", (PyCFunction)oas_precision_function, METH_VARARGS,
+     oas_precision_function_doc},
     {NULL, NULL, 0, NULL}};
 
 static int gdstk_exec(PyObject* module) {

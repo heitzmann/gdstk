@@ -2322,7 +2322,8 @@ Args:
 See also:
     :ref:`getting-started`)!");
 
-PyDoc_STRVAR(library_object_write_oas_doc, R"!(write_oas(outfile, compress=False, deflate_level=6, tolerance=1e-2) -> None
+PyDoc_STRVAR(library_object_write_oas_doc,
+             R"!(write_oas(outfile, compress=False, deflate_level=6, tolerance=1e-2) -> None
 
 Save this library to an OASIS file.
 

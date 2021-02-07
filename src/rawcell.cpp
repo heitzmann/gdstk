@@ -69,7 +69,7 @@ void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
 void RawCell::to_gds(FILE* out) {
     if (source) {
         uint64_t off = offset;
-        data = (uint8_t*)allocate(sizeof(uint8_t) * size);
+        data = (uint8_t*)allocate(size);
         int64_t result = source->offset_read(data, size, off);
         if (result < 0 || (uint64_t)result != size) {
             fputs("[GDSTK] Unable to read RawCell data form input file.\n", stderr);
@@ -82,7 +82,7 @@ void RawCell::to_gds(FILE* out) {
         }
         source = NULL;
     }
-    fwrite(data, sizeof(uint8_t), size, out);
+    fwrite(data, 1, size, out);
 }
 
 Map<RawCell*> read_rawcells(const char* filename) {
@@ -140,7 +140,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                 if (rawcell) {
                     uint32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
-                    rawcell->name = (char*)allocate(sizeof(char) * (data_length + 1));
+                    rawcell->name = (char*)allocate(data_length + 1);
                     memcpy(rawcell->name, str, data_length);
                     rawcell->name[data_length] = 0;
                     result.set(rawcell->name, rawcell);
@@ -157,7 +157,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                 if (rawcell) {
                     uint32_t data_length = record_length - 4;
                     if (str[data_length - 1] == 0) data_length--;
-                    char* name = (char*)allocate(sizeof(char) * (data_length + 1));
+                    char* name = (char*)allocate(data_length + 1);
                     memcpy(name, str, data_length);
                     name[data_length] = 0;
                     rawcell->dependencies.append((RawCell*)name);

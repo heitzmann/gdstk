@@ -134,9 +134,8 @@ struct Map {
         uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         if (item->key == NULL) {
-            uint64_t len = 1 + strlen(key);
-            item->key = (char*)allocate(sizeof(char) * len);
-            memcpy(item->key, key, len);
+            uint64_t len;
+            item->key = copy_string(key, len);
             item->value = value;
             size++;
         } else if (strcmp(item->key, key) == 0) {
@@ -148,9 +147,8 @@ struct Map {
             } else {
                 item->next = (MapItem<T>*)allocate(sizeof(MapItem<T>));
                 item = item->next;
-                uint64_t len = 1 + strlen(key);
-                item->key = (char*)allocate(sizeof(char) * len);
-                memcpy(item->key, key, len);
+                uint64_t len;
+                item->key = copy_string(key, len);
                 item->value = value;
                 item->next = NULL;
                 size++;

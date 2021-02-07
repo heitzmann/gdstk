@@ -1327,7 +1327,7 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
     }
 }
 
-void RobustPath::element_center(const RobustPathElement* el, Array<Vec2> &result) const {
+void RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result) const {
     double u0 = 0;
     SubPath *sub0 = subpath_array.items;
     SubPath *sub1 = sub0 + 1;
@@ -1456,7 +1456,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void RobustPath::to_oas(OasisStream &out, OasisState& state) const {
+void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
     if (num_elements == 0 || subpath_array.size == 0) return;
 
     bool has_repetition = repetition.get_size() > 1;

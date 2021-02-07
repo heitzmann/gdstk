@@ -39,7 +39,6 @@ static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"name", NULL};
     char* name = NULL;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s:Cell", (char**)keywords, &name)) return -1;
-    uint64_t len = strlen(name) + 1;
     Cell* cell = self->cell;
     if (cell) {
         for (uint64_t i = 0; i < cell->polygon_array.size; i++)
@@ -57,8 +56,8 @@ static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {
         self->cell = (Cell*)allocate_clear(sizeof(Cell));
         cell = self->cell;
     }
-    cell->name = (char*)allocate(sizeof(char) * len);
-    memcpy(cell->name, name, len);
+    uint64_t len;
+    cell->name = copy_string(name, len);
     cell->owner = self;
     return 0;
 }
@@ -585,7 +584,7 @@ int cell_object_set_name(CellObject* self, PyObject* arg, void*) {
 
     Cell* cell = self->cell;
     if (cell->name) free_allocation(cell->name);
-    cell->name = (char*)allocate(sizeof(char) * (++len));
+    cell->name = (char*)allocate(++len);
     memcpy(cell->name, src, len);
     return 0;
 }

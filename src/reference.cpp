@@ -50,9 +50,8 @@ void Reference::clear() {
 void Reference::copy_from(const Reference& reference) {
     type = reference.type;
     if (reference.type == ReferenceType::Name) {
-        uint64_t len = 1 + strlen(reference.name);
-        name = (char*)allocate(sizeof(char) * len);
-        memcpy(name, reference.name, len);
+        uint64_t len;
+        name = copy_string(reference.name, len);
     } else {
         cell = reference.cell;
     }
@@ -65,12 +64,11 @@ void Reference::copy_from(const Reference& reference) {
 }
 
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
+    int64_t m;
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     Array<Polygon*> array = {0};
-    if (type == ReferenceType::Cell &&
-        (rotation == 0 || rotation == 0.5 * M_PI || rotation == -0.5 * M_PI || rotation == M_PI ||
-         rotation == -M_PI || rotation == 1.5 * M_PI || rotation == -1.5 * M_PI)) {
+    if (type == ReferenceType::Cell && is_multiple_of_pi_over_2(rotation, m)) {
         Vec2 cmin, cmax;
         cell->bounding_box(cmin, cmax);
         if (cmin.x <= cmax.x) {
@@ -408,7 +406,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
     Vec2* offset_p = offsets.items;
     for (uint64_t offset_count = offsets.size; offset_count > 0; offset_count--, offset_p++) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-        fwrite(ref_name, sizeof(char), len, out);
+        fwrite(ref_name, 1, len, out);
 
         if (transform) {
             fwrite(buffer_flags, sizeof(uint16_t), COUNT(buffer_flags), out);
@@ -444,7 +442,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
     const char* src_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
-    char* ref_name = (char*)allocate(sizeof(char) * (strlen(src_name) + 1));
+    char* ref_name = (char*)allocate(strlen(src_name) + 1);
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only
     // for strings, but who knows…
     char* d = ref_name;

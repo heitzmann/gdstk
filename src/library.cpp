@@ -56,9 +56,8 @@ void Library::print(bool all) const {
 }
 
 void Library::copy_from(const Library& library, bool deep_copy) {
-    uint64_t len = 1 + strlen(library.name);
-    name = (char*)allocate(sizeof(char) * len);
-    memcpy(name, library.name, len);
+    uint64_t len;
+    name = copy_string(library.name, len);
     unit = library.unit;
     precision = library.precision;
     if (deep_copy) {
@@ -143,7 +142,7 @@ void Library::write_gds(const char* filename, uint64_t max_points, std::tm* time
                                0x0206};
     big_endian_swap16(buffer_start, COUNT(buffer_start));
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-    fwrite(name, sizeof(char), len, out);
+    fwrite(name, 1, len, out);
 
     uint16_t buffer_units[] = {20, 0x0305};
     big_endian_swap16(buffer_units, COUNT(buffer_units));
@@ -370,7 +369,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         char* name_ = (*cell_p++)->name;
         uint64_t len = strlen(name_);
         oasis_write_unsigned_integer(out, len);
-        fwrite(name_, sizeof(char), len, out.file);
+        fwrite(name_, 1, len, out.file);
         properties_to_oas(cell_property_map.get(name_), out, state);
     }
 
@@ -380,7 +379,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         fputc((int)OasisRecord::TEXTSTRING, out.file);
         uint64_t len = strlen(item->key);
         oasis_write_unsigned_integer(out, len);
-        fwrite(item->key, sizeof(char), len, out.file);
+        fwrite(item->key, 1, len, out.file);
         oasis_write_unsigned_integer(out, item->value);
     }
 
@@ -390,7 +389,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         fputc((int)OasisRecord::PROPNAME, out.file);
         uint64_t len = strlen(item->key);
         oasis_write_unsigned_integer(out, len);
-        fwrite(item->key, sizeof(char), len, out.file);
+        fwrite(item->key, 1, len, out.file);
         oasis_write_unsigned_integer(out, item->value);
     }
 
@@ -400,7 +399,7 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         PropertyValue* value = *value_p++;
         fputc((int)OasisRecord::PROPSTRING_IMPLICIT, out.file);
         oasis_write_unsigned_integer(out, value->size);
-        fwrite(value->bytes, sizeof(uint8_t), value->size, out.file);
+        fwrite(value->bytes, 1, value->size, out.file);
     }
 
     fputc((int)OasisRecord::END, out.file);
@@ -517,7 +516,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
                 break;
             case GdsiiRecord::LIBNAME:
                 if (str[data_length - 1] == 0) data_length--;
-                library.name = (char*)allocate(sizeof(char) * (data_length + 1));
+                library.name = (char*)allocate(data_length + 1);
                 memcpy(library.name, str, data_length);
                 library.name[data_length] = 0;
                 break;
@@ -563,7 +562,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             case GdsiiRecord::STRNAME:
                 if (cell) {
                     if (str[data_length - 1] == 0) data_length--;
-                    cell->name = (char*)allocate(sizeof(char) * (data_length + 1));
+                    cell->name = (char*)allocate(data_length + 1);
                     memcpy(cell->name, str, data_length);
                     cell->name[data_length] = 0;
                     library.cell_array.append(cell);
@@ -680,7 +679,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             case GdsiiRecord::SNAME: {
                 if (reference) {
                     if (str[data_length - 1] == 0) data_length--;
-                    reference->name = (char*)allocate(sizeof(char) * (data_length + 1));
+                    reference->name = (char*)allocate(data_length + 1);
                     memcpy(reference->name, str, data_length);
                     reference->name[data_length] = 0;
                     reference->type = ReferenceType::Name;
@@ -703,7 +702,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             case GdsiiRecord::STRING:
                 if (label) {
                     if (str[data_length - 1] == 0) data_length--;
-                    label->text = (char*)allocate(sizeof(char) * (data_length + 1));
+                    label->text = (char*)allocate(data_length + 1);
                     memcpy(label->text, str, data_length);
                     label->text[data_length] = 0;
                 }
@@ -976,7 +975,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                         property_value_table.items + (uint64_t)property_value->unsigned_integer;
                     property_value->type = PropertyType::String;
                     property_value->size = prop_string->size;
-                    property_value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * prop_string->size);
+                    property_value->bytes = (uint8_t*)allocate(prop_string->size);
                     memcpy(property_value->bytes, prop_string->bytes, prop_string->size);
                 }
             } break;

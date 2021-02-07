@@ -42,8 +42,8 @@ const char* colors[] = {"F3C300", "875692", "F38400", "A1CAF1", "BE0032", "C2B28
 static const char* default_style(uint32_t layer, uint32_t type) {
     static char buffer[] = "stroke: #XXXXXX; fill: #XXXXXX; fill-opacity: 0.5;";
     const char* c = colors[(2 + layer + type * 13) % COUNT(colors)];
-    memcpy(buffer + 9, c, sizeof(char) * 6);
-    memcpy(buffer + 24, c, sizeof(char) * 6);
+    memcpy(buffer + 9, c, 6);
+    memcpy(buffer + 24, c, 6);
     return buffer;
 }
 
@@ -116,15 +116,12 @@ void StyleMap::set(uint32_t layer, uint32_t type, const char* value) {
         if (!value) return;
         free_allocation(s->value);
     }
+
+    uint64_t len;
     if (value) {
-        uint64_t len = strlen(value) + 1;
-        s->value = (char*)allocate(sizeof(char) * len);
-        memcpy(s->value, value, len);
+        s->value = copy_string(value, len);
     } else {
-        const char* default_value = default_style(layer, type);
-        uint64_t len = strlen(default_value) + 1;
-        s->value = (char*)allocate(sizeof(char) * len);
-        memcpy(s->value, default_value, len);
+        s->value = copy_string(default_style(layer, type), len);
     }
 }
 

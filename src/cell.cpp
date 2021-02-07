@@ -122,13 +122,8 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
 }
 
 void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
-    if (new_name) {
-        name = (char*)allocate(sizeof(char) * (strlen(new_name) + 1));
-        strcpy(name, new_name);
-    } else {
-        name = (char*)allocate(sizeof(char) * (strlen(cell.name) + 1));
-        strcpy(name, cell.name);
-    }
+    uint64_t len;
+    name = copy_string(new_name ? new_name : cell.name, len);
     properties = properties_copy(cell.properties);
 
     if (deep_copy) {
@@ -388,7 +383,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
                                0x0606};
     big_endian_swap16(buffer_start, COUNT(buffer_start));
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-    fwrite(name, sizeof(char), len, out);
+    fwrite(name, 1, len, out);
 
     Polygon** p_item = polygon_array.items;
     for (uint64_t i = 0; i < polygon_array.size; i++, p_item++) {
@@ -486,7 +481,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
 }
 
 void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
-    char* buffer = (char*)allocate(sizeof(char) * (strlen(name) + 1));
+    char* buffer = (char*)allocate(strlen(name) + 1);
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
     // strings, but who knows…
     char* d = buffer;

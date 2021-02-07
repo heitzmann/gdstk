@@ -40,7 +40,7 @@ double gdsii_real_to_double(uint64_t real) {
 
 // Read record and make necessary swaps
 uint32_t gdsii_read_record(FILE* in, uint8_t* buffer) {
-    uint64_t read_length = fread(buffer, sizeof(uint8_t), 4, in);
+    uint64_t read_length = fread(buffer, 1, 4, in);
     if (read_length < 4) {
         if (feof(in) != 0)
             fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
@@ -52,7 +52,7 @@ uint32_t gdsii_read_record(FILE* in, uint8_t* buffer) {
     const uint32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) return 0;
     if (record_length == 4) return record_length;
-    read_length = fread(buffer + 4, sizeof(uint8_t), record_length - 4, in);
+    read_length = fread(buffer + 4, 1, record_length - 4, in);
     if (read_length < record_length - 4) {
         if (feof(in) != 0)
             fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);

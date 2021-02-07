@@ -338,7 +338,7 @@ static bool add_value(PropertyValue* value, PyObject* item) {
         if (!string) return false;
         value->type = PropertyType::String;
         value->size = (uint64_t)string_len;
-        value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * string_len);
+        value->bytes = (uint8_t*)allocate(string_len);
         memcpy(value->bytes, string, string_len);
         return true;
     } else if (PyBytes_Check(item)) {
@@ -346,7 +346,7 @@ static bool add_value(PropertyValue* value, PyObject* item) {
         PyBytes_AsStringAndSize(item, &string, &string_len);
         value->type = PropertyType::String;
         value->size = (uint64_t)string_len;
-        value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * string_len);
+        value->bytes = (uint8_t*)allocate(string_len);
         memcpy(value->bytes, string, string_len);
         return true;
     }
@@ -407,7 +407,7 @@ static int parse_properties(Property*& properties, PyObject* arg) {
         Py_DECREF(item);
 
         Property* property = (Property*)allocate(sizeof(Property));
-        property->name = (char*)allocate(sizeof(char) * ++string_len);
+        property->name = (char*)allocate(++string_len);
         memcpy(property->name, name, string_len);
         property->value = NULL;
         property->next = properties;
@@ -446,9 +446,8 @@ static bool parse_property(Property*& properties, PyObject* args) {
     PyObject* py_value;
     if (!PyArg_ParseTuple(args, "sO:set_property", &name, &py_value)) return false;
     Property* property = (Property*)allocate(sizeof(Property));
-    uint64_t name_len = strlen(name) + 1;
-    property->name = (char*)allocate(sizeof(char) * name_len);
-    memcpy(property->name, name, name_len);
+    uint64_t name_len;
+    property->name = copy_string(name, name_len);
     property->next = properties;
     properties = property;
     property->value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));

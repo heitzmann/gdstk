@@ -106,7 +106,7 @@ PropertyValue* property_values_copy(const PropertyValue* values) {
                 break;
             case PropertyType::String: {
                 dst->size = values->size;
-                dst->bytes = (uint8_t*)allocate(sizeof(uint8_t) * dst->size);
+                dst->bytes = (uint8_t*)allocate(dst->size);
                 memcpy(dst->bytes, values->bytes, dst->size);
             }
         }
@@ -126,9 +126,8 @@ Property* properties_copy(const Property* properties) {
             dst->next = (Property*)allocate(sizeof(Property));
             dst = dst->next;
         }
-        uint64_t len = strlen(properties->name) + 1;
-        dst->name = (char*)allocate(sizeof(char) * len);
-        memcpy(dst->name, properties->name, len);
+        uint64_t len;
+        dst->name = copy_string(properties->name, len);
         dst->value = property_values_copy(properties->value);
         dst->next = NULL;
     }
@@ -151,9 +150,8 @@ static PropertyValue* get_or_add_property(Property*& properties, const char* nam
     property->next = properties;
     properties = property;
 
-    uint64_t len = strlen(name) + 1;
-    property->name = (char*)allocate(sizeof(char) * len);
-    memcpy(property->name, name, len);
+    uint64_t len;
+    property->name = copy_string(name, len);
     properties->value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));
     return properties->value;
 }
@@ -181,7 +179,7 @@ void set_property(Property*& properties, const char* name, const char* string, b
     PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
     value->size = strlen(string);
-    value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * value->size);
+    value->bytes = (uint8_t*)allocate(value->size);
     memcpy(value->bytes, string, value->size);
 }
 
@@ -190,7 +188,7 @@ void set_property(Property*& properties, const char* name, const uint8_t* bytes,
     PropertyValue* value = get_or_add_property(properties, name, create_new);
     value->type = PropertyType::String;
     value->size = size;
-    value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * size);
+    value->bytes = (uint8_t*)allocate(size);
     memcpy(value->bytes, bytes, size);
 }
 
@@ -202,8 +200,7 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
         if (is_gds_property(property) && property->value->unsigned_integer == attribute) {
             gds_value = property->value->next;
             gds_value->size = strlen(value) + 1;
-            gds_value->bytes =
-                (uint8_t*)reallocate(gds_value->bytes, sizeof(uint8_t) * gds_value->size);
+            gds_value->bytes = (uint8_t*)reallocate(gds_value->bytes, gds_value->size);
             memcpy(gds_value->bytes, value, gds_value->size);
             return;
         }
@@ -214,12 +211,10 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
     gds_attribute->unsigned_integer = attribute;
     gds_attribute->next = gds_value;
     gds_value->type = PropertyType::String;
-    gds_value->size = strlen(value) + 1;
-    gds_value->bytes = (uint8_t*)allocate(sizeof(uint8_t) * gds_value->size);
-    memcpy(gds_value->bytes, value, gds_value->size);
+    gds_value->bytes = (uint8_t*)copy_string(value, gds_value->size);
     gds_value->next = NULL;
     property = (Property*)allocate(sizeof(Property));
-    property->name = (char*)allocate(sizeof(char) * COUNT(gds_property_name));
+    property->name = (char*)allocate(COUNT(gds_property_name));
     memcpy(property->name, gds_property_name, COUNT(gds_property_name));
     property->value = gds_attribute;
     property->next = properties;
@@ -298,7 +293,7 @@ void properties_to_gds(const Property* properties, FILE* out) {
                 len--;
             } else {
                 free_bytes = true;
-                bytes = (uint8_t*)allocate(sizeof(uint8_t) * ++len);
+                bytes = (uint8_t*)allocate(++len);
                 memcpy(bytes, value->bytes, len - 1);
                 bytes[len - 1] = 0;
             }
@@ -309,7 +304,7 @@ void properties_to_gds(const Property* properties, FILE* out) {
         size += len;
         big_endian_swap16(buffer_prop, COUNT(buffer_prop));
         fwrite(buffer_prop, sizeof(uint16_t), COUNT(buffer_prop), out);
-        fwrite(bytes, sizeof(uint8_t), len, out);
+        fwrite(bytes, 1, len, out);
 
         if (free_bytes) free_allocation(bytes);
     }

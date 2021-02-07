@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
         for (uint64_t j = 0; j < lib1.cell_array.size; j++) {
             if (strcmp(cell->name, lib1.cell_array[j]->name) == 0) {
                 uint64_t len = strlen(cell->name);
-                cell->name = (char*)reallocate(cell->name, sizeof(char) * (len + 5));
+                cell->name = (char*)reallocate(cell->name, len + 5);
                 strcpy(cell->name + len, "-lib2");
                 // We should make sure the new name is also unique, but we are skiping that
                 break;

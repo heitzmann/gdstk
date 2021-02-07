@@ -213,8 +213,11 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             double xmax = *c;
             ++c;
             for (uint64_t i = coords.size; i > 0; i--, c++) {
-                if (*c < xmin) xmin = *c;
-                else if (*c > xmax) xmax = *c;
+                if (*c < xmin) {
+                    xmin = *c;
+                } else if (*c > xmax) {
+                    xmax = *c;
+                }
             }
             if (xmin != xmax) {
                 result.ensure_slots(2);
@@ -231,8 +234,11 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             double ymax = *c;
             ++c;
             for (uint64_t i = coords.size; i > 0; i--, c++) {
-                if (*c < ymin) ymin = *c;
-                else if (*c > ymax) ymax = *c;
+                if (*c < ymin) {
+                    ymin = *c;
+                } else if (*c > ymax) {
+                    ymax = *c;
+                }
             }
             if (ymin != ymax) {
                 result.ensure_slots(2);
@@ -250,10 +256,16 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             Vec2 vymin = *v;
             Vec2 vymax = *v;
             for (uint64_t i = offsets.size; i > 0; i--, v++) {
-                if (v->x < vxmin.x) vxmin = *v;
-                else if (v->x > vxmax.x) vxmax = *v;
-                if (v->y < vymin.y) vymin = *v;
-                else if (v->y > vymax.y) vymax = *v;
+                if (v->x < vxmin.x) {
+                    vxmin = *v;
+                } else if (v->x > vxmax.x) {
+                    vxmax = *v;
+                }
+                if (v->y < vymin.y) {
+                    vymin = *v;
+                } else if (v->y > vymax.y) {
+                    vymax = *v;
+                }
             }
             result.ensure_slots(4);
             result.append_unsafe(vxmin);

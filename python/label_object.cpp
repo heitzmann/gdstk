@@ -29,6 +29,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     int x_reflection = 0;
     unsigned long layer = 0;
     unsigned long texttype = 0;
+    uint64_t len;
     const char* keywords[] = {"text",         "origin", "anchor",   "rotation", "magnification",
                               "x_reflection", "layer",  "texttype", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oddpkk:Label", (char**)keywords, &s,
@@ -82,8 +83,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     label->rotation = rotation;
     label->magnification = magnification;
     label->x_reflection = x_reflection > 0;
-    label->text = (char*)allocate((strlen(s) + 1) * sizeof(char));
-    strcpy(label->text, s);
+    label->text = copy_string(s, len);
     label->owner = self;
     return 0;
 }
@@ -195,7 +195,7 @@ int label_object_set_text(LabelObject* self, PyObject* arg, void*) {
 
     Label* label = self->label;
     if (label->text) free_allocation(label->text);
-    label->text = (char*)allocate(sizeof(char) * (++len));
+    label->text = (char*)allocate(++len);
     memcpy(label->text, src, len);
     return 0;
 }

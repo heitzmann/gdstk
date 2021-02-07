@@ -26,7 +26,6 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
     const char* keywords[] = {"name", NULL};
     char* name = NULL;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s:RawCell", (char**)keywords, &name)) return -1;
-    uint64_t len = strlen(name) + 1;
     RawCell* rawcell = self->rawcell;
     if (rawcell) {
         rawcell->clear();
@@ -34,8 +33,8 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
         self->rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
         rawcell = self->rawcell;
     }
-    rawcell->name = (char*)allocate(sizeof(char) * len);
-    memcpy(rawcell->name, name, len);
+    uint64_t len;
+    rawcell->name = copy_string(name, len);
     rawcell->owner = self;
     return 0;
 }

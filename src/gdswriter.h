@@ -51,7 +51,7 @@ struct GdsWriter {
                                    0x0206};
         big_endian_swap16(buffer_start, COUNT(buffer_start));
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-        fwrite(name, sizeof(char), len, out);
+        fwrite(name, 1, len, out);
 
         uint16_t buffer_units[] = {20, 0x0305};
         big_endian_swap16(buffer_units, COUNT(buffer_units));

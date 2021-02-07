@@ -39,10 +39,10 @@ bool is_multiple_of_pi_over_2(double angle, int64_t& m) {
     if (angle == 0) {
         m = 0;
         return true;
-    } else if (angle == M_PI / 2) {
+    } else if (angle == 0.5 * M_PI) {
         m = 1;
         return true;
-    } else if (angle == -M_PI / 2) {
+    } else if (angle == -0.5 * M_PI) {
         m = -1;
         return true;
     } else if (angle == M_PI) {
@@ -51,16 +51,16 @@ bool is_multiple_of_pi_over_2(double angle, int64_t& m) {
     } else if (angle == -M_PI) {
         m = -2;
         return true;
-    } else if (angle == M_PI * 1.5) {
+    } else if (angle == 1.5 * M_PI) {
         m = 3;
         return true;
-    } else if (angle == -M_PI * 1.5) {
+    } else if (angle == -1.5 * M_PI) {
         m = -3;
         return true;
-    } else if (angle == M_PI * 2) {
+    } else if (angle == 2 * M_PI) {
         m = 4;
         return true;
-    } else if (angle == -M_PI * 2) {
+    } else if (angle == -2 * M_PI) {
         m = -4;
         return true;
     }
