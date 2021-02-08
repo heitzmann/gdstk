@@ -28,33 +28,21 @@ The source files can be found in the _docs_ directory.
 
 ### C++ library only
 
-A static library can be installed with cmake (use `-DCMAKE_INSTALL_PREFIX=path` to control the installation path):
+The C++ library is meant to be used by including it in your own source code.
+
+If you prefer to install a static library, the included _CMakeLists.txt_ should be a good starting option (use `-DCMAKE_INSTALL_PREFIX=path` to control the installation path):
 
 ```sh
 cmake -S . -B build
-cmake --build build --install target
+cmake --build build --target install
 ```
 
-The library depends on LAPACK and zlib.
+The library depends on LAPACK and [zlib](https://zlib.net/).
 
-### Conda
+### Python wrapper
 
-Windows users are suggested to install via [conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock).
-The recipe works on MacOS and Linux as well.
-
-### From source
-
-The C++ library is meant to be used straight from source.
-It must be linked aginst LAPACK and zlib.
-The included CMakeLists.txt file can be used as a guide.
-
-Installation from source should follow the usual method:
-
-```sh
-python setup.py install
-```
-
-## Dependencies for the Python wrapper
+The Python module can be installed via Conda (recommended) or compiled directly from source.
+It depends on:
 
 * LAPACK
 * [zlib](https://zlib.net/)
@@ -62,6 +50,22 @@ python setup.py install
 * [Python](https://www.python.org/)
 * [Numpy](https://numpy.org/)
 * [Sphinx](https://www.sphinx-doc.org/) and [rtd theme](https://sphinx-rtd-theme.readthedocs.io/) (to build the [documentation](http://heitzmann.github.io/gdstk))
+
+#### Conda
+
+Windows users are suggested to install via [Conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock).
+The recipe works on MacOS and Linux as well.
+
+#### From source
+
+The module must be linked aginst LAPACK and zlib.
+The included CMakeLists.txt file can be used as a guide.
+
+Installation from source should follow the usual method (there is no need to compile the static library beforehand):
+
+```sh
+python setup.py install
+```
 
 ## Support
 
