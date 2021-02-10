@@ -667,7 +667,63 @@ static bool is_trapezoid(const Array<IntVec2> points, uint8_t& type, IntVec2& co
     return false;
 }
 
+#define CIRCLE_DETECTION_LSQ_COEFFICIENTS 4
+static bool is_circle(const Array<Vec2> point_array, double tolerance, Vec2& center,
+                      double& radius) {
+    if (point_array.count <= CIRCLE_DETECTION_LSQ_COEFFICIENTS) return false;
+
+    double coef_a = 0;
+    double coef_b = 0;
+    double coef_m = 0;
+    double res_a = 0;
+    double res_b = 0;
+    Vec2 ref = point_array[0];
+    double ref_length_sq = ref.length_sq();
+    for (uint64_t i = 1; i <= CIRCLE_DETECTION_LSQ_COEFFICIENTS; i++) {
+        uint64_t j = i * (point_array.count - 1) / CIRCLE_DETECTION_LSQ_COEFFICIENTS;
+        Vec2 ab = 2 * (point_array[j] - ref);
+        double r = point_array[j].length_sq() - ref_length_sq;
+        coef_a += ab.x * ab.x;
+        coef_b += ab.y * ab.y;
+        coef_m += ab.x * ab.y;
+        res_a += ab.x * r;
+        res_b += ab.y * r;
+    }
+    double den = coef_a * coef_b - coef_m * coef_m;
+    if (fabs(den) < PARALLEL_EPS) return false;
+    center.x = (coef_b * res_a - coef_m * res_b) / den;
+    center.y = (coef_a * res_b - coef_m * res_a) / den;
+    //printf("Center: (%lf, %lf)\n", center.x, center.y);
+
+    radius = 0;
+    for (uint64_t i = 0; i <= CIRCLE_DETECTION_LSQ_COEFFICIENTS; i++) {
+        uint64_t j = i * (point_array.count - 1) / CIRCLE_DETECTION_LSQ_COEFFICIENTS;
+        radius += (point_array[j] - center).length();
+    }
+    radius /= 1 + CIRCLE_DETECTION_LSQ_COEFFICIENTS;
+    //printf("Radius: %lf\n", radius);
+
+    if (point_array.count < arc_num_points(2 * M_PI, radius, tolerance)) return false;
+
+    double radius_sq = radius * radius;
+    double neighbor_distance_sq = tolerance + 2 * sqrt(2 * tolerance * (radius - tolerance));
+    neighbor_distance_sq *= neighbor_distance_sq;
+    Vec2* pt = point_array.items;
+    Vec2* last = point_array.items + point_array.count - 1;
+    for (uint64_t i = point_array.count; i > 0; i--) {
+        if (fabs((*pt - center).length_sq() - radius_sq) >= tolerance ||
+            (*pt - *last).length_sq() >= neighbor_distance_sq) {
+            return false;
+        }
+        last = pt++;
+    }
+
+    return true;
+}
+
 void Polygon::to_oas(OasisStream& out, OasisState& state) const {
+    Vec2 center;
+    double radius;
     IntVec2 corner, size;
     int64_t delta_a, delta_b;
     uint8_t type;
@@ -753,6 +809,18 @@ void Polygon::to_oas(OasisStream& out, OasisState& state) const {
         }
         oasis_write_integer(out, corner.x);
         oasis_write_integer(out, corner.y);
+    } else if (state.circle_tolerance > 0 &&
+               is_circle(point_array, state.circle_tolerance, center, radius)) {
+        uint8_t info = 0x3B;
+        if (has_repetition) info |= 0x04;
+        oasis_putc((int)OasisRecord::CIRCLE, out);
+        oasis_putc(info, out);
+        oasis_write_unsigned_integer(out, layer);
+        oasis_write_unsigned_integer(out, datatype);
+        oasis_write_unsigned_integer(out, (uint64_t)llround(radius * state.scaling));
+        oasis_write_integer(out, (int64_t)llround(center.x * state.scaling));
+        oasis_write_integer(out, (int64_t)llround(center.y * state.scaling));
+        // printf("CIRCLE @ (%lf, %lf) r %lf\n", center.x, center.y, radius);
     } else {
         uint8_t info = 0x3B;
         if (has_repetition) info |= 0x04;

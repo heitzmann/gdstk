@@ -170,7 +170,7 @@ void Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp
 void Library::write_oas(const char* filename, double circle_tolerance, uint8_t compression_level,
                         uint16_t config_flags) const {
     OasisState state = {0};
-    // state.circle_tolerance = circle_tolerance;
+    state.circle_tolerance = circle_tolerance;
     state.config_flags = config_flags;
 
     if (compression_level > 9) compression_level = 9;

@@ -668,7 +668,7 @@ void oasis_write_real(OasisStream& out, double value) {
 }
 
 void oasis_write_point_list(OasisStream& out, const Array<IntVec2> points, bool polygon) {
-    // TODO: choose point list type to decrease file count
+    // TODO: choose point list type to decrease file size
     if (points.count < 1) return;
     oasis_putc((uint8_t)OasisPointList::General, out);
     oasis_write_unsigned_integer(out, points.count - 1);

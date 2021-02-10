@@ -29,7 +29,6 @@ namespace gdstk {
 
 #define OASIS_CONFIG_DETECT_RECTANGLES 0x0010
 #define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0020
-// #define OASIS_CONFIG_DETECT_CIRCLES 0x0040
 
 // point_list compression
 // g-delta compression
@@ -141,7 +140,7 @@ struct OasisStream {
 
 struct OasisState {
     double scaling;
-    // double tolerance; only for circle detection
+    double circle_tolerance;
     Map<uint64_t> property_name_map;
     Array<PropertyValue*> property_value_array;
     uint16_t config_flags;
