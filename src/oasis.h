@@ -27,11 +27,9 @@ namespace gdstk {
 // #define OASIS_CONFIG_PROPERTY_BOUNDING_BOX 0x0004
 // #define OASIS_CONFIG_PROPERTY_CELL_OFFSET 0x0008
 
-#define OASIS_CONFIG_USE_CBLOCK 0x0010
-
-// #define OASIS_CONFIG_DETECT_RECTANGLES 0x0020
-// #define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0040
-// #define OASIS_CONFIG_DETECT_CIRCLES 0x0080
+#define OASIS_CONFIG_DETECT_RECTANGLES 0x0010
+#define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0020
+// #define OASIS_CONFIG_DETECT_CIRCLES 0x0040
 
 // point_list compression
 // g-delta compression
@@ -40,7 +38,6 @@ namespace gdstk {
 
 // #define OASIS_CONFIG_STANDARD_PROPERTIES (OASIS_CONFIG_PROPERTY_MAX_LENGTH | OASIS_CONFIG_PROPERTY_TOP_LEVEL | OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
 // #define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS | OASIS_CONFIG_DETECT_CIRCLES)
-// #define OASIS_CONFIG_MAX_COMPRESSION (OASIS_CONFIG_USE_CBLOCK | OASIS_CONFIG_DETECT_ALL)
 
 enum struct OasisDataType : uint8_t {
     RealPositiveInteger = 0,
@@ -144,6 +141,7 @@ struct OasisStream {
 
 struct OasisState {
     double scaling;
+    // double tolerance; only for circle detection
     Map<uint64_t> property_name_map;
     Array<PropertyValue*> property_value_array;
     uint16_t config_flags;
@@ -201,6 +199,7 @@ void oasis_write_gdelta(OasisStream& out, int64_t x, int64_t y);
 void oasis_write_real(OasisStream& out, double value);
 
 // Uses first point as reference, does not output it.
+void oasis_write_point_list(OasisStream& out, const Array<IntVec2> points, bool polygon);
 void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
                             bool polygon);
 

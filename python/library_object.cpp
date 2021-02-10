@@ -187,26 +187,24 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
 }
 
 static PyObject* library_object_write_oas(LibraryObject* self, PyObject* args, PyObject* kwds) {
-    const char* keywords[] = {"outfile", "compress", "deflate_level", "tolerance", NULL};
+    const char* keywords[] = {"outfile",           "compression_level", "detect_rectangles",
+                              "detect_trapezoids", "circle_tolerance",  NULL};
     PyObject* pybytes = NULL;
-    int compress = 0;
-    uint8_t deflate_level = 6;
-    double tolerance = 1e-2;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|pbd:write_oas", (char**)keywords,
-                                     PyUnicode_FSConverter, &pybytes, &compress, &deflate_level,
-                                     &tolerance))
+    uint8_t compression_level = 6;
+    int detect_rectangles = 1;
+    int detect_trapezoids = 1;
+    double circle_tolerance = 0;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|bppd:write_oas", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &compression_level,
+                                     &detect_rectangles, &detect_trapezoids, &circle_tolerance))
         return NULL;
 
-    if (deflate_level < 1)
-        deflate_level = 1;
-    else if (deflate_level > 9)
-        deflate_level = 9;
-
     uint8_t config_flags = 0;
-    if (compress == 1) config_flags |= OASIS_CONFIG_USE_CBLOCK;
+    if (detect_rectangles == 1) config_flags |= OASIS_CONFIG_DETECT_RECTANGLES;
+    if (detect_trapezoids == 1) config_flags |= OASIS_CONFIG_DETECT_TRAPEZOIDS;
 
     const char* filename = PyBytes_AS_STRING(pybytes);
-    self->library->write_oas(filename, tolerance, deflate_level, config_flags);
+    self->library->write_oas(filename, circle_tolerance, compression_level, config_flags);
     Py_DECREF(pybytes);
 
     Py_INCREF(Py_None);

@@ -106,6 +106,17 @@ void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const V
     }
 }
 
+void scale_and_round_array(const Array<Vec2> points, double scaling,
+                           Array<IntVec2>& scaled_points) {
+    scaled_points.ensure_slots(points.count);
+    scaled_points.count = points.count;
+    int64_t* s = (int64_t*)scaled_points.items;
+    double* p = (double*)points.items;
+    for (uint64_t i = 2 * points.count; i > 0; i--) {
+        *s++ = (int64_t)llround((*p++) * scaling);
+    }
+}
+
 void big_endian_swap16(uint16_t* buffer, uint64_t n) {
     if (IS_BIG_ENDIAN) return;
     for (; n > 0; n--) {

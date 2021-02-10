@@ -167,10 +167,13 @@ void Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp
     fclose(out);
 }
 
-void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_level,
+void Library::write_oas(const char* filename, double circle_tolerance, uint8_t compression_level,
                         uint16_t config_flags) const {
     OasisState state = {0};
+    // state.circle_tolerance = circle_tolerance;
     state.config_flags = config_flags;
+
+    if (compression_level > 9) compression_level = 9;
 
     OasisStream out;
     out.data_size = 1024 * 1024;
@@ -208,14 +211,13 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
         cell_property_map.set(cell->name, cell->properties);
     }
 
-    bool use_cblock = config_flags & OASIS_CONFIG_USE_CBLOCK;
     cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
         Cell* cell = *cell_p++;
         fputc((int)OasisRecord::CELL_REF_NUM, out.file);
         oasis_write_unsigned_integer(out, cell_name_map.get(cell->name));
 
-        if (use_cblock) {
+        if (compression_level > 0) {
             out.cursor = out.data;
         }
 
@@ -332,13 +334,14 @@ void Library::write_oas(const char* filename, double tolerance, uint8_t deflate_
             properties_to_oas(label->properties, out, state);
         }
 
-        if (use_cblock) {
+        if (compression_level > 0) {
             uint64_t uncompressed_size = out.cursor - out.data;
             out.cursor = NULL;
 
             z_stream s = {0};
             // TODO: use custom allocator
-            if (deflateInit2(&s, deflate_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
+            if (deflateInit2(&s, compression_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) !=
+                Z_OK) {
                 fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
             }
             s.avail_out = deflateBound(&s, uncompressed_size);
@@ -1439,16 +1442,44 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 Array<Vec2>* point_array = &polygon->point_array;
                 point_array->ensure_slots(4);
                 point_array->count = 4;
+                Vec2* r = point_array->items;
+                Vec2* s = r + 1;
+                Vec2* q = s + 1;
+                Vec2* p = q + 1;
                 if (info & 0x80) {
-                    point_array->items[0] = modal_geom_pos;
-                    point_array->items[1] = modal_geom_pos + Vec2{modal_geom_dim.x, -delta_a};
-                    point_array->items[2] = modal_geom_pos + modal_geom_dim + Vec2{0, -delta_b};
-                    point_array->items[3] = modal_geom_pos + Vec2{0, modal_geom_dim.y};
+                    p->x = q->x = modal_geom_pos.x;
+                    r->x = s->x = modal_geom_pos.x + modal_geom_dim.x;
+                    if (delta_a < 0) {
+                        p->y = modal_geom_pos.y;
+                        r->y = p->y - delta_a;
+                    } else {
+                        r->y = modal_geom_pos.y;
+                        p->y = r->y + delta_a;
+                    }
+                    if (delta_b < 0) {
+                        s->y = modal_geom_pos.y + modal_geom_dim.y;
+                        q->y = s->y + delta_b;
+                    } else {
+                        q->y = modal_geom_pos.y + modal_geom_dim.y;
+                        s->y = q->y - delta_b;
+                    }
                 } else {
-                    point_array->items[0] = modal_geom_pos + Vec2{0, modal_geom_dim.y};
-                    point_array->items[1] = modal_geom_pos + Vec2{-delta_a, 0};
-                    point_array->items[2] = modal_geom_pos + Vec2{modal_geom_dim.x - delta_b, 0};
-                    point_array->items[3] = modal_geom_pos + modal_geom_dim;
+                    p->y = q->y = modal_geom_pos.y + modal_geom_dim.y;
+                    r->y = s->y = modal_geom_pos.y;
+                    if (delta_a < 0) {
+                        p->x = modal_geom_pos.x;
+                        r->x = p->x - delta_a;
+                    } else {
+                        r->x = modal_geom_pos.x;
+                        p->x = r->x + delta_a;
+                    }
+                    if (delta_b < 0) {
+                        s->x = modal_geom_pos.x + modal_geom_dim.x;
+                        q->x = s->x + delta_b;
+                    } else {
+                        q->x = modal_geom_pos.x + modal_geom_dim.x;
+                        s->x = q->x - delta_b;
+                    }
                 }
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
@@ -1498,19 +1529,19 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 Vec2* v;
                 if (modal_ctrapezoid_type > 15 && modal_ctrapezoid_type < 24) {
                     point_array->ensure_slots(3);
+                    point_array->count = 3;
                     v = point_array->items;
                     v[0] = modal_geom_pos;
                     v[1] = modal_geom_pos;
                     v[2] = modal_geom_pos;
-                    point_array->count = 3;
                 } else {
                     point_array->ensure_slots(4);
+                    point_array->count = 4;
                     v = point_array->items;
                     v[0] = modal_geom_pos;
                     v[1] = modal_geom_pos + Vec2{modal_geom_dim.x, 0};
                     v[2] = modal_geom_pos + modal_geom_dim;
                     v[3] = modal_geom_pos + Vec2{0, modal_geom_dim.y};
-                    point_array->count = 4;
                 }
                 switch (modal_ctrapezoid_type) {
                     case 0:
@@ -1554,20 +1585,20 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                         v[0].y += modal_geom_dim.x;
                         break;
                     case 12:
-                        v[1].x += modal_geom_dim.x;
-                        v[2].x -= modal_geom_dim.x;
+                        v[1].y += modal_geom_dim.x;
+                        v[2].y -= modal_geom_dim.x;
                         break;
                     case 13:
-                        v[0].x += modal_geom_dim.x;
-                        v[3].x -= modal_geom_dim.x;
+                        v[0].y += modal_geom_dim.x;
+                        v[3].y -= modal_geom_dim.x;
                         break;
                     case 14:
-                        v[1].x += modal_geom_dim.x;
-                        v[3].x -= modal_geom_dim.x;
+                        v[1].y += modal_geom_dim.x;
+                        v[3].y -= modal_geom_dim.x;
                         break;
                     case 15:
-                        v[0].x += modal_geom_dim.x;
-                        v[2].x -= modal_geom_dim.x;
+                        v[0].y += modal_geom_dim.x;
+                        v[2].y -= modal_geom_dim.x;
                         break;
                     case 16:
                         v[1].x += modal_geom_dim.x;

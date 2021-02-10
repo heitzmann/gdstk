@@ -386,20 +386,389 @@ void Polygon::to_gds(FILE* out, double scaling) const {
     coords.clear();
 }
 
+static bool is_rectangle(const Array<IntVec2> points, IntVec2& corner, IntVec2& size) {
+    if (points.count == 4 && ((points[0].x == points[1].x && points[1].y == points[2].y &&
+                               points[2].x == points[3].x && points[3].y == points[0].y) ||
+                              (points[0].y == points[1].y && points[1].x == points[2].x &&
+                               points[2].y == points[3].y && points[3].x == points[0].x))) {
+        for (uint64_t i = 0; i < 2; i++) {
+            int64_t e0 = points[0].e[i];
+            int64_t e2 = points[2].e[i];
+            if (e0 < e2) {
+                size.e[i] = e2 - e0;
+                corner.e[i] = e0;
+            } else {
+                size.e[i] = e0 - e2;
+                corner.e[i] = e2;
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+// 0 <= type < 26 matches the CTRAPEZOID types, 26 is for horizontal TRAPEZOID, 27 for vertical
+static bool is_trapezoid(const Array<IntVec2> points, uint8_t& type, IntVec2& corner, IntVec2& size,
+                         int64_t& delta_a, int64_t& delta_b) {
+    if (points.count == 4) {
+        IntVec2 p, q, r, s;
+        if (points[0].x == points[1].x && points[2].x == points[3].x) {
+            if (points[0].x < points[2].x) {
+                if (points[0].y < points[1].y || points[3].y < points[2].y) {
+                    p = points[0];
+                    q = points[1];
+                    r = points[3];
+                    s = points[2];
+                } else {
+                    p = points[1];
+                    q = points[0];
+                    r = points[2];
+                    s = points[3];
+                }
+            } else {
+                if (points[0].y < points[1].y || points[3].y < points[2].y) {
+                    p = points[3];
+                    q = points[2];
+                    r = points[0];
+                    s = points[1];
+                } else {
+                    p = points[2];
+                    q = points[3];
+                    r = points[1];
+                    s = points[0];
+                }
+            }
+            type = 27;
+        } else if (points[3].x == points[0].x && points[1].x == points[2].x) {
+            if (points[3].x < points[1].x) {
+                if (points[3].y < points[0].y || points[2].y < points[1].y) {
+                    p = points[3];
+                    q = points[0];
+                    r = points[2];
+                    s = points[1];
+                } else {
+                    p = points[0];
+                    q = points[3];
+                    r = points[1];
+                    s = points[2];
+                }
+            } else {
+                if (points[3].y < points[0].y || points[2].y < points[1].y) {
+                    p = points[2];
+                    q = points[1];
+                    r = points[3];
+                    s = points[0];
+                } else {
+                    p = points[1];
+                    q = points[2];
+                    r = points[0];
+                    s = points[3];
+                }
+            }
+            type = 27;
+        } else if (points[0].y == points[1].y && points[2].y == points[3].y) {
+            if (points[0].y < points[2].y) {
+                if (points[0].x < points[1].x || points[3].x < points[2].x) {
+                    p = points[3];
+                    q = points[2];
+                    r = points[0];
+                    s = points[1];
+                } else {
+                    p = points[2];
+                    q = points[3];
+                    r = points[1];
+                    s = points[0];
+                }
+            } else {
+                if (points[0].x < points[1].x || points[3].x < points[2].x) {
+                    p = points[0];
+                    q = points[1];
+                    r = points[3];
+                    s = points[2];
+                } else {
+                    p = points[1];
+                    q = points[0];
+                    r = points[2];
+                    s = points[3];
+                }
+            }
+            type = 26;
+        } else if (points[3].y == points[0].y && points[1].y == points[2].y) {
+            if (points[3].y < points[1].y) {
+                if (points[3].x < points[0].x || points[2].x < points[1].x) {
+                    p = points[2];
+                    q = points[1];
+                    r = points[3];
+                    s = points[0];
+                } else {
+                    p = points[1];
+                    q = points[2];
+                    r = points[0];
+                    s = points[3];
+                }
+            } else {
+                if (points[3].x < points[0].x || points[2].x < points[1].x) {
+                    p = points[3];
+                    q = points[0];
+                    r = points[2];
+                    s = points[1];
+                } else {
+                    p = points[0];
+                    q = points[3];
+                    r = points[1];
+                    s = points[2];
+                }
+            }
+            type = 26;
+        } else {
+            return false;
+        }
+
+        if (type == 26) {
+            corner.x = p.x < r.x ? p.x : r.x;
+            size.x = (s.x > q.x ? s.x : q.x) - corner.x;
+            delta_a = p.x - r.x;
+            delta_b = q.x - s.x;
+            corner.y = r.y;
+            size.y = p.y - r.y;
+            if (delta_a == 0) {
+                if (delta_b == 0) {
+                    type = size.x == size.y ? 25 : 24;
+                } else if (delta_b == -size.y) {
+                    type = 0;
+                } else if (delta_b == size.y) {
+                    type = 1;
+                }
+            } else if (delta_a == -size.y) {
+                if (delta_b == 0) {
+                    type = 3;
+                } else if (delta_b == -size.y) {
+                    type = 7;
+                } else if (delta_b == size.y) {
+                    type = 5;
+                }
+            } else if (delta_a == size.y) {
+                if (delta_b == 0) {
+                    type = 2;
+                } else if (delta_b == -size.y) {
+                    type = 4;
+                } else if (delta_b == size.y) {
+                    type = 6;
+                }
+            }
+        } else {
+            corner.y = p.y < r.y ? p.y : r.y;
+            size.y = (s.y > q.y ? s.y : q.y) - corner.y;
+            delta_a = p.y - r.y;
+            delta_b = q.y - s.y;
+            corner.x = p.x;
+            size.x = r.x - p.x;
+            if (delta_a == 0) {
+                if (delta_b == 0) {
+                    type = size.x == size.y ? 25 : 24;
+                } else if (delta_b == -size.x) {
+                    type = 9;
+                } else if (delta_b == size.x) {
+                    type = 8;
+                }
+            } else if (delta_a == -size.x) {
+                if (delta_b == 0) {
+                    type = 10;
+                } else if (delta_b == -size.x) {
+                    type = 14;
+                } else if (delta_b == size.x) {
+                    type = 12;
+                }
+            } else if (delta_a == size.x) {
+                if (delta_b == 0) {
+                    type = 11;
+                } else if (delta_b == -size.x) {
+                    type = 13;
+                } else if (delta_b == size.x) {
+                    type = 15;
+                }
+            }
+        }
+        return true;
+    } else if (points.count == 3) {
+        IntVec2 p, q, r;
+        // Sort p < q < r
+        if (points[0] < points[1]) {
+            if (points[0] < points[2]) {
+                p = points[0];
+                if (points[1] < points[2]) {
+                    q = points[1];
+                    r = points[2];
+                } else {
+                    q = points[2];
+                    r = points[1];
+                }
+            } else {
+                p = points[2];
+                q = points[0];
+                r = points[1];
+            }
+        } else {
+            if (points[1] < points[2]) {
+                p = points[1];
+                if (points[0] < points[2]) {
+                    q = points[0];
+                    r = points[2];
+                } else {
+                    q = points[2];
+                    r = points[0];
+                }
+            } else {
+                p = points[2];
+                q = points[1];
+                r = points[0];
+            }
+        }
+        corner.x = p.x;
+        size.x = r.x - p.x;
+        corner.y = p.y < q.y ? (p.y < r.y ? p.y : r.y) : (q.y < r.y ? q.y : r.y);
+        size.y = (p.y > q.y ? (p.y > r.y ? p.y : r.y) : (q.y > r.y ? q.y : r.y)) - corner.y;
+        if (size.x == size.y) {
+            if (q.x == p.x) {
+                if (r.y == p.y) {
+                    type = 16;
+                    return true;
+                } else if (r.y == q.y) {
+                    type = 17;
+                    return true;
+                }
+                return false;
+            } else if (r.x == q.x) {
+                if (p.y == q.y) {
+                    type = 18;
+                    return true;
+                } else if (p.y == r.y) {
+                    type = 19;
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        } else if (size.x == 2 * size.y && p.y == r.y && q.x == corner.x + size.y) {
+            type = q.y > p.y ? 20 : 21;
+            return true;
+        } else if (size.y == 2 * size.x) {
+            if (p.x == q.x && r.y == corner.y + size.x) {
+                type = 22;
+                return true;
+            } else if (q.x == r.x && p.y == corner.y + size.x) {
+                type = 23;
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+    return false;
+}
+
 void Polygon::to_oas(OasisStream& out, OasisState& state) const {
-    uint8_t info = 0x3B;
+    IntVec2 corner, size;
+    int64_t delta_a, delta_b;
+    uint8_t type;
     bool has_repetition = repetition.get_count() > 1;
-    if (has_repetition) info |= 0x04;
-    oasis_putc((int)OasisRecord::POLYGON, out);
-    oasis_putc(info, out);
-    oasis_write_unsigned_integer(out, layer);
-    oasis_write_unsigned_integer(out, datatype);
-    oasis_write_point_list(out, point_array, state.scaling, true);
-    Vec2 ref = point_array[0];
-    oasis_write_integer(out, (int64_t)llround(ref.x * state.scaling));
-    oasis_write_integer(out, (int64_t)llround(ref.y * state.scaling));
+    Array<IntVec2> points = {0};
+    scale_and_round_array(point_array, state.scaling, points);
+
+    if ((state.config_flags & OASIS_CONFIG_DETECT_RECTANGLES) &&
+        is_rectangle(points, corner, size)) {
+        bool is_square = size.x == size.y;
+        uint8_t info;
+        if (is_square) {
+            info = 0xDB;
+        } else {
+            info = 0x7B;
+        }
+        if (has_repetition) info |= 0x04;
+        oasis_putc((int)OasisRecord::RECTANGLE, out);
+        oasis_putc(info, out);
+        oasis_write_unsigned_integer(out, layer);
+        oasis_write_unsigned_integer(out, datatype);
+        oasis_write_unsigned_integer(out, size.x);
+        if (!is_square) oasis_write_unsigned_integer(out, size.y);
+        oasis_write_integer(out, corner.x);
+        oasis_write_integer(out, corner.y);
+        // if (is_square)
+        //     printf("SQUARE @ (%ld, %ld) w %ld\n", corner.x, corner.y, size.x);
+        // else
+        //     printf("RECTANGLE @ (%ld, %ld) w %ld, h %ld\n", corner.x, corner.y, size.x, size.y);
+    } else if ((state.config_flags & OASIS_CONFIG_DETECT_TRAPEZOIDS) &&
+               is_trapezoid(points, type, corner, size, delta_a, delta_b)) {
+        if (type > 25) {
+            uint8_t info = type == 26 ? 0x7B : 0xFB;
+            if (has_repetition) info |= 0x04;
+            if (delta_a == 0) {
+                oasis_putc((int)OasisRecord::TRAPEZOID_B, out);
+            } else if (delta_b == 0) {
+                oasis_putc((int)OasisRecord::TRAPEZOID_A, out);
+            } else {
+                oasis_putc((int)OasisRecord::TRAPEZOID_AB, out);
+            }
+            oasis_putc(info, out);
+            oasis_write_unsigned_integer(out, layer);
+            oasis_write_unsigned_integer(out, datatype);
+            oasis_write_unsigned_integer(out, size.x);
+            oasis_write_unsigned_integer(out, size.y);
+            if (delta_a == 0) {
+                oasis_write_1delta(out, delta_b);
+                // printf("TRAPEZOID_B %s @ (%ld, %ld) w %ld, h %ld, db %ld\n",
+                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y, delta_b);
+            } else if (delta_b == 0) {
+                oasis_write_1delta(out, delta_a);
+                // printf("TRAPEZOID_A %s @ (%ld, %ld) w %ld, h %ld, da %ld\n",
+                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y, delta_a);
+            } else {
+                oasis_write_1delta(out, delta_a);
+                oasis_write_1delta(out, delta_b);
+                // printf("TRAPEZOID_AB %s @ (%ld, %ld) w %ld, h %ld, da %ld, db %ld\n",
+                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y, delta_a,
+                //        delta_b);
+            }
+        } else {
+            uint8_t info = 0x9B;
+            bool use_h = type < 16 || type == 20 || type == 21 || type == 24;
+            bool use_w = type != 20 && type != 21;
+            if (use_h) info |= 0x20;
+            if (use_w) info |= 0x40;
+            if (has_repetition) info |= 0x04;
+            oasis_putc((int)OasisRecord::CTRAPEZOID, out);
+            oasis_putc(info, out);
+            oasis_write_unsigned_integer(out, layer);
+            oasis_write_unsigned_integer(out, datatype);
+            oasis_putc(type, out);
+            if (use_w) oasis_write_unsigned_integer(out, size.x);
+            if (use_h) oasis_write_unsigned_integer(out, size.y);
+            // if (use_w && use_h)
+            //     printf("CTRAPEZOID %hu @ (%ld, %ld) w  %ld, h %ld\n", type, corner.x, corner.y,
+            //            size.x, size.y);
+            // else if (use_w)
+            //     printf("CTRAPEZOID %hu @ (%ld, %ld) w %ld\n", type, corner.x, corner.y, size.x);
+            // else
+            //     printf("CTRAPEZOID %hu @ (%ld, %ld) h %ld\n", type, corner.x, corner.y, size.y);
+        }
+        oasis_write_integer(out, corner.x);
+        oasis_write_integer(out, corner.y);
+    } else {
+        uint8_t info = 0x3B;
+        if (has_repetition) info |= 0x04;
+        oasis_putc((int)OasisRecord::POLYGON, out);
+        oasis_putc(info, out);
+        oasis_write_unsigned_integer(out, layer);
+        oasis_write_unsigned_integer(out, datatype);
+        oasis_write_point_list(out, points, true);
+        oasis_write_integer(out, points[0].x);
+        oasis_write_integer(out, points[0].y);
+        // printf("POLYGON @ (%ld, %ld)\n", points[0].x, points[0].y);
+    }
     if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
     properties_to_oas(properties, out, state);
+
+    points.clear();
 }
 
 void Polygon::to_svg(FILE* out, double scaling) const {

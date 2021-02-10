@@ -457,7 +457,7 @@ Examples:
     .. image:: ../polygon/fillet.*
        :align: center)!");
 
-PyDoc_STRVAR(polygon_object_fracture_doc, R"!(fracture(max_points=199, precision=0.001) -> self
+PyDoc_STRVAR(polygon_object_fracture_doc, R"!(fracture(max_points=199, precision=0.001) -> list
 
 Fracture this polygon into a list of polygons.
 
@@ -466,6 +466,12 @@ Args:
       Official GDSII documentation requires that all polygons have at
       most 199 vertices, but 8190 is usually supported by most software.
     precision: Desired vertex precision for fracturing.
+
+Returns:
+    List of fractured polygons.
+
+Notes:
+    If ``max_points < 5`` the return value is an empty list.
 
 Examples:
     >>> polygon = gdstk.racetrack((0, 0), 30, 60, 40, tolerance=1e-3)
@@ -2323,16 +2329,20 @@ See also:
     :ref:`getting-started`)!");
 
 PyDoc_STRVAR(library_object_write_oas_doc,
-             R"!(write_oas(outfile, compress=False, deflate_level=6, tolerance=1e-2) -> None
+             R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0) -> None
 
 Save this library to an OASIS file.
 
 Args:
     outfile (str or pathlib.Path): Name of the output file.
-    compress: Whether to compress cell blocks.
-    deflate_level: Level of compression between 1 and 9, 1 being the
-      fastest but with the least compression.
-    tolerance: Tolerance for detecting special shapes, such as circles.
+    compression_level: Level of compression for cells (between 0 and 9).
+      Setting to 0 will disable cell compression, 1 gives the best speed
+      and 9, the best compression.
+    detect_rectangles: Store rectangles in compressed format.
+    detect_trapezoids: Store trapezoids in compressed format.
+    circle_tolerance: Tolerance for detecting circles. If less or equal
+      to 0, no detection is performed. Circles are stored in compressed
+      format.
 
 See also:
     :ref:`getting-started`)!");
@@ -2771,7 +2781,8 @@ Args:
       of the polygonal types or a sequence of points (coordinate pairs
       or complex).
     position (number or sequence): Cut positions.
-    axis (str): One of "x" or "y".
+    axis (str): One of "x" or "y". Indicated the axis where positions
+      are specified. The cut direction is orthogonal to this axis.
     precision: Desired precision for rounding vertex coordinates.
 
 Returns:

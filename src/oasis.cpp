@@ -667,18 +667,25 @@ void oasis_write_real(OasisStream& out, double value) {
     oasis_write(&value, sizeof(double), 1, out);
 }
 
-void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
-                            bool polygon) {
+void oasis_write_point_list(OasisStream& out, const Array<IntVec2> points, bool polygon) {
     // TODO: choose point list type to decrease file count
     if (points.count < 1) return;
     oasis_putc((uint8_t)OasisPointList::General, out);
     oasis_write_unsigned_integer(out, points.count - 1);
-    Vec2* ref = points.items;
-    Vec2* cur = ref + 1;
+    IntVec2* ref = points.items;
+    IntVec2* cur = ref + 1;
     for (uint64_t i = points.count - 1; i > 0; i--) {
-        Vec2 v = *cur++ - *ref++;
-        oasis_write_gdelta(out, llround(scaling * v.x), llround(scaling * v.y));
+        IntVec2 v = *cur++ - *ref++;
+        oasis_write_gdelta(out, v.x, v.y);
     }
+}
+
+void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
+                            bool polygon) {
+    Array<IntVec2> scaled_points = {0};
+    scale_and_round_array(points, scaling, scaled_points);
+    oasis_write_point_list(out, scaled_points, polygon);
+    scaled_points.clear();
 }
 
 void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling) {

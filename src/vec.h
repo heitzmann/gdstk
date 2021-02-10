@@ -10,9 +10,88 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef __VEC_H__
 #define __VEC_H__
 
+#include <inttypes.h>
 #include <math.h>
 
 namespace gdstk {
+
+struct IntVec2 {
+    union {
+        struct {
+            int64_t x, y;
+        };
+        struct {
+            int64_t u, v;
+        };
+        struct {
+            int64_t re, im;
+        };
+        int64_t e[2];
+    };
+
+    bool operator==(const IntVec2& vec) const { return e[0] == vec.e[0] && e[1] == vec.e[1]; }
+
+    bool operator!=(const IntVec2& vec) const { return e[0] != vec.e[0] || e[1] != vec.e[1]; }
+
+    bool operator<(const IntVec2& vec) const {
+        return e[0] < vec.e[0] || (e[0] == vec.e[0] && (e[1] < vec.e[1]));
+    }
+
+    bool operator>(const IntVec2& vec) const {
+        return e[0] > vec.e[0] || (e[0] == vec.e[0] && (e[1] > vec.e[1]));
+    }
+
+    bool operator<=(const IntVec2& vec) const {
+        return e[0] <= vec.e[0] || (e[0] == vec.e[0] && (e[1] <= vec.e[1]));
+    }
+
+    bool operator>=(const IntVec2& vec) const {
+        return e[0] >= vec.e[0] || (e[0] == vec.e[0] && (e[1] >= vec.e[1]));
+    }
+
+    IntVec2& operator+=(const IntVec2& vec) {
+        e[0] += vec.e[0];
+        e[1] += vec.e[1];
+        return *this;
+    }
+
+    IntVec2& operator+=(const int64_t s) {
+        e[0] += s;
+        e[1] += s;
+        return *this;
+    }
+
+    IntVec2& operator-=(const IntVec2& vec) {
+        e[0] -= vec.e[0];
+        e[1] -= vec.e[1];
+        return *this;
+    }
+
+    IntVec2& operator-=(const int64_t s) {
+        e[0] -= s;
+        e[1] -= s;
+        return *this;
+    }
+};
+
+inline IntVec2 operator-(const IntVec2& vec) { return IntVec2{-vec.e[0], -vec.e[1]}; }
+
+inline IntVec2 operator+(const IntVec2& v1, const IntVec2& v2) {
+    return IntVec2{v1.e[0] + v2.e[0], v1.e[1] + v2.e[1]};
+}
+
+inline IntVec2 operator+(const IntVec2& vec, const int64_t s) { return IntVec2{vec.e[0] + s, vec.e[1] + s}; }
+
+inline IntVec2 operator+(const int64_t s, const IntVec2& vec) { return IntVec2{s + vec.e[0], s + vec.e[1]}; }
+
+inline IntVec2 operator-(const IntVec2& v1, const IntVec2& v2) {
+    return IntVec2{v1.e[0] - v2.e[0], v1.e[1] - v2.e[1]};
+}
+
+inline IntVec2 operator-(const IntVec2& vec, const int64_t s) { return IntVec2{vec.e[0] - s, vec.e[1] - s}; }
+
+inline IntVec2 operator-(const int64_t s, const IntVec2& vec) { return IntVec2{s - vec.e[0], s - vec.e[1]}; }
+
 
 struct Vec2 {
     union {
