@@ -38,7 +38,7 @@ void directional_coupler(Library& lib) {
     path->offset_scale = 1;
     path->trafo[0] = 1;
     path->trafo[4] = 1;
-    path->gdsii_path = true;
+    path->simple_path = true;
 
     path->elements = (RobustPathElement*)allocate_clear(2 * sizeof(RobustPathElement));
     path->elements[0].layer = 1;
@@ -96,7 +96,7 @@ void mach_zenhder_interferometer(Library& lib) {
         element[i].bend_radius = 15;
         path[i].num_elements = 1;
         path[i].elements = element + i;
-        path[i].gdsii_path = true;
+        path[i].simple_path = true;
         path[i].init(starting_points[i], i < 2 ? 0.25 : 1, 0, 0.01);
     }
 

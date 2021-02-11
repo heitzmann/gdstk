@@ -74,10 +74,10 @@ def test_copy_transform(proof_cells):
     ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
     ref_cell1.add(gdstk.Label("LaBeL", (2.4, 8.7), "s"))
     ref_cell1.add(
-        gdstk.FlexPath(8 + 4j, 1, gdsii_path=True, layer=3).arc(2, 0, numpy.pi / 2)
+        gdstk.FlexPath(8 + 4j, 1, simple_path=True, layer=3).arc(2, 0, numpy.pi / 2)
     )
     ref_cell1.add(
-        gdstk.RobustPath(7.5 + 7j, 1, gdsii_path=True, layer=4).bezier(
+        gdstk.RobustPath(7.5 + 7j, 1, simple_path=True, layer=4).bezier(
             [-2 + 1j, -2 + 3j, 4j, 6j, -3 + 6j], relative=True
         )
     )

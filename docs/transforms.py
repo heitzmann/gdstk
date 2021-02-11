@@ -38,7 +38,7 @@ if __name__ == "__main__":
         [(-n * d, 0), (n * d, 0)],
         r,
         ends=(r, r),
-        gdsii_path=True,
+        simple_path=True,
         scale_width=False,
         layer=1,
     )

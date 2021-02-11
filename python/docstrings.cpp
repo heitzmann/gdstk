@@ -615,7 +615,7 @@ PyDoc_STRVAR(reference_object_x_reflection_doc, R"!(Reference reflection across 
 
 PyDoc_STRVAR(
     flexpath_object_type_doc,
-    R"!(FlexPath(points, width, offset=0, joins="natural", ends="flush", bend_radius=0, bend_function=None, tolerance=1e-2, gdsii_path=False, scale_width=True, layer=0, datatype=0)
+    R"!(FlexPath(points, width, offset=0, joins="natural", ends="flush", bend_radius=0, bend_function=None, tolerance=1e-2, simple_path=False, scale_width=True, layer=0, datatype=0)
 
 Flexible path creation.
 
@@ -655,7 +655,7 @@ Args:
       sequence of points defining the bend shape.
     tolerance: Tolerance used for calculating the polygonal
       approximation of the paths.
-    gdsii_path: If ``True``, the paths will be stored as GDSII path
+    simple_path: If ``True``, the paths will be stored as GDSII path
       elements. They require less memory, but do not support "smooth" or
       callable joins and end caps, or width changes along the path.
     scale_width: If ``False``, the path widths are not scaled when
@@ -1266,7 +1266,7 @@ Notes:
 
 PyDoc_STRVAR(
     robustpath_object_type_doc,
-    R"!(RobustPath(initial_point, width, offset=0, ends="flush",tolerance=1e-2, max_evals=1000, gdsii_path=False, scale_width=True, layer=0, datatype=0)
+    R"!(RobustPath(initial_point, width, offset=0, ends="flush",tolerance=1e-2, max_evals=1000, simple_path=False, scale_width=True, layer=0, datatype=0)
 
 Robust path creation.
 
@@ -1294,7 +1294,7 @@ Args:
     max_evals: Maximal number of path evaluations per section.  Used for
       intersection finding at joins and to create the polygonal
       approximation for each section.
-    gdsii_path: If ``True``, the paths will be stored as GDSII path
+    simple_path: If ``True``, the paths will be stored as GDSII path
       elements. They require less memory, but do not support "smooth" or
       callable joins and end caps, or width changes along the path.
     scale_width: If ``False``, the path widths are not scaled when
@@ -2080,7 +2080,7 @@ Examples:
     >>> array_ref.repetition = gdstk.Repetition(columns=3, rows=2,
     ...     v1=8 * numpy.exp(1j * ang), v2=10j * numpy.exp(1j * ang))
     >>> path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1,
-    ...                       gdsii_path=True)
+    ...                       simple_path=True)
     >>> main_cell = gdstk.Cell("MAIN")
     >>> main_cell.add(array_ref, path)
     >>> print(main_cell.bounding_box())
@@ -2328,8 +2328,9 @@ Args:
 See also:
     :ref:`getting-started`)!");
 
-PyDoc_STRVAR(library_object_write_oas_doc,
-             R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0) -> None
+PyDoc_STRVAR(
+    library_object_write_oas_doc,
+    R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0) -> None
 
 Save this library to an OASIS file.
 

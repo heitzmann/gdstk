@@ -49,14 +49,14 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
     PyObject* py_datatype = NULL;
     double tolerance = 1e-2;
     uint64_t max_evals = 1000;
-    int gdsii_path = 0;
+    int simple_path = 0;
     int scale_width = 1;
-    const char* keywords[] = {"initial_point", "width",     "offset",     "ends",
-                              "tolerance",     "max_evals", "gdsii_path", "scale_width",
+    const char* keywords[] = {"initial_point", "width",     "offset",      "ends",
+                              "tolerance",     "max_evals", "simple_path", "scale_width",
                               "layer",         "datatype",  NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOdlppOO:RobustPath", (char**)keywords,
                                      &py_point, &py_width, &py_offset, &py_ends, &tolerance,
-                                     &max_evals, &gdsii_path, &scale_width, &py_layer,
+                                     &max_evals, &simple_path, &scale_width, &py_layer,
                                      &py_datatype))
         return -1;
 
@@ -397,7 +397,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
     robustpath->offset_scale = 1;
     robustpath->trafo[0] = 1;
     robustpath->trafo[4] = 1;
-    robustpath->gdsii_path = gdsii_path > 0;
+    robustpath->simple_path = simple_path > 0;
     robustpath->scale_width = scale_width > 0;
     robustpath->owner = self;
     return 0;

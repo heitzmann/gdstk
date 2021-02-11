@@ -23,11 +23,11 @@ if __name__ == "__main__":
     circle.repetition = gdstk.Repetition(offsets=[(0.5, 1), (2, 0), (1.5, 0.5)])
 
     # X-explicit repetition
-    vline = gdstk.FlexPath([(3, 2), (3, 3.5)], 0.1, gdsii_path=True)
+    vline = gdstk.FlexPath([(3, 2), (3, 3.5)], 0.1, simple_path=True)
     vline.repetition = gdstk.Repetition(x_offsets=[0.2, 0.6, 1.4, 3.0])
 
     # Y-explicit repetition
-    hline = gdstk.RobustPath((3, 2), 0.05, gdsii_path=True)
+    hline = gdstk.RobustPath((3, 2), 0.05, simple_path=True)
     hline.segment((6, 2))
     hline.repetition = gdstk.Repetition(y_offsets=[0.1, 0.3, 0.7, 1.5])
 

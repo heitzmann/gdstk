@@ -427,7 +427,7 @@ void RobustPath::copy_from(const RobustPath &path) {
     offset_scale = path.offset_scale;
     memcpy(trafo, path.trafo, 6 * sizeof(double));
     scale_width = path.scale_width;
-    gdsii_path = path.gdsii_path;
+    simple_path = path.simple_path;
 
     RobustPathElement *src = path.elements;
     RobustPathElement *dst = elements;

@@ -4,13 +4,14 @@
 ### Added
 - Support for OASIS files
 - Repetition property for geometric objects, labels and references
-- Library, cells and repetitions can have properties
+- Library and cells can have properties
 
 ### Changed
-- Use cmake to properly intall library
+- Use cmake to properly install library
 - More efficient bounding box calculation for rotations multiple of 90°
 - Labels are now included in bounding box calculations
 - Properties can be general or GDSII-specific. Only the latter are stored in gds files.
+- Attribute `gdsii_path` renamed to `simple_path` in `FlexPath` and `RobustPath`.
 
 ## 0.2.0 - 2020-11-23
 ### Added
@@ -31,7 +32,7 @@
 ### Fixed
 - Add missing source files to MANIFEST.in
 - Remove directory from CMakeLists.txt
-- Remove unecessary dependency from conda
+- Remove unnecessary dependency from conda
 
 ## 0.1.0 - 2020-10-03
 ### Added

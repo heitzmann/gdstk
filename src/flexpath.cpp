@@ -59,7 +59,8 @@ void FlexPath::init(const Vec2 initial_position, uint64_t num_elements_, const d
 void FlexPath::print(bool all) const {
     printf("FlexPath <%p>, count %" PRIu64 ", %" PRIu64
            " elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
-           this, spine.point_array.count, num_elements, gdsii_path, scale_width, properties, owner);
+           this, spine.point_array.count, num_elements, simple_path, scale_width, properties,
+           owner);
     if (all) {
         FlexPathElement* el = elements;
         for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -91,7 +92,7 @@ void FlexPath::copy_from(const FlexPath& path) {
     properties = properties_copy(path.properties);
     repetition.copy_from(path.repetition);
     scale_width = path.scale_width;
-    gdsii_path = path.gdsii_path;
+    simple_path = path.simple_path;
     num_elements = path.num_elements;
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
 

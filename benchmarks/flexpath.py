@@ -13,7 +13,10 @@ import gdstk
 
 def bench_gdspy(output=None):
     sp1 = gdspy.FlexPath(
-        [(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)], 1, gdsii_path=True, datatype=1
+        [(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)],
+        1,
+        simple_path=True,
+        datatype=1,
     )
     sp1.smooth([(0, 2), (2, 2), (4, 3), (5, 1)], relative=True)
     sp2 = gdspy.FlexPath(
@@ -29,9 +32,14 @@ def bench_gdspy(output=None):
 
     points = [(0, 0), (0, 10), (20, 0), (18, 15), (8, 15)]
     sp3 = gdspy.FlexPath(
-        points, 0.5, corners="circular bend", bend_radius=5, gdsii_path=True, datatype=4
+        points,
+        0.5,
+        corners="circular bend",
+        bend_radius=5,
+        simple_path=True,
+        datatype=4,
     )
-    sp4 = gdspy.FlexPath(points, 0.5, layer=1, gdsii_path=True, datatype=5)
+    sp4 = gdspy.FlexPath(points, 0.5, layer=1, simple_path=True, datatype=5)
     if output:
         cell = gdspy.Cell("MAIN", exclude_from_current=True)
         cell.add([sp1, sp2, sp3, sp4])
@@ -39,7 +47,12 @@ def bench_gdspy(output=None):
 
 
 def bench_gdstk(output=None):
-    sp1 = gdstk.FlexPath([(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)], 1, gdsii_path=True, datatype=1)
+    sp1 = gdstk.FlexPath(
+        [(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)],
+        1,
+        simple_path=True,
+        datatype=1,
+    )
     sp1.interpolation([(0, 2), (2, 2), (4, 3), (5, 1)], relative=True)
 
     sp2 = gdstk.FlexPath(
@@ -54,8 +67,8 @@ def bench_gdstk(output=None):
     sp2.arc(1, 0.5 * numpy.pi, 1.5 * numpy.pi)
 
     points = [(0, 0), (0, 10), (20, 0), (18, 15), (8, 15)]
-    sp3 = gdstk.FlexPath(points, 0.5, bend_radius=5, gdsii_path=True, datatype=4)
-    sp4 = gdstk.FlexPath(points, 0.5, gdsii_path=True, layer=1, datatype=5)
+    sp3 = gdstk.FlexPath(points, 0.5, bend_radius=5, simple_path=True, datatype=4)
+    sp4 = gdstk.FlexPath(points, 0.5, simple_path=True, layer=1, datatype=5)
     if output:
         cell = gdstk.Cell("MAIN")
         cell.add(sp1, sp2, sp3, sp4)

@@ -162,7 +162,7 @@ if __name__ == "__main__":
     # Flexible Paths
     # Path defined by a sequence of points and stored as a GDSII path
     fp1 = gdstk.FlexPath(
-        [(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)], 1, gdsii_path=True
+        [(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)], 1, simple_path=True
     )
 
     # Other construction methods can still be used
@@ -185,10 +185,10 @@ if __name__ == "__main__":
     # Flexible Paths 1
     # Path created with automatic bends of radius 5
     points = [(0, 0), (0, 10), (20, 0), (18, 15), (8, 15)]
-    fp3 = gdstk.FlexPath(points, 0.5, bend_radius=5, gdsii_path=True)
+    fp3 = gdstk.FlexPath(points, 0.5, bend_radius=5, simple_path=True)
 
     # Same path, generated with natural joins, for comparison
-    fp4 = gdstk.FlexPath(points, 0.5, layer=1, gdsii_path=True)
+    fp4 = gdstk.FlexPath(points, 0.5, layer=1, simple_path=True)
     draw(gdstk.Cell("flexible_paths_2").add(fp3, fp4), path)
 
     # Flexible Paths 2

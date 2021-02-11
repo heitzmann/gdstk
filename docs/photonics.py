@@ -14,7 +14,7 @@ def alignment_mark(lib):
 
 
 def directional_coupler(lib):
-    path = gdstk.RobustPath((0, 0), [0.5, 0.5], 2, gdsii_path=True, layer=1)
+    path = gdstk.RobustPath((0, 0), [0.5, 0.5], 2, simple_path=True, layer=1)
     path.segment((0.1, 0), relative=True)
     path.segment((2.2, 0), offset=(0.6, "smooth"), relative=True)
     path.segment((0.4, 0), relative=True)
@@ -29,14 +29,14 @@ def mach_zehnder_interferometer(lib):
     cell.add(gdstk.Reference("Directinal Coupler", (75, 0)))
 
     points = numpy.array([(5, 1), (25, 1), (25, 40), (55, 40), (55, 1), (75, 1)])
-    arm1 = gdstk.FlexPath(points, 0.5, bend_radius=15, gdsii_path=True, layer=1)
+    arm1 = gdstk.FlexPath(points, 0.5, bend_radius=15, simple_path=True, layer=1)
     points[:, 1] *= -1
-    arm2 = gdstk.FlexPath(points, 0.5, bend_radius=15, gdsii_path=True, layer=1)
+    arm2 = gdstk.FlexPath(points, 0.5, bend_radius=15, simple_path=True, layer=1)
     points = numpy.array([(25, 20), (25, 40), (55, 40), (55, 20)])
-    heater1 = gdstk.FlexPath(points, 2, bend_radius=15, gdsii_path=True, layer=10)
+    heater1 = gdstk.FlexPath(points, 2, bend_radius=15, simple_path=True, layer=10)
     points[:, 1] *= -1
-    heater2 = gdstk.FlexPath(points, 2, bend_radius=15, gdsii_path=True, layer=10)
-    #cell.add(arm1, arm2, heater1, heater2)
+    heater2 = gdstk.FlexPath(points, 2, bend_radius=15, simple_path=True, layer=10)
+    # cell.add(arm1, arm2, heater1, heater2)
 
 
 if __name__ == "__main__":

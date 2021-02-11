@@ -19,7 +19,7 @@ def bounding_box_image():
     array_ref = gdstk.Reference(
         f_cell, rotation=numpy.pi / 4, columns=3, rows=2, spacing=(8, 10)
     )
-    path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1, gdsii_path=True)
+    path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1, simple_path=True)
     main_cell = gdstk.Cell("MAIN")
     main_cell.add(array_ref, path)
     bbox = main_cell.bounding_box()

@@ -40,15 +40,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
     PyObject* py_layer = NULL;
     PyObject* py_datatype = NULL;
     double tolerance = 1e-2;
-    int gdsii_path = 0;
+    int simple_path = 0;
     int scale_width = 1;
-    const char* keywords[] = {"points",     "width",       "offset",        "joins",
-                              "ends",       "bend_radius", "bend_function", "tolerance",
-                              "gdsii_path", "scale_width", "layer",         "datatype",
+    const char* keywords[] = {"points",      "width",       "offset",        "joins",
+                              "ends",        "bend_radius", "bend_function", "tolerance",
+                              "simple_path", "scale_width", "layer",         "datatype",
                               NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOdppOO:FlexPath", (char**)keywords,
                                      &py_points, &py_width, &py_offset, &py_joins, &py_ends,
-                                     &py_bend_radius, &py_bend_function, &tolerance, &gdsii_path,
+                                     &py_bend_radius, &py_bend_function, &tolerance, &simple_path,
                                      &scale_width, &py_layer, &py_datatype))
         return -1;
 
@@ -578,7 +578,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
     }
 
     flexpath->spine.tolerance = tolerance;
-    flexpath->gdsii_path = gdsii_path > 0;
+    flexpath->simple_path = simple_path > 0;
     flexpath->scale_width = scale_width > 0;
     flexpath->owner = self;
     return 0;

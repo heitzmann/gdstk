@@ -77,7 +77,7 @@ int main(int argc, char* argv[]) {
     FlexPath path = {
         .elements = &element,
         .num_elements = 1,
-        .gdsii_path = true,
+        .simple_path = true,
         .scale_width = false,
     };
     path.init(Vec2{-n * d, 0}, r, 0, 0.01);

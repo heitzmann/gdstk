@@ -238,7 +238,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
         if (len > string_max) string_max = len;
 
         Cell** p_cell = cell_array.items;
-        Array<Vec2> tmp_array ={0};
+        Array<Vec2> tmp_array = {0};
         for (uint64_t i = 0; i < c_size; i++) {
             Cell* cell = *p_cell++;
             len = strlen(cell->name);
@@ -260,7 +260,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
                 FlexPath* path = *flexpath_p++;
                 len = max_string_length(path->properties);
                 if (len > string_max) string_max = len;
-                if (path->gdsii_path) {
+                if (path->simple_path) {
                     if (path->spine.point_array.count > 1) {
                         tmp_array.count = 0;
                         FlexPathElement* el = path->elements;
@@ -290,7 +290,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
                 RobustPath* path = *robustpath_p++;
                 len = max_string_length(path->properties);
                 if (len > string_max) string_max = len;
-                if (path->gdsii_path) {
+                if (path->simple_path) {
                     if (path->subpath_array.count > 0) {
                         tmp_array.count = 0;
                         RobustPathElement* el = path->elements;
@@ -390,7 +390,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
         FlexPath** flexpath_p = cell->flexpath_array.items;
         for (uint64_t j = cell->flexpath_array.count; j > 0; j--) {
             FlexPath* path = *flexpath_p++;
-            if (path->gdsii_path) {
+            if (path->simple_path) {
                 path->to_oas(out, state);
             } else {
                 Array<Polygon*> array = {0};
@@ -409,7 +409,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
         RobustPath** robustpath_p = cell->robustpath_array.items;
         for (uint64_t j = cell->robustpath_array.count; j > 0; j--) {
             RobustPath* path = *robustpath_p++;
-            if (path->gdsii_path) {
+            if (path->simple_path) {
                 path->to_oas(out, state);
             } else {
                 Array<Polygon*> array = {0};
@@ -762,7 +762,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
                 path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                 path->num_elements = 1;
                 path->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
-                path->gdsii_path = true;
+                path->simple_path = true;
                 if (cell) cell->flexpath_array.append(path);
                 break;
             case GdsiiRecord::SREF:
@@ -1497,7 +1497,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 path->spine.tolerance = tolerance;
                 path->elements = element;
                 path->num_elements = 1;
-                path->gdsii_path = true;
+                path->simple_path = true;
                 path->scale_width = true;
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);

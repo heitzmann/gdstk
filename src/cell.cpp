@@ -416,7 +416,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     FlexPath** fp_item = flexpath_array.items;
     for (uint64_t k = 0; k < flexpath_array.count; k++, fp_item++) {
         FlexPath* flexpath = *fp_item;
-        if (flexpath->gdsii_path) {
+        if (flexpath->simple_path) {
             flexpath->to_gds(out, scaling);
         } else {
             Array<Polygon*> fp_array = {0};
@@ -448,7 +448,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     RobustPath** rp_item = robustpath_array.items;
     for (uint64_t k = 0; k < robustpath_array.count; k++, rp_item++) {
         RobustPath* robustpath = *rp_item;
-        if (robustpath->gdsii_path) {
+        if (robustpath->simple_path) {
             robustpath->to_gds(out, scaling);
         } else {
             Array<Polygon*> rp_array = {0};

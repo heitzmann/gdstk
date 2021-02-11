@@ -47,7 +47,7 @@ struct FlexPath {
     Curve spine;
     FlexPathElement* elements;
     uint64_t num_elements;
-    bool gdsii_path;
+    bool simple_path;
     bool scale_width;
     Repetition repetition;
     Property* properties;
@@ -113,7 +113,7 @@ struct FlexPath {
     void element_center(const FlexPathElement* el, Array<Vec2>& result);
 
     // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
-    // fractured.  Therefore, to_gds should be used only when gdsii_path == true to produce true
+    // fractured.  Therefore, to_gds should be used only when simple_path == true to produce true
     // GDSII path elements. The same is valid for to_oas, although no fracturing ever occurs for
     // OASIS files.
     void to_gds(FILE* out, double scaling);

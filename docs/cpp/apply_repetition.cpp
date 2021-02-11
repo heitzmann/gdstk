@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     lib.cell_array.append(&main_cell);
 
     FlexPathElement velement = {};
-    FlexPath vline = {.elements = &velement, .num_elements = 1, .gdsii_path = true};
+    FlexPath vline = {.elements = &velement, .num_elements = 1, .simple_path = true};
     vline.init(Vec2{3, 2}, 0.1, 0, 0.01);
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         .width_scale = 1,
         .offset_scale = 1,
         .trafo = {1, 0, 0, 0, 1, 0},
-        .gdsii_path = true,
+        .simple_path = true,
     };
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
