@@ -147,6 +147,21 @@ inline void Array<Vec2>::print(bool all) const {
 }
 
 template <>
+inline void Array<IntVec2>::print(bool all) const {
+    const uint8_t n = 6;
+    printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
+    if (all) {
+        for (uint64_t i = 0; i < count; i += n) {
+            for (uint64_t j = 0; j < n && i + j < count; j++) {
+                if (j > 0) printf(" ");
+                printf("(%" PRId64 ", %" PRId64 ")", items[i + j].x, items[i + j].y);
+            }
+            putchar('\n');
+        }
+    }
+}
+
+template <>
 inline void Array<double>::print(bool all) const {
     const uint8_t n = 12;
     printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);

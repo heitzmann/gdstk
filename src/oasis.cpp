@@ -302,55 +302,39 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
     return 0;
 }
 
-uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Array<Vec2>& result) {
+uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Array<Vec2>& result) {
     uint8_t byte;
     if (oasis_read(&byte, 1, 1, in) < 1) return 0;
     uint64_t num = oasis_read_unsigned_integer(in);
     switch ((OasisPointList)byte) {
-        case OasisPointList::ManhattanHorizontalFirst: {
-            result.ensure_slots(polygon ? num + 1 : num);
-            Vec2* cur = result.items + result.count;
-            Vec2* ref = cur - 1;
-            double initial_x = ref->x;
-            for (uint64_t i = num; i > 0; i--) {
-                cur->x = ref->x + oasis_read_1delta(in) * scaling;
-                cur->y = ref->y;
-                cur++;
-                ref++;
-                if (--i > 0) {
-                    cur->x = ref->x;
-                    cur->y = ref->y + oasis_read_1delta(in) * scaling;
-                    cur++;
-                    ref++;
-                }
-            }
-            if (polygon) {
-                cur->x = initial_x;
-                cur->y = ref->y;
-                num++;
-            }
-            result.count += num;
-        } break;
+        case OasisPointList::ManhattanHorizontalFirst:
         case OasisPointList::ManhattanVerticalFirst: {
-            result.ensure_slots(polygon ? num + 1 : num);
+            result.ensure_slots(closed ? num + 1 : num);
             Vec2* cur = result.items + result.count;
             Vec2* ref = cur - 1;
-            double initial_y = ref->y;
+            Vec2 initial = *ref;
+            bool horizontal = (OasisPointList)byte == OasisPointList::ManhattanHorizontalFirst;
             for (uint64_t i = num; i > 0; i--) {
-                cur->x = ref->x;
-                cur->y = ref->y + oasis_read_1delta(in) * scaling;
-                cur++;
-                ref++;
-                if (--i > 0) {
+                if (horizontal) {
                     cur->x = ref->x + oasis_read_1delta(in) * scaling;
                     cur->y = ref->y;
-                    cur++;
-                    ref++;
+                    horizontal = false;
+                } else {
+                    cur->x = ref->x;
+                    cur->y = ref->y + oasis_read_1delta(in) * scaling;
+                    horizontal = true;
                 }
+                cur++;
+                ref++;
             }
-            if (polygon) {
-                cur->x = ref->x;
-                cur->y = initial_y;
+            if (closed) {
+                if (horizontal) {
+                    cur->x = initial.x;
+                    cur->y = ref->y;
+                } else {
+                    cur->x = ref->x;
+                    cur->y = initial.y;
+                }
                 num++;
             }
             result.count += num;
@@ -667,24 +651,168 @@ void oasis_write_real(OasisStream& out, double value) {
     oasis_write(&value, sizeof(double), 1, out);
 }
 
-void oasis_write_point_list(OasisStream& out, const Array<IntVec2> points, bool polygon) {
-    // TODO: choose point list type to decrease file size
+void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool closed) {
     if (points.count < 1) return;
-    oasis_putc((uint8_t)OasisPointList::General, out);
-    oasis_write_unsigned_integer(out, points.count - 1);
-    IntVec2* ref = points.items;
-    IntVec2* cur = ref + 1;
+    bool last_horizontal;
+    OasisPointList list_type = OasisPointList::Relative;
+    IntVec2* cur = points.items + points.count - 1;
+    IntVec2* prev = cur - 1;
+    IntVec2 last_delta = points[0] - *cur;
     for (uint64_t i = points.count - 1; i > 0; i--) {
-        IntVec2 v = *cur++ - *ref++;
-        oasis_write_gdelta(out, v.x, v.y);
+        *cur -= *prev;
+        IntVec2 v = *cur;
+        switch (list_type) {
+            case OasisPointList::Relative:
+                // This is the starting state
+                if (v.y == 0) {
+                    list_type = OasisPointList::ManhattanHorizontalFirst;
+                    last_horizontal = true;
+                } else if (v.x == 0) {
+                    list_type = OasisPointList::ManhattanVerticalFirst;
+                    last_horizontal = false;
+                } else if (v.x == v.y || v.x == -v.y) {
+                    list_type = OasisPointList::Octangular;
+                } else {
+                    list_type = OasisPointList::General;
+                }
+                break;
+            case OasisPointList::ManhattanHorizontalFirst:
+            case OasisPointList::ManhattanVerticalFirst:
+                if (v.y == 0) {
+                    if (last_horizontal) {
+                        list_type = OasisPointList::Manhattan;
+                    } else {
+                        last_horizontal = true;
+                    }
+                } else if (v.x == 0) {
+                    if (!last_horizontal) {
+                        list_type = OasisPointList::Manhattan;
+                    } else {
+                        last_horizontal = false;
+                    }
+                } else if (v.x == v.y || v.x == -v.y) {
+                    list_type = OasisPointList::Octangular;
+                } else {
+                    list_type = OasisPointList::General;
+                }
+                break;
+            case OasisPointList::Manhattan:
+                if (v.y != 0 && v.x != 0) {
+                    if (v.x == v.y || v.x == -v.y) {
+                        list_type = OasisPointList::Octangular;
+                    } else {
+                        list_type = OasisPointList::General;
+                    }
+                }
+                break;
+            case OasisPointList::Octangular:
+                if (v.y != 0 && v.x != 0 && v.x != v.y && v.x != -v.y) {
+                    list_type = OasisPointList::General;
+                }
+                break;
+            case OasisPointList::General:
+                break;
+        }
+        cur = prev--;
+    }
+
+    if (closed) {
+        switch (list_type) {
+            case OasisPointList::ManhattanHorizontalFirst:
+            case OasisPointList::ManhattanVerticalFirst:
+                if (last_delta.y == 0) {
+                    if (last_horizontal) {
+                        list_type = OasisPointList::Manhattan;
+                    }
+                } else if (last_delta.x == 0) {
+                    if (!last_horizontal) {
+                        list_type = OasisPointList::Manhattan;
+                    }
+                } else if (last_delta.x == last_delta.y || last_delta.x == -last_delta.y) {
+                    list_type = OasisPointList::Octangular;
+                } else {
+                    list_type = OasisPointList::General;
+                }
+                break;
+            case OasisPointList::Manhattan:
+                if (last_delta.y != 0 && last_delta.x != 0) {
+                    if (last_delta.x == last_delta.y || last_delta.x == -last_delta.y) {
+                        list_type = OasisPointList::Octangular;
+                    } else {
+                        list_type = OasisPointList::General;
+                    }
+                }
+                break;
+            case OasisPointList::Octangular:
+                if (last_delta.y != 0 && last_delta.x != 0 && last_delta.x != last_delta.y &&
+                    last_delta.x != -last_delta.y) {
+                    list_type = OasisPointList::General;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    switch (list_type) {
+        case OasisPointList::ManhattanHorizontalFirst: {
+            oasis_putc((uint8_t)OasisPointList::ManhattanHorizontalFirst, out);
+            uint64_t count = closed ? points.count - 2 : points.count - 1;
+            oasis_write_unsigned_integer(out, count);
+            last_horizontal = false;
+            cur = points.items + 1;
+            for (uint64_t i = count; i > 0; i--) {
+                oasis_write_1delta(out, last_horizontal ? cur->y : cur->x);
+                last_horizontal = !last_horizontal;
+                cur++;
+            }
+        } break;
+        case OasisPointList::ManhattanVerticalFirst: {
+            oasis_putc((uint8_t)OasisPointList::ManhattanVerticalFirst, out);
+            uint64_t count = closed ? points.count - 2 : points.count - 1;
+            oasis_write_unsigned_integer(out, count);
+            last_horizontal = true;
+            cur = points.items + 1;
+            for (uint64_t i = count; i > 0; i--) {
+                oasis_write_1delta(out, last_horizontal ? cur->y : cur->x);
+                last_horizontal = !last_horizontal;
+                cur++;
+            }
+        } break;
+        case OasisPointList::Manhattan:
+            oasis_putc((uint8_t)OasisPointList::Manhattan, out);
+            oasis_write_unsigned_integer(out, points.count - 1);
+            cur = points.items + 1;
+            for (uint64_t i = points.count - 1; i > 0; i--) {
+                oasis_write_2delta(out, cur->x, cur->y);
+                cur++;
+            }
+            break;
+        case OasisPointList::Octangular:
+            oasis_putc((uint8_t)OasisPointList::Octangular, out);
+            oasis_write_unsigned_integer(out, points.count - 1);
+            cur = points.items + 1;
+            for (uint64_t i = points.count - 1; i > 0; i--) {
+                oasis_write_3delta(out, cur->x, cur->y);
+                cur++;
+            }
+            break;
+        default:
+            oasis_putc((uint8_t)OasisPointList::General, out);
+            oasis_write_unsigned_integer(out, points.count - 1);
+            cur = points.items + 1;
+            for (uint64_t i = points.count - 1; i > 0; i--) {
+                oasis_write_gdelta(out, cur->x, cur->y);
+                cur++;
+            }
     }
 }
 
 void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
-                            bool polygon) {
+                            bool closed) {
     Array<IntVec2> scaled_points = {0};
     scale_and_round_array(points, scaling, scaled_points);
-    oasis_write_point_list(out, scaled_points, polygon);
+    oasis_write_point_list(out, scaled_points, closed);
     scaled_points.clear();
 }
 

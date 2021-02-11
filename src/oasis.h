@@ -36,6 +36,7 @@ namespace gdstk {
 // properties compression (repetition detection)
 
 // #define OASIS_CONFIG_STANDARD_PROPERTIES (OASIS_CONFIG_PROPERTY_MAX_LENGTH | OASIS_CONFIG_PROPERTY_TOP_LEVEL | OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
+
 // #define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS | OASIS_CONFIG_DETECT_CIRCLES)
 
 enum struct OasisDataType : uint8_t {
@@ -177,7 +178,7 @@ inline double oasis_read_real(OasisStream& in) {
 // result must have at least 1 point in it, which will be used as reference for the relative deltas.
 // polygon indicates whether this is supposed to be a polygon point list (in which case there will
 // be an implicit extra delta for Manhattan types).
-uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool polygon, Array<Vec2>& result);
+uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Array<Vec2>& result);
 
 void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetition);
 
@@ -197,10 +198,12 @@ void oasis_write_gdelta(OasisStream& out, int64_t x, int64_t y);
 
 void oasis_write_real(OasisStream& out, double value);
 
+// Uses first point as reference, does not output it.  Deltas between neighboring points
+// will be calculated in-place: points[i] = points[i] - points[i - 1] (i = 1...count - 1)
+void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool closed);
 // Uses first point as reference, does not output it.
-void oasis_write_point_list(OasisStream& out, const Array<IntVec2> points, bool polygon);
 void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
-                            bool polygon);
+                            bool closed);
 
 // This should only be called with repetition.get_count() > 1
 void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling);
