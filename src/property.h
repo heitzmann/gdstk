@@ -68,8 +68,9 @@ void set_property(Property*& properties, const char* name, const uint8_t* bytes,
 // value.
 void set_gds_property(Property*& properties, uint16_t attribute, const char* value);
 
-bool remove_property(Property*& properties, const char* name);
+uint64_t remove_property(Property*& properties, const char* name, bool all_occurences);
 bool remove_gds_property(Property*& properties, uint16_t attribute);
+
 PropertyValue* get_property(Property* properties, const char* name);
 PropertyValue* get_gds_property(Property* properties, uint16_t attribute);
 void properties_to_gds(const Property* properties, FILE* out);

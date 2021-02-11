@@ -224,7 +224,7 @@ static PyObject* library_object_get_property(LibraryObject* self, PyObject* args
 static PyObject* library_object_delete_property(LibraryObject* self, PyObject* args) {
     char* name;
     if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
-    remove_property(self->library->properties, name);
+    remove_property(self->library->properties, name, false);
     Py_INCREF(self);
     return (PyObject*)self;
 }

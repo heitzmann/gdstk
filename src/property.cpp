@@ -221,25 +221,31 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
     properties = property;
 }
 
-bool remove_property(Property*& properties, const char* name) {
-    if (properties == NULL) return false;
-    if (strcmp(properties->name, name) == 0) {
+uint64_t remove_property(Property*& properties, const char* name, bool all_occurences) {
+    uint64_t removed = 0;
+    if (properties == NULL) return removed;
+    while (strcmp(properties->name, name) == 0) {
         property_values_clear(properties->value);
         Property* next = properties->next;
         free_allocation(properties);
         properties = next;
-        return true;
+        removed++;
+        if (!all_occurences) return removed;
     }
     Property* property = properties;
-    while (property->next && strcmp(property->next->name, name) != 0) property = property->next;
-    if (property->next) {
-        Property* rem = property->next;
-        property_values_clear(rem->value);
-        property->next = rem->next;
-        free_allocation(rem);
-        return true;
+    while (true) {
+        while (property->next && strcmp(property->next->name, name) != 0) property = property->next;
+        if (property->next) {
+            Property* rem = property->next;
+            property_values_clear(rem->value);
+            property->next = rem->next;
+            free_allocation(rem);
+            removed++;
+            if (!all_occurences) return removed;
+        } else {
+            return removed;
+        }
     }
-    return false;
 }
 
 bool remove_gds_property(Property*& properties, uint16_t attribute) {

@@ -125,7 +125,7 @@ static PyObject* label_object_get_property(LabelObject* self, PyObject* args) {
 static PyObject* label_object_delete_property(LabelObject* self, PyObject* args) {
     char* name;
     if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
-    remove_property(self->label->properties, name);
+    remove_property(self->label->properties, name, false);
     Py_INCREF(self);
     return (PyObject*)self;
 }

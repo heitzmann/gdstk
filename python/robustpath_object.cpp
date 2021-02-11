@@ -1564,7 +1564,7 @@ static PyObject* robustpath_object_get_property(RobustPathObject* self, PyObject
 static PyObject* robustpath_object_delete_property(RobustPathObject* self, PyObject* args) {
     char* name;
     if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
-    remove_property(self->robustpath->properties, name);
+    remove_property(self->robustpath->properties, name, false);
     Py_INCREF(self);
     return (PyObject*)self;
 }

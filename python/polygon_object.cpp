@@ -212,7 +212,7 @@ static PyObject* polygon_object_get_property(PolygonObject* self, PyObject* args
 static PyObject* polygon_object_delete_property(PolygonObject* self, PyObject* args) {
     char* name;
     if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
-    remove_property(self->polygon->properties, name);
+    remove_property(self->polygon->properties, name, false);
     Py_INCREF(self);
     return (PyObject*)self;
 }

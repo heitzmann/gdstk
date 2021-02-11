@@ -152,7 +152,7 @@ static PyObject* reference_object_get_property(ReferenceObject* self, PyObject* 
 static PyObject* reference_object_delete_property(ReferenceObject* self, PyObject* args) {
     char* name;
     if (!PyArg_ParseTuple(args, "s:delete_property", &name)) return NULL;
-    remove_property(self->reference->properties, name);
+    remove_property(self->reference->properties, name, false);
     Py_INCREF(self);
     return (PyObject*)self;
 }
