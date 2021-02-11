@@ -43,3 +43,23 @@ def test_notempty():
         [gdstk.rectangle((0, 0), (8, 2)), gdstk.rectangle((0, 3), (8, 5))],
         gdstk.Cell("TMP").add(ref).flatten().polygons,
     )
+
+
+def test_label_bounding_box():
+    c = gdstk.Cell("CELL")
+    l = gdstk.Label("Label", (2, 3))
+    c.add(l)
+    bb = c.bounding_box();
+    assert bb[0][0] == 2 and bb[0][1] == 3
+    assert bb[1][0] == 2 and bb[1][1] == 3
+    ref = gdstk.Reference(c, (-1, 1))
+    bb = ref.bounding_box()
+    assert bb[0][0] == 1 and bb[0][1] == 4
+    assert bb[1][0] == 1 and bb[1][1] == 4
+    ang = numpy.pi / 4
+    x = ref.origin[0] + l.origin[0] * numpy.cos(ang) - l.origin[1] * numpy.sin(ang)
+    y = ref.origin[1] + l.origin[0] * numpy.sin(ang) + l.origin[1] * numpy.cos(ang)
+    ref.rotation = ang
+    bb = ref.bounding_box()
+    assert_close(bb, ((x, y), (x, y)))
+

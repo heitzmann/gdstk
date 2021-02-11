@@ -102,7 +102,26 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
         }
     } else {
         polygons(true, true, -1, array);
+
+        Array<Label*> lbl_array = {0};
+        labels(true, -1, lbl_array);
+
+        if (lbl_array.count > 0) {
+            Polygon* lbl_poly = (Polygon*)allocate_clear(sizeof(Polygon));
+            array.append(lbl_poly);
+
+            Label** p_lbl = lbl_array.items;
+            for (uint64_t i = 0; i < lbl_array.count; i++) {
+                Label* lbl = *p_lbl++;
+                lbl_poly->point_array.append(lbl->origin);
+                lbl->clear();
+                free_allocation(lbl);
+            }
+        }
+
+        lbl_array.clear();
     }
+
     Polygon** p_item = array.items;
     for (uint64_t i = 0; i < array.count; i++) {
         Polygon* poly = *p_item++;
@@ -317,8 +336,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
 
     if (repetition.type != RepetitionType::None) {
         if (repetition.type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
-            // printf("AREF (simple): ");  // DEBUG
-            // print();                    // DEBUG
+            // printf("AREF (simple): ");
+            // print();
             array = true;
             x2 = origin.x + repetition.columns * repetition.spacing.x;
             y2 = origin.y;
@@ -336,8 +355,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
                 fabs(u1.y - sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.x + sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.y - ca) < REFERENCE_REPETITION_TOLERANCE) {
-                // printf("AREF (complex): ");  // DEBUG
-                // print();                     // DEBUG
+                // printf("AREF (complex): ");
+                // print();
                 array = true;
                 x2 = origin.x + repetition.columns * repetition.v1.x;
                 y2 = origin.y + repetition.columns * repetition.v1.y;
@@ -347,7 +366,11 @@ void Reference::to_gds(FILE* out, double scaling) const {
         }
 
         if (array) {
-            // TODO: Deal with columns or rows > INT16_MAX
+            if (repetition.columns > UINT16_MAX || repetition.rows > UINT16_MAX) {
+                fputs(
+                    "[GDSTK] Repetition with more than 65535 columns or rows cannot be saved to a GDSII file.\n",
+                    stderr);
+            }
             buffer_array[2] = (uint16_t)repetition.columns;
             buffer_array[3] = (uint16_t)repetition.rows;
             big_endian_swap16(buffer_array, COUNT(buffer_array));
@@ -362,8 +385,8 @@ void Reference::to_gds(FILE* out, double scaling) const {
             offsets.count = 0;
             offsets.items = NULL;
             repetition.get_offsets(offsets);
-            // printf("Repeated SREF: ");  // DEBUG
-            // print();                    // DEBUG
+            // printf("Repeated SREF: ");
+            // print();
         }
     }
 

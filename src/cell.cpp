@@ -76,6 +76,15 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
         if (pmax.y > max.y) max.y = pmax.y;
     }
 
+    Label** label = label_array.items;
+    for (uint64_t i = 0; i < label_array.count; i++, label++) {
+        Vec2 origin = (*label)->origin;
+        if (origin.x < min.x) min.x = origin.x;
+        if (origin.y < min.y) min.y = origin.y;
+        if (origin.x > max.x) max.x = origin.x;
+        if (origin.y > max.y) max.y = origin.y;
+    }
+
     Reference** reference = reference_array.items;
     for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
         Vec2 rmin, rmax;

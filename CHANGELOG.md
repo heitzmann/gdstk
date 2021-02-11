@@ -9,6 +9,7 @@
 ### Changed
 - Use cmake to properly intall library
 - More efficient bounding box calculation for rotations multiple of 90°
+- Labels are now included in bounding box calculations
 - Properties can be general or GDSII-specific. Only the latter are stored in gds files.
 
 ## 0.2.0 - 2020-11-23
