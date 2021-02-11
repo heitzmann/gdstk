@@ -21,8 +21,6 @@ struct OasisState;
 // Properties (and their members) are assumed to always be allocated through allocate,
 // allocate_clear, or reallocate.
 
-extern const char gds_property_name[];
-
 enum struct PropertyType { UnsignedInteger, Integer, Real, String };
 
 struct PropertyValue {

@@ -19,7 +19,21 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-const char gds_property_name[] = "S_GDS_PROPERTY";
+// Library level
+const char s_max_int_size_property_name[] = "S_MAX_SIGNED_INTEGER_WIDTH";
+const char s_max_uint_size_property_name[] = "S_MAX_UNSIGNED_INTEGER_WIDTH";
+const char s_max_string_size_property_name[] = "S_MAX_STRING_LENGTH";
+const char s_max_polygon_property_name[] = "S_POLYGON_MAX_VERTICES";
+const char s_max_path_property_name[] = "S_PATH_MAX_VERTICES";
+const char s_top_level_property_name[] = "S_TOP_CELL";
+const char s_bounding_box_available_property_name[] = "S_BOUNDING_BOXES_AVAILABLE";
+
+// Cell level
+const char s_bounding_box_property_name[] = "S_BOUNDING_BOX";
+const char s_cell_offset_property_name[] = "S_CELL_OFFSET";
+
+// Element level
+const char s_gds_property_name[] = "S_GDS_PROPERTY";
 
 void properties_print(Property* properties) {
     if (!properties) return;
@@ -53,7 +67,7 @@ void properties_print(Property* properties) {
 }
 
 static bool is_gds_property(const Property* property) {
-    if (strcmp(property->name, gds_property_name) != 0 || property->value == NULL) return false;
+    if (strcmp(property->name, s_gds_property_name) != 0 || property->value == NULL) return false;
     PropertyValue* attribute = property->value;
     PropertyValue* value = attribute->next;
     if (attribute->type != PropertyType::UnsignedInteger || value == NULL ||
@@ -214,8 +228,8 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
     gds_value->bytes = (uint8_t*)copy_string(value, gds_value->count);
     gds_value->next = NULL;
     property = (Property*)allocate(sizeof(Property));
-    property->name = (char*)allocate(COUNT(gds_property_name));
-    memcpy(property->name, gds_property_name, COUNT(gds_property_name));
+    property->name = (char*)allocate(COUNT(s_gds_property_name));
+    memcpy(property->name, s_gds_property_name, COUNT(s_gds_property_name));
     property->value = gds_attribute;
     property->next = properties;
     properties = property;

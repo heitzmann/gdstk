@@ -21,23 +21,29 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// TODO: CONFIG FLAGS
-// #define OASIS_CONFIG_PROPERTY_MAX_LENGTH 0x0001
-// #define OASIS_CONFIG_PROPERTY_TOP_LEVEL 0x0002
-// #define OASIS_CONFIG_PROPERTY_BOUNDING_BOX 0x0004
-// #define OASIS_CONFIG_PROPERTY_CELL_OFFSET 0x0008
+#define OASIS_CONFIG_PROPERTY_MAX_COUNTS 0x0001
+#define OASIS_CONFIG_PROPERTY_TOP_LEVEL 0x0002
+#define OASIS_CONFIG_PROPERTY_BOUNDING_BOX 0x0004
+#define OASIS_CONFIG_PROPERTY_CELL_OFFSET 0x0008
 
 #define OASIS_CONFIG_DETECT_RECTANGLES 0x0010
 #define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0020
 
-// point_list compression
-// g-delta compression
-// modal variable sorting
-// properties compression (repetition detection)
+#define OASIS_CONFIG_STANDARD_PROPERTIES                                  \
+    (OASIS_CONFIG_PROPERTY_MAX_COUNTS | OASIS_CONFIG_PROPERTY_TOP_LEVEL | \
+     OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
+#define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS)
 
-// #define OASIS_CONFIG_STANDARD_PROPERTIES (OASIS_CONFIG_PROPERTY_MAX_LENGTH | OASIS_CONFIG_PROPERTY_TOP_LEVEL | OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
-
-// #define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS | OASIS_CONFIG_DETECT_CIRCLES)
+extern const char s_max_int_size_property_name[];
+extern const char s_max_uint_size_property_name[];
+extern const char s_max_string_size_property_name[];
+extern const char s_max_polygon_property_name[];
+extern const char s_max_path_property_name[];
+extern const char s_top_level_property_name[];
+extern const char s_bounding_box_available_property_name[];
+extern const char s_bounding_box_property_name[];
+extern const char s_cell_offset_property_name[];
+extern const char s_gds_property_name[];
 
 enum struct OasisDataType : uint8_t {
     RealPositiveInteger = 0,

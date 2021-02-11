@@ -44,7 +44,7 @@ struct Library {
 
     void write_gds(const char* filename, uint64_t max_points, tm* timestamp) const;
     void write_oas(const char* filename, double tolerance, uint8_t deflate_level,
-                   uint16_t config_flags) const;
+                   uint16_t config_flags);
 };
 
 Library read_gds(const char* filename, double unit, double tolerance);

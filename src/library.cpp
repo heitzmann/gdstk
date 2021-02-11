@@ -167,8 +167,27 @@ void Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp
     fclose(out);
 }
 
+static uint64_t max_string_length(Property* property) {
+    uint64_t result = 0;
+    while (property) {
+        uint64_t len = strlen(property->name);
+        if (len > result) result = len;
+        PropertyValue* value = property->value;
+        while (value) {
+            if (value->type == PropertyType::String) {
+                len = value->count;
+                if (len > result) result = len;
+            }
+            value = value->next;
+        }
+        property = property->next;
+    }
+    return result;
+}
+
 void Library::write_oas(const char* filename, double circle_tolerance, uint8_t compression_level,
-                        uint16_t config_flags) const {
+                        uint16_t config_flags) {
+    const uint64_t c_size = cell_array.count;
     OasisState state = {0};
     state.circle_tolerance = circle_tolerance;
     state.config_flags = config_flags;
@@ -193,27 +212,167 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     oasis_write_real(out, 1e-6 / precision);
     fputc(1, out.file);  // flag indicating that table-offsets will be stored in the END record
 
-    Map<uint64_t> cell_name_map = {0};
-    Map<Property*> cell_property_map = {0};
+    if (state.config_flags & OASIS_CONFIG_PROPERTY_TOP_LEVEL) {
+        remove_property(properties, s_top_level_property_name, true);
+        Array<Cell*> top_cells = {0};
+        Array<RawCell*> top_rawcells = {0};
+        top_level(top_cells, top_rawcells);
+        for (uint64_t i = 0; i < top_cells.count; i++) {
+            set_property(properties, s_top_level_property_name, top_cells[i]->name, true);
+        }
+        top_cells.clear();
+        top_rawcells.clear();
+    }
 
-    Map<uint64_t> text_string_map = {0};
+    if (state.config_flags & OASIS_CONFIG_PROPERTY_BOUNDING_BOX) {
+        remove_property(properties, s_bounding_box_available_property_name, true);
+        set_property(properties, s_bounding_box_available_property_name, (uint64_t)2, true);
+    }
+
+    if (state.config_flags & OASIS_CONFIG_PROPERTY_MAX_COUNTS) {
+        uint64_t string_max = strlen(s_max_uint_size_property_name);
+        uint64_t polygon_max = 0;
+        uint64_t path_max = 0;
+
+        uint64_t len = max_string_length(properties);
+        if (len > string_max) string_max = len;
+
+        Cell** p_cell = cell_array.items;
+        Array<Vec2> tmp_array ={0};
+        for (uint64_t i = 0; i < c_size; i++) {
+            Cell* cell = *p_cell++;
+            len = strlen(cell->name);
+            if (len > string_max) string_max = len;
+            len = max_string_length(cell->properties);
+            if (len > string_max) string_max = len;
+
+            Polygon** poly_p = cell->polygon_array.items;
+            for (uint64_t j = cell->polygon_array.count; j > 0; j--) {
+                Polygon* poly = *poly_p++;
+                len = max_string_length(poly->properties);
+                if (len > string_max) string_max = len;
+                len = poly->point_array.count;
+                if (len > polygon_max) polygon_max = len;
+            }
+
+            FlexPath** flexpath_p = cell->flexpath_array.items;
+            for (uint64_t j = cell->flexpath_array.count; j > 0; j--) {
+                FlexPath* path = *flexpath_p++;
+                len = max_string_length(path->properties);
+                if (len > string_max) string_max = len;
+                if (path->gdsii_path) {
+                    if (path->spine.point_array.count > 1) {
+                        tmp_array.count = 0;
+                        FlexPathElement* el = path->elements;
+                        for (uint64_t ne = 0; ne < path->num_elements; ne++, el++) {
+                            path->element_center(el, tmp_array);
+                            len = tmp_array.count;
+                            if (len > path_max) path_max = len;
+                        }
+                    }
+                } else {
+                    Array<Polygon*> array = {0};
+                    path->to_polygons(array);
+                    poly_p = array.items;
+                    for (uint64_t k = array.count; k > 0; k--) {
+                        Polygon* poly = *poly_p++;
+                        len = poly->point_array.count;
+                        if (len > polygon_max) polygon_max = len;
+                        poly->clear();
+                        free_allocation(poly);
+                    }
+                    array.clear();
+                }
+            }
+
+            RobustPath** robustpath_p = cell->robustpath_array.items;
+            for (uint64_t j = cell->robustpath_array.count; j > 0; j--) {
+                RobustPath* path = *robustpath_p++;
+                len = max_string_length(path->properties);
+                if (len > string_max) string_max = len;
+                if (path->gdsii_path) {
+                    if (path->subpath_array.count > 0) {
+                        tmp_array.count = 0;
+                        RobustPathElement* el = path->elements;
+                        for (uint64_t ne = 0; ne < path->num_elements; ne++, el++) {
+                            path->element_center(el, tmp_array);
+                            len = tmp_array.count;
+                            if (len > path_max) path_max = len;
+                        }
+                    }
+                } else {
+                    Array<Polygon*> array = {0};
+                    path->to_polygons(array);
+                    poly_p = array.items;
+                    for (uint64_t k = array.count; k > 0; k--) {
+                        Polygon* poly = *poly_p++;
+                        len = poly->point_array.count;
+                        if (len > polygon_max) polygon_max = len;
+                        poly->clear();
+                        free_allocation(poly);
+                    }
+                    array.clear();
+                }
+            }
+
+            Reference** ref_p = cell->reference_array.items;
+            for (uint64_t j = cell->reference_array.count; j > 0; j--) {
+                Reference* ref = *ref_p++;
+                len = max_string_length(ref->properties);
+                if (len > string_max) string_max = len;
+            }
+
+            Label** label_p = cell->label_array.items;
+            for (uint64_t j = cell->label_array.count; j > 0; j--) {
+                Label* label = *label_p++;
+                len = strlen(label->text);
+                if (len > string_max) string_max = len;
+                len = max_string_length(label->properties);
+                if (len > string_max) string_max = len;
+            }
+        }
+        tmp_array.clear();
+
+        remove_property(properties, s_max_int_size_property_name, true);
+        set_property(properties, s_max_int_size_property_name, (uint64_t)sizeof(int64_t), true);
+
+        remove_property(properties, s_max_uint_size_property_name, true);
+        set_property(properties, s_max_uint_size_property_name, (uint64_t)sizeof(uint64_t), true);
+
+        remove_property(properties, s_max_string_size_property_name, true);
+        set_property(properties, s_max_string_size_property_name, string_max, true);
+
+        remove_property(properties, s_max_polygon_property_name, true);
+        set_property(properties, s_max_polygon_property_name, polygon_max, true);
+
+        remove_property(properties, s_max_path_property_name, true);
+        set_property(properties, s_max_path_property_name, path_max, true);
+    }
 
     properties_to_oas(properties, out, state);
 
+    Map<uint64_t> cell_name_map = {0};
+    Map<uint64_t> cell_offset_map = {0};
+    Map<uint64_t> text_string_map = {0};
+    bool write_cell_offsets = state.config_flags & OASIS_CONFIG_PROPERTY_CELL_OFFSET;
+
     // Build cell name map. Other maps are built as the file is written.
-    uint64_t c_size = cell_array.count;
     cell_name_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
-    cell_property_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+    if (write_cell_offsets) {
+        cell_offset_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+    }
     Cell** cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
-        Cell* cell = (*cell_p++);
+        Cell* cell = *cell_p++;
         cell_name_map.set(cell->name, i);
-        cell_property_map.set(cell->name, cell->properties);
     }
 
     cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
         Cell* cell = *cell_p++;
+        if (write_cell_offsets) {
+            cell_offset_map.set(cell->name, ftell(out.file));
+        }
         fputc((int)OasisRecord::CELL_REF_NUM, out.file);
         oasis_write_unsigned_integer(out, cell_name_map.get(cell->name));
 
@@ -367,12 +526,36 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     uint64_t cell_name_offset = c_size > 0 ? ftell(out.file) : 0;
     cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
+        Cell* cell = *cell_p++;
         fputc((int)OasisRecord::CELLNAME_IMPLICIT, out.file);
-        char* name_ = (*cell_p++)->name;
+        char* name_ = cell->name;
         uint64_t len = strlen(name_);
         oasis_write_unsigned_integer(out, len);
         fwrite(name_, 1, len, out.file);
-        properties_to_oas(cell_property_map.get(name_), out, state);
+
+        if (state.config_flags & OASIS_CONFIG_PROPERTY_BOUNDING_BOX) {
+            Vec2 bbmin, bbmax;
+            cell->bounding_box(bbmin, bbmax);
+            if (bbmin.x > bbmax.x) {
+                // Empty cell
+                bbmin.x = bbmin.y = bbmax.x = bbmax.y = 0;
+            }
+            int64_t xmin = llround(bbmin.x * state.scaling);
+            int64_t ymin = llround(bbmin.y * state.scaling);
+            uint64_t width = llround(bbmax.x * state.scaling) - xmin;
+            uint64_t height = llround(bbmax.y * state.scaling) - ymin;
+            remove_property(cell->properties, s_bounding_box_property_name, true);
+            set_property(cell->properties, s_bounding_box_property_name, height, true);
+            set_property(cell->properties, s_bounding_box_property_name, width, false);
+            set_property(cell->properties, s_bounding_box_property_name, ymin, false);
+            set_property(cell->properties, s_bounding_box_property_name, xmin, false);
+        }
+        if (write_cell_offsets) {
+            remove_property(cell->properties, s_cell_offset_property_name, true);
+            set_property(cell->properties, s_cell_offset_property_name,
+                         cell_offset_map.get(cell->name), true);
+        }
+        properties_to_oas(cell->properties, out, state);
     }
 
     uint64_t text_string_offset = text_string_map.count > 0 ? ftell(out.file) : 0;
@@ -435,7 +618,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     fclose(out.file);
 
     cell_name_map.clear();
-    cell_property_map.clear();
+    cell_offset_map.clear();
     text_string_map.clear();
     state.property_name_map.clear();
     state.property_value_array.clear();

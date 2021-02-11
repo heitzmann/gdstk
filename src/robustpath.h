@@ -176,6 +176,7 @@ struct RobustPath {
     void offset(double u, bool from_below, double* result) const;
 
     void spine(Array<Vec2>& result) const;
+    void element_center(const RobustPathElement* el, Array<Vec2>& result) const;
     void to_polygons(Array<Polygon*>& result) const;
 
     // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
@@ -221,7 +222,6 @@ struct RobustPath {
                      const Interpolation& width, double u0, double u1, Array<Vec2>& result) const;
     void right_points(const SubPath& subpath, const Interpolation& offset,
                       const Interpolation& width, double u0, double u1, Array<Vec2>& result) const;
-    void element_center(const RobustPathElement* el, Array<Vec2>& result) const;
 };
 
 }  // namespace gdstk
