@@ -29,6 +29,9 @@ namespace gdstk {
 #define OASIS_CONFIG_DETECT_RECTANGLES 0x0010
 #define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0020
 
+#define OASIS_CONFIG_INCLUDE_CRC32 0x0040
+#define OASIS_CONFIG_INCLUDE_CHECKSUM32 0x0080
+
 #define OASIS_CONFIG_STANDARD_PROPERTIES                                  \
     (OASIS_CONFIG_PROPERTY_MAX_COUNTS | OASIS_CONFIG_PROPERTY_TOP_LEVEL | \
      OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
@@ -143,6 +146,9 @@ struct OasisStream {
     uint8_t* data;
     uint8_t* cursor;
     uint64_t data_size;
+    uint32_t signature;
+    bool crc32;
+    bool checksum32;
 };
 
 struct OasisState {

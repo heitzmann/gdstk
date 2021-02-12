@@ -55,8 +55,10 @@ int gds_units(const char* filename, double& unit, double& precision);
 
 int oas_precision(const char* filename, double& precision);
 
-// TODO: add function to perform validation
-// bool oas_validate(const char filename);
+// Returns true if the file signature checks or if the file has no validation data.
+// If signature is provided, the calculated signature is stored there (it is set to zero if the file
+// has no validation data).
+bool oas_validate(const char* filename, uint32_t* signature);
 
 }  // namespace gdstk
 

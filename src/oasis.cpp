@@ -10,6 +10,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <zlib.h>
 
 #include <algorithm>
 
@@ -42,7 +43,7 @@ static uint8_t oasis_peek(OasisStream& in) {
     return byte;
 }
 
-size_t oasis_write(void* buffer, size_t size, size_t count, OasisStream& out) {
+size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& out) {
     if (out.cursor) {
         uint64_t total = size * count;
         uint64_t available = out.data + out.data_size - out.cursor;
@@ -55,6 +56,11 @@ size_t oasis_write(void* buffer, size_t size, size_t count, OasisStream& out) {
         memcpy(out.cursor, buffer, total);
         out.cursor += total;
         return total;
+    }
+    if (out.crc32) {
+        out.signature = crc32_z(out.signature, (uint8_t*)buffer, size * count);
+    } else if (out.checksum32) {
+        out.signature = checksum32(out.signature, (uint8_t*)buffer, size * count);
     }
     return fwrite(buffer, size, count, out.file);
 }
@@ -71,6 +77,13 @@ int oasis_putc(int c, OasisStream& out) {
         uint8_t c_cast = (uint8_t)c;
         *out.cursor++ = c_cast;
         return (int)c_cast;
+    }
+    if (out.crc32) {
+        uint8_t c_cast = (uint8_t)c;
+        out.signature = crc32_z(out.signature, &c_cast, 1);
+    } else if (out.checksum32) {
+        uint8_t c_cast = (uint8_t)c;
+        out.signature = checksum32(out.signature, &c_cast, 1);
     }
     return fputc(c, out.file);
 }

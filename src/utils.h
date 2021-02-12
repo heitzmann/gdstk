@@ -84,6 +84,8 @@ void little_endian_swap32(uint32_t* buffer, uint64_t n);
 
 void little_endian_swap64(uint64_t* buffer, uint64_t n);
 
+uint32_t checksum32(uint32_t checksum, const uint8_t* bytes, uint64_t count);
+
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1);
 
 Vec2 eval_bezier2(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2);

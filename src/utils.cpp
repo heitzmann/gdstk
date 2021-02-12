@@ -171,6 +171,12 @@ void little_endian_swap64(uint64_t* buffer, uint64_t n) {
     }
 }
 
+uint32_t checksum32(uint32_t checksum, const uint8_t* bytes, uint64_t count) {
+    uint64_t c = checksum;
+    while (count-- > 0) c = (c + *bytes++) & 0xFFFFFFFF;
+    return (uint32_t)c;
+}
+
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1) { return LERP(p0, p1, t); }
 
 Vec2 eval_bezier2(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2) {

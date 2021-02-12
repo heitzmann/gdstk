@@ -195,22 +195,30 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     if (compression_level > 9) compression_level = 9;
 
     OasisStream out;
-    out.data_size = 1024 * 1024;
-    out.cursor = NULL;
-    out.data = (uint8_t*)allocate(out.data_size);
     out.file = fopen(filename, "wb");
     if (out.file == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for output.\n", stderr);
         return;
     }
+    out.data_size = 1024 * 1024;
+    out.data = (uint8_t*)allocate(out.data_size);
+    out.cursor = NULL;
+    out.crc32 = state.config_flags & OASIS_CONFIG_INCLUDE_CRC32;
+    out.checksum32 = state.config_flags & OASIS_CONFIG_INCLUDE_CHECKSUM32;
+    if (out.crc32) {
+        out.signature = crc32_z(0, NULL, 0);
+    } else if (out.checksum32) {
+        out.signature = 0;
+    }
+
     char header[] = {'%', 'S', 'E', 'M', 'I',  '-',  'O',
                      'A', 'S', 'I', 'S', '\r', '\n', (char)OasisRecord::START,
                      3,   '1', '.', '0'};
-    fwrite(header, 1, COUNT(header), out.file);
+    oasis_write(header, 1, COUNT(header), out);
 
     state.scaling = unit / precision;
     oasis_write_real(out, 1e-6 / precision);
-    fputc(1, out.file);  // flag indicating that table-offsets will be stored in the END record
+    oasis_putc(1, out);  // flag indicating that table-offsets will be stored in the END record
 
     if (state.config_flags & OASIS_CONFIG_PROPERTY_TOP_LEVEL) {
         remove_property(properties, s_top_level_property_name, true);
@@ -373,7 +381,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
         if (write_cell_offsets) {
             cell_offset_map.set(cell->name, ftell(out.file));
         }
-        fputc((int)OasisRecord::CELL_REF_NUM, out.file);
+        oasis_putc((int)OasisRecord::CELL_REF_NUM, out);
         oasis_write_unsigned_integer(out, cell_name_map.get(cell->name));
 
         if (compression_level > 0) {
@@ -513,11 +521,11 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
                 fputs("[GDSTK] Unable to compress CBLOCK.\n", stderr);
             }
 
-            fputc((int)OasisRecord::CBLOCK, out.file);
-            fputc(0, out.file);
+            oasis_putc((int)OasisRecord::CBLOCK, out);
+            oasis_putc(0, out);
             oasis_write_unsigned_integer(out, uncompressed_size);
             oasis_write_unsigned_integer(out, s.total_out);
-            fwrite(buffer, 1, s.total_out, out.file);
+            oasis_write(buffer, 1, s.total_out, out);
             free_allocation(buffer);
             deflateEnd(&s);
         }
@@ -527,11 +535,11 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
         Cell* cell = *cell_p++;
-        fputc((int)OasisRecord::CELLNAME_IMPLICIT, out.file);
+        oasis_putc((int)OasisRecord::CELLNAME_IMPLICIT, out);
         char* name_ = cell->name;
         uint64_t len = strlen(name_);
         oasis_write_unsigned_integer(out, len);
-        fwrite(name_, 1, len, out.file);
+        oasis_write(name_, 1, len, out);
 
         if (state.config_flags & OASIS_CONFIG_PROPERTY_BOUNDING_BOX) {
             Vec2 bbmin, bbmax;
@@ -561,20 +569,20 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     uint64_t text_string_offset = text_string_map.count > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = text_string_map.next(NULL); item;
          item = text_string_map.next(item)) {
-        fputc((int)OasisRecord::TEXTSTRING, out.file);
+        oasis_putc((int)OasisRecord::TEXTSTRING, out);
         uint64_t len = strlen(item->key);
         oasis_write_unsigned_integer(out, len);
-        fwrite(item->key, 1, len, out.file);
+        oasis_write(item->key, 1, len, out);
         oasis_write_unsigned_integer(out, item->value);
     }
 
     uint64_t prop_name_offset = state.property_name_map.count > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = state.property_name_map.next(NULL); item;
          item = state.property_name_map.next(item)) {
-        fputc((int)OasisRecord::PROPNAME, out.file);
+        oasis_putc((int)OasisRecord::PROPNAME, out);
         uint64_t len = strlen(item->key);
         oasis_write_unsigned_integer(out, len);
-        fwrite(item->key, 1, len, out.file);
+        oasis_write(item->key, 1, len, out);
         oasis_write_unsigned_integer(out, item->value);
     }
 
@@ -582,40 +590,49 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     PropertyValue** value_p = state.property_value_array.items;
     for (uint64_t i = state.property_value_array.count; i > 0; i--) {
         PropertyValue* value = *value_p++;
-        fputc((int)OasisRecord::PROPSTRING_IMPLICIT, out.file);
+        oasis_putc((int)OasisRecord::PROPSTRING_IMPLICIT, out);
         oasis_write_unsigned_integer(out, value->count);
-        fwrite(value->bytes, 1, value->count, out.file);
+        oasis_write(value->bytes, 1, value->count, out);
     }
 
-    fputc((int)OasisRecord::END, out.file);
+    oasis_putc((int)OasisRecord::END, out);
 
-    // END header (1) + table-offsets (?) + b-string length (2) + padding + validation (1 or 5) =
-    // 256
-    uint64_t pad_len = 252 + ftell(out.file);
+    // END (1) + table-offsets (?) + b-string length (2) + padding + validation (1 or 5) = 256
+    uint64_t pad_len = 256 - 1 - 2 - 1 + ftell(out.file);
+    if (out.crc32 || out.checksum32) pad_len -= 4;
 
     // Table offsets
-    fputc(1, out.file);
+    oasis_putc(1, out);
     oasis_write_unsigned_integer(out, cell_name_offset);
-    fputc(1, out.file);
+    oasis_putc(1, out);
     oasis_write_unsigned_integer(out, text_string_offset);
-    fputc(1, out.file);
+    oasis_putc(1, out);
     oasis_write_unsigned_integer(out, prop_name_offset);
-    fputc(1, out.file);
+    oasis_putc(1, out);
     oasis_write_unsigned_integer(out, prop_string_offset);
-    fputc(1, out.file);
-    fputc(0, out.file);  // LAYERNAME table
-    fputc(1, out.file);
-    fputc(0, out.file);  // XNAME table
+    oasis_putc(1, out);
+    oasis_putc(0, out);  // LAYERNAME table
+    oasis_putc(1, out);
+    oasis_putc(0, out);  // XNAME table
 
     pad_len -= ftell(out.file);
     oasis_write_unsigned_integer(out, pad_len);
-    for (; pad_len > 0; pad_len--) fputc(0, out.file);
+    for (; pad_len > 0; pad_len--) oasis_putc(0, out);
 
-    // TODO: Add support for validation schemes (fix pad_len)
-    fputc(0, out.file);
+    if (out.crc32) {
+        oasis_putc(1, out);
+        little_endian_swap32(&out.signature, 1);
+        fwrite(&out.signature, 4, 1, out.file);
+    } else if (out.checksum32) {
+        oasis_putc(2, out);
+        little_endian_swap32(&out.signature, 1);
+        fwrite(&out.signature, 4, 1, out.file);
+    } else {
+        oasis_putc(0, out);
+    }
 
-    free_allocation(out.data);
     fclose(out.file);
+    free_allocation(out.data);
 
     cell_name_map.clear();
     cell_offset_map.clear();
@@ -999,7 +1016,6 @@ Library read_oas(const char* filename, double unit, double tolerance) {
     in.file = fopen(filename, "rb");
     if (in.file == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
-        fclose(in.file);
         return library;
     }
 
@@ -2115,7 +2131,6 @@ int oas_precision(const char* filename, double& precision) {
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
-        fclose(in);
         return -1;
     }
 
@@ -2139,6 +2154,74 @@ int oas_precision(const char* filename, double& precision) {
     precision = 1e-6 / oasis_read_real(s);
     fclose(in);
     return 0;
+}
+
+bool oas_validate(const char* filename, uint32_t* signature) {
+    uint8_t buffer[32 * 1024];
+    FILE* in = fopen(filename, "rb");
+    if (in == NULL) {
+        fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        return false;
+    }
+
+    // Check header bytes and START record
+    char header[14];
+    if (fread(header, 1, 14, in) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
+        fputs("[GDSTK] Invalid OASIS header found.\n", stderr);
+        fclose(in);
+        return false;
+    }
+
+    if (fseek(in, -5, SEEK_END) != 0) {
+        fputs("[GDSTK] Unable to find the END record of the file.\n", stderr);
+        fclose(in);
+        return false;
+    }
+
+    uint64_t size = ftell(in) + 1;
+    uint8_t file_sum[5];
+    if (fread(file_sum, 1, COUNT(file_sum), in) < 5) {
+        fputs("[GDSTK] Unable to read the END record of the file.\n", stderr);
+        fclose(in);
+        return false;
+    }
+
+    if (file_sum[0] == 1) {
+        // CRC32
+        uint32_t sig = crc32_z(0, NULL, 0);
+        fseek(in, 0, SEEK_SET);
+        while (size >= COUNT(buffer)) {
+            fread(buffer, 1, COUNT(buffer), in);
+            sig = crc32_z(sig, buffer, COUNT(buffer));
+            size -= COUNT(buffer);
+        }
+        fread(buffer, 1, size, in);
+        sig = crc32_z(sig, buffer, size);
+        little_endian_swap32(&sig, 1);
+        if (signature) *signature = sig;
+        // printf("CRC32: 0x%08X == 0x%08X\n", sig, *(uint32_t*)(file_sum + 1));
+        if (sig != *(uint32_t*)(file_sum + 1)) return false;
+    } else if (file_sum[0] == 2) {
+        // Checksum32
+        uint32_t sig = 0;
+        fseek(in, 0, SEEK_SET);
+        while (size >= COUNT(buffer)) {
+            fread(buffer, 1, COUNT(buffer), in);
+            sig = checksum32(sig, buffer, COUNT(buffer));
+            size -= COUNT(buffer);
+        }
+        fread(buffer, 1, size, in);
+        sig = checksum32(sig, buffer, size);
+        little_endian_swap32(&sig, 1);
+        if (signature) *signature = sig;
+        // printf("Checksum32: 0x%08X == 0x%08X\n", sig, *(uint32_t*)(file_sum + 1));
+        if (sig != *(uint32_t*)(file_sum + 1)) return false;
+    } else {
+        if (signature) *signature = 0;
+    }
+
+    // No checksum
+    return true;
 }
 
 }  // namespace gdstk
