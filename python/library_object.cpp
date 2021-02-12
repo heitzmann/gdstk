@@ -187,21 +187,37 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
 }
 
 static PyObject* library_object_write_oas(LibraryObject* self, PyObject* args, PyObject* kwds) {
-    const char* keywords[] = {"outfile",           "compression_level", "detect_rectangles",
-                              "detect_trapezoids", "circle_tolerance",  NULL};
+    const char* keywords[] = {
+        "outfile",          "compression_level",   "detect_rectangles", "detect_trapezoids",
+        "circle_tolerance", "standard_properties", "validation",        NULL};
     PyObject* pybytes = NULL;
     uint8_t compression_level = 6;
     int detect_rectangles = 1;
     int detect_trapezoids = 1;
     double circle_tolerance = 0;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|bppd:write_oas", (char**)keywords,
+    int standard_properties = 0;
+    char* validation = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|bppdpz:write_oas", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &compression_level,
-                                     &detect_rectangles, &detect_trapezoids, &circle_tolerance))
+                                     &detect_rectangles, &detect_trapezoids, &circle_tolerance,
+                                     &standard_properties, &validation))
         return NULL;
 
     uint8_t config_flags = 0;
     if (detect_rectangles == 1) config_flags |= OASIS_CONFIG_DETECT_RECTANGLES;
     if (detect_trapezoids == 1) config_flags |= OASIS_CONFIG_DETECT_TRAPEZOIDS;
+    if (standard_properties == 1) config_flags |= OASIS_CONFIG_STANDARD_PROPERTIES;
+    if (validation != NULL) {
+        if (strcmp(validation, "crc32") == 0) {
+            config_flags |= OASIS_CONFIG_INCLUDE_CRC32;
+        } else if (strcmp(validation, "checksum32") == 0) {
+            config_flags |= OASIS_CONFIG_INCLUDE_CHECKSUM32;
+        } else {
+            PyErr_SetString(PyExc_ValueError,
+                            "Argument validation must be \"crc32\", \"checksum32\", or None.");
+            return NULL;
+        }
+    }
 
     const char* filename = PyBytes_AS_STRING(pybytes);
     self->library->write_oas(filename, circle_tolerance, compression_level, config_flags);

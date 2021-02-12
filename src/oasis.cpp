@@ -666,7 +666,7 @@ void oasis_write_real(OasisStream& out, double value) {
 
 void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool closed) {
     if (points.count < 1) return;
-    bool last_horizontal;
+    bool last_horizontal = false;
     OasisPointList list_type = OasisPointList::Relative;
     IntVec2* cur = points.items + points.count - 1;
     IntVec2* prev = cur - 1;

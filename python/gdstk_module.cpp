@@ -1300,6 +1300,18 @@ static PyObject* oas_precision_function(PyObject* mod, PyObject* args) {
     return PyFloat_FromDouble(precision);
 }
 
+static PyObject* oas_validate_function(PyObject* mod, PyObject* args) {
+    PyObject* pybytes = NULL;
+    if (!PyArg_ParseTuple(args, "O&:oas_validate", PyUnicode_FSConverter, &pybytes)) return NULL;
+
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    uint32_t signature = 0;
+    bool result = oas_validate(filename, &signature);
+    Py_DECREF(pybytes);
+
+    return Py_BuildValue("Ok", result ? Py_True : Py_False, signature);
+}
+
 extern "C" {
 
 static PyMethodDef gdstk_methods[] = {
@@ -1325,6 +1337,7 @@ static PyMethodDef gdstk_methods[] = {
     {"gds_units", (PyCFunction)gds_units_function, METH_VARARGS, gds_units_function_doc},
     {"oas_precision", (PyCFunction)oas_precision_function, METH_VARARGS,
      oas_precision_function_doc},
+    {"oas_validate", (PyCFunction)oas_validate_function, METH_VARARGS, oas_validate_function_doc},
     {NULL, NULL, 0, NULL}};
 
 static int gdstk_exec(PyObject* module) {

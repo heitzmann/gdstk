@@ -15,7 +15,7 @@ def bench_gdspy(output=None):
     sp1 = gdspy.FlexPath(
         [(0, 0), (3, 0), (3, 2), (5, 3), (3, 4), (0, 4)],
         1,
-        simple_path=True,
+        gdsii_path=True,
         datatype=1,
     )
     sp1.smooth([(0, 2), (2, 2), (4, 3), (5, 1)], relative=True)
@@ -36,10 +36,10 @@ def bench_gdspy(output=None):
         0.5,
         corners="circular bend",
         bend_radius=5,
-        simple_path=True,
+        gdsii_path=True,
         datatype=4,
     )
-    sp4 = gdspy.FlexPath(points, 0.5, layer=1, simple_path=True, datatype=5)
+    sp4 = gdspy.FlexPath(points, 0.5, layer=1, gdsii_path=True, datatype=5)
     if output:
         cell = gdspy.Cell("MAIN", exclude_from_current=True)
         cell.add([sp1, sp2, sp3, sp4])

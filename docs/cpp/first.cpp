@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     cell.polygon_array.append(&rect);
 
     lib.write_gds("first.gds", 0, NULL);
+    lib.write_oas("first.oas", 0, 6, OASIS_CONFIG_DETECT_ALL);
 
     StyleMap style = {0};
     StyleMap label_style = {0};

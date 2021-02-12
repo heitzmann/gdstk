@@ -2330,7 +2330,7 @@ See also:
 
 PyDoc_STRVAR(
     library_object_write_oas_doc,
-    R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0) -> None
+    R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0, standard_properties=false, validation=None) -> None
 
 Save this library to an OASIS file.
 
@@ -2344,6 +2344,16 @@ Args:
     circle_tolerance: Tolerance for detecting circles. If less or equal
       to 0, no detection is performed. Circles are stored in compressed
       format.
+    validation ("crc32", "checksum32", None): type of validation to
+      include in the saved file.
+    standard_properties: Staore standard OASIS properties in the file.
+
+Notes:
+    The standard OASIS options include the maximal string length and
+    integer size used in the file, maximal numbers of polygon and path
+    vertices, cell bounding boxes and cell offsets inside the file.
+    Some of these properties are computationally expensive to calculate.
+    Use only when required.
 
 See also:
     :ref:`getting-started`)!");
@@ -2928,3 +2938,14 @@ Args:
 
 Returns:
     Precision of the library in the file.)!");
+
+PyDoc_STRVAR(oas_validate_function_doc, R"!(oas_validate(infile) -> tuple
+
+Check the validation signature of an OASIS file, if any.
+
+Args:
+    infile (str or pathlib.Path): Name of the input file.
+
+Returns:
+    Validation result (True/False) and the calculated signature. If the
+    file does not have a signature, returns (True, 0))!");

@@ -68,3 +68,4 @@ Classes and functions used to create and organize the library in a GDSII/OASIS f
    gdstk.read_rawcells
    gdstk.gds_units
    gdstk.oas_precision
+   gdstk.oas_validate
