@@ -5,10 +5,11 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#define _USE_MATH_DEFINES
+#ifndef GDSTK_HEADER_MAP
+#define GDSTK_HEADER_MAP
 
-#ifndef __MAP_H__
-#define __MAP_H__
+#define __STDC_FORMAT_MACROS
+#define _USE_MATH_DEFINES
 
 #define MAP_GROWTH_FACTOR 2
 #define INITIAL_MAP_CAPACITY 4

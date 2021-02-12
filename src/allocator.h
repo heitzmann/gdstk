@@ -5,8 +5,10 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#ifndef __ALLOCATOR_H__
-#define __ALLOCATOR_H__
+#ifndef GDSTK_HEADER_ALLOCATOR
+#define GDSTK_HEADER_ALLOCATOR
+
+#define __STDC_FORMAT_MACROS
 
 // #define GDSTK_CUSTOM_ALLOCATOR
 // #define GDSTK_ALLOCATOR_INFO

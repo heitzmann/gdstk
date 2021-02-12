@@ -5,8 +5,8 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#ifndef __FONT_H__
-#define __FONT_H__
+#ifndef GDSTK_HEADER_FONT
+#define GDSTK_HEADER_FONT
 
 #define FIRST_CODEPOINT 0x21
 #define HORIZONTAL_STEP 9

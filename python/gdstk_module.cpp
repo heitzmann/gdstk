@@ -5,6 +5,7 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
+#define __STDC_FORMAT_MACROS
 #define _USE_MATH_DEFINES
 
 #define PY_SSIZE_T_CLEAN
@@ -26,7 +27,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define RepetitionObject_Check(o) PyObject_TypeCheck((o), &repetition_object_type)
 #define RobustPathObject_Check(o) PyObject_TypeCheck((o), &robustpath_object_type)
 
-#define __STDC_FORMAT_MACROS
 #include <Python.h>
 #include <inttypes.h>
 #include <numpy/arrayobject.h>

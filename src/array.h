@@ -5,10 +5,11 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#define _USE_MATH_DEFINES
+#ifndef GDSTK_HEADER_ARRAY
+#define GDSTK_HEADER_ARRAY
 
-#ifndef __ARRAY_H__
-#define __ARRAY_H__
+#define _USE_MATH_DEFINES
+#define __STDC_FORMAT_MACROS
 
 #define ARRAY_GROWTH_FACTOR 2
 #define INITIAL_ARRAY_CAPACITY 4
