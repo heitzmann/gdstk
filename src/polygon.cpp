@@ -693,7 +693,7 @@ static bool is_circle(const Array<Vec2> point_array, double tolerance, Vec2& cen
     if (fabs(den) < PARALLEL_EPS) return false;
     center.x = (coef_b * res_a - coef_m * res_b) / den;
     center.y = (coef_a * res_b - coef_m * res_a) / den;
-    //printf("Center: (%lf, %lf)\n", center.x, center.y);
+    // printf("Center: (%lf, %lf)\n", center.x, center.y);
 
     radius = 0;
     for (uint64_t i = 0; i <= CIRCLE_DETECTION_LSQ_COEFFICIENTS; i++) {
@@ -701,7 +701,7 @@ static bool is_circle(const Array<Vec2> point_array, double tolerance, Vec2& cen
         radius += (point_array[j] - center).length();
     }
     radius /= 1 + CIRCLE_DETECTION_LSQ_COEFFICIENTS;
-    //printf("Radius: %lf\n", radius);
+    // printf("Radius: %lf\n", radius);
 
     if (point_array.count < arc_num_points(2 * M_PI, radius, tolerance)) return false;
 

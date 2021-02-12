@@ -288,13 +288,13 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
         case OasisDataType::RealNegativeReciprocal:
             return -1.0 / (double)oasis_read_unsigned_integer(in);
         case OasisDataType::RealPositiveRatio: {
-            double num = oasis_read_unsigned_integer(in);
-            double den = oasis_read_unsigned_integer(in);
+            double num = (double)oasis_read_unsigned_integer(in);
+            double den = (double)oasis_read_unsigned_integer(in);
             return num / den;
         }
         case OasisDataType::RealNegativeRatio: {
-            double num = oasis_read_unsigned_integer(in);
-            double den = oasis_read_unsigned_integer(in);
+            double num = (double)oasis_read_unsigned_integer(in);
+            double den = (double)oasis_read_unsigned_integer(in);
             return -num / den;
         }
         case OasisDataType::RealFloat: {
@@ -837,34 +837,38 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                     oasis_putc(1, out);
                     oasis_write_unsigned_integer(out, repetition.columns - 2);
                     oasis_write_unsigned_integer(out, repetition.rows - 2);
-                    oasis_write_unsigned_integer(out, repetition.spacing.x * scaling);
-                    oasis_write_unsigned_integer(out, repetition.spacing.y * scaling);
+                    oasis_write_unsigned_integer(out,
+                                                 (uint64_t)llround(repetition.spacing.x * scaling));
+                    oasis_write_unsigned_integer(out,
+                                                 (uint64_t)llround(repetition.spacing.y * scaling));
                 } else {
                     oasis_putc(8, out);
                     oasis_write_unsigned_integer(out, repetition.columns - 2);
                     oasis_write_unsigned_integer(out, repetition.rows - 2);
-                    oasis_write_gdelta(out, repetition.spacing.x * scaling, 0);
-                    oasis_write_gdelta(out, 0, repetition.spacing.y * scaling);
+                    oasis_write_gdelta(out, (int64_t)llround(repetition.spacing.x * scaling), 0);
+                    oasis_write_gdelta(out, 0, (int64_t)llround(repetition.spacing.y * scaling));
                 }
             } else if (repetition.columns > 1) {
                 if (repetition.spacing.x >= 0) {
                     oasis_putc(2, out);
                     oasis_write_unsigned_integer(out, repetition.columns - 2);
-                    oasis_write_unsigned_integer(out, repetition.spacing.x * scaling);
+                    oasis_write_unsigned_integer(out,
+                                                 (uint64_t)llround(repetition.spacing.x * scaling));
                 } else {
                     oasis_putc(9, out);
                     oasis_write_unsigned_integer(out, repetition.columns - 2);
-                    oasis_write_gdelta(out, repetition.spacing.x * scaling, 0);
+                    oasis_write_gdelta(out, (int64_t)llround(repetition.spacing.x * scaling), 0);
                 }
             } else {
                 if (repetition.spacing.y >= 0) {
                     oasis_putc(3, out);
                     oasis_write_unsigned_integer(out, repetition.rows - 2);
-                    oasis_write_unsigned_integer(out, repetition.spacing.y * scaling);
+                    oasis_write_unsigned_integer(out,
+                                                 (uint64_t)llround(repetition.spacing.y * scaling));
                 } else {
                     oasis_putc(9, out);
                     oasis_write_unsigned_integer(out, repetition.rows - 2);
-                    oasis_write_gdelta(out, 0, repetition.spacing.y * scaling);
+                    oasis_write_gdelta(out, 0, (int64_t)llround(repetition.spacing.y * scaling));
                 }
             }
         } break;
@@ -873,16 +877,20 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 oasis_putc(8, out);
                 oasis_write_unsigned_integer(out, repetition.columns - 2);
                 oasis_write_unsigned_integer(out, repetition.rows - 2);
-                oasis_write_gdelta(out, repetition.v1.x * scaling, repetition.v1.y * scaling);
-                oasis_write_gdelta(out, repetition.v2.x * scaling, repetition.v2.y * scaling);
+                oasis_write_gdelta(out, (int64_t)llround(repetition.v1.x * scaling),
+                                   (int64_t)llround(repetition.v1.y * scaling));
+                oasis_write_gdelta(out, (int64_t)llround(repetition.v2.x * scaling),
+                                   (int64_t)llround(repetition.v2.y * scaling));
             } else if (repetition.columns > 1) {
                 oasis_putc(9, out);
                 oasis_write_unsigned_integer(out, repetition.columns - 2);
-                oasis_write_gdelta(out, repetition.v1.x * scaling, repetition.v1.y * scaling);
+                oasis_write_gdelta(out, (int64_t)llround(repetition.v1.x * scaling),
+                                   (int64_t)llround(repetition.v1.y * scaling));
             } else {
                 oasis_putc(9, out);
                 oasis_write_unsigned_integer(out, repetition.rows - 2);
-                oasis_write_gdelta(out, repetition.v2.x * scaling, repetition.v2.y * scaling);
+                oasis_write_gdelta(out, (int64_t)llround(repetition.v2.x * scaling),
+                                   (int64_t)llround(repetition.v2.y * scaling));
             }
         } break;
         case RepetitionType::ExplicitX:
@@ -894,9 +902,9 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 std::sort(items, items + repetition.coords.count);
                 double* c0 = items;
                 double* c1 = c0 + 1;
-                oasis_write_unsigned_integer(out, *c0 * scaling);
+                oasis_write_unsigned_integer(out, (uint64_t)llround(*c0 * scaling));
                 for (uint64_t i = repetition.coords.count - 1; i > 0; --i) {
-                    oasis_write_unsigned_integer(out, (*c1++ - *c0++) * scaling);
+                    oasis_write_unsigned_integer(out, (uint64_t)llround((*c1++ - *c0++) * scaling));
                 }
                 free_allocation(items);
             }
@@ -910,9 +918,9 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 std::sort(items, items + repetition.coords.count);
                 double* c0 = items;
                 double* c1 = c0 + 1;
-                oasis_write_unsigned_integer(out, *c0 * scaling);
+                oasis_write_unsigned_integer(out, (uint64_t)llround(*c0 * scaling));
                 for (uint64_t i = repetition.coords.count - 1; i > 0; --i) {
-                    oasis_write_unsigned_integer(out, (*c1++ - *c0++) * scaling);
+                    oasis_write_unsigned_integer(out, (uint64_t)llround((*c1++ - *c0++) * scaling));
                 }
                 free_allocation(items);
             }
@@ -923,9 +931,11 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 oasis_write_unsigned_integer(out, repetition.offsets.count - 1);
                 Vec2* v0 = repetition.offsets.items;
                 Vec2* v1 = v0 + 1;
-                oasis_write_gdelta(out, v0->x * scaling, v0->y * scaling);
+                oasis_write_gdelta(out, (int64_t)llround(v0->x * scaling),
+                                   (int64_t)llround(v0->y * scaling));
                 for (uint64_t i = repetition.coords.count - 1; i > 0; --i, ++v0, ++v1) {
-                    oasis_write_gdelta(out, (v1->x - v0->x) * scaling, (v1->y - v0->y) * scaling);
+                    oasis_write_gdelta(out, (int64_t)llround((v1->x - v0->x) * scaling),
+                                       (int64_t)llround((v1->y - v0->y) * scaling));
                 }
             }
             break;

@@ -34,7 +34,7 @@ uint64_t gdsii_real_from_double(double value) {
 double gdsii_real_to_double(uint64_t real) {
     const int64_t exponent = ((real & 0x7F00000000000000) >> 54) - 256;
     const double mantissa = ((double)(real & 0x00FFFFFFFFFFFFFF)) / 72057594037927936.0;
-    const double result = mantissa * exp2(exponent);
+    const double result = mantissa * exp2((double)exponent);
     return (real & 0x8000000000000000) ? -result : result;
 }
 

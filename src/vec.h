@@ -80,18 +80,25 @@ inline IntVec2 operator+(const IntVec2& v1, const IntVec2& v2) {
     return IntVec2{v1.e[0] + v2.e[0], v1.e[1] + v2.e[1]};
 }
 
-inline IntVec2 operator+(const IntVec2& vec, const int64_t s) { return IntVec2{vec.e[0] + s, vec.e[1] + s}; }
+inline IntVec2 operator+(const IntVec2& vec, const int64_t s) {
+    return IntVec2{vec.e[0] + s, vec.e[1] + s};
+}
 
-inline IntVec2 operator+(const int64_t s, const IntVec2& vec) { return IntVec2{s + vec.e[0], s + vec.e[1]}; }
+inline IntVec2 operator+(const int64_t s, const IntVec2& vec) {
+    return IntVec2{s + vec.e[0], s + vec.e[1]};
+}
 
 inline IntVec2 operator-(const IntVec2& v1, const IntVec2& v2) {
     return IntVec2{v1.e[0] - v2.e[0], v1.e[1] - v2.e[1]};
 }
 
-inline IntVec2 operator-(const IntVec2& vec, const int64_t s) { return IntVec2{vec.e[0] - s, vec.e[1] - s}; }
+inline IntVec2 operator-(const IntVec2& vec, const int64_t s) {
+    return IntVec2{vec.e[0] - s, vec.e[1] - s};
+}
 
-inline IntVec2 operator-(const int64_t s, const IntVec2& vec) { return IntVec2{s - vec.e[0], s - vec.e[1]}; }
-
+inline IntVec2 operator-(const int64_t s, const IntVec2& vec) {
+    return IntVec2{s - vec.e[0], s - vec.e[1]};
+}
 
 struct Vec2 {
     union {

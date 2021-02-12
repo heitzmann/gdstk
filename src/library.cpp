@@ -186,13 +186,9 @@ static uint64_t max_string_length(Property* property) {
 }
 
 // zlib memory management
-static void* zalloc(void*, uInt count, uInt size) {
-    return allocate(count * size);
-}
+static void* zalloc(void*, uInt count, uInt size) { return allocate(count * size); }
 
-static void zfree(void*, void* ptr) {
-    free_allocation(ptr);
-}
+static void zfree(void*, void* ptr) { free_allocation(ptr); }
 
 void Library::write_oas(const char* filename, double circle_tolerance, uint8_t compression_level,
                         uint16_t config_flags) {
@@ -521,10 +517,10 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
                 Z_OK) {
                 fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
             }
-            s.avail_out = deflateBound(&s, uncompressed_size);
+            s.avail_out = deflateBound(&s, (uLong)uncompressed_size);
             uint8_t* buffer = (uint8_t*)allocate(s.avail_out);
             s.next_out = buffer;
-            s.avail_in = uncompressed_size;
+            s.avail_in = (uInt)uncompressed_size;
             s.next_in = out.data;
             int ret = deflate(&s, Z_FINISH);
             if (ret != Z_STREAM_END) {
@@ -1062,10 +1058,10 @@ Library read_oas(const char* filename, double unit, double tolerance) {
 
     // State variables
     bool modal_absolute_pos = true;
-    uint64_t modal_layer = 0;
-    uint64_t modal_datatype = 0;
-    uint64_t modal_textlayer = 0;
-    uint64_t modal_texttype = 0;
+    uint32_t modal_layer = 0;
+    uint32_t modal_datatype = 0;
+    uint32_t modal_textlayer = 0;
+    uint32_t modal_texttype = 0;
     Vec2 modal_placement_pos = {0, 0};
     Vec2 modal_text_pos = {0, 0};
     Vec2 modal_geom_pos = {0, 0};
@@ -2044,14 +2040,14 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     fputs("[GDSTK] CBLOCK compression method not supported.\n", stderr);
                     oasis_read_unsigned_integer(in);
                     len = oasis_read_unsigned_integer(in);
-                    fseek(in.file, len, SEEK_SET);
+                    fseek(in.file, (long)len, SEEK_SET);
                 } else {
                     z_stream s = {0};
                     s.zalloc = zalloc;
                     s.zfree = zfree;
                     in.data_size = oasis_read_unsigned_integer(in);
-                    s.avail_out = in.data_size;
-                    s.avail_in = oasis_read_unsigned_integer(in);
+                    s.avail_out = (uInt)in.data_size;
+                    s.avail_in = (uInt)oasis_read_unsigned_integer(in);
                     in.data = (uint8_t*)allocate(in.data_size);
                     in.cursor = in.data;
                     s.next_out = in.data;
