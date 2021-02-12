@@ -185,6 +185,15 @@ static uint64_t max_string_length(Property* property) {
     return result;
 }
 
+// zlib memory management
+static void* zalloc(void*, uInt count, uInt size) {
+    return allocate(count * size);
+}
+
+static void zfree(void*, void* ptr) {
+    free_allocation(ptr);
+}
+
 void Library::write_oas(const char* filename, double circle_tolerance, uint8_t compression_level,
                         uint16_t config_flags) {
     const uint64_t c_size = cell_array.count;
@@ -506,7 +515,8 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
             out.cursor = NULL;
 
             z_stream s = {0};
-            // TODO: use custom allocator
+            s.zalloc = zalloc;
+            s.zfree = zfree;
             if (deflateInit2(&s, compression_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) !=
                 Z_OK) {
                 fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
@@ -2037,7 +2047,8 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     fseek(in.file, len, SEEK_SET);
                 } else {
                     z_stream s = {0};
-                    // TODO: use custom allocator
+                    s.zalloc = zalloc;
+                    s.zfree = zfree;
                     in.data_size = oasis_read_unsigned_integer(in);
                     s.avail_out = in.data_size;
                     s.avail_in = oasis_read_unsigned_integer(in);

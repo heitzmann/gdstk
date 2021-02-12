@@ -377,7 +377,6 @@ void properties_to_oas(const Property* properties, OasisStream& out, OasisState&
                     oasis_write_integer(out, value->integer);
                     break;
                 case PropertyType::String: {
-                    // TODO: Use a map to find duplicates faster and stoe string type
                     bool space = false;
                     bool binary = false;
                     uint8_t* byte = value->bytes;

@@ -7,7 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "allocator.h"
 
-#ifndef USE_MALLOC
+#ifdef GDSTK_CUSTOM_ALLOCATOR
 
 #ifdef _WIN32
 // clang-format off
@@ -26,8 +26,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "utils.h"
 
 // TODO: Thread safety
-
-// #define ALLOC_INFO
 
 #define PAGE_SIZE 0x1000  // This should be default for all targeted systems.
 
@@ -68,7 +66,7 @@ static SmallAllocationHeader free_small[] = {{NULL},   // 8-byte allocations
                                              {NULL},   // 2048
                                              {NULL}};  // 4096
 
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
 static uint64_t dbg_sys_alloc = 0;
 static uint64_t dbg_sys_free = 0;
 static uint64_t dbg_arena_alloc = 0;
@@ -142,14 +140,14 @@ static uint8_t* system_allocate(uint64_t size) {
         return NULL;
     }
 #endif
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
     dbg_sys_alloc++;
 #endif
     return (uint8_t*)result;
 }
 
 static void system_deallocate(void* ptr, uint64_t size) {
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
     dbg_sys_free++;
 #endif
 #ifdef _WIN32
@@ -332,7 +330,7 @@ static void* arena_allocate(uint64_t size) {
     void* result = (void*)a->cursor;
     a->cursor += size;
     a->available_size -= size;
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
     dbg_arena_alloc++;
 #endif
     return result;
@@ -349,13 +347,13 @@ void* allocate(uint64_t size) {
         if (free->next && free->next->size <= 2 * size) {
             result = free->next;
             free->next = result->next;
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
             dbg_reuse[COUNT(free_small)]++;
 #endif
         } else {
             result = (LargeAllocationHeader*)arena_allocate(size + sizeof(LargeAllocationHeader));
             result->size = size;
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
             dbg_alloc[COUNT(free_small)]++;
 #endif
         }
@@ -372,13 +370,13 @@ void* allocate(uint64_t size) {
         if (free->next) {
             result = free->next;
             free->next = result->next;
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
             dbg_reuse[small_index]++;
 #endif
         } else {
             result =
                 (SmallAllocationHeader*)arena_allocate(pow2_size + sizeof(SmallAllocationHeader));
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
             dbg_alloc[small_index]++;
 #endif
         }
@@ -399,7 +397,7 @@ void* reallocate(void* ptr, uint64_t size) {
         uint64_t ptr_size = 1 << (3 + small_index);
         if (size <= ptr_size) return ptr;
 
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
         dbg_realloc[small_index]++;
 #endif
         void* new_ptr = allocate(size);
@@ -412,7 +410,7 @@ void* reallocate(void* ptr, uint64_t size) {
             (LargeAllocationHeader*)((uint8_t*)ptr - sizeof(LargeAllocationHeader));
         if (size <= lh->size) return ptr;
 
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
         dbg_realloc[COUNT(free_small)]++;
 #endif
         Arena* a = arena.next;
@@ -448,7 +446,7 @@ void free_allocation(void* ptr) {
         (SmallAllocationHeader*)((uint8_t*)ptr - sizeof(SmallAllocationHeader));
     if (sh->next) {
         // Small allocation
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
         uint8_t small_index = sh->next - free_small;
         dbg_free[small_index]++;
 #endif
@@ -456,7 +454,7 @@ void free_allocation(void* ptr) {
         sh->next = free->next;
         free->next = sh;
     } else {
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
         dbg_free[COUNT(free_small)]++;
 #endif
         LargeAllocationHeader* lh =
@@ -471,7 +469,7 @@ void free_allocation(void* ptr) {
 }
 
 void gdstk_finalize() {
-#ifdef ALLOC_INFO
+#ifdef GDSTK_ALLOCATOR_INFO
     print_status();
 #endif
     Arena* a = arena.next;
@@ -484,4 +482,4 @@ void gdstk_finalize() {
 
 }  // namespace gdstk
 
-#endif  // USE_MALLOC
+#endif  // GDSTK_CUSTOM_ALLOCATOR
