@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.3.1 - 2021-02-12
+### Fixed
+- Missing constant definition
+
 ## 0.3.0 - 2021-02-12
 ### Added
 - Support for OASIS files

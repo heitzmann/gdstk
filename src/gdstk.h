@@ -11,7 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS
 #define _USE_MATH_DEFINES
 
-#define GDSTK_VERSION "0.3.0"
+#define GDSTK_VERSION "0.3.1"
 
 #include "gdstk/array.h"
 #include "gdstk/cell.h"
