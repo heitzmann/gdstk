@@ -1392,11 +1392,11 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     }
                 }
                 if (info & 0x01) {
-                    modal_textlayer = oasis_read_unsigned_integer(in);
+                    modal_textlayer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 label->layer = modal_textlayer;
                 if (info & 0x02) {
-                    modal_texttype = oasis_read_unsigned_integer(in);
+                    modal_texttype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 label->texttype = modal_texttype;
                 if (info & 0x10) {
@@ -1428,10 +1428,10 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 if (info & 0x40) {
                     modal_geom_dim.x = factor * oasis_read_unsigned_integer(in);
@@ -1471,11 +1471,11 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 polygon->layer = modal_layer;
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 polygon->datatype = modal_datatype;
                 if (info & 0x20) {
@@ -1524,11 +1524,11 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 element->layer = modal_layer;
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 element->datatype = modal_datatype;
                 if (info & 0x40) {
@@ -1604,11 +1604,11 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 polygon->layer = modal_layer;
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 polygon->datatype = modal_datatype;
                 if (info & 0x40) {
@@ -1698,11 +1698,11 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 polygon->layer = modal_layer;
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 polygon->datatype = modal_datatype;
                 if (info & 0x80) {
@@ -1858,10 +1858,10 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 if (info & 0x20) {
                     modal_circle_radius = factor * oasis_read_unsigned_integer(in);
@@ -2008,10 +2008,10 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 oasis_read(&info, 1, 1, in);
                 oasis_read_unsigned_integer(in);
                 if (info & 0x01) {
-                    modal_layer = oasis_read_unsigned_integer(in);
+                    modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 if (info & 0x02) {
-                    modal_datatype = oasis_read_unsigned_integer(in);
+                    modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
                 free_allocation(oasis_read_string(in, false, len));
                 if (info & 0x10) {
