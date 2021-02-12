@@ -1,11 +1,10 @@
 # Change Log
 
-## Unreleased
+## 0.3.0 - 2021-02-12
 ### Added
 - Support for OASIS files
 - Repetition property for geometric objects, labels and references
 - Library and cells can have properties
-
 ### Changed
 - Use cmake to properly install library
 - More efficient bounding box calculation for rotations multiple of 90°

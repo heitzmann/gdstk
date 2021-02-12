@@ -78,26 +78,26 @@ The _benchmarks_ directory contains a few tests to compare the performance gain 
 They are only for reference; the real improvement is heavily dependent on the type of layout and features used.
 If maximal performance is important, the library should be used directly from C++, without the Python interface.
 
-Timing results were obtained with Python 3.8 on an Intel Core i7-3820 with 8 cores and 64 GB of RAM.
+Timing results were obtained with Python 3.9 on an Intel Core i7-3930K with 6 cores and 16 GB of RAM at 3.2 GHz.
 They represent the best average time to run each function out of 16 sets of 8 runs each.
 
-| Benchmark        |   Gdspy 1.6.1    |   Gdstk 0.2.0    |   Gain   |
+| Benchmark        |   Gdspy 1.6.3    |   Gdstk 0.3.0    |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
-| 10k_rectangles   |      222 ms      |     6.67 ms      |   33.3   |
-| 1k_circles       |      572 ms      |      363 ms      |   1.57   |
-| boolean-offset   |      419 μs      |     60.7 μs      |   6.91   |
-| bounding_box     |      634 μs      |     11.2 μs      |   56.8   |
-| curves           |     3.02 ms      |     65.4 μs      |   46.1   |
-| flatten          |     1.01 ms      |     12.6 μs      |   79.8   |
-| flexpath         |     5.59 ms      |     25.2 μs      |   222    |
-| flexpath-param   |     7.34 ms      |     1.45 ms      |   5.08   |
-| fracture         |     1.71 ms      |      911 μs      |   1.88   |
-| inside           |     41.2 μs      |     11.6 μs      |   3.55   |
-| read_gds         |     7.03 ms      |      119 μs      |    59    |
-| read_rawcells    |      609 μs      |     58.5 μs      |   10.4   |
-| robustpath       |      386 μs      |     15.9 μs      |   24.3   |
+| 10k_rectangles   |      264 ms      |     7.53 ms      |   35.1   |
+| 1k_circles       |      641 ms      |      376 ms      |   1.71   |
+| boolean-offset   |      444 μs      |     78.1 μs      |   5.69   |
+| bounding_box     |      752 μs      |     14.8 μs      |   50.8   |
+| curves           |     3.49 ms      |     65.1 μs      |   53.6   |
+| flatten          |     1.19 ms      |     15.8 μs      |   75.2   |
+| flexpath         |     6.44 ms      |     30.6 μs      |   211    |
+| flexpath-param   |     7.48 ms      |     1.45 ms      |   5.14   |
+| fracture         |     1.81 ms      |     1.07 ms      |   1.69   |
+| inside           |     42.7 μs      |     13.9 μs      |   3.07   |
+| read_gds         |     7.71 ms      |      143 μs      |    54    |
+| read_rawcells    |      742 μs      |     70.9 μs      |   10.5   |
+| robustpath       |      456 μs      |     19.3 μs      |   23.7   |
 
-Memory usage per object for 100.000 objects using Python 3.8:
+Memory usage per object for 100.000 objects using Python 3.9:
 
 | Object               |   Gdspy 1.6.1    |   Gdstk 0.2.0    | Reduction |
 | :------------------- | :--------------: | :--------------: | :-------: |
