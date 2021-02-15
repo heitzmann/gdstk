@@ -320,23 +320,18 @@ void Cell::get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& resu
 }
 
 void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
-    Reference** r_item = reference_array.items;
-    for (uint64_t i = 0; i < reference_array.count; i++) {
-        Reference* ref = *r_item++;
+    uint64_t i = 0;
+    while (i < reference_array.count) {
+        Reference* ref = reference_array[i];
         if (ref->type == ReferenceType::Cell) {
+            reference_array.remove_unordered(i);
             result.append(ref);
             ref->polygons(apply_repetitions, false, -1, polygon_array);
             ref->flexpaths(apply_repetitions, -1, flexpath_array);
             ref->robustpaths(apply_repetitions, -1, robustpath_array);
             ref->labels(apply_repetitions, -1, label_array);
-        }
-    }
-
-    for (uint64_t i = 0; i < reference_array.count;) {
-        if (reference_array[i]->type == ReferenceType::Cell) {
-            reference_array.remove_unordered(i);
         } else {
-            i++;
+            ++i;
         }
     }
 }
