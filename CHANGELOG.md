@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.3.2 - 2021-02-15
+### Fixed
+- Build system fixes for conda recipe
+
 ## 0.3.1 - 2021-02-12
 ### Fixed
 - Missing constant definition
