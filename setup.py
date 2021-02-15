@@ -40,7 +40,12 @@ class build_ext(_build_ext):
         if not self.dry_run:
             self.spawn(["cmake", "--build", str(build_dir), "--target", "install"])
 
-        with open(install_dir / "lib" / "pkgconfig" / "gdstk.pc", "r") as pkg:
+        pkgconfig = list(install_dir.glob("**/gdstk.pc"))
+        if len(pkgconfig) == 0:
+            raise RuntimeError(
+                "File gdstk.pc not found in cmake install tree: {}".format(install_dir)
+            )
+        with open(pkgconfig[0], "r") as pkg:
             for line in pkg:
                 if line.startswith("Cflags:"):
                     for arg in line.split()[1:]:
