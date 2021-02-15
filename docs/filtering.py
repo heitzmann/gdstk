@@ -15,16 +15,10 @@ if __name__ == "__main__":
     lib = gdstk.read_gds(path / "layout.gds")
 
     for cell in lib.cells:
-        for pol in cell.polygons:
-            # Remove any polygons in layer 2
-            if pol.layer == 2:
-                cell.remove(pol)
-        for pth in cell.paths:
-            # Because this is a loaded library, paths will have only 1 element.
-            assert pth.num_paths == 1
-            # Remove any paths in layer 10
-            if pth.layers[0] == 10:
-                cell.remove(pth)
+        # Remove any polygons in layer 2
+        cell.filter([2], [], "or", paths=False, labels=False)
+        # Remove any paths in layer 10
+        cell.filter([10], [], "or", polygons=False, labels=False)
 
     lib.write_gds(path / "filtered-layout.gds")
 

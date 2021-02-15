@@ -96,6 +96,32 @@ static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, co
     return len;
 }
 
+static int64_t parse_uint_sequence(PyObject* sequence, Array<uint32_t>& dest, const char* name) {
+    const int64_t len = PySequence_Length(sequence);
+    if (len < 0) {
+        PyErr_Format(PyExc_RuntimeError,
+                     "Argument %s is a sequence with invalid length (%" PRIu64 ").", name, len);
+        return -1;
+    }
+    if (len > 0) {
+        dest.ensure_slots(len);
+        uint32_t* v = dest.items;
+        for (int64_t j = 0; j < len; j++) {
+            PyObject* item = PySequence_ITEM(sequence, j);
+            *v++ = (uint32_t)PyLong_AsUnsignedLong(item);
+            Py_DECREF(item);
+            if (PyErr_Occurred()) {
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to convert item %" PRId64 " in %s to positive integer.", j,
+                             name);
+                return -1;
+            }
+        }
+        dest.count = len;
+    }
+    return len;
+}
+
 // polygon_array should be zero-initialized
 static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
                               const char* name) {

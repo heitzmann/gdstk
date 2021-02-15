@@ -2198,12 +2198,34 @@ Examples:
     .. image:: ../cell/remove.*
        :align: center)!");
 
+PyDoc_STRVAR(cell_object_filter_doc, R"!(filter(layers, types, operation, polygons=True, paths=True, labels=True) -> self
+
+Remove elements from this cell based on their layer and data/text type.
+
+An element will be removed if the following check returns True:
+``(element.layer in layers) op (element.datatype in types)``
+
+Args:
+    layers: Sequence of layers.
+    types: Sequence of data/text types.
+    operation (str): Logical operation to be used in the filter check.
+      One of "and", "or", "xor", "nand", "nor", "nxor".
+    polygons: Whether to filter the cell's polygons.
+    paths: Whether to filter the cell's paths.
+    labels: Whether to filter the cell's labels.
+
+Examples:
+    >>> # Remove all elements in layer 3 and with type 10:
+    >>> cell.filter([3], [10], "and")
+    >>> # Remove all elements except for those on layer 5:
+    >>> cell.filter([5], [], "nor"))!");
+
 PyDoc_STRVAR(cell_object_dependencies_doc, R"!(dependencies(recursive) -> list
 
 List of cells and raw cells that are referenced by this cell.
 
 Args:
-   recursive: If ``True``, includes all dependencies recursively.)!");
+    recursive: If ``True``, includes all dependencies recursively.)!");
 
 PyDoc_STRVAR(cell_object_name_doc, R"!(Cell name.)!");
 
@@ -2251,7 +2273,7 @@ PyDoc_STRVAR(rawcell_object_dependencies_doc, R"!(dependencies(recursive) -> lis
 List of raw cells that are referenced by this raw cell.
 
 Args:
-   recursive: If ``True``, includes all dependencies recursively.)!");
+    recursive: If ``True``, includes all dependencies recursively.)!");
 
 PyDoc_STRVAR(rawcell_object_name_doc, R"!(Raw cell name.
 

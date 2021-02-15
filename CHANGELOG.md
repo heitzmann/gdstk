@@ -1,4 +1,7 @@
 # Change Log
+## Unreleased
+### Added
+- `Cell.filter` to remove elements by layer and data/text type
 
 ## 0.3.2 - 2021-02-15
 ### Fixed

@@ -206,7 +206,7 @@ static PyObject* cell_object_flatten(CellObject* self, PyObject* args, PyObject*
     Cell* cell = self->cell;
 
     Array<Reference*> reference_array = {0};
-    self->cell->flatten(apply_repetitions > 0, reference_array);
+    cell->flatten(apply_repetitions > 0, reference_array);
     Reference** ref = reference_array.items;
     for (uint64_t i = reference_array.count; i > 0; i--, ref++) Py_XDECREF((*ref)->owner);
     reference_array.clear();
@@ -492,6 +492,172 @@ static PyObject* cell_object_remove(CellObject* self, PyObject* args) {
     return (PyObject*)self;
 }
 
+static bool filter_check(int8_t operation, bool a, bool b) {
+    switch (operation) {
+        case 0:
+            return a && b;
+        case 1:
+            return a || b;
+        case 2:
+            return a != b;
+        case 3:
+            return !(a && b);
+        case 4:
+            return !(a || b);
+        case 5:
+            return a == b;
+        default:
+            return false;
+    }
+}
+
+static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* kwds) {
+    PyObject* py_layers = NULL;
+    PyObject* py_types = NULL;
+    char* operation = NULL;
+    int polygons = 1;
+    int paths = 1;
+    int labels = 1;
+    const char* keywords[] = {"layers", "types", "operation", "polygons", "paths", "labels", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs|ppp:filter", (char**)keywords, &py_layers,
+                                     &py_types, &operation, &polygons, &paths, &labels))
+        return NULL;
+
+    if (PySequence_Check(py_layers) == 0 || PySequence_Check(py_types) == 0) {
+        PyErr_SetString(PyExc_TypeError, "Arguments layers and types must be sequences.");
+        return NULL;
+    }
+
+    Array<uint32_t> layers = {0};
+    Array<uint32_t> types = {0};
+    if (parse_uint_sequence(py_layers, layers, "layers") < 0 ||
+        parse_uint_sequence(py_types, types, "types") < 0) {
+        layers.clear();
+        types.clear();
+        return NULL;
+    }
+
+    int8_t op = -1;
+    if (strcmp(operation, "and") == 0) {
+        op = 0;
+    } else if (strcmp(operation, "or") == 0) {
+        op = 1;
+    } else if (strcmp(operation, "xor") == 0) {
+        op = 2;
+    } else if (strcmp(operation, "nand") == 0) {
+        op = 3;
+    } else if (strcmp(operation, "nor") == 0) {
+        op = 4;
+    } else if (strcmp(operation, "nxor") == 0) {
+        op = 5;
+    } else {
+        PyErr_SetString(PyExc_ValueError,
+                        "Operation must be one of 'and', 'or', 'xor', 'nand', 'or', 'nxor'.");
+        layers.clear();
+        types.clear();
+        return NULL;
+    }
+
+    Cell* cell = self->cell;
+
+    if (polygons > 0) {
+        uint64_t i = 0;
+        while (i < cell->polygon_array.count) {
+            Polygon* poly = cell->polygon_array[i];
+            if (filter_check(op, layers.contains(poly->layer), types.contains(poly->datatype))) {
+                cell->polygon_array.remove_unordered(i);
+                Py_DECREF(poly->owner);
+            } else {
+                ++i;
+            }
+        }
+    }
+
+    if (paths > 0) {
+        uint64_t i = 0;
+        while (i < cell->flexpath_array.count) {
+            FlexPath* path = cell->flexpath_array[i];
+            uint64_t remove = 0;
+            uint64_t j = 0;
+            while (j < path->num_elements) {
+                FlexPathElement* el = path->elements + j++;
+                if (filter_check(op, layers.contains(el->layer), types.contains(el->datatype)))
+                    remove++;
+            }
+            if (remove == path->num_elements) {
+                cell->flexpath_array.remove_unordered(i);
+                Py_DECREF(path->owner);
+            } else {
+                if (remove > 0) {
+                    j = 0;
+                    while (j < path->num_elements) {
+                        FlexPathElement* el = path->elements + j;
+                        if (filter_check(op, layers.contains(el->layer),
+                                         types.contains(el->datatype))) {
+                            el->half_width_and_offset.clear();
+                            path->elements[j] = path->elements[--path->num_elements];
+                        } else {
+                            ++j;
+                        }
+                    }
+                }
+                ++i;
+            }
+        }
+
+        i = 0;
+        while (i < cell->robustpath_array.count) {
+            RobustPath* path = cell->robustpath_array[i];
+            uint64_t remove = 0;
+            uint64_t j = 0;
+            while (j < path->num_elements) {
+                RobustPathElement* el = path->elements + j++;
+                if (filter_check(op, layers.contains(el->layer), types.contains(el->datatype)))
+                    remove++;
+            }
+            if (remove == path->num_elements) {
+                cell->robustpath_array.remove_unordered(i);
+                Py_DECREF(path->owner);
+            } else {
+                if (remove > 0) {
+                    j = 0;
+                    while (j < path->num_elements) {
+                        RobustPathElement* el = path->elements + j;
+                        if (filter_check(op, layers.contains(el->layer),
+                                         types.contains(el->datatype))) {
+                            el->width_array.clear();
+                            el->offset_array.clear();
+                            path->elements[j] = path->elements[--path->num_elements];
+                        } else {
+                            ++j;
+                        }
+                    }
+                }
+                ++i;
+            }
+        }
+    }
+
+    if (labels > 0) {
+        uint64_t i = 0;
+        while (i < cell->label_array.count) {
+            Label* label = cell->label_array[i];
+            if (filter_check(op, layers.contains(label->layer), types.contains(label->texttype))) {
+                cell->label_array.remove_unordered(i);
+                Py_DECREF(label->owner);
+            } else {
+                ++i;
+            }
+        }
+    }
+
+    layers.clear();
+    types.clear();
+
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
     int recursive;
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
@@ -552,6 +718,8 @@ static PyMethodDef cell_object_methods[] = {
     {"write_svg", (PyCFunction)cell_object_write_svg, METH_VARARGS | METH_KEYWORDS,
      cell_object_write_svg_doc},
     {"remove", (PyCFunction)cell_object_remove, METH_VARARGS, cell_object_remove_doc},
+    {"filter", (PyCFunction)cell_object_filter, METH_VARARGS | METH_KEYWORDS,
+     cell_object_filter_doc},
     {"dependencies", (PyCFunction)cell_object_dependencies, METH_VARARGS,
      cell_object_dependencies_doc},
     {"set_property", (PyCFunction)cell_object_set_property, METH_VARARGS, object_set_property_doc},

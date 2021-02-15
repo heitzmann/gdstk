@@ -114,6 +114,67 @@ def test_remove(tree):
     assert len(c1.labels) == 0
 
 
+def test_filter():
+    polys = [
+        gdstk.rectangle((0, 0), (1, 1), layer=l, datatype=t)
+        for t in range(3)
+        for l in range(3)
+    ]
+    labels = [
+        gdstk.Label("FILTER", (1, 1), layer=l, texttype=t)
+        for t in range(3)
+        for l in range(3)
+    ]
+    paths = [
+        gdstk.FlexPath([0j, 1j], [0.1, 0.1, 0.1], 0.5, layer=[0, 1, 2], datatype=t)
+        for t in range(3)
+    ] + [
+        gdstk.RobustPath(0j, [0.1, 0.1], 0.5, layer=[1, 2], datatype=t)
+        for t in range(3)
+    ]
+    layers = [1, 2]
+    types = [0]
+    for op, test in [
+        ("and", lambda a, b: a and b),
+        ("or", lambda a, b: a or b),
+        ("xor", lambda a, b: (a and not b) or (b and not a)),
+        ("nand", lambda a, b: not (a and b)),
+        ("nor", lambda a, b: not (a or b)),
+        ("nxor", lambda a, b: not ((a and not b) or (b and not a))),
+    ]:
+        path_results = [
+            [test(a in layers, b in types) for a, b in zip(path.layers, path.datatypes)]
+            for path in paths
+        ]
+        cell = gdstk.Cell(op)
+        cell.add(*polys, *labels, *paths)
+        cell.filter(layers, types, op)
+
+        cell_polys = cell.polygons
+        for poly in polys:
+            if test(poly.layer in layers, poly.datatype in types):
+                assert poly not in cell_polys
+            else:
+                assert poly in cell_polys
+        cell_labels = cell.labels
+        for label in labels:
+            if test(label.layer in layers, label.texttype in types):
+                assert label not in cell_labels
+            else:
+                assert label in cell_labels
+        cell_paths = cell.paths
+        for path, results in zip(paths, path_results):
+            if all(results):
+                assert path not in cell_paths
+            else:
+                assert path in cell_paths
+                assert len(path.layers) == len(results) - sum(results)
+                assert all(
+                    not test(a in layers, b in types)
+                    for a, b in zip(path.layers, path.datatypes)
+                )
+
+
 def test_area():
     c = gdstk.Cell("c_area")
     c.add(gdstk.rectangle((0, 0), (1, 1), layer=0))
