@@ -38,7 +38,17 @@ class build_ext(_build_ext):
             ]
         )
         if not self.dry_run:
-            self.spawn(["cmake", "--build", str(build_dir), "--target", "install"])
+            self.spawn(
+                [
+                    "cmake",
+                    "--build",
+                    str(build_dir),
+                    "--config",
+                    config,
+                    "--target",
+                    "install",
+                ]
+            )
 
         pkgconfig = list(install_dir.glob("**/gdstk.pc"))
         if len(pkgconfig) == 0:
