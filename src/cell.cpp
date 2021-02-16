@@ -389,20 +389,21 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
     fwrite(name, 1, len, out);
 
+    Array<Polygon*> fractured_array = {0};
+
     Polygon** p_item = polygon_array.items;
     for (uint64_t i = 0; i < polygon_array.count; i++, p_item++) {
         Polygon* polygon = *p_item;
         if (max_points > 4 && polygon->point_array.count > max_points) {
-            Array<Polygon*> array = {0};
-            polygon->fracture(max_points, precision, array);
-            Polygon** a_item = array.items;
-            for (uint64_t j = 0; j < array.count; j++, a_item++) {
+            polygon->fracture(max_points, precision, fractured_array);
+            Polygon** a_item = fractured_array.items;
+            for (uint64_t j = 0; j < fractured_array.count; j++, a_item++) {
                 Polygon* p = *a_item;
                 p->to_gds(out, scaling);
                 p->clear();
                 free_allocation(p);
             }
-            array.clear();
+            fractured_array.count = 0;
         } else {
             polygon->to_gds(out, scaling);
         }
@@ -420,16 +421,15 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
             for (uint64_t i = 0; i < fp_array.count; i++, p_item++) {
                 Polygon* polygon = *p_item;
                 if (max_points > 4 && polygon->point_array.count > max_points) {
-                    Array<Polygon*> array = {0};
-                    polygon->fracture(max_points, precision, array);
-                    Polygon** a_item = array.items;
-                    for (uint64_t j = 0; j < array.count; j++, a_item++) {
+                    polygon->fracture(max_points, precision, fractured_array);
+                    Polygon** a_item = fractured_array.items;
+                    for (uint64_t j = 0; j < fractured_array.count; j++, a_item++) {
                         Polygon* p = *a_item;
                         p->to_gds(out, scaling);
                         p->clear();
                         free_allocation(p);
                     }
-                    array.clear();
+                    fractured_array.count = 0;
                 } else {
                     polygon->to_gds(out, scaling);
                 }
@@ -452,16 +452,15 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
             for (uint64_t i = 0; i < rp_array.count; i++, p_item++) {
                 Polygon* polygon = *p_item;
                 if (max_points > 4 && polygon->point_array.count > max_points) {
-                    Array<Polygon*> array = {0};
-                    polygon->fracture(max_points, precision, array);
-                    Polygon** a_item = array.items;
-                    for (uint64_t j = 0; j < array.count; j++, a_item++) {
+                    polygon->fracture(max_points, precision, fractured_array);
+                    Polygon** a_item = fractured_array.items;
+                    for (uint64_t j = 0; j < fractured_array.count; j++, a_item++) {
                         Polygon* p = *a_item;
                         p->to_gds(out, scaling);
                         p->clear();
                         free_allocation(p);
                     }
-                    array.clear();
+                    fractured_array.count = 0;
                 } else {
                     polygon->to_gds(out, scaling);
                 }
@@ -471,6 +470,8 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
             rp_array.clear();
         }
     }
+
+    fractured_array.clear();
 
     Label** label = label_array.items;
     for (uint64_t i = 0; i < label_array.count; i++, label++) (*label)->to_gds(out, scaling);
@@ -486,8 +487,8 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
 
 void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     char* buffer = (char*)allocate(strlen(name) + 1);
-    // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only for
-    // strings, but who knows…
+    // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only
+    // for strings, but who knows…
     char* d = buffer;
     for (char* c = name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
