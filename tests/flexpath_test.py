@@ -77,6 +77,11 @@ def test_points():
     numpy.testing.assert_array_equal(path.spine(), [[0, 0], [0, 10], [10, 10], [10, 0]])
     numpy.testing.assert_array_equal(path.widths(), [[2], [2], [2], [1]])
     numpy.testing.assert_array_equal(path.offsets(), [[0], [0], [0], [1]])
+    path_spines = path.path_spines()
+    assert len(path_spines) == 1
+    numpy.testing.assert_array_equal(
+        path_spines[0], [[0, 0], [0, 10], [10, 10], [11, 0]]
+    )
 
     path = (
         gdstk.FlexPath((0j, 10j), [2, 2], 2)
@@ -88,3 +93,5 @@ def test_points():
     numpy.testing.assert_array_equal(
         path.offsets(), [[-1, 1], [-1, 1], [-0.5, 0.5], [-2, 1]]
     )
+    path_spines = path.path_spines()
+    assert len(path_spines) == 2

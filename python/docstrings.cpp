@@ -750,6 +750,13 @@ Central path spine.
 Returns:
     Copy of the points that make up the path at zero offset.)!");
 
+PyDoc_STRVAR(flexpath_object_path_spines_doc, R"!(path_spines() -> list
+
+Central spines of each parallel path.
+
+Returns:
+    Copy of the points that make up each parallel path.)!");
+
 PyDoc_STRVAR(flexpath_object_widths_doc, R"!(widths() -> numpy.ndarray
 
 Widths of all paths at every point.
@@ -1345,6 +1352,13 @@ Central path spine.
 
 Returns:
     Copy of the points that make up the path at zero offset.)!");
+
+PyDoc_STRVAR(robustpath_object_path_spines_doc, R"!(path_spines() -> list
+
+Central spines of each parallel path.
+
+Returns:
+    Copy of the points that make up each parallel path.)!");
 
 PyDoc_STRVAR(robustpath_object_widths_doc, R"!(widths(u, from_below=True) -> numpy.ndarray
 

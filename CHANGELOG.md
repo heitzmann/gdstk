@@ -2,6 +2,7 @@
 ## Unreleased
 ### Added
 - `Cell.filter` to remove elements by layer and data/text type
+- `FlexPath.path_spines()` and `RobustPath.path_spines()`
 
 ## 0.3.2 - 2021-02-15
 ### Fixed

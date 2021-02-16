@@ -428,6 +428,34 @@ static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args)
     return (PyObject*)result;
 }
 
+static PyObject* robustpath_object_path_spines(RobustPathObject* self, PyObject* args) {
+    Array<Vec2> point_array = {0};
+    RobustPath* path = self->robustpath;
+    PyObject* result = PyList_New(path->num_elements);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        return NULL;
+    }
+    RobustPathElement* el = path->elements;
+    for (uint64_t i = 0; i < path->num_elements; i++) {
+        path->element_center(el++, point_array);
+        npy_intp dims[] = {(npy_intp)point_array.count, 2};
+        PyObject* spine = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+        if (!spine) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
+            Py_DECREF(result);
+            point_array.clear();
+            return NULL;
+        }
+        PyList_SET_ITEM(result, i, spine);
+        double* data = (double*)PyArray_DATA((PyArrayObject*)spine);
+        memcpy(data, point_array.items, sizeof(double) * point_array.count * 2);
+        point_array.count = 0;
+    }
+    point_array.clear();
+    return (PyObject*)result;
+}
+
 static PyObject* robustpath_object_widths(RobustPathObject* self, PyObject* args, PyObject* kwds) {
     double u = 0;
     int from_below = 1;
@@ -1600,6 +1628,8 @@ static PyObject* robustpath_object_delete_gds_property(RobustPathObject* self, P
 static PyMethodDef robustpath_object_methods[] = {
     {"copy", (PyCFunction)robustpath_object_copy, METH_NOARGS, robustpath_object_copy_doc},
     {"spine", (PyCFunction)robustpath_object_spine, METH_NOARGS, robustpath_object_spine_doc},
+    {"path_spines", (PyCFunction)robustpath_object_path_spines, METH_NOARGS,
+     robustpath_object_path_spines_doc},
     {"widths", (PyCFunction)robustpath_object_widths, METH_VARARGS | METH_KEYWORDS,
      robustpath_object_widths_doc},
     {"offsets", (PyCFunction)robustpath_object_offsets, METH_VARARGS | METH_KEYWORDS,

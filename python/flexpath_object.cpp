@@ -606,6 +606,34 @@ static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
+static PyObject* flexpath_object_path_spines(FlexPathObject* self, PyObject* args) {
+    Array<Vec2> point_array = {0};
+    FlexPath* path = self->flexpath;
+    PyObject* result = PyList_New(path->num_elements);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        return NULL;
+    }
+    FlexPathElement* el = path->elements;
+    for (uint64_t i = 0; i < path->num_elements; i++) {
+        path->element_center(el++, point_array);
+        npy_intp dims[] = {(npy_intp)point_array.count, 2};
+        PyObject* spine = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+        if (!spine) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");
+            Py_DECREF(result);
+            point_array.clear();
+            return NULL;
+        }
+        PyList_SET_ITEM(result, i, spine);
+        double* data = (double*)PyArray_DATA((PyArrayObject*)spine);
+        memcpy(data, point_array.items, sizeof(double) * point_array.count * 2);
+        point_array.count = 0;
+    }
+    point_array.clear();
+    return (PyObject*)result;
+}
+
 static PyObject* flexpath_object_widths(FlexPathObject* self, PyObject* args) {
     const FlexPath* flexpath = self->flexpath;
     npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.count,
@@ -1684,6 +1712,8 @@ static PyObject* flexpath_object_delete_gds_property(FlexPathObject* self, PyObj
 static PyMethodDef flexpath_object_methods[] = {
     {"copy", (PyCFunction)flexpath_object_copy, METH_NOARGS, flexpath_object_copy_doc},
     {"spine", (PyCFunction)flexpath_object_spine, METH_NOARGS, flexpath_object_spine_doc},
+    {"path_spines", (PyCFunction)flexpath_object_path_spines, METH_NOARGS,
+     flexpath_object_path_spines_doc},
     {"widths", (PyCFunction)flexpath_object_widths, METH_NOARGS, flexpath_object_widths_doc},
     {"offsets", (PyCFunction)flexpath_object_offsets, METH_NOARGS, flexpath_object_offsets_doc},
     {"to_polygons", (PyCFunction)flexpath_object_to_polygons, METH_NOARGS,
