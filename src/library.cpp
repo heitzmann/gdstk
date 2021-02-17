@@ -2206,11 +2206,15 @@ bool oas_validate(const char* filename, uint32_t* signature) {
         uint32_t sig = crc32_z(0, NULL, 0);
         fseek(in, 0, SEEK_SET);
         while (size >= COUNT(buffer)) {
-            fread(buffer, 1, COUNT(buffer), in);
+            if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
+                fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+            }
             sig = crc32_z(sig, buffer, COUNT(buffer));
             size -= COUNT(buffer);
         }
-        fread(buffer, 1, size, in);
+        if (fread(buffer, 1, size, in) < size) {
+            fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+        }
         sig = crc32_z(sig, buffer, size);
         little_endian_swap32(&sig, 1);
         if (signature) *signature = sig;
@@ -2221,11 +2225,15 @@ bool oas_validate(const char* filename, uint32_t* signature) {
         uint32_t sig = 0;
         fseek(in, 0, SEEK_SET);
         while (size >= COUNT(buffer)) {
-            fread(buffer, 1, COUNT(buffer), in);
+            if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
+                fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+            }
             sig = checksum32(sig, buffer, COUNT(buffer));
             size -= COUNT(buffer);
         }
-        fread(buffer, 1, size, in);
+        if (fread(buffer, 1, size, in) < size) {
+            fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+        }
         sig = checksum32(sig, buffer, size);
         little_endian_swap32(&sig, 1);
         if (signature) *signature = sig;

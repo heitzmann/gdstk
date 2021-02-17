@@ -37,7 +37,9 @@ static uint8_t oasis_peek(OasisStream& in) {
     if (in.data) {
         byte = *in.cursor;
     } else {
-        fread(&byte, 1, 1, in.file);
+        if (fread(&byte, 1, 1, in.file) < 1) {
+            fputs("[GDSTK] Error reading OASIS file", stderr);
+        }
         fseek(in.file, -1, SEEK_CUR);
     }
     return byte;
