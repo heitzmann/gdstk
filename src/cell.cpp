@@ -130,6 +130,54 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
     array.clear();
 }
 
+void Cell::convex_hull(Array<Vec2>& result) const {
+    Array<Vec2> points = {0};
+
+    Polygon** polygon = polygon_array.items;
+    for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
+        points.extend((*polygon)->point_array);
+    }
+
+    Label** label = label_array.items;
+    for (uint64_t i = 0; i < label_array.count; i++, label++) {
+        points.append((*label)->origin);
+    }
+
+    Reference** reference = reference_array.items;
+    for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
+        (*reference)->convex_hull(points);
+    }
+
+    Array<Polygon*> array = {0};
+    FlexPath** flexpath = flexpath_array.items;
+    for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
+        (*flexpath)->to_polygons(array);
+        polygon = array.items;
+        for (uint64_t j = 0; j < array.count; j++, polygon++) {
+            points.extend((*polygon)->point_array);
+            (*polygon)->clear();
+            free_allocation(*polygon);
+        }
+        array.count = 0;
+    }
+
+    RobustPath** robustpath = robustpath_array.items;
+    for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
+        (*robustpath)->to_polygons(array);
+        polygon = array.items;
+        for (uint64_t j = 0; j < array.count; j++, polygon++) {
+            points.extend((*polygon)->point_array);
+            (*polygon)->clear();
+            free_allocation(*polygon);
+        }
+        array.count = 0;
+    }
+    array.clear();
+
+    gdstk::convex_hull(points, result);
+    points.clear();
+}
+
 void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
     uint64_t len;
     name = copy_string(new_name ? new_name : cell.name, len);

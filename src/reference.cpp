@@ -63,78 +63,87 @@ void Reference::copy_from(const Reference& reference) {
     properties = properties_copy(reference.properties);
 }
 
+void Reference::repeat_and_transform(Array<Vec2>& point_array) const {
+    const uint64_t num_points = point_array.count;
+    if (num_points == 0) return;
+
+    Vec2 zero = {0, 0};
+    Array<Vec2> offsets = {0};
+
+    if (repetition.type != RepetitionType::None) {
+        repetition.get_extrema(offsets);
+        point_array.ensure_slots((offsets.count - 1) * num_points);
+        point_array.count *= offsets.count;
+    } else {
+        offsets.count = 1;
+        offsets.items = &zero;
+    }
+
+    double ca = cos(rotation);
+    double sa = sin(rotation);
+
+    Vec2* dst = point_array.items + point_array.count - num_points;
+    Vec2* off = offsets.items;
+    for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
+        if (offset_count != 1) {
+            memcpy(dst, point_array.items, num_points * sizeof(Vec2));
+        }
+
+        Vec2* p = dst;
+        for (uint64_t num = num_points; num > 0; num--, p++) {
+            Vec2 q = *p * magnification;
+            if (x_reflection) q.y = -q.y;
+            p->x = q.x * ca - q.y * sa + origin.x + off->x;
+            p->y = q.x * sa + q.y * ca + origin.y + off->y;
+        }
+
+        off++;
+        dst -= num_points;
+    }
+
+    if (repetition.type != RepetitionType::None) offsets.clear();
+}
+
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
-    int64_t m;
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
-    Array<Polygon*> array = {0};
-    if (type == ReferenceType::Cell && is_multiple_of_pi_over_2(rotation, m)) {
+    if (type != ReferenceType::Cell) return;
+
+    int64_t m;
+    Array<Vec2> point_array = {0};
+
+    if (is_multiple_of_pi_over_2(rotation, m)) {
         Vec2 cmin, cmax;
         cell->bounding_box(cmin, cmax);
         if (cmin.x <= cmax.x) {
-            Polygon* src = (Polygon*)allocate_clear(sizeof(Polygon));
-            *src = rectangle(cmin, cmax, 0, 0);
-
-            Vec2 zero = {0, 0};
-            Array<Vec2> offsets = {0};
-            if (repetition.type != RepetitionType::None) {
-                repetition.get_extrema(offsets);
-            } else {
-                offsets.count = 1;
-                offsets.items = &zero;
-            }
-            array.ensure_slots(offsets.count);
-
-            Vec2* offset_p = offsets.items;
-            for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
-                Polygon* dst;
-                // Avoid an extra allocation by moving the last polygon.
-                if (offset_count == 1) {
-                    dst = src;
-                } else {
-                    dst = (Polygon*)allocate_clear(sizeof(Polygon));
-                    dst->copy_from(*src);
-                }
-                dst->transform(magnification, x_reflection, rotation, origin + *offset_p++);
-                array.append_unsafe(dst);
-            }
-            if (repetition.type != RepetitionType::None) offsets.clear();
+            point_array.ensure_slots(4);
+            point_array.append_unsafe(cmin);
+            point_array.append_unsafe(cmax);
+            point_array.append_unsafe(Vec2{cmin.x, cmax.y});
+            point_array.append_unsafe(Vec2{cmax.x, cmin.y});
         }
     } else {
-        polygons(true, true, -1, array);
-
-        Array<Label*> lbl_array = {0};
-        labels(true, -1, lbl_array);
-
-        if (lbl_array.count > 0) {
-            Polygon* lbl_poly = (Polygon*)allocate_clear(sizeof(Polygon));
-            array.append(lbl_poly);
-
-            Label** p_lbl = lbl_array.items;
-            for (uint64_t i = 0; i < lbl_array.count; i++) {
-                Label* lbl = *p_lbl++;
-                lbl_poly->point_array.append(lbl->origin);
-                lbl->clear();
-                free_allocation(lbl);
-            }
-        }
-
-        lbl_array.clear();
+        cell->convex_hull(point_array);
     }
 
-    Polygon** p_item = array.items;
-    for (uint64_t i = 0; i < array.count; i++) {
-        Polygon* poly = *p_item++;
-        Vec2 pmin, pmax;
-        poly->bounding_box(pmin, pmax);
-        if (pmin.x < min.x) min.x = pmin.x;
-        if (pmin.y < min.y) min.y = pmin.y;
-        if (pmax.x > max.x) max.x = pmax.x;
-        if (pmax.y > max.y) max.y = pmax.y;
-        poly->clear();
-        free_allocation(poly);
+    repeat_and_transform(point_array);
+
+    Vec2* point = point_array.items;
+    for (uint64_t i = point_array.count; i > 0; i--, point++) {
+        if (point->x < min.x) min.x = point->x;
+        if (point->y < min.y) min.y = point->y;
+        if (point->x > max.x) max.x = point->x;
+        if (point->y > max.y) max.y = point->y;
     }
-    array.clear();
+}
+
+void Reference::convex_hull(Array<Vec2>& result) const {
+    if (type != ReferenceType::Cell) return;
+    Array<Vec2> point_array = {0};
+    cell->convex_hull(point_array);
+    repeat_and_transform(point_array);
+    gdstk::convex_hull(point_array, result);
+    point_array.clear();
 }
 
 void Reference::transform(double mag, bool x_refl, double rot, const Vec2 orig) {

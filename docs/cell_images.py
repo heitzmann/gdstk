@@ -32,6 +32,35 @@ def bounding_box_image():
     return main_cell.add(polygon_bb)
 
 
+def convex_hull_image():
+    polygons = gdstk.text("F", 10, (0, 0))
+    f_cell = gdstk.Cell("F_CELL")
+    f_cell.add(*polygons)
+    array_ref = gdstk.Reference(
+        f_cell, rotation=numpy.pi / 4, columns=3, rows=2, spacing=(8, 10)
+    )
+    path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1, simple_path=True)
+    main_cell = gdstk.Cell("MAIN")
+    main_cell.add(array_ref, path)
+    hull = main_cell.convex_hull()
+    error = hull - numpy.array(
+        [
+            [1.14904852, 27.66555281],
+            [-12.81631041, 13.70019389],
+            [-5.35355339, -0.35355339],
+            [0.0, -5.70710678],
+            [5.35355339, -0.35355339],
+            [11.3137085, 13.96535893],
+            [9.98788328, 17.94283457],
+            [8.66205807, 20.15254326],
+        ]
+    )
+    assert numpy.abs(error).max() < 1e-8
+    polygon_hull = gdstk.Polygon(hull, datatype=1)
+    main_cell.name = "convex_hull"
+    return main_cell.add(polygon_hull)
+
+
 def flatten_image():
     poly1 = gdstk.Polygon([(0, 0), (1, 0), (0.5, 1)])
     cell1 = gdstk.Cell("CELL_1")
@@ -81,6 +110,7 @@ if __name__ == "__main__":
     path.mkdir(parents=True, exist_ok=True)
 
     draw(bounding_box_image(), path)
+    draw(convex_hull_image(), path)
     draw(flatten_image(), path)
     draw(write_svg_image(), path)
     draw(remove_image(), path)

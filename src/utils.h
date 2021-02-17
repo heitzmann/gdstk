@@ -97,6 +97,8 @@ Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t count);
 void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle);
 
+void convex_hull(const Array<Vec2> points, Array<Vec2>& result);
+
 }  // namespace gdstk
 
 #endif

@@ -2097,12 +2097,45 @@ Examples:
     ...                       simple_path=True)
     >>> main_cell = gdstk.Cell("MAIN")
     >>> main_cell.add(array_ref, path)
-    >>> print(main_cell.bounding_box())
+    >>> bbox = main_cell.bounding_box()
+    >>> print(bbox)
     ((-12.816310409006173, -5.707106781186548),
      (11.313708498984761, 27.66555281392367))
     >>> polygon_bb = gdstk.rectangle(*bbox, datatype=1)
 
     .. image:: ../cell/bounding_box.*
+       :align: center
+
+Notes:
+    This operation can be slow because all paths and references are
+    included in the computation.)!");
+
+PyDoc_STRVAR(cell_object_convex_hull_doc, R"!(convex_hull() -> ndarray
+
+Calculate the convex hull of the cell.
+
+The convex hull is the smallest convex polygon that contains all
+elements of the cell.
+
+Returns:
+    Vertices of the convex hull.
+
+Examples:
+    >>> polygons = gdstk.text("F", 10, (0, 0))
+    >>> f_cell = gdstk.Cell("F_CELL")
+    >>> f_cell.add(*polygons)
+    >>> ang = numpy.pi / 4
+    >>> array_ref = gdstk.Reference(f_cell, rotation=ang)
+    >>> array_ref.repetition = gdstk.Repetition(columns=3, rows=2,
+    ...     v1=8 * numpy.exp(1j * ang), v2=10j * numpy.exp(1j * ang))
+    >>> path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1,
+    ...                       simple_path=True)
+    >>> main_cell = gdstk.Cell("MAIN")
+    >>> main_cell.add(array_ref, path)
+    >>> hull = main_cell.convex_hull()
+    >>> polygon_hull = gdstk.Polygon(hull, datatype=1)
+
+    .. image:: ../cell/convex_hull.*
        :align: center
 
 Notes:
@@ -2212,7 +2245,8 @@ Examples:
     .. image:: ../cell/remove.*
        :align: center)!");
 
-PyDoc_STRVAR(cell_object_filter_doc, R"!(filter(layers, types, operation, polygons=True, paths=True, labels=True) -> self
+PyDoc_STRVAR(cell_object_filter_doc,
+             R"!(filter(layers, types, operation, polygons=True, paths=True, labels=True) -> self
 
 Remove elements from this cell based on their layer and data/text type.
 

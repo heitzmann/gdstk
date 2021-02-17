@@ -174,8 +174,10 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
                     result.append_unsafe(Vec2{0, 0});
                     result.append_unsafe(Vec2{(columns - 1) * spacing.x, 0});
                 } else {
-                    result.ensure_slots(2);
+                    result.ensure_slots(4);
                     result.append_unsafe(Vec2{0, 0});
+                    result.append_unsafe(Vec2{0, (rows - 1) * spacing.y});
+                    result.append_unsafe(Vec2{(columns - 1) * spacing.x, 0});
                     result.append_unsafe(Vec2{(columns - 1) * spacing.x, (rows - 1) * spacing.y});
                 }
             }

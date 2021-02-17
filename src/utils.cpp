@@ -15,6 +15,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "allocator.h"
 #include "vec.h"
 
+// Qhull
+#include "libqhull_r/qhull_ra.h"
+
 extern "C" {
 // Fortran is column-major!
 extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int* ipiv, double* b,
@@ -487,6 +490,47 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
     }
     free_allocation(ipiv);
     free_allocation(a);
+}
+
+void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
+    if (points.count < 4) {
+        result.extend(points);
+        return;
+    }
+
+    qhT qh;
+    QHULL_LIB_CHECK;
+    qh_zero(&qh, stderr);
+    char command[256] = "qhull";
+    int exitcode =
+        qh_new_qhull(&qh, 2, points.count, (double*)points.items, false, command, NULL, stderr);
+
+    if (exitcode == 0) {
+        result.ensure_slots(qh.num_facets);
+        Vec2* point = result.items + result.count;
+        result.count += qh.num_facets;
+
+        vertexT* qh_vertex = NULL;
+        facetT* qh_facet = qh_nextfacet2d(qh.facet_list, &qh_vertex);
+        for (int64_t i = qh.num_facets; i > 0; i--, point++) {
+            point->x = qh_vertex->point[0];
+            point->y = qh_vertex->point[1];
+            qh_facet = qh_nextfacet2d(qh_facet, &qh_vertex);
+        }
+    }
+
+#ifdef qh_NOmem
+    qh_freeqhull(&qh, qh_ALL);
+#else
+    int curlong, totlong;
+    qh_freeqhull(&qh, !qh_ALL);               /* free long memory  */
+    qh_memfreeshort(&qh, &curlong, &totlong); /* free short memory and memory allocator */
+    if (curlong || totlong) {
+        fprintf(stderr,
+                "qhull internal warning: did not free %d bytes of long memory (%d pieces)\n",
+                totlong, curlong);
+    }
+#endif
 }
 
 }  // namespace gdstk

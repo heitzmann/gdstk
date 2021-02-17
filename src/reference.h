@@ -49,9 +49,11 @@ struct Reference {
     void clear();
     void copy_from(const Reference& reference);
     void bounding_box(Vec2& min, Vec2& max) const;
+    void convex_hull(Array<Vec2>& result) const;
     // Arguments are in order of application to the coordinates
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
     void apply_repetition(Array<Reference*>& result);
+    void repeat_and_transform(Array<Vec2>& point_array) const;
 
     void polygons(bool apply_repetitions, bool include_paths, int64_t depth,
                   Array<Polygon*>& result) const;

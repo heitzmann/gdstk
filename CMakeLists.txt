@@ -52,7 +52,25 @@ add_library(gdstk STATIC
     src/robustpath.cpp
     src/style.cpp
     src/utils.cpp
-    src/clipperlib/clipper.cpp)
+    src/clipperlib/clipper.cpp
+    src/libqhull_r/global_r.c
+    src/libqhull_r/stat_r.c
+    src/libqhull_r/geom2_r.c
+    src/libqhull_r/poly2_r.c
+    src/libqhull_r/merge_r.c
+    src/libqhull_r/libqhull_r.c
+    src/libqhull_r/geom_r.c
+    src/libqhull_r/poly_r.c
+    src/libqhull_r/qset_r.c
+    src/libqhull_r/mem_r.c
+    src/libqhull_r/random_r.c
+    src/libqhull_r/usermem_r.c
+    src/libqhull_r/userprintf_r.c
+    src/libqhull_r/io_r.c
+    src/libqhull_r/user_r.c
+    src/libqhull_r/rboxlib_r.c
+    src/libqhull_r/userprintf_rbox_r.c
+)
 
 target_include_directories(gdstk PRIVATE ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(gdstk ${LAPACK_LIBRARIES} ${ZLIB_LIBRARIES})

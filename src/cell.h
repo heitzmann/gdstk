@@ -43,6 +43,7 @@ struct Cell {
     void clear();
 
     void bounding_box(Vec2& min, Vec2& max) const;
+    void convex_hull(Array<Vec2>& result) const;
 
     void copy_from(const Cell& cell, const char* new_name, bool deep_copy);
 
