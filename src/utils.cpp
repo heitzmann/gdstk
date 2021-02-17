@@ -8,6 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "utils.h"
 
 #include <inttypes.h>
+#include <limits.h>
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
@@ -496,14 +497,23 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
     if (points.count < 4) {
         result.extend(points);
         return;
+    } else if (points.count > INT_MAX) {
+        const Array<Vec2> first_part = {.count = INT_MAX - 1, .items = points.items};
+        const Array<Vec2> second_part = {.count = points.count - (INT_MAX - 1),
+                                         .items = points.items + (INT_MAX - 1)};
+        Array<Vec2> temp = {0};
+        convex_hull(first_part, temp);
+        temp.extend(second_part);
+        convex_hull(temp, result);
+        temp.clear();
     }
 
     qhT qh;
     QHULL_LIB_CHECK;
     qh_zero(&qh, stderr);
     char command[256] = "qhull";
-    int exitcode =
-        qh_new_qhull(&qh, 2, points.count, (double*)points.items, false, command, NULL, stderr);
+    int exitcode = qh_new_qhull(&qh, 2, (int)points.count, (double*)points.items, false, command,
+                                NULL, stderr);
 
     if (exitcode == 0) {
         result.ensure_slots(qh.num_facets);
@@ -526,9 +536,10 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
     qh_freeqhull(&qh, !qh_ALL);               /* free long memory  */
     qh_memfreeshort(&qh, &curlong, &totlong); /* free short memory and memory allocator */
     if (curlong || totlong) {
-        fprintf(stderr,
-                "qhull internal warning: did not free %d bytes of long memory (%d pieces)\n",
-                totlong, curlong);
+        fprintf(
+            stderr,
+            "[GDSTK] Qhull internal warning: did not free %d bytes of long memory (%d pieces)\n",
+            totlong, curlong);
     }
 #endif
 }
