@@ -26,6 +26,18 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+struct GeometryInfo {
+    Array<Vec2> convex_hull;
+    Vec2 bounding_box_min;
+    Vec2 bounding_box_max;
+    bool convex_hull_valid;
+    bool bounding_box_valid;
+
+    void clear() {
+        convex_hull.clear();
+    }
+};
+
 struct Cell {
     char* name;
     Array<Polygon*> polygon_array;
@@ -43,7 +55,10 @@ struct Cell {
     void clear();
 
     void bounding_box(Vec2& min, Vec2& max) const;
+    GeometryInfo bounding_box(Map<GeometryInfo>& cache) const;
+
     void convex_hull(Array<Vec2>& result) const;
+    GeometryInfo convex_hull(Map<GeometryInfo>& cache) const;
 
     void copy_from(const Cell& cell, const char* new_name, bool deep_copy);
 

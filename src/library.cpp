@@ -539,6 +539,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
 
     uint64_t cell_name_offset = c_size > 0 ? ftell(out.file) : 0;
     cell_p = cell_array.items;
+    Map<GeometryInfo> cache = {0};
     for (uint64_t i = 0; i < c_size; i++) {
         Cell* cell = *cell_p++;
         oasis_putc((int)OasisRecord::CELLNAME_IMPLICIT, out);
@@ -549,10 +550,13 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
 
         if (state.config_flags & OASIS_CONFIG_PROPERTY_BOUNDING_BOX) {
             Vec2 bbmin, bbmax;
-            cell->bounding_box(bbmin, bbmax);
-            if (bbmin.x > bbmax.x) {
-                // Empty cell
-                bbmin.x = bbmin.y = bbmax.x = bbmax.y = 0;
+            GeometryInfo info = cell->bounding_box(cache);
+            if (info.bounding_box_min.x > info.bounding_box_max.x) {
+                bbmin = Vec2{0, 0};
+                bbmax = Vec2{0, 0};
+            } else {
+                bbmin = info.bounding_box_min;
+                bbmax = info.bounding_box_max;
             }
             int64_t xmin = llround(bbmin.x * state.scaling);
             int64_t ymin = llround(bbmin.y * state.scaling);
@@ -571,6 +575,10 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
         }
         properties_to_oas(cell->properties, out, state);
     }
+    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
+        item->value.clear();
+    }
+    cache.clear();
 
     uint64_t text_string_offset = text_string_map.count > 0 ? ftell(out.file) : 0;
     for (MapItem<uint64_t>* item = text_string_map.next(NULL); item;

@@ -25,6 +25,7 @@ namespace gdstk {
 
 struct Cell;
 struct RawCell;
+struct GeometryInfo;
 
 enum struct ReferenceType { Cell = 0, RawCell, Name };
 
@@ -48,8 +49,13 @@ struct Reference {
     void print() const;
     void clear();
     void copy_from(const Reference& reference);
+
     void bounding_box(Vec2& min, Vec2& max) const;
+    void bounding_box(Vec2& min, Vec2& max, Map<GeometryInfo>& cache) const;
+
     void convex_hull(Array<Vec2>& result) const;
+    void convex_hull(Array<Vec2>& result, Map<GeometryInfo>& cache) const;
+
     // Arguments are in order of application to the coordinates
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
     void apply_repetition(Array<Reference*>& result);

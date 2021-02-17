@@ -105,16 +105,30 @@ void Reference::repeat_and_transform(Array<Vec2>& point_array) const {
 }
 
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
+    Map<GeometryInfo> cache = {0};
+    bounding_box(min, max, cache);
+    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
+        item->value.clear();
+    }
+    cache.clear();
+}
+
+void Reference::bounding_box(Vec2& min, Vec2& max, Map<GeometryInfo>& cache) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
     if (type != ReferenceType::Cell) return;
 
+    GeometryInfo info = cache.get(cell->name);
     int64_t m;
     Array<Vec2> point_array = {0};
 
     if (is_multiple_of_pi_over_2(rotation, m)) {
         Vec2 cmin, cmax;
-        cell->bounding_box(cmin, cmax);
+        if (!info.bounding_box_valid) {
+            info = cell->bounding_box(cache);
+        }
+        cmin = info.bounding_box_min;
+        cmax = info.bounding_box_max;
         if (cmin.x <= cmax.x) {
             point_array.ensure_slots(4);
             point_array.append_unsafe(cmin);
@@ -123,7 +137,10 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
             point_array.append_unsafe(Vec2{cmax.x, cmin.y});
         }
     } else {
-        cell->convex_hull(point_array);
+        if (!info.convex_hull_valid) {
+            info = cell->convex_hull(cache);
+        }
+        point_array.extend(info.convex_hull);
     }
 
     repeat_and_transform(point_array);
@@ -139,8 +156,22 @@ void Reference::bounding_box(Vec2& min, Vec2& max) const {
 
 void Reference::convex_hull(Array<Vec2>& result) const {
     if (type != ReferenceType::Cell) return;
+    Map<GeometryInfo> cache = {0};
+    convex_hull(result, cache);
+    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
+        item->value.clear();
+    }
+    cache.clear();
+}
+
+void Reference::convex_hull(Array<Vec2>& result, Map<GeometryInfo>& cache) const {
+    if (type != ReferenceType::Cell) return;
+    GeometryInfo info = cache.get(cell->name);
+    if (!info.convex_hull_valid) {
+        info = cell->convex_hull(cache);
+    }
     Array<Vec2> point_array = {0};
-    cell->convex_hull(point_array);
+    point_array.extend(info.convex_hull);
     repeat_and_transform(point_array);
     gdstk::convex_hull(point_array, result);
     point_array.clear();

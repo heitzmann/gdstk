@@ -64,73 +64,112 @@ void Cell::clear() {
 }
 
 void Cell::bounding_box(Vec2& min, Vec2& max) const {
+    Map<GeometryInfo> cache = {0};
+    GeometryInfo info = bounding_box(cache);
+    min = info.bounding_box_min;
+    max = info.bounding_box_max;
+    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
+        item->value.clear();
+    }
+    cache.clear();
+}
+
+GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
+    Vec2 min, max;
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
-    Polygon** polygon = polygon_array.items;
-    for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
-        Vec2 pmin, pmax;
-        (*polygon)->bounding_box(pmin, pmax);
-        if (pmin.x < min.x) min.x = pmin.x;
-        if (pmin.y < min.y) min.y = pmin.y;
-        if (pmax.x > max.x) max.x = pmax.x;
-        if (pmax.y > max.y) max.y = pmax.y;
-    }
-
-    Label** label = label_array.items;
-    for (uint64_t i = 0; i < label_array.count; i++, label++) {
-        Vec2 origin = (*label)->origin;
-        if (origin.x < min.x) min.x = origin.x;
-        if (origin.y < min.y) min.y = origin.y;
-        if (origin.x > max.x) max.x = origin.x;
-        if (origin.y > max.y) max.y = origin.y;
-    }
-
-    Reference** reference = reference_array.items;
-    for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
-        Vec2 rmin, rmax;
-        (*reference)->bounding_box(rmin, rmax);
-        if (rmin.x < min.x) min.x = rmin.x;
-        if (rmin.y < min.y) min.y = rmin.y;
-        if (rmax.x > max.x) max.x = rmax.x;
-        if (rmax.y > max.y) max.y = rmax.y;
-    }
-
-    Array<Polygon*> array = {0};
-    FlexPath** flexpath = flexpath_array.items;
-    for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
-        (*flexpath)->to_polygons(array);
-        for (uint64_t j = 0; j < array.count; j++) {
+    GeometryInfo info = cache.get(name);
+    if (info.convex_hull_valid) {
+        Vec2* point = info.convex_hull.items;
+        for (uint64_t i = info.convex_hull.count; i > 0; i--, point++) {
+            if (point->x < min.x) min.x = point->x;
+            if (point->y < min.y) min.y = point->y;
+            if (point->x > max.x) max.x = point->x;
+            if (point->y > max.y) max.y = point->y;
+        }
+    } else {
+        Polygon** polygon = polygon_array.items;
+        for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
             Vec2 pmin, pmax;
-            array[j]->bounding_box(pmin, pmax);
+            (*polygon)->bounding_box(pmin, pmax);
             if (pmin.x < min.x) min.x = pmin.x;
             if (pmin.y < min.y) min.y = pmin.y;
             if (pmax.x > max.x) max.x = pmax.x;
             if (pmax.y > max.y) max.y = pmax.y;
-            array[j]->clear();
-            free_allocation(array[j]);
         }
-        array.count = 0;
+
+        Label** label = label_array.items;
+        for (uint64_t i = 0; i < label_array.count; i++, label++) {
+            Vec2 origin = (*label)->origin;
+            if (origin.x < min.x) min.x = origin.x;
+            if (origin.y < min.y) min.y = origin.y;
+            if (origin.x > max.x) max.x = origin.x;
+            if (origin.y > max.y) max.y = origin.y;
+        }
+
+        Reference** reference = reference_array.items;
+        for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
+            Vec2 rmin, rmax;
+            (*reference)->bounding_box(rmin, rmax, cache);
+            if (rmin.x < min.x) min.x = rmin.x;
+            if (rmin.y < min.y) min.y = rmin.y;
+            if (rmax.x > max.x) max.x = rmax.x;
+            if (rmax.y > max.y) max.y = rmax.y;
+        }
+
+        Array<Polygon*> array = {0};
+        FlexPath** flexpath = flexpath_array.items;
+        for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
+            (*flexpath)->to_polygons(array);
+            for (uint64_t j = 0; j < array.count; j++) {
+                Vec2 pmin, pmax;
+                array[j]->bounding_box(pmin, pmax);
+                if (pmin.x < min.x) min.x = pmin.x;
+                if (pmin.y < min.y) min.y = pmin.y;
+                if (pmax.x > max.x) max.x = pmax.x;
+                if (pmax.y > max.y) max.y = pmax.y;
+                array[j]->clear();
+                free_allocation(array[j]);
+            }
+            array.count = 0;
+        }
+
+        RobustPath** robustpath = robustpath_array.items;
+        for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
+            (*robustpath)->to_polygons(array);
+            for (uint64_t j = 0; j < array.count; j++) {
+                Vec2 pmin, pmax;
+                array[j]->bounding_box(pmin, pmax);
+                if (pmin.x < min.x) min.x = pmin.x;
+                if (pmin.y < min.y) min.y = pmin.y;
+                if (pmax.x > max.x) max.x = pmax.x;
+                if (pmax.y > max.y) max.y = pmax.y;
+                array[j]->clear();
+                free_allocation(array[j]);
+            }
+            array.count = 0;
+        }
+        array.clear();
     }
 
-    RobustPath** robustpath = robustpath_array.items;
-    for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
-        (*robustpath)->to_polygons(array);
-        for (uint64_t j = 0; j < array.count; j++) {
-            Vec2 pmin, pmax;
-            array[j]->bounding_box(pmin, pmax);
-            if (pmin.x < min.x) min.x = pmin.x;
-            if (pmin.y < min.y) min.y = pmin.y;
-            if (pmax.x > max.x) max.x = pmax.x;
-            if (pmax.y > max.y) max.y = pmax.y;
-            array[j]->clear();
-            free_allocation(array[j]);
-        }
-        array.count = 0;
-    }
-    array.clear();
+    info.bounding_box_valid = true;
+    info.bounding_box_min = min;
+    info.bounding_box_max = max;
+    cache.set(name, info);
+    return info;
 }
 
 void Cell::convex_hull(Array<Vec2>& result) const {
+    Map<GeometryInfo> cache = {0};
+    GeometryInfo info = convex_hull(cache);
+    result.extend(info.convex_hull);
+    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
+        item->value.clear();
+    }
+    cache.clear();
+}
+
+GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     Array<Vec2> points = {0};
 
     Polygon** polygon = polygon_array.items;
@@ -145,7 +184,7 @@ void Cell::convex_hull(Array<Vec2>& result) const {
 
     Reference** reference = reference_array.items;
     for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
-        (*reference)->convex_hull(points);
+        (*reference)->convex_hull(points, cache);
     }
 
     Array<Polygon*> array = {0};
@@ -174,8 +213,12 @@ void Cell::convex_hull(Array<Vec2>& result) const {
     }
     array.clear();
 
-    gdstk::convex_hull(points, result);
+    GeometryInfo info = cache.get(name);
+    info.convex_hull_valid = true;
+    gdstk::convex_hull(points, info.convex_hull);
     points.clear();
+    cache.set(name, info);
+    return info;
 }
 
 void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {

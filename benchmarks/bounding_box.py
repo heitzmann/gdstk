@@ -13,12 +13,17 @@ import gdstk
 
 def bench_gdspy(output=None):
     p = gdspy.Polygon([(0, 0), (1, 0), (0, 1)])
-    fp = gdspy.FlexPath([(0, 0), (1, 0), (0.5, -0.5)], 0.1, ends="round")
+    fp = gdspy.FlexPath([(-1, 0.5), (1, 0), (0.5, -0.5)], [0.1, 0.1], 0.3, ends="round")
+    rp = gdspy.RobustPath((0, 0), [0.1, 0.1], 0.3).smooth(
+        [(2, 0.5), (2, 1), (-1, 4)]
+    )
     c1 = gdspy.Cell("REF", exclude_from_current=True)
-    c1.add([p, fp])
-    r = gdspy.CellArray(c1, columns=3, rows=2, spacing=(2, 2), rotation=30)
+    c1.add([p, fp, rp])
+    r1 = gdspy.CellArray(c1, columns=3, rows=2, spacing=(2, 2), rotation=30)
+    r2 = gdspy.CellArray(c1, origin=(8, 0), columns=5, rows=4, spacing=(2, 2))
+    r3 = gdspy.CellArray(c1, origin=(9, 1), columns=4, rows=3, spacing=(2, 2))
     c2 = gdspy.Cell("MAIN", exclude_from_current=True)
-    c2.add(r)
+    c2.add([r1, r2, r3])
     bb = c2.get_bounding_box()
     if output:
         c2.add(gdspy.Rectangle(*bb, layer=1))
@@ -27,12 +32,19 @@ def bench_gdspy(output=None):
 
 def bench_gdstk(output=None):
     p = gdstk.Polygon([(0, 0), (1, 0), (0, 1)])
-    fp = gdstk.FlexPath([(0, 0), (1, 0), (0.5, -0.5)], 0.1, ends="round")
+    fp = gdstk.FlexPath([(-1, 0.5), (1, 0), (0.5, -0.5)], [0.1, 0.1], 0.3, ends="round")
+    rp = gdstk.RobustPath((0, 0), [0.1, 0.1], 0.3).interpolation(
+        [(2, 0.5), (2, 1), (-1, 4)]
+    )
     c1 = gdstk.Cell("REF")
-    c1.add(p, fp)
-    r = gdstk.Reference(c1, columns=3, rows=2, spacing=(2, 2), rotation=30* numpy.pi/180)
+    c1.add(p, fp, rp)
+    r1 = gdstk.Reference(
+        c1, columns=3, rows=2, spacing=(2, 2), rotation=30 * numpy.pi / 180
+    )
+    r2 = gdstk.Reference(c1, origin=(8, 0), columns=5, rows=4, spacing=(2, 2))
+    r3 = gdstk.Reference(c1, origin=(9, 1), columns=4, rows=3, spacing=(2, 2))
     c2 = gdstk.Cell("MAIN")
-    c2.add(r)
+    c2.add(r1, r2, r3)
     bb = c2.bounding_box()
     if output:
         c2.add(gdstk.rectangle(*bb, layer=1))
