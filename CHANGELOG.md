@@ -1,7 +1,7 @@
 # Change Log
 ## Unreleased
 ### Added
-- `Cell.convex_hull`
+- `Cell.convex_hull` and `Reference.convex_hull`
 - `Cell.filter` to remove elements by layer and data/text type
 - `FlexPath.path_spines()` and `RobustPath.path_spines()`
 ### Changed

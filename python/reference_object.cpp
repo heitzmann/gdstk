@@ -124,6 +124,21 @@ static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject* 
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 
+static PyObject* reference_object_convex_hull(ReferenceObject* self, PyObject* args) {
+    Array<Vec2> points = {0};
+    self->reference->convex_hull(points);
+    npy_intp dims[] = {(npy_intp)points.count, 2};
+    PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
+    if (!result) {
+        PyErr_SetString(PyExc_MemoryError, "Unable to create return array.");
+        return NULL;
+    }
+    double* data = (double*)PyArray_DATA((PyArrayObject*)result);
+    memcpy(data, points.items, sizeof(double) * points.count * 2);
+    points.clear();
+    return (PyObject*)result;
+}
+
 static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject* args) {
     Array<Reference*> array = {0};
     self->reference->apply_repetition(array);
@@ -189,6 +204,8 @@ static PyMethodDef reference_object_methods[] = {
     {"copy", (PyCFunction)reference_object_copy, METH_NOARGS, reference_object_copy_doc},
     {"bounding_box", (PyCFunction)reference_object_bounding_box, METH_NOARGS,
      reference_object_bounding_box_doc},
+    {"convex_hull", (PyCFunction)reference_object_convex_hull, METH_NOARGS,
+     reference_object_convex_hull_doc},
     {"apply_repetition", (PyCFunction)reference_object_apply_repetition, METH_NOARGS,
      reference_object_apply_repetition_doc},
     {"set_property", (PyCFunction)reference_object_set_property, METH_VARARGS,

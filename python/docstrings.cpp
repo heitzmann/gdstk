@@ -588,6 +588,38 @@ Examples:
     .. image:: ../reference/bounding_box.*
        :align: center)!");
 
+PyDoc_STRVAR(reference_object_convex_hull_doc, R"!(convex_hull() -> ndarray
+
+Calculate the convex hull of this reference.
+
+The convex hull is the smallest convex polygon that contains all
+elements of this reference.
+
+Returns:
+    Vertices of the convex hull.
+
+Examples:
+    >>> polygons = gdstk.text("F", 10, (0, 0))
+    >>> f_cell = gdstk.Cell("F_CELL")
+    >>> f_cell.add(*polygons)
+    >>> ang = numpy.pi / 4
+    >>> array_ref = gdstk.Reference(f_cell, rotation=ang)
+    >>> array_ref.repetition = gdstk.Repetition(columns=3, rows=2,
+    ...     v1=8 * numpy.exp(1j * ang), v2=10j * numpy.exp(1j * ang))
+    >>> path = gdstk.FlexPath([(-5, 0), (0, -5), (5, 0)], 1,
+    ...                       simple_path=True)
+    >>> main_cell = gdstk.Cell("MAIN")
+    >>> main_cell.add(array_ref, path)
+    >>> hull = main_cell.convex_hull()
+    >>> polygon_hull = gdstk.Polygon(hull, datatype=1)
+
+    .. image:: ../reference/convex_hull.*
+       :align: center
+
+Notes:
+    This operation can be slow because all paths and references are
+    included in the computation.)!");
+
 PyDoc_STRVAR(reference_object_apply_repetition_doc, R"!(apply_repetition() -> list
 
 Create new references based on this object's ``repetition`` attribute.
