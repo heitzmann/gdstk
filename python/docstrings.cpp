@@ -2381,7 +2381,7 @@ Args:
       GDSII/OASIS file.
 
 See also:
-    :ref:`units-in-gds`)!");
+    :ref:`about-units`)!");
 
 PyDoc_STRVAR(library_object_add_doc, R"!(add(*cells) -> self
 
@@ -2500,7 +2500,7 @@ Eaxmples:
     >>> writer.close()
 
 See also:
-    :ref:`units-in-gds`, :meth:`gdstk.Library.write_gds`)!");
+    :ref:`about-units`, :meth:`gdstk.Library.write_gds`)!");
 
 PyDoc_STRVAR(gdswriter_object_write_doc, R"!(write(*cells) -> self
 

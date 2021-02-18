@@ -43,7 +43,8 @@ Classes and functions for construction and manipulation of geometric objects.
 Library Organization
 ********************
 
-Classes and functions used to create and organize the library in a GDSII/OASIS file.
+Classes and functions used to create and organize the library in a GDSII/OASIS
+file.
 
 .. rubric:: Classes
 

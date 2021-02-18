@@ -34,11 +34,6 @@ char* copy_string(const char* str, uint64_t& len) {
     return result;
 }
 
-double modulo(double x, double y) {
-    double m = fmod(x, y);
-    return m < 0 ? m + y : m;
-}
-
 bool is_multiple_of_pi_over_2(double angle, int64_t& m) {
     if (angle == 0) {
         m = 0;
@@ -77,6 +72,11 @@ uint64_t arc_num_points(double angle, double radius, double tol) {
     return (uint64_t)(0.5 + 0.5 * fabs(angle) / acos(1 - tol / radius));
 }
 
+static double modulo(double x, double y) {
+    double m = fmod(x, y);
+    return m < 0 ? m + y : m;
+}
+
 double elliptical_angle_transform(double angle, double radius_x, double radius_y) {
     if (angle == 0 || angle == M_PI || radius_x == radius_y) return angle;
     double frac = angle - (modulo(angle + M_PI, 2 * M_PI) - M_PI);
@@ -97,7 +97,6 @@ double distance_to_line(const Vec2 p, const Vec2 p1, const Vec2 p2) {
     return fabs(v_point.cross(v_line)) / v_line.length();
 }
 
-// ut are unitary tangent vectors (in the segment direction)
 void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const Vec2 ut1, double& u0,
                            double& u1) {
     const double den = ut0.cross(ut1);
@@ -213,13 +212,6 @@ Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t count) {
     return result;
 }
 
-// Calculated control points `a` and `b` are stored in `points`, which must
-// have the appropriate count and layout:
-// points[3 * count] = {p[0], ca[0], cb[0],
-//                     p[1], ca[1], cb[1],
-//                     ...,
-//                     p[count - 1], ca[count - 1], cb[count - 1]};
-// The last controls are only present if `cycle == true`.
 void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle) {
     const int nrhs = 1;

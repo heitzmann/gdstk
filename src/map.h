@@ -38,6 +38,7 @@ static inline uint64_t hash(const char* key) {
     return result;
 }
 
+// NULL-terminated linked-list of map items
 template <class T>
 struct MapItem {
     char* key;
@@ -45,11 +46,12 @@ struct MapItem {
     MapItem<T>* next;
 };
 
+// Hash map indexed by NULL-terminated strings
 template <class T>
 struct Map {
     uint64_t capacity;  // allocated capacity
-    uint64_t count;     // number of slots used
-    MapItem<T>* items;  // slots
+    uint64_t count;     // number of items in the map
+    MapItem<T>* items;  // array with length capacity
 
     void print(bool all) const {
         printf("Map <%p>, count %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, count, capacity,
@@ -67,6 +69,7 @@ struct Map {
         }
     }
 
+    // The instance should be zeroed before using copy_from
     void copy_from(const Map<T>& map) {
         count = 0;
         capacity = map.capacity;
@@ -87,6 +90,8 @@ struct Map {
         items = new_map.items;
     }
 
+    // Function to iterate over all values in the map:
+    // for (MapItem<T>* item = map.next(NULL); item; item = map.next(item)) {…}
     MapItem<T>* next(const MapItem<T>* current) const {
         if (!current) {
             for (uint64_t i = 0; i < capacity; i++)
@@ -127,6 +132,7 @@ struct Map {
         count = 0;
     }
 
+    // Key is internally allocated and copied; value is simply assigned
     void set(const char* key, T value) {
         // Equallity is important for capacity == 0
         if (count * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
@@ -169,6 +175,7 @@ struct Map {
         return false;
     }
 
+    // If the desired key is not found, returns T{0}
     T get(const char* key) const {
         if (count == 0) return T{0};
         uint64_t h = hash(key) % capacity;

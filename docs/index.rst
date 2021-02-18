@@ -2,18 +2,25 @@
 Gdstk Documentation
 ###################
 
-Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII and OASIS files.
-It is also available as a Python module meant to be a successor to `Gdspy <https://github.com/heitzmann/gdspy>`_.
+Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII
+and OASIS files.  It is also available as a Python module meant to be a
+successor to `Gdspy <https://github.com/heitzmann/gdspy>`_.
 
 Key features for the creation of complex CAD layouts are included:
 
-* Boolean operations on polygons (AND, OR, NOT, XOR) based on clipping algorithm
+* Boolean operations on polygons (AND, OR, NOT, XOR) based on clipping
+  algorithm
+
 * Polygon offset (inward and outward rescaling of polygons)
+
 * Efficient point-in-polygon solutions for large array sets
 
-Typical applications of Gdstk are in the fields of electronic chip design, planar lightwave circuit design, and mechanical engineering.
+Typical applications of Gdstk are in the fields of electronic chip design,
+planar lightwave circuit design, and mechanical engineering.
 
-For installation instructions and other information, please check out the `GitHub repository <https://github.com/heitzmann/gdstk>`_ or the README file included with the source.
+For installation instructions and other information, please check out the
+`GitHub repository <https://github.com/heitzmann/gdstk>`_ or the README file
+included with the source.
 
 .. toctree::
    :maxdepth: 2
@@ -22,6 +29,7 @@ For installation instructions and other information, please check out the `GitHu
    gettingstarted
    how-tos
    reference_python
+   reference_cpp
 
 
 *******

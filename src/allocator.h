@@ -29,6 +29,8 @@ void* allocate_clear(uint64_t size);
 
 void free_allocation(void* ptr);
 
+// This function can be used at the end of the program to free the internal
+// memory arenas
 void gdstk_finalize();
 
 #else  // GDSTK_CUSTOM_ALLOCATOR

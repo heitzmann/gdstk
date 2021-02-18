@@ -62,6 +62,7 @@ struct Array {
         return false;
     }
 
+    // Return the index of an array item. If the item is not found, return the array count.
     uint64_t index(const T item) const {
         T* it = items;
         for (uint64_t j = 0; j < count; j++)
@@ -78,8 +79,10 @@ struct Array {
         items[count++] = item;
     }
 
+    // Does NOT check capacity. To be used after ensure_slots, for example.
     void append_unsafe(T item) { items[count++] = item; }
 
+    // Insert item at specified index, pushing the remaining forward
     void insert(uint64_t index, T item) {
         if (index >= count) {
             append(item);
@@ -94,12 +97,16 @@ struct Array {
         }
     }
 
+    // Remove the item at index by substituting it with the last item in the array.
     void remove_unordered(uint64_t index) { items[index] = items[--count]; }
 
+    // Remove the item at index and pull the remainig to fill the gap.
     void remove(uint64_t index) {
         memmove(items + index, items + index + 1, sizeof(T) * ((--count) - index));
     }
 
+    // Remove (ordered) the first occurence of a specific item in the array.
+    // Return false if the item cannot be found.
     bool remove_item(const T item) {
         uint64_t i = index(item);
         if (i == count) return false;
@@ -107,6 +114,7 @@ struct Array {
         return true;
     }
 
+    // Ensure the array has at least the specified number of free slots at the end.
     void ensure_slots(uint64_t free_slots) {
         if (capacity < count + free_slots) {
             capacity = count + free_slots;
@@ -114,12 +122,14 @@ struct Array {
         }
     }
 
+    // Extend the array by appending all elements from src (in order).
     void extend(const Array<T>& src) {
         ensure_slots(src.count);
         memcpy(items + count, src.items, sizeof(T) * src.count);
         count += src.count;
     }
 
+    // The instance should be zeroed before copy_from
     void copy_from(const Array<T>& src) {
         capacity = src.count;
         count = src.count;

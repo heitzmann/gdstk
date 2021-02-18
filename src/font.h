@@ -8,6 +8,22 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef GDSTK_HEADER_FONT
 #define GDSTK_HEADER_FONT
 
+// This header contains the data for the default font in Gdstk, used in the text function.
+// Given a desired code point CP within the range of defined code points, we use it to index
+// into arrays _num_polys and _first_poly:
+//
+// _num_poly[CP - FIRST_CODEPOINT] = p_count is the number of polygons in the requested glyph.
+// _first_poly[CP - FIRST_CODEPOINT] = p_idx is the index into _num_coords and _first_coord.
+//
+// _num_coords[p_idx] = c_count is the number of coordinates in polygon p_idx (counting x and y
+// separately, so it is always an even number). The polygon p_idx can be drawn using
+// c_count coordinates from _first_coord:
+// (_first_coord[p_idx], _first_coord[p_idx + 1], …, _first_coord[p_idx + c_count - 1])
+//
+// To draw the remaining polygons in the glyph, keep incrementing p_idx to draw all p_count
+// polygons.
+
+// Font metrics
 #define FIRST_CODEPOINT 0x21
 #define HORIZONTAL_STEP 9
 #define HORIZONTAL_TAB (4 * HORIZONTAL_STEP)
@@ -18,8 +34,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-//  Public Domain version of the unscii-16 font from http://pelulamu.net/unscii/
-//  codepoints 0x21 thru 0x7F
+// Public Domain version of the unscii-16 font from http://pelulamu.net/unscii/
+// codepoints 0x21 thru 0x7F
 
 const Vec2 _all_coords[] = {
     5, 7,  5, 15, 3, 15, 3, 7,  5, 3,  5, 5,  3, 5,  3, 3,  3, 12, 3, 15, 1, 15, 1, 12, 7, 12,

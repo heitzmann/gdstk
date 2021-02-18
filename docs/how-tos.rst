@@ -1,9 +1,11 @@
+.. _how-tos:
+
 #######
 How-Tos
 #######
 
-These are a few examples of use of the Gdstk library that go beyond basic geometry building.
-They should serve as reference for more complex tasks.
+These are a few examples of use of the Gdstk library that go beyond basic
+geometry building.  They should serve as reference for more complex tasks.
 
 .. _parametric-cell:
 
@@ -11,10 +13,13 @@ They should serve as reference for more complex tasks.
 Parametric Cell
 ***************
 
-A parametric cell is a concept present in a few layout editors to facilitate the creation of geometries based on user-defined parameters.
-Gdstk does not have a parameterized cell class, but since we are building the layout from a programming language, the full flexibility of the language can be used.
+A parametric cell is a concept present in a few layout editors to facilitate
+the creation of geometries based on user-defined parameters.  Gdstk does not
+have a parameterized cell class, but since we are building the layout from a
+programming language, the full flexibility of the language can be used.
 
-In this example we define a function that returns a grating coupler based on user-defined parameters.
+In this example we define a function that returns a grating coupler based on
+user-defined parameters.
 
 .. literalinclude:: pcell.py
    :language: python
@@ -39,12 +44,14 @@ Parts Library
 Creating a Library
 ==================
 
-A GDSII parts library can be used when there are several devices that are often used in different layouts.
-It can be a personal library of devices, or part of a process design kit (PDK) offered by the company responsible for fabrication.
+A GDSII parts library can be used when there are several devices that are often
+used in different layouts.  It can be a personal library of devices, or part of
+a process design kit (PDK) offered by the company responsible for fabrication.
 
-Here we create a simple personal library with 3 components: an alignment mark, a directional coupler and a Mach-Zehnder interferometer.
-All parts are added to a GDSII file and saved for later.
-Note that the interferometer already uses the directional coupler as a subcomponent.
+Here we create a simple personal library with 3 components: an alignment mark,
+a directional coupler and a Mach-Zehnder interferometer.  All parts are added
+to a GDSII file and saved for later.  Note that the interferometer already uses
+the directional coupler as a subcomponent.
 
 .. literalinclude:: photonics.py
    :language: python
@@ -59,13 +66,18 @@ Note that the interferometer already uses the directional coupler as a subcompon
 Using a Library
 ===============
 
-The library “photonics.gds” created above is used in the design of a larger layout.
-It is imported through :func:`gdstk.read_rawcells` so that is uses as little memory and processing power as possible.
+The library “photonics.gds” created above is used in the design of a larger
+layout.  It is imported through :func:`gdstk.read_rawcells` so that is uses as
+little memory and processing power as possible.
 
-.. important:: Using `gdstk.RawCell` will only work properly when both the library and the current layout use the same unit and precision.
+.. important::
+   Using `gdstk.RawCell` will only work properly when both the library and the
+   current layout use the same unit and precision.
 
-Another option for creating libraries is to store them as python modules.
-The grating example in :ref:`parametric-cell` can be saved in a file “photonics.py” and imported as a Python module, as long as it can be found in the Python path (leaving it in the current working directory is sufficient).
+Another option for creating libraries is to store them as python modules.  The
+grating example in :ref:`parametric-cell` can be saved in a file “photonics.py”
+and imported as a Python module, as long as it can be found in the Python path
+(leaving it in the current working directory is sufficient).
 
 .. literalinclude:: layout.py
    :language: python
@@ -81,9 +93,11 @@ The grating example in :ref:`parametric-cell` can be saved in a file “photonic
 Merging Libraries
 *****************
 
-Merging two or more libraries is only a matter of adding all the cells from one into the other.
-Extra cells can be latter added, of course, to create new top level cells with references from both originals.
-In this example, we only merge two GDSII files into a new one—which will end up with 2 top level cells—and take care of renaming all cells so that they don't collide.
+Merging two or more libraries is only a matter of adding all the cells from one
+into the other.  Extra cells can be latter added, of course, to create new top
+level cells with references from both originals.  In this example, we only
+merge two GDSII files into a new one—which will end up with 2 top level
+cells—and take care of renaming all cells so that they don't collide.
 
 .. literalinclude:: merging.py
    :language: python
@@ -96,12 +110,18 @@ In this example, we only merge two GDSII files into a new one—which will end u
 Transformations
 ***************
 
-Geometry transformations can be accomplished in several ways.
-Individual polygons or paths can be transformed by their respective methods (:meth:`gdstk.Polygon.scale`, :meth:`gdstk.FlexPath.rotate`, :meth:`gdstk.RobustPath.translate`, etc.).
+Geometry transformations can be accomplished in several ways.  Individual
+polygons or paths can be transformed by their respective methods
+(:meth:`gdstk.Polygon.scale`, :meth:`gdstk.FlexPath.rotate`,
+:meth:`gdstk.RobustPath.translate`, etc.).
 
-In order to transform an entire :class:`gdstk.Cell`, we can use a :class:`gdstk.Reference` with the desired transformation or create a transformed copy with :meth:`gdstk.Cell.copy`.
-The former has the advantage of using less memory, because it does not create actual copies of the geometry or labels, so it is generally preferable.
-The latter is particularly useful when changes to the transformed cell contents are needed and the original should not be modified.
+In order to transform an entire :class:`gdstk.Cell`, we can use a
+:class:`gdstk.Reference` with the desired transformation or create a
+transformed copy with :meth:`gdstk.Cell.copy`.  The former has the advantage of
+using less memory, because it does not create actual copies of the geometry or
+labels, so it is generally preferable.  The latter is particularly useful when
+changes to the transformed cell contents are needed and the original should not
+be modified.
 
 .. literalinclude:: transforms.py
    :language: python
@@ -114,18 +134,24 @@ The latter is particularly useful when changes to the transformed cell contents 
    :align: center
 
 .. note::
-   The SVG output does not support the `scale_width` attribute of paths, that is why the width of the path in the referencer-scaled version of the geometry is wider that the original.
-   When using :meth:`gdstk.Cell.copy`, the attribute is respected.
-   This is also a problem for some GDSII viewers and editors.
+   The SVG output does not support the `scale_width` attribute of paths, that
+   is why the width of the path in the referencer-scaled version of the
+   geometry is wider that the original.  When using :meth:`gdstk.Cell.copy`,
+   the attribute is respected.  This is also a problem for some GDSII viewers
+   and editors.
 
 ***********
 Repetitions
 ***********
 
-References can be effectively used to instantiate repetitive geometry across a layout.
-:class:`Repetition` is an extension of that idea which allows the reuse of any element without the need for creating a :class:`gdstk.Cell`.
-In fact, the creation of a :class:`gdstk.Reference` as an array is only a shortcut to the creation of a single reference with a rectangular (or regular) repetition.
-The following example demonstrates the use of different forms of repetition to avoid creating all objects in memory (the final GDSII file will contain all copies).
+References can be effectively used to instantiate repetitive geometry across a
+layout.  :class:`Repetition` is an extension of that idea which allows the
+reuse of any element without the need for creating a :class:`gdstk.Cell`.  In
+fact, the creation of a :class:`gdstk.Reference` as an array is only a shortcut
+to the creation of a single reference with a rectangular (or regular)
+repetition.  The following example demonstrates the use of different forms of
+repetition to avoid creating all objects in memory (the final GDSII file will
+contain all copies).
 
 .. literalinclude:: repetitions.py
    :language: python
@@ -137,9 +163,10 @@ The following example demonstrates the use of different forms of repetition to a
 .. image:: how-tos/repetitions.*
    :align: center
 
-When geometry operations are applied to elements with repetitions, they are not automatically applied.
-If desired the repetition can be manually applied before executing the desired operation.
-The following example demonstrates this use:
+When geometry operations are applied to elements with repetitions, they are not
+automatically applied.  If desired the repetition can be manually applied
+before executing the desired operation.  The following example demonstrates
+this use:
 
 .. literalinclude:: apply_repetition.py
    :language: python
@@ -155,9 +182,12 @@ The following example demonstrates this use:
 Geometry Filtering
 ******************
 
-Filtering the geometry of a loaded library requires only iterating over the desired cells and objects, testing and removing those not wanted.
-In this example we load the layout created in :ref:`using-a-library` and remove the polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).
-The method :meth:`gdstk.Cell.filter` is quite versatile in what layers and data/text types should be kept or removed from the cell.
+Filtering the geometry of a loaded library requires only iterating over the
+desired cells and objects, testing and removing those not wanted.  In this
+example we load the layout created in :ref:`using-a-library` and remove the
+polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).  The
+method :meth:`gdstk.Cell.filter` is quite versatile in what layers and
+data/text types should be kept or removed from the cell.
 
 .. literalinclude:: filtering.py
    :language: python
@@ -170,7 +200,8 @@ The method :meth:`gdstk.Cell.filter` is quite versatile in what layers and data/
    :align: center
 
 Another common use of filtering is to remove geometry in a particular region.
-In this example we create a periodic background and remove all elements that overlap a particular shape using :func:`gdstk.inside` to test.
+In this example we create a periodic background and remove all elements that
+overlap a particular shape using :func:`gdstk.inside` to test.
 
 .. literalinclude:: pos_filtering.py
    :language: python
@@ -186,9 +217,10 @@ In this example we create a periodic background and remove all elements that ove
 Points Along a Path
 *******************
 
-The following example shows how to add markers along a :class:`gdstk.RobustPath`.
-It uses the original parameterization of the path to locate the markers, following the construction sections.
-Markers positioned at a fixed distance must be calculated for each section independently.
+The following example shows how to add markers along a
+:class:`gdstk.RobustPath`.  It uses the original parameterization of the path
+to locate the markers, following the construction sections.  Markers positioned
+at a fixed distance must be calculated for each section independently.
 
 .. literalinclude:: path_markers.py
    :language: python
@@ -204,8 +236,9 @@ Markers positioned at a fixed distance must be calculated for each section indep
 System Fonts
 ************
 
-This example uses `matplotlib <https://matplotlib.org/>`_ to render text using any typeface present in the system.
-The glyph paths are then transformed into polygon arrays that can be used to create :class:`gdstk.Polygon` objects.
+This example uses `matplotlib <https://matplotlib.org/>`_ to render text using
+any typeface present in the system.  The glyph paths are then transformed into
+polygon arrays that can be used to create :class:`gdstk.Polygon` objects.
 
 .. literalinclude:: fonts.py
    :language: python
@@ -214,4 +247,3 @@ The glyph paths are then transformed into polygon arrays that can be used to cre
 
 .. image:: how-tos/fonts.*
    :align: center
-

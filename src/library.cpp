@@ -442,7 +442,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
         for (uint64_t j = cell->reference_array.count; j > 0; j--) {
             Reference* ref = *ref_p++;
             if (ref->type == ReferenceType::RawCell) {
-                fputs("[GDSTK] Reference to a RawCell cannot be used in a OASIS file.\n", stderr);
+                fputs("[GDSTK] Reference to a RawCell cannot be used in an OASIS file.\n", stderr);
                 continue;
             }
             uint8_t info = 0xF0;
