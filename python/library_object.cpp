@@ -288,6 +288,34 @@ int library_object_set_name(LibraryObject* self, PyObject* arg, void*) {
     return 0;
 }
 
+PyObject* library_object_get_unit(LibraryObject* self, void*) {
+    return PyFloat_FromDouble(self->library->unit);
+}
+
+int library_object_set_unit(LibraryObject* self, PyObject* arg, void*) {
+    double value = PyFloat_AsDouble(arg);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_ValueError, "Unable to convert value to float.");
+        return -1;
+    }
+    self->library->unit = value;
+    return 0;
+}
+
+PyObject* library_object_get_precision(LibraryObject* self, void*) {
+    return PyFloat_FromDouble(self->library->precision);
+}
+
+int library_object_set_precision(LibraryObject* self, PyObject* arg, void*) {
+    double value = PyFloat_AsDouble(arg);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_ValueError, "Unable to convert value to float.");
+        return -1;
+    }
+    self->library->precision = value;
+    return 0;
+}
+
 PyObject* library_object_get_cells(LibraryObject* self, void*) {
     Array<Cell*>* cell_array = &self->library->cell_array;
     Array<RawCell*>* rawcell_array = &self->library->rawcell_array;
@@ -322,6 +350,10 @@ int library_object_set_properties(LibraryObject* self, PyObject* arg, void*) {
 static PyGetSetDef library_object_getset[] = {
     {"name", (getter)library_object_get_name, (setter)library_object_set_name,
      library_object_name_doc, NULL},
+    {"unit", (getter)library_object_get_unit, (setter)library_object_set_unit,
+     library_object_unit_doc, NULL},
+    {"precision", (getter)library_object_get_precision, (setter)library_object_set_precision,
+     library_object_precision_doc, NULL},
     {"cells", (getter)library_object_get_cells, NULL, library_object_cells_doc, NULL},
     {"properties", (getter)library_object_get_properties, (setter)library_object_set_properties,
      object_properties_doc, NULL},

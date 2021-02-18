@@ -2461,6 +2461,8 @@ See also:
     :ref:`getting-started`)!");
 
 PyDoc_STRVAR(library_object_name_doc, R"!(Library name.)!");
+PyDoc_STRVAR(library_object_unit_doc, R"!(Library unit.)!");
+PyDoc_STRVAR(library_object_precision_doc, R"!(Library precision.)!");
 PyDoc_STRVAR(library_object_cells_doc, R"!(List of library cells.
 
 Notes:
