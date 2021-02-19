@@ -1,7 +1,7 @@
+# Developer tools
 cmake_build/
-
-# Created by https://www.gitignore.io/api/c++,python
-# Edit at https://www.gitignore.io/?templates=c++,python
+Makefile
+release.sh
 
 ### C++ ###
 # Prerequisites
