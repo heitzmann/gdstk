@@ -45,7 +45,7 @@ html_static_path = ['_static']
 
 templates_path = ["_templates"]
 
-pygments_style = "sphinx"
+pygments_style = "trac"
 
 html_theme = "sphinx_rtd_theme"
 

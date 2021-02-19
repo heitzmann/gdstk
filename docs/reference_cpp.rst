@@ -10,10 +10,15 @@ documentation and to inspect the source code for further details.
 Code Style
 **********
 
-The library is fully contained in the ``gdstk`` namespace.  The code style uses
-only a minimal set of C++ features, namely, limited use of templates and
-overloading, no constructors or destructors, no virtual functions or
-inheritance, limited private members, and no use of the STL (with a single
+The library is fully contained in the ``gdstk`` namespace. Structs and enums
+use ``PascalCase``, functions and variables (includig constants),
+``snake_case``, and definitions are all ``UPPER_CASE``.  Exceptions are the
+members of enums ``GdsiiRecord`` and ``OasisRecord``, which use ``UPPER_CASE``
+to better match their specification documents.
+
+The library uses only a minimal set of C++ features, namely, limited use of
+templates and overloading, no constructors or destructors, no virtual functions
+or inheritance, limited private members, and no use of the STL (with a single
 exception for ``std::sort``, which performs much faster than C's ``qsort``).
 
 *****************
