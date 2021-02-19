@@ -13,6 +13,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define GDSTK_VERSION "0.3.2"
 
+// After installation, this should be the only header required to be included
+// by the user.  All other headers are included below.
+
 #include "gdstk/array.h"
 #include "gdstk/cell.h"
 #include "gdstk/clipper_tools.h"
