@@ -287,7 +287,6 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
     }
 }
 
-// If depth < 0, goes through all references in the structure.
 void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
                         Array<Polygon*>& result) const {
     uint64_t start = result.count;

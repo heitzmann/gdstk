@@ -62,7 +62,8 @@ struct Array {
         return false;
     }
 
-    // Return the index of an array item. If the item is not found, return the array count.
+    // Return the index of an array item.  If the item is not found, return the
+    // array count.
     uint64_t index(const T item) const {
         T* it = items;
         for (uint64_t j = 0; j < count; j++)
@@ -97,7 +98,8 @@ struct Array {
         }
     }
 
-    // Remove the item at index by substituting it with the last item in the array.
+    // Remove the item at index by substituting it with the last item in the
+    // array.
     void remove_unordered(uint64_t index) { items[index] = items[--count]; }
 
     // Remove the item at index and pull the remainig to fill the gap.
@@ -114,7 +116,7 @@ struct Array {
         return true;
     }
 
-    // Ensure the array has at least the specified number of free slots at the end.
+    // Ensure at least the specified number of free slots at the end
     void ensure_slots(uint64_t free_slots) {
         if (capacity < count + free_slots) {
             capacity = count + free_slots;
@@ -122,7 +124,7 @@ struct Array {
         }
     }
 
-    // Extend the array by appending all elements from src (in order).
+    // Extend the array by appending all elements from src (in order)
     void extend(const Array<T>& src) {
         ensure_slots(src.count);
         memcpy(items + count, src.items, sizeof(T) * src.count);

@@ -19,6 +19,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 // Linear interpoaltion
 #define LERP(a, b, u) ((a) * (1 - (u)) + (b) * (u))
+
 // Smooth interpolation (3rd order polynomial with zero derivatives at 0 and 1)
 #define SERP(a, b, u) ((a) + ((b) - (a)) * (3 - 2 * (u)) * (u) * (u))
 
@@ -43,10 +44,12 @@ typedef double (*ParametricDouble)(double, void*);
 // Argument between 0 and 1
 typedef Vec2 (*ParametricVec2)(double, void*);
 
-// Arguments: first_point, first_direction, second_point, second_direction, data
+// Arguments: first_point, first_direction, second_point, second_direction,
+// data
 typedef Array<Vec2> (*EndFunction)(const Vec2, const Vec2, const Vec2, const Vec2, void*);
 
-// Arguments: first_point, first_direction, second_point, second_direction, center, width, data
+// Arguments: first_point, first_direction, second_point, second_direction,
+// center, width, data
 typedef Array<Vec2> (*JoinFunction)(const Vec2, const Vec2, const Vec2, const Vec2, const Vec2,
                                     double, void*);
 
@@ -56,7 +59,7 @@ typedef Array<Vec2> (*BendFunction)(double, double, double, const Vec2, void*);
 // Returns new dynamically allocated memory
 char* copy_string(const char* str, uint64_t& len);
 
-// If true, returns the multiplicative factor in m, i.e., angle = 0.5 * M_PI * m
+// If true, m is set to the multiplicative factor, i.e., angle = 0.5 * M_PI * m
 bool is_multiple_of_pi_over_2(double angle, int64_t& m);
 
 // Number of points needed to approximate an arc within some tolerance
@@ -94,31 +97,33 @@ uint32_t checksum32(uint32_t checksum, const uint8_t* bytes, uint64_t count);
 
 Vec2 eval_line(double t, const Vec2 p0, const Vec2 p1);
 
-// Evaluate a quadratic Bézier defined by control points p0, p1 and p2 at 0 ≤ t ≤ 1
+// Quadratic Bézier defined by control points p0, p1 and p2 at 0 ≤ t ≤ 1
 Vec2 eval_bezier2(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2);
 
-// Evaluate a cubic Bézier defined by control points p0 through p3 at 0 ≤ t ≤ 1
+// Cubic Bézier defined by control points p0 through p3 at 0 ≤ t ≤ 1
 Vec2 eval_bezier3(double t, const Vec2 p0, const Vec2 p1, const Vec2 p2, const Vec2 p3);
 
 // Evaluate a Bézier curve defined by count control points at 0 ≤ t ≤ 1
 Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t count);
 
-// Calculates the control points for a smooth cubic Bézier interpolation following:
+// Calculates the control points for a smooth cubic Bézier interpolation
+// following:
 //
-// John D. Hobby. “Smooth, easy to compute interpolating splines.” Discrete Comput. Geom.,
-// 1:123–140, 1986.
+// John D. Hobby. “Smooth, easy to compute interpolating splines.” Discrete
+// Comput. Geom., 1:123–140, 1986.
 //
-// Calculated control points ca and cb are stored in points, which must have the appropriate count
-// and layout:
+// Calculated control points ca and cb are stored in points, which must have
+// the appropriate count and layout:
 //
 // points[3 * count] = {p[0], ca[0], cb[0],
 //                      p[1], ca[1], cb[1],
 //                      …,
 //                      p[count - 1], ca[count - 1], cb[count - 1]};
 //
-// The last controls are only present if cycle == true.  Parameter angles can be used to constrain
-// the angle at any interpolation point by setting the respective angle_constraints to true.
-// Defaults for tension (at each interpolation point) and curl should be 1.
+// The last controls are only present if cycle == true.  Parameter angles can
+// be used to constrain the angle at any interpolation point by setting the
+// respective angle_constraints to true.  Defaults for tension (at each
+// interpolation point) and curl should be 1.
 void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle);
 

@@ -46,3 +46,14 @@ Thread Safety
 *************
 
 Gdstk is *not* thread-safe.
+
+
+************
+Header files
+************
+
+.. toctree::
+   :glob:
+
+   headers/*
+
