@@ -137,7 +137,7 @@ void Polygon::transform(double magnification, bool x_reflection, double rotation
     }
 }
 
-void Polygon::fillet(const Array<double> radii, double tol) {
+void Polygon::fillet(const Array<double> radii, double tolerance) {
     if (point_array.count < 3) return;
 
     Array<Vec2> old_pts;
@@ -177,12 +177,12 @@ void Polygon::fillet(const Array<double> radii, double tol) {
 
             double radius = radii[j % radii.count];
             double max_len = radius * tant;
-            if (max_len > 0.5 * (len0 - tol)) {
-                max_len = 0.5 * (len0 - tol);
+            if (max_len > 0.5 * (len0 - tolerance)) {
+                max_len = 0.5 * (len0 - tolerance);
                 radius = max_len / tant;
             }
-            if (max_len > 0.5 * (len1 - tol)) {
-                max_len = 0.5 * (len1 - tol);
+            if (max_len > 0.5 * (len1 - tolerance)) {
+                max_len = 0.5 * (len1 - tolerance);
                 radius = max_len / tant;
             }
 
@@ -195,7 +195,7 @@ void Polygon::fillet(const Array<double> radii, double tol) {
 
             uint64_t n = 1;
             if (radius > 0) {
-                n = arc_num_points(fabs(a1 - a0), radius, tol);
+                n = arc_num_points(fabs(a1 - a0), radius, tolerance);
                 if (n == 0) n = 1;
             }
 
@@ -1050,31 +1050,31 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     return result;
 }
 
-void text(const char* s, double count, const Vec2 position, bool vertical, uint32_t layer,
+void text(const char* s, double size, const Vec2 position, bool vertical, uint32_t layer,
           uint32_t datatype, Array<Polygon*>& result) {
-    count /= 16;
+    size /= 16;
     Vec2 cursor = position;
     for (; *s != 0; s++) {
         switch (*s) {
             case 0x20:  // Space
                 if (vertical)
-                    cursor.y -= count * VERTICAL_STEP;
+                    cursor.y -= size * VERTICAL_STEP;
                 else
-                    cursor.x += count * HORIZONTAL_STEP;
+                    cursor.x += size * HORIZONTAL_STEP;
                 break;
             case 0x09:  // Horizontal tab
                 if (vertical)
-                    cursor.y += count * VERTICAL_TAB;
+                    cursor.y += size * VERTICAL_TAB;
                 else
-                    cursor.x += count * HORIZONTAL_TAB;
+                    cursor.x += size * HORIZONTAL_TAB;
                 break;
             case 0x0A:  // Carriage return
                 if (vertical) {
                     cursor.y = position.y;
-                    cursor.x += count * VERTICAL_LINESKIP;
+                    cursor.x += size * VERTICAL_LINESKIP;
                 } else {
                     cursor.x = position.x;
-                    cursor.y -= count * HORIZONTAL_LINESKIP;
+                    cursor.y -= size * HORIZONTAL_LINESKIP;
                 }
                 break;
             default: {
@@ -1088,14 +1088,14 @@ void text(const char* s, double count, const Vec2 position, bool vertical, uint3
                         p->point_array.ensure_slots(_num_coords[p_idx]);
                         uint16_t c_idx = _first_coord[p_idx];
                         for (uint16_t j = _num_coords[p_idx]; j > 0; j--, c_idx++) {
-                            p->point_array.append_unsafe(cursor + count * _all_coords[c_idx]);
+                            p->point_array.append_unsafe(cursor + size * _all_coords[c_idx]);
                         }
                         result.append(p);
                     }
                     if (vertical)
-                        cursor.y -= count * VERTICAL_STEP;
+                        cursor.y -= size * VERTICAL_STEP;
                     else
-                        cursor.x += count * HORIZONTAL_STEP;
+                        cursor.x += size * HORIZONTAL_STEP;
                 }
             }
         }

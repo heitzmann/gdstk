@@ -27,8 +27,9 @@ struct CurveInstruction {
     };
 };
 
-// Curves can used to build complex polygons by concatenating straight or
-// curved sections
+// Curves can used to build complex shapes by concatenating straight or curved
+// sections.  Once complete, their point_array can be used to create a polygon.
+// They are also used to build the FlexPath spine.
 struct Curve {
     // Before appending any section to a curve, it must contain at least 1
     // point in its point_array

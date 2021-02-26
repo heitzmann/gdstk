@@ -2792,17 +2792,17 @@ Returns:
 Examples:
     >>> text = gdstk.text(f"Created with\nGDSTK {gdstk.__version__}", 1,
     ...                   (0, 0))
-    >>> rect = gdstk.rectangle((0, -5 / 4), (12 * 9 / 16, 1), 
+    >>> rect = gdstk.rectangle((0, -5 / 4), (12 * 9 / 16, 1),
     ...                        datatype=1)
 
     .. image:: ../function/text.*
        :align: center
 
 Notes:
-    The character aspect ratio is 1:2. For horizontal text, spacing
+    The character aspect ratio is 1:2. For horizontal text, spacings
     between characters and between lines are 9 / 16 and 5 / 4 times the
     full height ``size``, respectively. For vertical text, characters
-    and columns are respectively spaced 9 / 8 and 1 times ``size``.)!");
+    and columns are respectively spaced by 9 / 8 and 1 times ``size``.)!");
 
 PyDoc_STRVAR(
     offset_function_doc,

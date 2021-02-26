@@ -50,7 +50,7 @@ struct GeometryInfo {
 struct Cell {
     // NULL-terminated string with cell name.  The GDSII specification allows
     // only ASCII-encoded strings.  The OASIS specification restricts the
-    // allowed characters to the range 0x21–0x7F (the space character, 0x20, is
+    // allowed characters to the range 0x21–0x7E (the space character, 0x20, is
     // forbidden).  Gdstk does NOT enforce either rule.
     //
     // Cells in a library are identified by their name, so names must be
