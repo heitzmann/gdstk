@@ -24,59 +24,96 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// A flexpath holds a spine and any number of elements.  The spine dictates the
+// general shape of the path, but it is a simple curve, it doesn't have
+// information about width.  The elements are the concrete paths that are
+// created based on the spine, a width and, optionally, an offset from the
+// spine.  Both width and offset can change along the spine.
+
 struct FlexPathElement {
     uint32_t layer;
     uint32_t datatype;
+
+    // Array of widths and offsets for this path element.  The array count must
+    // match the spine count.  Each Vec2 v holds the width of the path divided
+    // by 2 in v.e[0] and the path offset in v.e[1] for the respective point
+    // along the spine.
     Array<Vec2> half_width_and_offset;
 
     JoinType join_type;
     JoinFunction join_function;
-    void* join_function_data;
+    void* join_function_data;  // User data passed directly to join_function
 
     EndType end_type;
     Vec2 end_extensions;
     EndFunction end_function;
-    void* end_function_data;
+    void* end_function_data;  // User data passed directly to end_function
 
     BendType bend_type;
     double bend_radius;
     BendFunction bend_function;
-    void* bend_function_data;
+    void* bend_function_data;  // User data passed directly to bend_function
 };
 
 struct FlexPath {
     Curve spine;
-    FlexPathElement* elements;
+    FlexPathElement* elements;  // Array with count num_elements
     uint64_t num_elements;
+
+    // If simple_path is true, all elements will be treated as if they have
+    // constant widths (using the first elements in their respective
+    // half_width_and_offset arrays) and saved as paths, not polygonal
+    // boundaries.
     bool simple_path;
+
+    // Flag indicating whether the width of the path elements should be scaled
+    // when scaling the path (manually or through references).
     bool scale_width;
+
     Repetition repetition;
     Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
-    // No allocation of elements
+    // These are initialization routines to facilitate the creation of new
+    // flexpaths.  In versions with argument num_elements_, the elements array
+    // will be dynamically allocated (and num_elements properly set).
+    // Otherwise, num_elements and elements are expected to be already
+    // allocated and set.  Arguments width and offset can be single values
+    // (which are applied to all elements) or arrays with count num_elements,
+    // one value for each path element.
     void init(const Vec2 initial_position, double width, double offset, double tolerance);
     void init(const Vec2 initial_position, const double* width, const double* offset,
               double tolerance);
-    // elements will be allocated
     void init(const Vec2 initial_position, uint64_t num_elements_, double width, double offset,
               double tolerance);
     void init(const Vec2 initial_position, uint64_t num_elements_, const double* width,
               const double* offset, double tolerance);
 
     void print(bool all) const;
+
     void clear();
+
+    // This path instance must be zeroed before copy_from
     void copy_from(const FlexPath& path);
+
     void translate(const Vec2 v);
     void scale(double scale, const Vec2 center);
     void mirror(const Vec2 p0, const Vec2 p1);
     void rotate(double angle, const Vec2 center);
+
+    // Transformations are applied in the order of arguments, starting with
+    // magnification and translating by origin at the end.  This is equivalent
+    // to the transformation defined by a Reference with the same arguments.
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
+
+    // Append the copies of this path defined by its repetition to result.
     void apply_repetition(Array<FlexPath*>& result);
 
-    // Note: width and offset must be NULL or arrays of count at least path.num_elements.
+    // These functions are equivalent to those for curves (curve.h), with the
+    // addition of width and offset, which can be NULL (no width or offset
+    // changes) or arrays with count num_elements.
     void horizontal(double coord_x, const double* width, const double* offset, bool relative);
     void horizontal(const Array<double> coord_x, const double* width, const double* offset,
                     bool relative);
@@ -105,18 +142,21 @@ struct FlexPath {
     void turn(double radius, double angle, const double* width, const double* offset);
     void parametric(ParametricVec2 curve_function, void* data, const double* width,
                     const double* offset, bool relative);
-
-    // Return n = number of items processed.  If n < count, item n could not be parsed.  Width and
-    // offset remain unchainged.
     uint64_t commands(const CurveInstruction* items, uint64_t count);
 
+    // Append the polygonal representation of this path to result
     void to_polygons(Array<Polygon*>& result);
+
+    // Calculate the center of an element of this path and append the resulting
+    // curve to result.
     void element_center(const FlexPathElement* el, Array<Vec2>& result);
 
-    // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
-    // fractured.  Therefore, to_gds should be used only when simple_path == true to produce true
-    // GDSII path elements. The same is valid for to_oas, although no fracturing ever occurs for
-    // OASIS files.
+    // These functions output the polygon in the GDSII, OASIS and SVG formats.
+    // They are not supposed to be called by the user.  Because fracturing
+    // occurs at cell_to_gds, the polygons must be checked there and, if
+    // needed, fractured.  Therefore, to_gds should be used only when
+    // simple_path == true to produce true GDSII path elements.  The same is
+    // valid for to_oas, even though no fracturing ever occurs for OASIS files.
     void to_gds(FILE* out, double scaling);
     void to_oas(OasisStream& out, OasisState& state);
     void to_svg(FILE* out, double scaling);

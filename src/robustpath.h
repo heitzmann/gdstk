@@ -24,24 +24,35 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// Robustpaths are similar to flexpaths in that they only hold a spine, that
+// represents the main shape of the desired path, plus any number of elements
+// that add widths and offsets on top of that spine to build the actual paths.
+// The main difference from flexpaths is that, unlike those, the spine for
+// robustpaths is represented by an array of parametric curves (subpaths),
+// instead of an open polygonal curve.  Similarly, width and offset changes
+// along the path are represented parametrically by interpolation functions.
+// These properties make the process of finding the polygonal representation of
+// robustpaths more numerically robust, but also more computationally
+// intensive.
+
 enum struct InterpolationType {
     Constant = 0,  // Step-change in join region
     Linear,        // LERP from past value to new
     Smooth,        // SERP from past value to new
-    Parametric     // Uses function(...)
+    Parametric     // Uses function(…)
 };
 
 struct Interpolation {
     InterpolationType type;
     union {
         double value;  // Constant
-        struct {       // Linear, Smooth
+        struct {       // Linear or smooth interpolation
             double initial_value;
             double final_value;
         };
         struct {
             ParametricDouble function;  // Parametric
-            void* data;
+            void* data;                 // User data
         };
     };
 };
@@ -55,6 +66,8 @@ enum struct SubPathType {
     Parametric  // general parametric function
 };
 
+// Subpaths are not supposed to be created directly by the user, but through
+// the construction functions of the RobustPath class instead.
 struct SubPath {
     SubPathType type;
     union {
@@ -101,28 +114,57 @@ struct SubPath {
 struct RobustPathElement {
     uint32_t layer;
     uint32_t datatype;
+
+    // These arrays should have the same count as subpath_array
     Array<Interpolation> width_array;
     Array<Interpolation> offset_array;
+
+    // Both end_width and end_offset should be initialized to the initial path
+    // width and offset.  After that they will hold the last values used in the
+    // construction functions.
     double end_width;
     double end_offset;
+
     EndType end_type;
     Vec2 end_extensions;
     EndFunction end_function;
-    void* end_function_data;
+    void* end_function_data;  // User data for end_function
 };
 
 struct RobustPath {
+    // Last point on the path.  It should be initialized to the path origin on
+    // the creation of a new path.
     Vec2 end_point;
-    Array<SubPath> subpath_array;
-    RobustPathElement* elements;
+
+    Array<SubPath> subpath_array;  // Path spine
+
+    RobustPathElement* elements;  // Array with count num_elements
     uint64_t num_elements;
+
+    // Numeric tolerance for intersection finding and curve approximation
     double tolerance;
-    uint64_t max_evals;
-    double width_scale;
-    double offset_scale;
-    double trafo[6];  // Look at apply_transform for the meaning of each coefficient
+
+    uint64_t max_evals;   // Maximal number of evaluations per function
+    double width_scale;   // Width scale accumulated from path transforms
+    double offset_scale;  // Offset scale accumulated from path transforms
+
+    // Transformation matrix for this path.  It should be initialized to the
+    // identity {1, 0, 0, 0, 1, 0}, unless you have a reason not to.  It
+    // transforms a point (x, y) to (xt, yt) with:
+    //   xt = x * trafo[0] + y * trafo[1] + trafo[2]
+    //   yt = x * trafo[3] + y * trafo[4] + trafo[5]
+    double trafo[6];
+
+    // If simple_path is true, all elements will be treated as if they have
+    // constant widths (using the first elements in their respective
+    // half_width_and_offset arrays) and saved as paths, not polygonal
+    // boundaries.
     bool simple_path;
+
+    // Flag indicating whether the width of the path elements should be scaled
+    // when scaling the path (manually or through references).
     bool scale_width;
+
     Repetition repetition;
     Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).
@@ -130,16 +172,28 @@ struct RobustPath {
     void* owner;
 
     void print(bool all) const;
+
     void clear();
+
+    // This path instance must be zeroed before copy_from
     void copy_from(const RobustPath& path);
+
     void translate(const Vec2 v);
     void scale(double scale, const Vec2 center);
     void mirror(const Vec2 p0, const Vec2 p1);
     void rotate(double angle, const Vec2 center);
+
+    // Transformations are applied in the order of arguments, starting with
+    // magnification and translating by origin at the end.  This is equivalent
+    // to the transformation defined by a Reference with the same arguments.
     void transform(double magnification, bool x_reflection, double rotation, const Vec2 origin);
+
+    // Append the copies of this path defined by its repetition to result.
     void apply_repetition(Array<RobustPath*>& result);
 
-    // Note: width and offset must be NULL or arrays of count at least path.num_elements.
+    // These functions are equivalent to those for curves (curve.h), with the
+    // addition of width and offset, which can be NULL (no width or offset
+    // changes) or arrays with count num_elements.
     void horizontal(double coord_x, const Interpolation* width, const Interpolation* offset,
                     bool relative);
     void vertical(double coord_y, const Interpolation* width, const Interpolation* offset,
@@ -165,25 +219,41 @@ struct RobustPath {
     void parametric(ParametricVec2 curve_function, void* func_data, ParametricVec2 curve_gradient,
                     void* grad_data, const Interpolation* width, const Interpolation* offset,
                     bool relative);
-    // Return n = number of items processed.  If n < count, item n could not be parsed.
-    // Width and offset remain unchainged.
     uint64_t commands(const CurveInstruction* items, uint64_t count);
 
-    // 0 <= u <= path.subpath_array.count
+    // These functions retrieve the position and gradient of the path spine at
+    // parametric value u, in which 0 <= u <= path.subpath_array.count.  For
+    // integer values of u, uses the end position of the previous subpath or
+    // the initial position of the next depending on whether from_below is true
+    // or false, respectively.  Note that this functions does not calculate
+    // intersections, it evaluates a single subpath.
     Vec2 position(double u, bool from_below) const;
     Vec2 gradient(double u, bool from_below) const;
-    // Result must be an array with at least path.num_elements elements
+
+    // These functions are similar to the ones above, except they retrieve the
+    // width and offset of all path elements at the desired parametric value.
+    // The results are written to the result array, which must have count at
+    // least path.num_elements.
     void width(double u, bool from_below, double* result) const;
     void offset(double u, bool from_below, double* result) const;
 
+    // Calculate the polygonal spine of this path and append the resulting
+    // curve to result.
     void spine(Array<Vec2>& result) const;
+
+    // Calculate the center of an element of this path and append the resulting
+    // curve to result.
     void element_center(const RobustPathElement* el, Array<Vec2>& result) const;
+
+    // Append the polygonal representation of this path to result
     void to_polygons(Array<Polygon*>& result) const;
 
-    // Because fracturing occurs at cell_to_gds, the polygons must be checked there and, if needed,
-    // fractured.  Therefore, to_gds should be used only when simple_path == true to produce true
-    // GDSII path elements. The same is valid for to_oas, although no fracturing ever occurs for
-    // OASIS files.
+    // These functions output the polygon in the GDSII, OASIS and SVG formats.
+    // They are not supposed to be called by the user.  Because fracturing
+    // occurs at cell_to_gds, the polygons must be checked there and, if
+    // needed, fractured.  Therefore, to_gds should be used only when
+    // simple_path == true to produce true GDSII path elements.  The same is
+    // valid for to_oas, even though no fracturing ever occurs for OASIS files.
     void to_gds(FILE* out, double scaling) const;
     void to_oas(OasisStream& out, OasisState& state) const;
     void to_svg(FILE* out, double scaling) const;

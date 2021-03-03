@@ -94,7 +94,7 @@ struct Cell {
     // This cell instance must be zeroed before copy_from.  If a new_name is
     // NULL, use the same name as the source cell.  If deep_copy == true, new
     // elements (polygons, paths, references, and labels) are allocated and
-    // copied from the source cell, otherwise, the same pointers are used.
+    // copied from the source cell.  Otherwise, the same pointers are used.
     void copy_from(const Cell& cell, const char* new_name, bool deep_copy);
 
     // Append a (newly allocated) copy of all the polygons in the cell to

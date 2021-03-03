@@ -38,22 +38,22 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// Argument between 0 and 1
+// Argument between 0 and 1, plus user data
 typedef double (*ParametricDouble)(double, void*);
 
-// Argument between 0 and 1
+// Argument between 0 and 1, plus user data
 typedef Vec2 (*ParametricVec2)(double, void*);
 
 // Arguments: first_point, first_direction, second_point, second_direction,
-// data
+// user data
 typedef Array<Vec2> (*EndFunction)(const Vec2, const Vec2, const Vec2, const Vec2, void*);
 
 // Arguments: first_point, first_direction, second_point, second_direction,
-// center, width, data
+// center, width, user data
 typedef Array<Vec2> (*JoinFunction)(const Vec2, const Vec2, const Vec2, const Vec2, const Vec2,
                                     double, void*);
 
-// Arguments: radius, initial_angle, final_angle, center, data
+// Arguments: radius, initial_angle, final_angle, center, user data
 typedef Array<Vec2> (*BendFunction)(double, double, double, const Vec2, void*);
 
 // Returns new dynamically allocated memory
