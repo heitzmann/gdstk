@@ -31,13 +31,15 @@ enum struct ReferenceType { Cell = 0, RawCell, Name };
 
 struct Reference {
     ReferenceType type;
+    // References by name or rawcell are limited in their use.  Most cell
+    // functions will not work on them.
     union {
         Cell* cell;
         RawCell* rawcell;
         char* name;
     };
     Vec2 origin;
-    double rotation;  // in RADIANS
+    double rotation;  // in radians
     double magnification;
     bool x_reflection;
     Repetition repetition;
@@ -47,25 +49,50 @@ struct Reference {
     void* owner;
 
     void print() const;
+
     void clear();
+
+    // This reference instance must be zeroed before copy_from
     void copy_from(const Reference& reference);
 
+    // Calculate the bounding box of this reference and return the lower left
+    // and upper right corners in min and max, respectively.  If the bounding
+    // box cannot be calculated, return min.x > max.x.  The cached version can
+    // be used to retain the cache for latter use, but it is the user
+    // responsibility to invalidate the cache if any geometry changes.
     void bounding_box(Vec2& min, Vec2& max) const;
     void bounding_box(Vec2& min, Vec2& max, Map<GeometryInfo>& cache) const;
 
+    // Append the convex hull of this reference to result.  The cached version
+    // follows the same rules explained for bounding_box.
     void convex_hull(Array<Vec2>& result) const;
     void convex_hull(Array<Vec2>& result, Map<GeometryInfo>& cache) const;
 
-    // Arguments are in order of application to the coordinates
+    // Transformations are applied in the order of arguments, starting with
+    // magnification and translating by origin at the end.  This is equivalent
+    // to the transformation defined by a Reference with the same arguments.
     void transform(double mag, bool x_refl, double rot, const Vec2 orig);
+
+    // Append the copies of this reference defined by its repetition to result.
     void apply_repetition(Array<Reference*>& result);
+
+    // Applies the transformation and repetition defined by this reference to
+    // the points in point_array, appending the results to the same array.
     void repeat_and_transform(Array<Vec2>& point_array) const;
 
+    // These functions create and append the elements that are created by this
+    // reference to the result array.  Argument depth controls how many levels
+    // of references should be included (references of references); if it is
+    // negative, all levels are included.  If include_paths is true, the
+    // polygonal representation of paths are also included in polygons.
     void polygons(bool apply_repetitions, bool include_paths, int64_t depth,
                   Array<Polygon*>& result) const;
     void flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const;
     void robustpaths(bool apply_repetitions, int64_t depth, Array<RobustPath*>& result) const;
     void labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const;
+
+    // These functions output the reference in the GDSII and SVG formats.  They
+    // are not supposed to be called by the user.
     void to_gds(FILE* out, double scaling) const;
     void to_svg(FILE* out, double scaling) const;
 };

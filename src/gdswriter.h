@@ -18,6 +18,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// Struct used to write GDSII files incrementally, so that not all cells need
+// to be held in memory simultaneously.  The steps are:
+// - Initialize unit, precision, max_points and timestamp
+// - call write_gds to create the output file and write the GDSII header
+// - call write_cell and write_rawcell as needed
+// - call close to finalize the GDSII file
 struct GdsWriter {
     FILE* out;
     double unit;

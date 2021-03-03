@@ -20,6 +20,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// Configuration flags for Library.write_oas
 #define OASIS_CONFIG_PROPERTY_MAX_COUNTS 0x0001
 #define OASIS_CONFIG_PROPERTY_TOP_LEVEL 0x0002
 #define OASIS_CONFIG_PROPERTY_BOUNDING_BOX 0x0004
@@ -35,6 +36,9 @@ namespace gdstk {
     (OASIS_CONFIG_PROPERTY_MAX_COUNTS | OASIS_CONFIG_PROPERTY_TOP_LEVEL | \
      OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)
 #define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS)
+
+// Types and functions in this header are not meant to be used by the end user
+// of the library.  They are for internal use only.
 
 extern const char s_max_int_size_property_name[];
 extern const char s_max_uint_size_property_name[];
