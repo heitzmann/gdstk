@@ -14,12 +14,36 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
 #include "array.h"
 #include "map.h"
-#include "rawsource.h"
 
 namespace gdstk {
 
+struct RawSource {
+    FILE* file;
+    uint32_t uses;
+
+    // Read num_bytes into buffer from fd starting at offset
+    int64_t offset_read(void* buffer, uint64_t num_bytes, uint64_t offset) const {
+#ifdef _WIN32
+        // The POSIX version (pread) does not change the file cursor, this
+        // does.  Furthermore, this is not thread-safe!
+        _fseeki64(file, offset, SEEK_SET);
+        return fread(buffer, 1, num_bytes, file);
+#else
+        return pread(fileno(file), buffer, num_bytes, offset);
+#endif
+    };
+};
+
+// Rawcells are not meant to be created except thorugh read_rawcells.  They are
+// not explicitly loaded in memory until used, so the GDSII file where they are
+// loaded from, remains open until it is no longer needed.  That is done by
+// reference counting.
 struct RawCell {
     char* name;
     RawSource* source;
@@ -34,11 +58,19 @@ struct RawCell {
     void* owner;
 
     void print(bool all) const;
+
     void clear();
+
+    // Append dependencies of this cell to result.  If recursive is true, also
+    // includes depedencies of any dependencies recursively.
     void get_dependencies(bool recursive, Map<RawCell*>& result) const;
+
+    // This function outputs the rawcell in the GDSII.  It is not supposed to
+    // be called by the user.
     void to_gds(FILE* out);
 };
 
+// Load a GDSII file and extract its cells as RawCell
 Map<RawCell*> read_rawcells(const char* filename);
 
 }  // namespace gdstk
