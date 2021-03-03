@@ -24,7 +24,7 @@ The complete documentation is available [here](http://heitzmann.github.io/gdstk)
 The source files can be found in the _docs_ directory.
 
 
-## Instalation
+## Installation
 
 ### C++ library only
 
