@@ -81,14 +81,19 @@ def flatten_image():
 
 
 def write_svg_image():
-    poly1 = gdstk.ellipse((0, 0), (13, 10), datatype=1)  # (layer, datatype) = (0, 1)
-    poly2 = gdstk.ellipse((0, 0), (10, 7), layer=1)  # (layer, datatype) = (1, 0)
+    # (layer, datatype) = (0, 1)
+    poly1 = gdstk.ellipse((0, 0), (13, 10), datatype=1)
+    # (layer, datatype) = (1, 0)
+    poly2 = gdstk.ellipse((0, 0), (10, 7), layer=1)
+    (layer, texttype) = (3, 2)
+    label = gdstk.Label("Example", (0, 0), layer=3, texttype=2)
     cell = gdstk.Cell("SVG")
-    cell.add(poly1, poly2)
+    cell.add(poly1, poly2, label)
     # cell.write_svg(
     #     "example.svg",
     #     background="none",
     #     style={(0, 1): {"fill": "none", "stroke": "black", "stroke-dasharray": "8,8"}},
+    #     fontstyle={(3, 2): {"fill": "none", "stroke": "red", "font-size": "32px"}},
     #     pad="5%",
     # )
     cell.name = "write_svg"

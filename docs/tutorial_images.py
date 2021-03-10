@@ -20,6 +20,7 @@ def draw(cell, path):
         scaling=scaling,
         background="none",
         style={(0, 1): {"fill": "none", "stroke": "black", "stroke-dasharray": "8,8"}},
+        fontstyle={(3, 2): {"stroke": "red", "fill": "none", "font-size": "32px"}},
         pad="5%",
     )
     print(f"Saving {name} (scaling {scaling})")

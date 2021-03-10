@@ -47,6 +47,10 @@ templates_path = ["_templates"]
 
 pygments_style = "trac"
 
+html_copy_source = False
+
+html_show_sphinx = False
+
 html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
