@@ -368,7 +368,8 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
                     if (t0.cross(t1) > 0) {
                         center_radius = bend_radius - offsets[2 * i];
                         const double min_len_sq = 4 * center_radius * center_radius;
-                        if ((len_sq_prev >= min_len_sq ||
+                        if (center_radius > half_widths[2 * i] &&
+                            (len_sq_prev >= min_len_sq ||
                              (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
                             (len_sq_next >= min_len_sq ||
                              (i == spine_points.count - 2 && len_sq_next >= min_len_sq / 4)))
@@ -376,7 +377,8 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
                     } else {
                         center_radius = bend_radius + offsets[2 * i];
                         const double min_len_sq = 4 * center_radius * center_radius;
-                        if ((len_sq_prev >= min_len_sq ||
+                        if (center_radius > half_widths[2 * i] &&
+                            (len_sq_prev >= min_len_sq ||
                              (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
                             (len_sq_next >= min_len_sq ||
                              (i == spine_points.count - 2 && len_sq_next >= min_len_sq / 4)))
