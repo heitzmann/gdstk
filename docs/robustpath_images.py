@@ -110,7 +110,7 @@ def parametric_image():
         return (rad * numpy.cos(ang), rad * numpy.sin(ang))
 
     path = gdstk.RobustPath((0, 0), 0.2, tolerance=1e-3)
-    path.parametric(spiral)
+    path.parametric(spiral, width=lambda u: 0.2 + 0.6 * u ** 2)
     return gdstk.Cell("parametric").add(path)
 
 

@@ -1863,7 +1863,7 @@ Args:
       previous values.)!");
 
 PyDoc_STRVAR(robustpath_object_parametric_doc,
-             R"!(parametric(path_function, width=None, offset=None, relative=True) -> self
+             R"!(parametric(path_function, path_gradient=None, width=None, offset=None, relative=True) -> self
 
 Append a parametric curve to this path.
 
@@ -1871,14 +1871,18 @@ Args:
     path_function (callable): Function that defines the path. Must be a
       function of one argument (that varies from 0 to 1) that returns a
       2-element sequence or complex with the coordinates of the path.
-    width (number or sequence): Width at the end point(s). If this is a
-      sequence, it must define the width for each path. The width is
-      linearly tapered from its previous value.
-    offset (number or sequence): If this is a number, it is treated as
-      the distance between centers of adjacent paths. If it is a
-      sequence, each number represents the absolute offset from the
-      center of the path. The offsets are linearly tapered from their
-      previous values.
+    path_gradient (callable): Function that returns the path gradient.
+      Must be a function of one argument (that varies from 0 to 1) that
+      returns a 2-element sequence or complex with the gradient.
+    width (number, tuple, or callable): Width of this section. A tuple
+      of 2 elements (number, str) can be used to define the width value
+      and the interpolation type from the previous section to the end
+      point ("constant", "linear", or "smooth"). If only a number is
+      used, the interpolation defaults to "linear". A callable must
+      accept a single number from 0 to 1 and return the desired width at
+      the corresponding position along the section.
+    offset (number, tuple, or callable): Offset from the central path
+      position. A tuple or callable can be used as in ``width``.
     relative: If ``True``, the return values of ``path_function`` are
       used as offsets from the current path position, i.e., to ensure a
       continuous path, ``path_function(0)`` must be (0, 0). Otherwise,
@@ -1887,11 +1891,11 @@ Args:
 Examples:
 
     >>> def spiral(u):
-    ...     rad = 2 * u ** 0.5
-    ...     ang = 3 * numpy.pi * u
-    ...     return (rad * numpy.cos(ang), rad * numpy.sin(ang))
-    >>> path = gdstk.FlexPath((0, 0), 0.2, tolerance=1e-3)
-    >>> path.parametric(spiral)
+    ...    rad = 2 * u ** 0.5
+    ...    ang = 3 * numpy.pi * u
+    ...    return (rad * numpy.cos(ang), rad * numpy.sin(ang))
+    >>> path = gdstk.RobustPath((0, 0), 0.2, tolerance=1e-3)
+    >>> path.parametric(spiral, width=lambda u: 0.2 + 0.6 * u ** 2)
 
     .. image:: ../robustpath/parametric.*
        :align: center)!");
