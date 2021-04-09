@@ -575,7 +575,8 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 }
 
-void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
+void Cell::to_svg(FILE* out, double scaling, const char* attributes,
+                  PolygonComparisonFunction comp) const {
     char* buffer = (char*)allocate(strlen(name) + 1);
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only
     // for strings, but who knows…
@@ -588,20 +589,35 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
     else
         fprintf(out, "<g id=\"%s\">\n", buffer);
 
-    Polygon** polygon = polygon_array.items;
-    for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) (*polygon)->to_svg(out, scaling);
+    if (comp == NULL) {
+        Polygon** polygon = polygon_array.items;
+        for (uint64_t i = 0; i < polygon_array.count; i++, polygon++)
+            (*polygon)->to_svg(out, scaling);
+
+        FlexPath** flexpath = flexpath_array.items;
+        for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++)
+            (*flexpath)->to_svg(out, scaling);
+
+        RobustPath** robustpath = robustpath_array.items;
+        for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++)
+            (*robustpath)->to_svg(out, scaling);
+    } else {
+        Array<Polygon*> all_polygons = {0};
+        get_polygons(false, true, -1, all_polygons);
+
+        std::sort(all_polygons.items, all_polygons.items + all_polygons.count, comp);
+
+        Polygon** polygon = all_polygons.items;
+        for (uint64_t i = 0; i < all_polygons.count; i++, polygon++) {
+            (*polygon)->to_svg(out, scaling);
+            (*polygon)->clear();
+        }
+        all_polygons.clear();
+    }
 
     Reference** reference = reference_array.items;
     for (uint64_t i = 0; i < reference_array.count; i++, reference++)
         (*reference)->to_svg(out, scaling);
-
-    FlexPath** flexpath = flexpath_array.items;
-    for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++)
-        (*flexpath)->to_svg(out, scaling);
-
-    RobustPath** robustpath = robustpath_array.items;
-    for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++)
-        (*robustpath)->to_svg(out, scaling);
 
     Label** label = label_array.items;
     for (uint64_t i = 0; i < label_array.count; i++, label++) (*label)->to_svg(out, scaling);
@@ -611,7 +627,8 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes) const {
 }
 
 void Cell::write_svg(const char* filename, double scaling, StyleMap& style, StyleMap& label_style,
-                     const char* background, double pad, bool pad_as_percentage) const {
+                     const char* background, double pad, bool pad_as_percentage,
+                     PolygonComparisonFunction comp) const {
     Vec2 min, max;
     bounding_box(min, max);
     if (min.x > max.x) return;
@@ -704,7 +721,7 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
     fputs("</style>\n", out);
 
     for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item))
-        item->value->to_svg(out, scaling, NULL);
+        item->value->to_svg(out, scaling, NULL, comp);
 
     cell_map.clear();
 
@@ -714,7 +731,7 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
             out,
             "<rect x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" fill=\"%s\" stroke=\"none\"/>\n",
             x, y, w, h, background);
-    to_svg(out, scaling, "transform=\"scale(1 -1)\"");
+    to_svg(out, scaling, "transform=\"scale(1 -1)\"", comp);
     fputs("</svg>", out);
     fclose(out);
 }

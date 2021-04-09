@@ -534,6 +534,34 @@ static PyTypeObject gdswriter_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gds
 
 #include "parsing.cpp"
 
+PyObject* polygon_comparison_obj;
+bool polygon_comparison(const Polygon* p1, const Polygon* p2) {
+    Polygon* p1_copy = (Polygon*)allocate_clear(sizeof(Polygon));
+    p1_copy->copy_from(*p1);
+    PolygonObject* p1_obj = PyObject_New(PolygonObject, &polygon_object_type);
+    p1_obj = (PolygonObject*)PyObject_Init((PyObject*)p1_obj, &polygon_object_type);
+    p1_obj->polygon = p1_copy;
+    p1_copy->owner = p1_obj;
+
+    Polygon* p2_copy = (Polygon*)allocate_clear(sizeof(Polygon));
+    p2_copy->copy_from(*p2);
+    PolygonObject* p2_obj = PyObject_New(PolygonObject, &polygon_object_type);
+    p2_obj = (PolygonObject*)PyObject_Init((PyObject*)p2_obj, &polygon_object_type);
+    p2_obj->polygon = p2_copy;
+    p2_copy->owner = p2_obj;
+
+    PyObject* args = PyTuple_New(2);
+    PyTuple_SET_ITEM(args, 0, (PyObject*)p1_obj);
+    PyTuple_SET_ITEM(args, 1, (PyObject*)p2_obj);
+    PyObject* py_result = PyObject_CallObject(polygon_comparison_obj, args);
+    Py_DECREF(args);
+
+    bool result = PyObject_IsTrue(py_result) > 0;
+
+    Py_XDECREF(py_result);
+    return result;
+}
+
 double eval_parametric_double(double u, PyObject* function) {
     double result = 0;
     PyObject* py_u = PyFloat_FromDouble(u);

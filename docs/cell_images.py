@@ -95,6 +95,7 @@ def write_svg_image():
     #     style={(0, 1): {"fill": "none", "stroke": "black", "stroke-dasharray": "8,8"}},
     #     fontstyle={(3, 2): {"fill": "none", "stroke": "red", "font-size": "32px"}},
     #     pad="5%",
+    #     sort_function=lambda p1, p2: p1.layer < p2.layer,
     # )
     cell.name = "write_svg"
     return cell

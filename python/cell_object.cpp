@@ -401,12 +401,13 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     PyObject* style_obj = NULL;
     PyObject* label_style_obj = NULL;
     PyObject* pad_obj = NULL;
+    PyObject* sort_obj = NULL;
     const char* background = "#222222";
-    const char* keywords[] = {"outfile",    "scaling", "style", "fontstyle",
-                              "background", "pad",     NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dOOzO:write_svg", (char**)keywords,
+    const char* keywords[] = {"outfile",    "scaling", "style",         "fontstyle",
+                              "background", "pad",     "sort_function", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dOOzOO:write_svg", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &scaling, &style_obj,
-                                     &label_style_obj, &background, &pad_obj))
+                                     &label_style_obj, &background, &pad_obj, &sort_obj))
         return NULL;
 
     double pad = 5;
@@ -443,17 +444,34 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     }
 
     StyleMap style = {0};
-    if (style_obj && update_style(style_obj, style, "style") < 0) return NULL;
+    if (style_obj && style_obj != Py_None && update_style(style_obj, style, "style") < 0)
+        return NULL;
 
     StyleMap label_style = {0};
-    if (label_style_obj && update_style(label_style_obj, label_style, "fontstyle") < 0) {
+    if (label_style_obj && label_style_obj != Py_None &&
+        update_style(label_style_obj, label_style, "fontstyle") < 0) {
         style.clear();
         return NULL;
     }
 
     const char* filename = PyBytes_AS_STRING(pybytes);
-    self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                          pad_as_percentage);
+
+    if (sort_obj && sort_obj != Py_None) {
+        if (!PyCallable_Check(sort_obj)) {
+            PyErr_SetString(PyExc_TypeError, "Argument sort_function must be callable.");
+            Py_DECREF(pybytes);
+            style.clear();
+            label_style.clear();
+            return NULL;
+        }
+        polygon_comparison_obj = sort_obj;
+        self->cell->write_svg(filename, scaling, style, label_style, background, pad,
+                              pad_as_percentage, polygon_comparison);
+    } else {
+        self->cell->write_svg(filename, scaling, style, label_style, background, pad,
+                              pad_as_percentage, NULL);
+    }
+
     Py_DECREF(pybytes);
 
     style.clear();

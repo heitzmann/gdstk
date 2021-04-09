@@ -15,6 +15,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <time.h>
 
+#include <algorithm>
+
 #include "array.h"
 #include "flexpath.h"
 #include "label.h"
@@ -25,6 +27,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "style.h"
 
 namespace gdstk {
+
+// Must return true if the first argument is ordered before (is less than) the
+// second argument.
+typedef bool (*PolygonComparisonFunction)(const Polygon*, const Polygon*);
 
 // This structure is used for caching bounding box and convex hull results from
 // cells.  This is a snapshot of the cells at a specific point in time.  It
@@ -129,7 +135,8 @@ struct Cell {
     // Library.write_gds and Cell.write_svg instead.
     void to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
                 const tm* timestamp) const;
-    void to_svg(FILE* out, double scaling, const char* attributes) const;
+    void to_svg(FILE* out, double scaling, const char* attributes,
+                PolygonComparisonFunction comp) const;
 
     // Output this cell to filename in SVG format.  The geometry is drawn in
     // the default units (px), but can be scaled freely.  Arguments style and
@@ -138,9 +145,11 @@ struct Cell {
     // color for the image background.  Argument pad defines the margin (in px)
     // added around the cell bounding box, unless pad_as_percentage == true, in
     // which case it is interpreted as a percentage of the largest bounding box
-    // dimension.
+    // dimension.  Argument comp in to_svg can be used to sort the polygons in
+    // the SVG output, which affects their draw order.
     void write_svg(const char* filename, double scaling, StyleMap& style, StyleMap& label_style,
-                   const char* background, double pad, bool pad_as_percentage) const;
+                   const char* background, double pad, bool pad_as_percentage,
+                   PolygonComparisonFunction comp) const;
 };
 
 }  // namespace gdstk

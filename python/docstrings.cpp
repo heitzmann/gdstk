@@ -2234,7 +2234,7 @@ Returns:
 
 PyDoc_STRVAR(
     cell_object_write_svg_doc,
-    R"!(write_svg(outfile, scaling=10, style=None, fontstyle=None, background=\"#222222\", pad=\"5%\") -> self
+    R"!(write_svg(outfile, scaling=10, style=None, fontstyle=None, background=\"#222222\", pad=\"5%\", sort_function=None) -> self
 
 Export this cell to an SVG image file. Colors and attributes must follow
 SVG specification.
@@ -2249,6 +2249,9 @@ Args:
     pad (number, str): Viewport margin around the image content. It can
       be specified as an absolute dimension or a percentage of the
       largest image dimension.
+    sort_function (callable): If set, the polygons on each cell will be
+      sorted according to this fuction.  It must accept 2 polygons and
+      return ``True`` if the first one is below the second.
 
 Notes:
     Labels in referenced cells will be affected by the the reference
@@ -2273,6 +2276,7 @@ Examples:
     ...                         "stroke": "red",
     ...                         "font-size": "32px"}},
     ...     pad="5%",
+    ...     sort_function=lambda p1, p2: p1.layer < p2.layer,
     ... )
 
     .. image:: ../cell/write_svg.*
