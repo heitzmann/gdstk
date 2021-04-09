@@ -464,9 +464,11 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
             label_style.clear();
             return NULL;
         }
-        polygon_comparison_obj = sort_obj;
+        polygon_comparison_pyfunc = sort_obj;
+        polygon_comparison_pylist = PyList_New(0);
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
                               pad_as_percentage, polygon_comparison);
+        Py_DECREF(polygon_comparison_pylist);
     } else {
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
                               pad_as_percentage, NULL);

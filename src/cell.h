@@ -30,7 +30,7 @@ namespace gdstk {
 
 // Must return true if the first argument is ordered before (is less than) the
 // second argument.
-typedef bool (*PolygonComparisonFunction)(const Polygon*, const Polygon*);
+typedef bool (*PolygonComparisonFunction)(Polygon*, Polygon*);
 
 // This structure is used for caching bounding box and convex hull results from
 // cells.  This is a snapshot of the cells at a specific point in time.  It

@@ -534,26 +534,38 @@ static PyTypeObject gdswriter_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gds
 
 #include "parsing.cpp"
 
-PyObject* polygon_comparison_obj;
-bool polygon_comparison(const Polygon* p1, const Polygon* p2) {
-    Polygon* p1_copy = (Polygon*)allocate_clear(sizeof(Polygon));
-    p1_copy->copy_from(*p1);
-    PolygonObject* p1_obj = PyObject_New(PolygonObject, &polygon_object_type);
-    p1_obj = (PolygonObject*)PyObject_Init((PyObject*)p1_obj, &polygon_object_type);
-    p1_obj->polygon = p1_copy;
-    p1_copy->owner = p1_obj;
+PyObject* polygon_comparison_pyfunc;
+PyObject* polygon_comparison_pylist;
+bool polygon_comparison(Polygon* p1, Polygon* p2) {
+    PyObject* p1_obj;
+    PyObject* p2_obj;
 
-    Polygon* p2_copy = (Polygon*)allocate_clear(sizeof(Polygon));
-    p2_copy->copy_from(*p2);
-    PolygonObject* p2_obj = PyObject_New(PolygonObject, &polygon_object_type);
-    p2_obj = (PolygonObject*)PyObject_Init((PyObject*)p2_obj, &polygon_object_type);
-    p2_obj->polygon = p2_copy;
-    p2_copy->owner = p2_obj;
+    if (p1->owner == NULL) {
+        p1_obj = (PyObject*)PyObject_New(PolygonObject, &polygon_object_type);
+        p1_obj = PyObject_Init(p1_obj, &polygon_object_type);
+        ((PolygonObject*)p1_obj)->polygon = p1;
+        p1->owner = p1_obj;
+        PyList_Append(polygon_comparison_pylist, p1_obj);
+    } else {
+        p1_obj = (PyObject*)p1->owner;
+        Py_INCREF(p1_obj);
+    }
+
+    if (p2->owner == NULL) {
+        p2_obj = (PyObject*)PyObject_New(PolygonObject, &polygon_object_type);
+        p2_obj = PyObject_Init(p2_obj, &polygon_object_type);
+        ((PolygonObject*)p2_obj)->polygon = p2;
+        p2->owner = p2_obj;
+        PyList_Append(polygon_comparison_pylist, p2_obj);
+    } else {
+        p2_obj = (PyObject*)p2->owner;
+        Py_INCREF(p2_obj);
+    }
 
     PyObject* args = PyTuple_New(2);
-    PyTuple_SET_ITEM(args, 0, (PyObject*)p1_obj);
-    PyTuple_SET_ITEM(args, 1, (PyObject*)p2_obj);
-    PyObject* py_result = PyObject_CallObject(polygon_comparison_obj, args);
+    PyTuple_SET_ITEM(args, 0, p1_obj);
+    PyTuple_SET_ITEM(args, 1, p2_obj);
+    PyObject* py_result = PyObject_CallObject(polygon_comparison_pyfunc, args);
     Py_DECREF(args);
 
     bool result = PyObject_IsTrue(py_result) > 0;
