@@ -152,6 +152,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max, Map<GeometryInfo>& cache) con
         if (point->x > max.x) max.x = point->x;
         if (point->y > max.y) max.y = point->y;
     }
+    point_array.clear();
 }
 
 void Reference::convex_hull(Array<Vec2>& result) const {
