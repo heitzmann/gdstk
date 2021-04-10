@@ -8,6 +8,9 @@
 ### Changed
 - Bounding box calculations use convex hull for efficiency
 - Bounding box and convex hull calculations cache intermediate results for efficiency
+### Fixed
+- `Robustpath.parametric` docstring.
+- Accept `None` as a possible value for arguments in several `RobustPath` methods
 
 ## 0.3.2 - 2021-02-15
 ### Fixed
