@@ -75,12 +75,12 @@ static PyObject* polygon_object_translate(PolygonObject* self, PyObject* args) {
         PyErr_Clear();
         v.x = PyFloat_AsDouble(dx);
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to convert first argument to float.");
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert dx to vector or float.");
             return NULL;
         }
         v.y = PyFloat_AsDouble(dy);
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to convert second argument to float.");
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert dy to float and dx is not a vector.");
             return NULL;
         }
     }

@@ -1862,8 +1862,9 @@ Args:
       center of the path. The offsets are linearly tapered from their
       previous values.)!");
 
-PyDoc_STRVAR(robustpath_object_parametric_doc,
-             R"!(parametric(path_function, path_gradient=None, width=None, offset=None, relative=True) -> self
+PyDoc_STRVAR(
+    robustpath_object_parametric_doc,
+    R"!(parametric(path_function, path_gradient=None, width=None, offset=None, relative=True) -> self
 
 Append a parametric curve to this path.
 
