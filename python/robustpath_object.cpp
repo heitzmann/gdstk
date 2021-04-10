@@ -850,8 +850,8 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
 
 static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* args,
                                               PyObject* kwds) {
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double coord = 0;
     int relative = 0;
     const char* keywords[] = {"x", "width", "offset", "relative", NULL};
@@ -864,11 +864,11 @@ static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* 
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -880,8 +880,8 @@ static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* 
 
 static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* args,
                                             PyObject* kwds) {
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double coord = 0;
     int relative = 0;
     const char* keywords[] = {"y", "width", "offset", "relative", NULL};
@@ -894,11 +894,11 @@ static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* ar
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -910,8 +910,8 @@ static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* ar
 
 static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:segment", (char**)keywords, &xy, &py_width,
@@ -925,11 +925,11 @@ static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* arg
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -941,8 +941,8 @@ static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* arg
 
 static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:cubic", (char**)keywords, &xy, &py_width,
@@ -960,11 +960,11 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -978,8 +978,8 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
 static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject* args,
                                                 PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:cubic_smooth", (char**)keywords, &xy,
@@ -997,11 +997,11 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1015,8 +1015,8 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
 static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* args,
                                              PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:quadratic", (char**)keywords, &xy,
@@ -1034,11 +1034,11 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1052,8 +1052,8 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
 static PyObject* robustpath_object_quadratic_smooth(RobustPathObject* self, PyObject* args,
                                                     PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:quadratic_smooth", (char**)keywords, &xy,
@@ -1067,11 +1067,11 @@ static PyObject* robustpath_object_quadratic_smooth(RobustPathObject* self, PyOb
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1083,8 +1083,8 @@ static PyObject* robustpath_object_quadratic_smooth(RobustPathObject* self, PyOb
 
 static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:bezier", (char**)keywords, &xy, &py_width,
@@ -1102,11 +1102,11 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1120,11 +1120,11 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
 static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject* args,
                                                 PyObject* kwds) {
     PyObject* py_points = NULL;
-    PyObject* py_angles = NULL;
+    PyObject* py_angles = Py_None;
     PyObject* py_tension_in = NULL;
     PyObject* py_tension_out = NULL;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double initial_curl = 1;
     double final_curl = 1;
     int cycle = 0;
@@ -1153,7 +1153,7 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
     angles = (double*)(tension + (count + 1));
     angle_constraints = (bool*)(angles + (count + 1));
 
-    if (!py_angles || py_angles == Py_None) {
+    if (py_angles == Py_None) {
         memset(angle_constraints, 0, sizeof(bool) * (count + 1));
     } else {
         if ((uint64_t)PySequence_Length(py_angles) != count + 1) {
@@ -1282,11 +1282,11 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1303,8 +1303,8 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
 
 static PyObject* robustpath_object_arc(RobustPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_radius;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double radius_x;
     double radius_y;
     double initial_angle;
@@ -1358,11 +1358,11 @@ static PyObject* robustpath_object_arc(RobustPathObject* self, PyObject* args, P
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1373,8 +1373,8 @@ static PyObject* robustpath_object_arc(RobustPathObject* self, PyObject* args, P
 }
 
 static PyObject* robustpath_object_turn(RobustPathObject* self, PyObject* args, PyObject* kwds) {
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double radius;
     double angle;
     const char* keywords[] = {"radius", "angle", "width", "offset", NULL};
@@ -1387,11 +1387,11 @@ static PyObject* robustpath_object_turn(RobustPathObject* self, PyObject* args, 
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
@@ -1404,9 +1404,9 @@ static PyObject* robustpath_object_turn(RobustPathObject* self, PyObject* args, 
 static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* args,
                                               PyObject* kwds) {
     PyObject* py_function;
-    PyObject* py_gradient = NULL;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_gradient = Py_None;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 1;
     const char* keywords[] = {"path_function", "path_gradient", "width",
                               "offset",        "relative",      NULL};
@@ -1417,7 +1417,7 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
         PyErr_SetString(PyExc_TypeError, "Argument path_function must be callable.");
         return NULL;
     }
-    if (py_gradient != NULL && !PyCallable_Check(py_gradient)) {
+    if (py_gradient != Py_None && !PyCallable_Check(py_gradient)) {
         PyErr_SetString(PyExc_TypeError, "Argument path_gradient must be callable.");
         return NULL;
     }
@@ -1427,16 +1427,16 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
     Interpolation* w_buffer = o_buffer + robustpath->num_elements;
     Interpolation* offset = NULL;
     Interpolation* width = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = o_buffer;
         parse_robustpath_offset(*robustpath, py_offset, offset);
     }
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = w_buffer;
         parse_robustpath_width(*robustpath, py_width, width);
     }
     Py_INCREF(py_function);
-    if (py_gradient == NULL || py_gradient == Py_None) {
+    if (py_gradient == Py_None) {
         robustpath->parametric((ParametricVec2)eval_parametric_vec2, (void*)py_function, NULL, NULL,
                                width, offset, relative > 0);
     } else {

@@ -36,7 +36,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
     PyObject* py_joins = NULL;
     PyObject* py_ends = NULL;
     PyObject* py_bend_radius = NULL;
-    PyObject* py_bend_function = NULL;
+    PyObject* py_bend_function = Py_None;
     PyObject* py_layer = NULL;
     PyObject* py_datatype = NULL;
     double tolerance = 1e-2;
@@ -536,7 +536,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         }
     }
 
-    if (py_bend_function && py_bend_function != Py_None) {
+    if (py_bend_function != Py_None) {
         if (PyList_Check(py_bend_function)) {
             if ((uint64_t)PyList_GET_SIZE(py_bend_function) != num_elements) {
                 flexpath_cleanup(self);
@@ -825,8 +825,8 @@ static int parse_flexpath_offset(const FlexPath flexpath, PyObject* py_offset, d
 
 static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_coord;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"x", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:horizontal", (char**)keywords, &py_coord,
@@ -835,7 +835,7 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
     FlexPath* flexpath = self->flexpath;
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free_allocation(buffer);
@@ -843,7 +843,7 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free_allocation(buffer);
@@ -874,8 +874,8 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
 
 static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_coord;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"y", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:vertical", (char**)keywords, &py_coord,
@@ -884,7 +884,7 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
     FlexPath* flexpath = self->flexpath;
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free_allocation(buffer);
@@ -892,7 +892,7 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free_allocation(buffer);
@@ -923,8 +923,8 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
 
 static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:segment", (char**)keywords, &xy, &py_width,
@@ -944,7 +944,7 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
@@ -953,7 +953,7 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
@@ -970,8 +970,8 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
 
 static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:cubic", (char**)keywords, &xy, &py_width,
@@ -987,7 +987,7 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
@@ -996,7 +996,7 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
@@ -1014,8 +1014,8 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
 static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* args,
                                               PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:cubic_smooth", (char**)keywords, &xy,
@@ -1031,7 +1031,7 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
@@ -1040,7 +1040,7 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
@@ -1057,8 +1057,8 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
 
 static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:quadratic", (char**)keywords, &xy,
@@ -1075,7 +1075,7 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
@@ -1084,7 +1084,7 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
@@ -1102,8 +1102,8 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
 static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject* args,
                                                   PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:quadratic_smooth", (char**)keywords, &xy,
@@ -1123,7 +1123,7 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
@@ -1132,7 +1132,7 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
@@ -1149,8 +1149,8 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
 
 static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* xy;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 0;
     const char* keywords[] = {"xy", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:bezier", (char**)keywords, &xy, &py_width,
@@ -1170,7 +1170,7 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             point_array.clear();
@@ -1179,7 +1179,7 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             point_array.clear();
@@ -1197,11 +1197,11 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
 static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* args,
                                               PyObject* kwds) {
     PyObject* py_points = NULL;
-    PyObject* py_angles = NULL;
+    PyObject* py_angles = Py_None;
     PyObject* py_tension_in = NULL;
     PyObject* py_tension_out = NULL;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double initial_curl = 1;
     double final_curl = 1;
     int cycle = 0;
@@ -1230,7 +1230,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
     angles = (double*)(tension + (count + 1));
     angle_constraints = (bool*)(angles + (count + 1));
 
-    if (!py_angles || py_angles == Py_None) {
+    if (py_angles == Py_None) {
         memset(angle_constraints, 0, sizeof(bool) * (count + 1));
     } else {
         if ((uint64_t)PySequence_Length(py_angles) != count + 1) {
@@ -1356,7 +1356,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
 
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free_allocation(tension);
@@ -1366,7 +1366,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free_allocation(tension);
@@ -1388,8 +1388,8 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
 
 static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_radius;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double radius_x;
     double radius_y;
     double initial_angle;
@@ -1440,7 +1440,7 @@ static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObj
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free_allocation(buffer);
@@ -1448,7 +1448,7 @@ static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObj
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free_allocation(buffer);
@@ -1462,8 +1462,8 @@ static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObj
 }
 
 static PyObject* flexpath_object_turn(FlexPathObject* self, PyObject* args, PyObject* kwds) {
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     double radius;
     double angle;
     const char* keywords[] = {"radius", "angle", "width", "offset", NULL};
@@ -1473,7 +1473,7 @@ static PyObject* flexpath_object_turn(FlexPathObject* self, PyObject* args, PyOb
     FlexPath* flexpath = self->flexpath;
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free_allocation(buffer);
@@ -1481,7 +1481,7 @@ static PyObject* flexpath_object_turn(FlexPathObject* self, PyObject* args, PyOb
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free_allocation(buffer);
@@ -1496,8 +1496,8 @@ static PyObject* flexpath_object_turn(FlexPathObject* self, PyObject* args, PyOb
 
 static PyObject* flexpath_object_parametric(FlexPathObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_function;
-    PyObject* py_width = NULL;
-    PyObject* py_offset = NULL;
+    PyObject* py_width = Py_None;
+    PyObject* py_offset = Py_None;
     int relative = 1;
     const char* keywords[] = {"path_function", "width", "offset", "relative", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOp:parametric", (char**)keywords, &py_function,
@@ -1510,7 +1510,7 @@ static PyObject* flexpath_object_parametric(FlexPathObject* self, PyObject* args
     }
     double* buffer = (double*)allocate(sizeof(double) * flexpath->num_elements * 2);
     double* width = NULL;
-    if (py_width != NULL && py_width != Py_None) {
+    if (py_width != Py_None) {
         width = buffer;
         if (parse_flexpath_width(*flexpath, py_width, width) < 0) {
             free_allocation(buffer);
@@ -1518,7 +1518,7 @@ static PyObject* flexpath_object_parametric(FlexPathObject* self, PyObject* args
         }
     }
     double* offset = NULL;
-    if (py_offset != NULL && py_offset != Py_None) {
+    if (py_offset != Py_None) {
         offset = buffer + flexpath->num_elements;
         if (parse_flexpath_offset(*flexpath, py_offset, offset) < 0) {
             free_allocation(buffer);

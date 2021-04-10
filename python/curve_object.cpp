@@ -218,7 +218,7 @@ static PyObject* curve_object_bezier(CurveObject* self, PyObject* args, PyObject
 
 static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_points = NULL;
-    PyObject* py_angles = NULL;
+    PyObject* py_angles = Py_None;
     PyObject* py_tension_in = NULL;
     PyObject* py_tension_out = NULL;
     double initial_curl = 1;
@@ -246,7 +246,7 @@ static PyObject* curve_object_interpolation(CurveObject* self, PyObject* args, P
     angles = (double*)(tension + (count + 1));
     angle_constraints = (bool*)(angles + (count + 1));
 
-    if (!py_angles || py_angles == Py_None) {
+    if (py_angles == Py_None) {
         memset(angle_constraints, 0, sizeof(bool) * (count + 1));
     } else {
         if ((uint64_t)PySequence_Length(py_angles) != count + 1) {

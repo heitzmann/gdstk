@@ -398,10 +398,10 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
 static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObject* kwds) {
     double scaling = 10;
     PyObject* pybytes = NULL;
-    PyObject* style_obj = NULL;
-    PyObject* label_style_obj = NULL;
+    PyObject* style_obj = Py_None;
+    PyObject* label_style_obj = Py_None;
     PyObject* pad_obj = NULL;
-    PyObject* sort_obj = NULL;
+    PyObject* sort_obj = Py_None;
     const char* background = "#222222";
     const char* keywords[] = {"outfile",    "scaling", "style",         "fontstyle",
                               "background", "pad",     "sort_function", NULL};
@@ -444,19 +444,20 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     }
 
     StyleMap style = {0};
-    if (style_obj && style_obj != Py_None && update_style(style_obj, style, "style") < 0)
-        return NULL;
+    if (style_obj != Py_None && update_style(style_obj, style, "style") < 0) return NULL;
 
     StyleMap label_style = {0};
-    if (label_style_obj && label_style_obj != Py_None &&
-        update_style(label_style_obj, label_style, "fontstyle") < 0) {
+    if (label_style_obj != Py_None && update_style(label_style_obj, label_style, "fontstyle") < 0) {
         style.clear();
         return NULL;
     }
 
     const char* filename = PyBytes_AS_STRING(pybytes);
 
-    if (sort_obj && sort_obj != Py_None) {
+    if (sort_obj == Py_None) {
+        self->cell->write_svg(filename, scaling, style, label_style, background, pad,
+                              pad_as_percentage, NULL);
+    } else {
         if (!PyCallable_Check(sort_obj)) {
             PyErr_SetString(PyExc_TypeError, "Argument sort_function must be callable.");
             Py_DECREF(pybytes);
@@ -469,9 +470,6 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
                               pad_as_percentage, polygon_comparison);
         Py_DECREF(polygon_comparison_pylist);
-    } else {
-        self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                              pad_as_percentage, NULL);
     }
 
     Py_DECREF(pybytes);

@@ -743,7 +743,7 @@ static PyObject* regular_polygon_function(PyObject* mod, PyObject* args, PyObjec
 static PyObject* ellipse_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* py_center;
     PyObject* py_radius;
-    PyObject* py_inner_radius = NULL;
+    PyObject* py_inner_radius = Py_None;
     Vec2 center;
     Vec2 radius;
     Vec2 inner_radius = {-1, -1};

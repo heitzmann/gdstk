@@ -36,7 +36,7 @@ static void reference_object_dealloc(ReferenceObject* self) {
 static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject* kwds) {
     PyObject* cell_obj = NULL;
     PyObject* origin_obj = NULL;
-    PyObject* spacing_obj = NULL;
+    PyObject* spacing_obj = Py_None;
     double rotation = 0;
     double magnification = 1;
     int x_reflection = 0;
@@ -81,7 +81,7 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
         return -1;
     }
 
-    if (spacing_obj != NULL && spacing_obj != Py_None && columns > 0 && rows > 0) {
+    if (spacing_obj != Py_None && columns > 0 && rows > 0) {
         Repetition* repetition = &reference->repetition;
         Vec2 spacing;
         if (parse_point(spacing_obj, spacing, "spacing") < 0) return -1;
