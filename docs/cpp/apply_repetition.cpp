@@ -48,7 +48,8 @@ int main(int argc, char* argv[]) {
 
     Array<Polygon*> vlines = {0};
     vline.to_polygons(vlines);
-    // Because we know there is only a single resulting polygon we dont need to loop here
+    // Because we know there is only a single resulting polygon we dont need to
+    // loop here.
     vlines[0]->apply_repetition(vlines);
 
     Array<Polygon*> hlines = {0};

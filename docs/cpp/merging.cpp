@@ -87,7 +87,8 @@ int main(int argc, char* argv[]) {
     Library lib1 = read_gds("lib1.gds", 0, 1e-2);
     Library lib2 = read_gds("lib2.gds", 0, 1e-2);
 
-    // We could use a hash table to make this more efficient, but we're aiming for simplicity
+    // We could use a hash table to make this more efficient, but we're aiming
+    // for simplicity.
     for (uint64_t i = 0; i < lib2.cell_array.count; i++) {
         Cell* cell = lib2.cell_array[i];
         for (uint64_t j = 0; j < lib1.cell_array.count; j++) {
@@ -95,14 +96,15 @@ int main(int argc, char* argv[]) {
                 uint64_t len = strlen(cell->name);
                 cell->name = (char*)reallocate(cell->name, len + 5);
                 strcpy(cell->name + len, "-lib2");
-                // We should make sure the new name is also unique, but we are skiping that
+                // We should make sure the new name is also unique, but we are
+                // skiping that.
                 break;
             }
         }
         lib1.cell_array.append(cell);
     }
 
-    lib1.write_gds("mergin.gds", 0, NULL);
+    lib1.write_gds("merging.gds", 0, NULL);
 
     return 0;
 }

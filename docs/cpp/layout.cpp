@@ -11,9 +11,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 using namespace gdstk;
 
-// We redefine the grating function from pcell.cpp here instead of including the file because it
-// contains a main function already.  In practice, the library source would only contain the
-// relevant functions, but no main.
+// We redefine the grating function from pcell.cpp here instead of including
+// the file because it contains a main function already.  In practice, the
+// library source would only contain the relevant functions, but no main.
 Cell grating(double period, double fill_frac, double length, double width, int16_t layer,
              int16_t datatype, char* name) {
     double x = width / 2;
@@ -60,10 +60,11 @@ int main(int argc, char* argv[]) {
     char grating_cell_name[] = "Grating";
     Cell grating_cell = grating(0.62, 0.5, 20, 25, 2, 0, grating_cell_name);
 
-    // We set type of these references to Regular so that we can apply the rotation to the
-    // translation vectors v1 and v2 of the repetition. This way, the GDSII writer will create and
-    // AREF element instead of multiple SREFs. If x_reflection was set to true, that would also have
-    // to be applied to v2 for an AREF to be created.
+    // We set type of these references to Regular so that we can apply the
+    // rotation to the translation vectors v1 and v2 of the repetition. This
+    // way, the GDSII writer will create and AREF element instead of multiple
+    // SREFs. If x_reflection was set to true, that would also have to be
+    // applied to v2 for an AREF to be created.
     Reference grating_ref1 = {
         .type = ReferenceType::Cell,
         .cell = &grating_cell,

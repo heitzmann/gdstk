@@ -14,8 +14,9 @@ using namespace gdstk;
 void example_polygons(Cell& out_cell) {
     Vec2 points[] = {{0, 0}, {2, 2}, {2, 6}, {-6, 6}, {-6, -6}, {-4, -4}, {-4, 4}, {0, 4}};
 
-    // This has to be heap-allocated so that it doesn't go out of scope once the function returns.
-    // We also don't worry about leaking it at the end of the program.  The OS will take care of it.
+    // This has to be heap-allocated so that it doesn't go out of scope once
+    // the function returns.  We also don't worry about leaking it at the end
+    // of the program.  The OS will take care of it.
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
     poly->point_array.extend({.count = COUNT(points), .items = points});
     out_cell.polygon_array.append(poly);
@@ -46,7 +47,8 @@ void example_circles(Cell& out_cell) {
 void example_curves1(Cell& out_cell) {
     Vec2 points[] = {{1, 0}, {2, 1}, {2, 2}, {0, 2}};
 
-    // Curve points will be copied to the polygons, so allocating the curve on the stack is fine.
+    // Curve points will be copied to the polygons, so allocating the curve on
+    // the stack is fine.
     Curve c1 = {.tolerance = 0.01};
     c1.append(Vec2{0, 0});
     c1.segment({.count = COUNT(points), .items = points}, false);
@@ -101,8 +103,8 @@ void example_curves3(Cell& out_cell) {
     c4.interpolation({.count = COUNT(points4), .items = points4}, angles, angle_constraints,
                      tension, 1, 1, false, false);
 
-    // The last point will coincide with the first (this can be checked at runtime with
-    // the `closed` method), so we remove it.
+    // The last point will coincide with the first (this can be checked at
+    // runtime with the `closed` method), so we remove it.
     if (c4.closed()) {
         c4.remove(c4.point_array.count - 1);
     }
