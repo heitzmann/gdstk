@@ -81,33 +81,33 @@ If maximal performance is important, the library should be used directly from C+
 Timing results were obtained with Python 3.9 on an Intel Core i7-3930K with 6 cores and 16 GB of RAM at 3.2 GHz.
 They represent the best average time to run each function out of 16 sets of 8 runs each.
 
-| Benchmark        |   Gdspy 1.6.3    |   Gdstk 0.3.1    |   Gain   |
+| Benchmark        |   Gdspy 1.6.3    |   Gdstk 0.4.0    |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
-| 10k_rectangles   |      264 ms      |     7.53 ms      |   35.1   |
-| 1k_circles       |      641 ms      |      376 ms      |   1.71   |
-| boolean-offset   |      444 μs      |     78.1 μs      |   5.69   |
-| bounding_box     |      752 μs      |     14.8 μs      |   50.8   |
-| curves           |     3.49 ms      |     65.1 μs      |   53.6   |
-| flatten          |     1.19 ms      |     15.8 μs      |   75.2   |
-| flexpath         |     6.44 ms      |     30.6 μs      |   211    |
-| flexpath-param   |     7.48 ms      |     1.45 ms      |   5.14   |
-| fracture         |     1.81 ms      |     1.07 ms      |   1.69   |
-| inside           |     42.7 μs      |     13.9 μs      |   3.07   |
-| read_gds         |     7.71 ms      |      143 μs      |    54    |
-| read_rawcells    |      742 μs      |     70.9 μs      |   10.5   |
-| robustpath       |      456 μs      |     19.3 μs      |   23.7   |
+| 10k_rectangles   |      273 ms      |     7.92 ms      |   34.5   |
+| 1k_circles       |      695 ms      |      432 ms      |   1.61   |
+| boolean-offset   |      454 μs      |     78.7 μs      |   5.77   |
+| bounding_box     |      102 ms      |      248 μs      |   411    |
+| curves           |     3.63 ms      |     64.6 μs      |   56.2   |
+| flatten          |     1.22 ms      |     16.6 μs      |   73.6   |
+| flexpath         |     6.78 ms      |     32.6 μs      |   208    |
+| flexpath-param   |     7.81 ms      |     1.42 ms      |   5.51   |
+| fracture         |     1.82 ms      |     1.06 ms      |   1.72   |
+| inside           |     42.7 μs      |     13.8 μs      |   3.1    |
+| read_gds         |     7.84 ms      |      143 μs      |   54.9   |
+| read_rawcells    |      731 μs      |     70.4 μs      |   10.4   |
+| robustpath       |      471 μs      |     19.4 μs      |   24.3   |
 
 Memory usage per object for 100.000 objects using Python 3.9:
 
-| Object               |   Gdspy 1.6.3    |   Gdstk 0.3.1    | Reduction |
+| Object               |   Gdspy 1.6.3    |   Gdstk 0.4.0    | Reduction |
 | :------------------- | :--------------: | :--------------: | :-------: |
-| Rectangle            |      594 B       |      233 B       |    61%    |
-| Circle (r = 10)      |     1.67 kB      |     1.27 kB      |    24%    |
-| FlexPath segment     |     1.42 kB      |      441 B       |    70%    |
-| FlexPath arc         |     2.23 kB      |     1.49 kB      |    33%    |
-| RobustPath segment   |     2.78 kB      |      922 B       |    68%    |
-| RobustPath arc       |     2.58 kB      |      919 B       |    65%    |
-| Label                |      398 B       |      218 B       |    45%    |
-| Reference            |      159 B       |      180 B       |    -13%   |
-| Reference (array)    |      191 B       |      182 B       |     5%    |
-| Cell                 |      435 B       |      211 B       |    52%    |
+| Rectangle            |      611 B       |      232 B       |    62%    |
+| Circle (r = 10)      |     1.69 kB      |     1.28 kB      |    24%    |
+| FlexPath segment     |      1.5 kB      |      439 B       |    71%    |
+| FlexPath arc         |     2.28 kB      |     1.49 kB      |    35%    |
+| RobustPath segment   |     2.86 kB      |      922 B       |    69%    |
+| RobustPath arc       |     2.62 kB      |      922 B       |    66%    |
+| Label                |      412 B       |      216 B       |    48%    |
+| Reference            |      157 B       |      183 B       |    -16%   |
+| Reference (array)    |      191 B       |      179 B       |     6%    |
+| Cell                 |      437 B       |      228 B       |    48%    |

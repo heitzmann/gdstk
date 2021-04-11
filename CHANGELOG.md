@@ -1,10 +1,11 @@
 # Change Log
-## Unreleased
+## 0.4.0 - 2021-04-11
 ### Added
 - `Cell.filter` to remove elements by layer and data/text type
 - `Cell.convex_hull` and `Reference.convex_hull`
 - `FlexPath.path_spines()` and `RobustPath.path_spines()`
 - `Library.unit` and `Library.precision`
+- Shapes can be sorted in `Cell.write_svg` (sorting works within each cell, references remain on top)
 ### Changed
 - Bounding box calculations use convex hull for efficiency
 - Bounding box and convex hull calculations cache intermediate results for efficiency

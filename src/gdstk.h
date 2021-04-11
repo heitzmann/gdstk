@@ -11,7 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS
 #define _USE_MATH_DEFINES
 
-#define GDSTK_VERSION "0.3.2"
+#define GDSTK_VERSION "0.4.0"
 
 // After installation, this should be the only header required to be included
 // by the user.  All other headers are included below.
