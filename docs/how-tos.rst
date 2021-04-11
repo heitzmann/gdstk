@@ -21,18 +21,24 @@ programming language, the full flexibility of the language can be used.
 In this example we define a function that returns a grating coupler based on
 user-defined parameters.
 
-.. literalinclude:: pcell.py
-   :language: python
-   :pyobject: grating
+.. tab:: Python
 
-:download:`C++ version <cpp/pcell.cpp>`
+   .. literalinclude:: pcell.py
+      :language: python
+      :pyobject: grating
 
-This function can be used in the following manner:
+   This function can be used in the following manner:
 
-.. literalinclude:: pcell.py
-   :language: python
-   :start-at: if __name__
-   :end-at: write_gds
+   .. literalinclude:: pcell.py
+      :language: python
+      :start-at: if __name__
+      :end-at: write_gds
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/pcell.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/parametric_cell.*
    :align: center
@@ -53,12 +59,18 @@ a directional coupler and a Mach-Zehnder interferometer.  All parts are added
 to a GDSII file and saved for later.  Note that the interferometer already uses
 the directional coupler as a subcomponent.
 
-.. literalinclude:: photonics.py
-   :language: python
-   :start-at: import
-   :end-at: write_gds
+.. tab:: Python
 
-:download:`C++ version <cpp/photonics.cpp>`
+   .. literalinclude:: photonics.py
+      :language: python
+      :start-at: import
+      :end-at: write_gds
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/photonics.cpp
+      :language: c++
+      :start-at: #include
 
 
 .. _using-a-library:
@@ -79,12 +91,18 @@ grating example in :ref:`parametric-cell` can be saved in a file “photonics.py
 and imported as a Python module, as long as it can be found in the Python path
 (leaving it in the current working directory is sufficient).
 
-.. literalinclude:: layout.py
-   :language: python
-   :start-after: from tutorial_images
-   :end-at: write_gds
+.. tab:: Python
 
-:download:`C++ version <cpp/layout.cpp>`
+   .. literalinclude:: layout.py
+      :language: python
+      :start-after: from tutorial_images
+      :end-at: write_gds
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/layout.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/layout.*
    :align: center
@@ -99,11 +117,17 @@ level cells with references from both originals.  In this example, we only
 merge two GDSII files into a new one—which will end up with 2 top level
 cells—and take care of renaming all cells so that they don't collide.
 
-.. literalinclude:: merging.py
-   :language: python
-   :start-at: import pathlib
+.. tab:: Python
 
-:download:`C++ version <cpp/merging.cpp>`
+   .. literalinclude:: merging.py
+      :language: python
+      :start-at: import pathlib
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/merging.cpp
+      :language: c++
+      :start-at: #include
 
 
 ***************
@@ -123,12 +147,18 @@ labels, so it is generally preferable.  The latter is particularly useful when
 changes to the transformed cell contents are needed and the original should not
 be modified.
 
-.. literalinclude:: transforms.py
-   :language: python
-   :start-after: from tutorial_images import draw
-   :end-before: main.name
+.. tab:: Python
 
-:download:`C++ version <cpp/transforms.cpp>`
+   .. literalinclude:: transforms.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-before: main.name
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/transforms.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/transforms.*
    :align: center
@@ -153,12 +183,18 @@ repetition.  The following example demonstrates the use of different forms of
 repetition to avoid creating all objects in memory (the final GDSII file will
 contain all copies).
 
-.. literalinclude:: repetitions.py
-   :language: python
-   :start-after: from tutorial_images import draw
-   :end-before: main.name
+.. tab:: Python
 
-:download:`C++ version <cpp/repetitions.cpp>`
+   .. literalinclude:: repetitions.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-before: main.name
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/repetitions.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/repetitions.*
    :align: center
@@ -168,12 +204,18 @@ automatically applied.  If desired the repetition can be manually applied
 before executing the desired operation.  The following example demonstrates
 this use:
 
-.. literalinclude:: apply_repetition.py
-   :language: python
-   :start-after: from tutorial_images import draw
-   :end-before: main.name
+.. tab:: Python
 
-:download:`C++ version <cpp/apply_repetition.cpp>`
+   .. literalinclude:: apply_repetition.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-before: main.name
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/apply_repetition.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/apply_repetition.*
    :align: center
@@ -189,12 +231,18 @@ polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).  The
 method :meth:`gdstk.Cell.filter` is quite versatile in what layers and
 data/text types should be kept or removed from the cell.
 
-.. literalinclude:: filtering.py
-   :language: python
-   :start-after: from tutorial_images import draw
-   :end-at: write_gds
+.. tab:: Python
 
-:download:`C++ version <cpp/filtering.cpp>`
+   .. literalinclude:: filtering.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-at: write_gds
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/filtering.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/filtering.*
    :align: center
@@ -203,12 +251,18 @@ Another common use of filtering is to remove geometry in a particular region.
 In this example we create a periodic background and remove all elements that
 overlap a particular shape using :func:`gdstk.inside` to test.
 
-.. literalinclude:: pos_filtering.py
-   :language: python
-   :start-after: from tutorial_images import draw
-   :end-at: write_gds
+.. tab:: Python
 
-:download:`C++ version <cpp/pos_filtering.cpp>`
+   .. literalinclude:: pos_filtering.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-at: write_gds
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/pos_filtering.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/pos_filtering.*
    :align: center
@@ -222,12 +276,18 @@ The following example shows how to add markers along a
 to locate the markers, following the construction sections.  Markers positioned
 at a fixed distance must be calculated for each section independently.
 
-.. literalinclude:: path_markers.py
-   :language: python
-   :start-after: from tutorial_images import draw
-   :end-before: main.name
+.. tab:: Python
 
-:download:`C++ version <cpp/path_markers.cpp>`
+   .. literalinclude:: path_markers.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-before: main.name
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/path_markers.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: how-tos/path_markers.*
    :align: center

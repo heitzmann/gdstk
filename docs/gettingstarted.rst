@@ -41,28 +41,35 @@ First Layout
 
 Let's create our first layout file:
 
-.. code-block:: python
+.. tab:: Python
 
-   import gdstk
+   .. code-block:: python
 
-   # The GDSII file is called a library, which contains multiple cells.
-   lib = gdstk.Library()
+      import gdstk
 
-   # Geometry must be placed in cells.
-   cell = lib.new_cell("FIRST")
+      # The GDSII file is called a library, which contains multiple cells.
+      lib = gdstk.Library()
 
-   # Create the geometry (a single rectangle) and add it to the cell.
-   rect = gdstk.rectangle((0, 0), (2, 1))
-   cell.add(rect)
+      # Geometry must be placed in cells.
+      cell = lib.new_cell("FIRST")
 
-   # Save the library in a GDSII or OASIS file.
-   lib.write_gds("first.gds")
-   lib.write_oas("first.oas")
+      # Create the geometry (a single rectangle) and add it to the cell.
+      rect = gdstk.rectangle((0, 0), (2, 1))
+      cell.add(rect)
 
-   # Optionally, save an image of the cell as SVG.
-   cell.write_svg("first.svg")
+      # Save the library in a GDSII or OASIS file.
+      lib.write_gds("first.gds")
+      lib.write_oas("first.oas")
 
-:download:`C++ version <cpp/first.cpp>`
+      # Optionally, save an image of the cell as SVG.
+      cell.write_svg("first.svg")
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/first.cpp
+      :language: c++
+      :start-at: include
+
 
 After importing the ``gdstk`` module, we create a library ``lib`` to hold the
 design.
@@ -90,13 +97,19 @@ General polygons can be defined by an ordered list of vertices.  The
 orientation of the vertices (clockwise/counter-clockwise) is not important:
 they will be ordered internally.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Polygons
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Polygons
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 14-23
 
 .. image:: tutorial/polygons.*
    :align: center
@@ -108,13 +121,19 @@ Holes
 As mentioned in :ref:`getting-started`, holes have to be connected to the outer
 boundary of the polygon, as in the following example:
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Holes
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Holes
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 25-31
 
 .. image:: tutorial/holes.*
    :align: center
@@ -137,13 +156,19 @@ polygons are fractured when saving.  They also have support for circles.  When
 saving an OASIS file, polygonal circles will be detected within a predefined
 tolerance and automatically converted.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Circles
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Circles
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 33-45
 
 .. image:: tutorial/circles.*
    :align: center
@@ -158,13 +183,19 @@ be used to facilitate the creation of polygons by drawing their shapes
 step-by-step.  The syntax is inspired by the `SVG path specification
 <https://www.w3.org/TR/SVG/paths.html>`_.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Curves
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Curves
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 47-69
 
 .. image:: tutorial/curves.*
    :align: center
@@ -176,13 +207,19 @@ polar coordinates.
 Elliptical arcs have syntax similar to :func:`gdstk.ellipse`, but they allow
 for an extra rotation of the major axis of the ellipse.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Curves 1
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Curves 1
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 71-81
 
 .. image:: tutorial/curves_1.*
    :align: center
@@ -192,13 +229,19 @@ Bézier curves.  Additionally, a smooth interpolating curve can be calculated
 with the method :meth:`gdstk.Curve.interpolation`, which has a number of
 arguments to control the shape of the curve.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Curves 2
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Curves 2
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 83-115
 
 .. image:: tutorial/curves_2.*
    :align: center
@@ -211,13 +254,19 @@ All polygons can be transformed trough :meth:`gdstk.Polygon.translate`,
 :meth:`gdstk.Polygon.mirror`.  The transformations are applied in-place, i.e.,
 no new polygons are created.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Transformations
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Transformations
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 117-123
 
 .. image:: tutorial/transformations.*
    :align: center
@@ -239,13 +288,19 @@ separate layer and data type configurations.  Python dictionaries are used to
 simplify the assignment to each polygon.
 
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Layer and Datatype
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/polygons.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Layer and Datatype
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/polygons.cpp
+      :language: c++
+      :lines: 125-141
 
 .. image:: tutorial/layer_and_datatype.*
    :align: center
@@ -267,13 +322,19 @@ Besides creating single references, it is also possible to create full 2D
 arrays with a single entity, both using :class:`gdstk.Reference`.  Both uses
 are exemplified below.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: References
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/references.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: References
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/references.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: tutorial/references.*
    :align: center
@@ -322,13 +383,19 @@ with additional features to facilitate path creation:
 * spacing between parallel paths is arbitrary - the user specifies the offset
   of each path individually.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Flexible Paths
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/flexpaths.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Flexible Paths
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/flexpaths.cpp
+      :language: c++
+      :lines: 14-44
 
 .. image:: tutorial/flexible_paths.*
    :align: center
@@ -336,13 +403,19 @@ with additional features to facilitate path creation:
 The corner type "circular bend" (together with the `bend_radius` argument) can
 be used to automatically curve the path.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Flexible Paths 1
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/flexpaths.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Flexible Paths 1
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/flexpaths.cpp
+      :language: c++
+      :lines: 46-61
 
 .. image:: tutorial/flexible_paths_2.*
    :align: center
@@ -352,13 +425,19 @@ linearly tapered in the path section they are defined.  Note that, because
 width changes are not possible for GDSII/OASIS paths, they will be stored as
 polygonal objects.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Flexible Paths 2
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/flexpaths.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Flexible Paths 2
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/flexpaths.cpp
+      :language: c++
+      :lines: 63-80
 
 .. image:: tutorial/flexible_paths_3.*
    :align: center
@@ -381,13 +460,19 @@ are, as mentioned earlier, more robustness when generating the final geometry,
 and freedom to use custom functions to parameterize the widths or offsets of
 the paths.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Robust Paths
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/robustpaths.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Robust Paths
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/robustpaths.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: tutorial/robust_paths.*
    :align: center
@@ -412,13 +497,19 @@ text that can be used in the same way as any other polygons in Gdstk.  The font
 used to render the characters contains only horizontal and vertical edges,
 which is important for some laser writing systems.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Text
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/text.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Text
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/text.cpp
+      :language: c++
+      :start-at: #include
 
 .. image:: tutorial/text.*
    :align: center
@@ -443,13 +534,19 @@ computationally expensive, so it is usually advisable to avoid using boolean
 operations whenever possible.  If they are necessary, keeping the number of
 vertices is all polygons as low as possible also helps.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Boolean Operations
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/geometry_operations.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Boolean Operations
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/geometry_operations.cpp
+      :language: c++
+      :lines: 14-28
 
 .. image:: tutorial/boolean_operations.*
    :align: center
@@ -461,13 +558,19 @@ Slice Operation
 As the name indicates, a slice operation subdivides a set of polygons along
 horizontal or vertical cut lines.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Slice Operation
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/geometry_operations.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Slice Operation
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/geometry_operations.cpp
+      :language: c++
+      :lines: 30-57
 
 .. image:: tutorial/slice_operation.*
    :align: center
@@ -481,13 +584,19 @@ It can operate on individual polygons or sets of them, in which case it may be
 necessary to set ``use_union = True`` to remove the impact of inner edges.  The
 same is valid for polygons with holes.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Offset Operation
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/geometry_operations.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Offset Operation
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/geometry_operations.cpp
+      :language: c++
+      :lines: 59-71
 
 .. image:: tutorial/offset_operation.*
    :align: center
@@ -498,13 +607,19 @@ Fillet Operation
 
 The method :meth:`gdstk.Polygon.fillet` can be used to round polygon corners.
 
-.. literalinclude:: tutorial_images.py
-   :language: python
-   :dedent: 4
-   :start-after: Fillet Operation
-   :end-before: draw
+.. tab:: Python
 
-:download:`C++ version <cpp/geometry_operations.cpp>`
+   .. literalinclude:: tutorial_images.py
+      :language: python
+      :dedent: 4
+      :start-after: Fillet Operation
+      :end-before: draw
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/geometry_operations.cpp
+      :language: c++
+      :lines: 73-88
 
 .. image:: tutorial/fillet_operation.*
    :align: center
@@ -583,33 +698,34 @@ Loading a Layout File
 The functions :func:`gdstk.read_gds` and :func:`gdstk.read_oas` load an
 existing GDSII or OASIS file into a new instance of :class:`gdstk.Library`.
 
-.. code-block:: python
-   :caption: Python example
+.. tab:: Python
 
-   # Load a GDSII file into a new library.
-   lib1 = gdstk.read_gds("filename.gds")
-   # Verify the unit used in the library.
-   print(lib1.unit)
+   .. code-block:: python
 
-   # Load the same file, but convert all units to nm.
-   lib2 = gdstk.read_gds("filename.gds", 1e-9)
+      # Load a GDSII file into a new library.
+      lib1 = gdstk.read_gds("filename.gds")
+      # Verify the unit used in the library.
+      print(lib1.unit)
 
-   # Load an OASIS file into a third library.
-   # The library will use unit=1e-6, the default for OASIS.
-   lib3 = gdstk.read_oas("filename.oas")
+      # Load the same file, but convert all units to nm.
+      lib2 = gdstk.read_gds("filename.gds", 1e-9)
 
+      # Load an OASIS file into a third library.
+      # The library will use unit=1e-6, the default for OASIS.
+      lib3 = gdstk.read_oas("filename.oas")
 
-.. code-block:: c++
-   :caption: C++ example
+.. tab:: C++
 
-   // Use units from infile
-   Library lib1 = read_gds("filename.gds", 0);
+   .. code-block:: c++
 
-   // Convert to new unit
-   Library lib2 = read_gds("filename.gds", 1e-9);
+      // Use units from infile
+      Library lib1 = read_gds("filename.gds", 0);
 
-   // Use deafult OASIS unit (1e-6)
-   Library lib3 = read_oas("filename.oas");
+      // Convert to new unit
+      Library lib2 = read_gds("filename.gds", 1e-9);
+
+      // Use deafult OASIS unit (1e-6)
+      Library lib3 = read_oas("filename.oas");
 
 Access to the cells in the loaded library is provided through the list
 :attr:`gdstk.Library.cells`.  The method :meth:`gdstk.Library.top_level` can be
@@ -624,23 +740,24 @@ and re-created by Gdstk.  This can be time-consuming for large layouts.  If the
 reason for loading a file is simply to re-use it's cells without any
 modifications, the function :func:`gdstk.read_rawcells` is much more efficient.
 
-.. code-block:: python
-   :caption: Python example
+.. tab:: Python
 
-   # Load all cells from a GDSII file without creating the actual geometry
-   cells = gdstk.read_rawcells("filename.gds")
+   .. code-block:: python
 
-   # Use some loaded cell in the current design
-   my_ref = gdstk.Reference(cells["SOME_CELL"], (0, 0))
+      # Load all cells from a GDSII file without creating the actual geometry
+      cells = gdstk.read_rawcells("filename.gds")
 
+      # Use some loaded cell in the current design
+      my_ref = gdstk.Reference(cells["SOME_CELL"], (0, 0))
 
-.. code-block:: c++
-   :caption: C++ example
+.. tab:: C++
 
-   Map<RawCell*> cells = read_rawcells("filename.gds");
+   .. code-block:: c++
 
-   Reference my_ref = {.type = ReferenceType::RawCell, .magnification = 1};
-   my_ref.rawcell = cells.get("SOME_CELL");
+      Map<RawCell*> cells = read_rawcells("filename.gds");
+
+      Reference my_ref = {.type = ReferenceType::RawCell, .magnification = 1};
+      my_ref.rawcell = cells.get("SOME_CELL");
 
 .. Note::
    This method only works when using the GDSII format; OASIS does *not* support

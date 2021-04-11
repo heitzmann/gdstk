@@ -85,7 +85,7 @@ with open("README.md") as fin:
 
 setup_requires = ["numpy"]
 if "build_sphinx" in sys.argv:
-    setup_requires.extend(["sphinx", "sphinx_rtd_theme"])
+    setup_requires.extend(["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs"])
 
 extra_compile_args = []
 extra_link_args = []

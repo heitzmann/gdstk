@@ -22,6 +22,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
+    "sphinx_inline_tabs",
 ]
 
 autosummary_generate = True
