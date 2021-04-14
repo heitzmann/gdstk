@@ -1675,8 +1675,6 @@ static int gdstk_exec(PyObject* module) {
     return 0;
 }
 
-static void gdstk_free(void* _) { gdstk_finalize(); }
-
 static PyModuleDef_Slot gdstk_slots[] = {{Py_mod_exec, (void*)gdstk_exec}, {0, NULL}};
 
 static struct PyModuleDef gdstk_module = {PyModuleDef_HEAD_INIT,
@@ -1687,7 +1685,7 @@ static struct PyModuleDef gdstk_module = {PyModuleDef_HEAD_INIT,
                                           gdstk_slots,
                                           NULL,
                                           NULL,
-                                          gdstk_free};
+                                          NULL};
 
 PyMODINIT_FUNC PyInit_gdstk(void) {
     PyObject* module = PyModuleDef_Init(&gdstk_module);

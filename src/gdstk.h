@@ -13,6 +13,18 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define GDSTK_VERSION "0.4.0"
 
+// If GDSTK_CUSTOM_ALLOCATOR is defined, the user must supply implementations
+// for the following dynamic memory management functions:
+// void* allocate(uint64_t size);
+// void* reallocate(void* ptr, uint64_t size);
+// void* allocate_clear(uint64_t size);
+// void free_allocation(void* ptr);
+// They will be used throughout the library instead of malloc, realloc, calloc
+// and free.
+//
+// #define GDSTK_CUSTOM_ALLOCATOR
+
+
 // After installation, this should be the only header required to be included
 // by the user.  All other headers are included below.
 

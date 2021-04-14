@@ -10,9 +10,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define __STDC_FORMAT_MACROS
 
-// #define GDSTK_CUSTOM_ALLOCATOR
-// #define GDSTK_ALLOCATOR_INFO
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,10 +26,6 @@ void* allocate_clear(uint64_t size);
 
 void free_allocation(void* ptr);
 
-// This function can be used at the end of the program to free the internal
-// memory arenas
-void gdstk_finalize();
-
 #else  // GDSTK_CUSTOM_ALLOCATOR
 
 inline void* allocate(uint64_t size) { return malloc(size); };
@@ -42,8 +35,6 @@ inline void* reallocate(void* ptr, uint64_t size) { return realloc(ptr, size); }
 inline void* allocate_clear(uint64_t size) { return calloc(1, size); };
 
 inline void free_allocation(void* ptr) { free(ptr); };
-
-inline void gdstk_finalize(){};
 
 #endif  // GDSTK_CUSTOM_ALLOCATOR
 
