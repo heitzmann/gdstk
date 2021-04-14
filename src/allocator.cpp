@@ -25,8 +25,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "utils.h"
 
-// TODO: Thread safety
-
 #define PAGE_SIZE 0x1000  // This should be default for all targeted systems.
 
 namespace gdstk {
@@ -68,7 +66,6 @@ static SmallAllocationHeader free_small[] = {{NULL},   // 8-byte allocations
 
 #ifdef GDSTK_ALLOCATOR_INFO
 static uint64_t dbg_sys_alloc = 0;
-static uint64_t dbg_sys_free = 0;
 static uint64_t dbg_arena_alloc = 0;
 static uint64_t dbg_alloc[COUNT(free_small) + 1] = {0};
 static uint64_t dbg_realloc[COUNT(free_small) + 1] = {0};
@@ -76,52 +73,40 @@ static uint64_t dbg_reuse[COUNT(free_small) + 1] = {0};
 static uint64_t dbg_free[COUNT(free_small) + 1] = {0};
 
 static void print_status() {
-    uint64_t t = 0;
-    printf("System allocations/free: %lu/%lu\nArena allocations: %lu\nAllocations:", dbg_sys_alloc,
-           dbg_sys_free, dbg_arena_alloc);
-    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
-        t += dbg_alloc[i];
-        printf(" %lu", dbg_alloc[i]);
-    }
-    printf("  (%lu)\nReallocations:", t);
-    t = 0;
-    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
-        t += dbg_realloc[i];
-        printf(" %lu", dbg_realloc[i]);
-    }
-    printf("  (%lu)\nReuses:", t);
-    t = 0;
-    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
-        t += dbg_reuse[i];
-        printf(" %lu", dbg_reuse[i]);
-    }
-    printf("  (%lu)\nFrees:", t);
-    t = 0;
-    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
-        t += dbg_free[i];
-        printf(" %lu", dbg_free[i]);
-    }
-    printf("  (%lu)\n", t);
+    puts("Size\tAlloc\tRealloc\tReuses\tFrees\tReserved (B)");
 
-    printf("Waste:");
-    uint64_t all_waste = 0;
-    uint64_t waste;
-    for (uint64_t i = 0; i < COUNT(free_small); i++) {
-        waste = 0;
-        for (SmallAllocationHeader* h = free_small + i; h; h = h->next) waste++;
-        waste *= 1 << (i + 3);
-        all_waste += waste;
-        printf(" %lu", waste);
+    uint64_t total_alloc = 0;
+    uint64_t total_realloc = 0;
+    uint64_t total_reuse = 0;
+    uint64_t total_free = 0;
+    uint64_t total_reserved = 0;
+    uint64_t reserved[COUNT(free_small) + 1] = {0};
+
+    for (uint64_t i = 0; i <= COUNT(free_small); i++) {
+        total_alloc += dbg_alloc[i];
+        total_realloc += dbg_realloc[i];
+        total_reuse += dbg_reuse[i];
+        total_free += dbg_free[i];
+        if (i < COUNT(free_small)) {
+            for (SmallAllocationHeader* h = free_small[i].next; h; h = h->next) reserved[i]++;
+            reserved[i] *= 1 << (i + 3);
+            printf("%lu\t", (uint64_t)1 << (i + 3));
+        } else {
+            for (LargeAllocationHeader* h = free_large.next; h; h = h->next) reserved[i] += h->size;
+            printf("Larger\t");
+        }
+        total_reserved += reserved[i];
+
+        printf("%lu\t%lu\t%lu\t%lu\t%lu\n", dbg_alloc[i], dbg_realloc[i], dbg_reuse[i], dbg_free[i],
+               reserved[i]);
     }
+    printf("Total\t%lu\t%lu\t%lu\t%lu\t%lu\n", total_alloc, total_realloc, total_reuse, total_free,
+           total_reserved);
 
-    waste = 0;
-    for (LargeAllocationHeader* h = &free_large; h; h = h->next) waste += h->size;
-    all_waste += waste;
-    printf(" %lu  (%lu)\n", waste, all_waste);
-
-    waste = 0;
-    for (Arena* a = &arena; a; a = a->next) waste += a->available_size;
-    printf("Arena waste: %lu\n", waste);
+    uint64_t arena_reserved = 0;
+    for (Arena* a = &arena; a; a = a->next) arena_reserved += a->available_size;
+    printf("\nSystem allocations: %lu\nArena allocations: %lu\nArena free: %lu\n", dbg_sys_alloc,
+           dbg_arena_alloc, arena_reserved);
 }
 #endif
 
@@ -147,9 +132,6 @@ static uint8_t* system_allocate(uint64_t size) {
 }
 
 static void system_deallocate(void* ptr, uint64_t size) {
-#ifdef GDSTK_ALLOCATOR_INFO
-    dbg_sys_free++;
-#endif
 #ifdef _WIN32
     VirtualFree(ptr, 0, MEM_RELEASE);
 #else
@@ -157,6 +139,7 @@ static void system_deallocate(void* ptr, uint64_t size) {
 #endif
 }
 
+// Calculate smallest m = 2^p ≥ n
 static uint64_t pow2_ceil(uint64_t n) {
     if (n == 0) return 1;
     if (n & (n - 1)) {
@@ -171,7 +154,7 @@ static uint64_t pow2_ceil(uint64_t n) {
     return n;
 }
 
-// I'm not proud of this.
+// I’m not proud of this.
 static uint8_t log2_lookup(uint64_t pow2) {
     switch (pow2) {
         case 0x0000000000000001:
@@ -303,7 +286,7 @@ static uint8_t log2_lookup(uint64_t pow2) {
         case 0x8000000000000000:
             return 63;
     }
-    fprintf(stderr, "%s:%d: Unreachable\n", __FILE__, __LINE__);
+    fprintf(stderr, "%s:%d: Argument must be a power of 2.\n", __FILE__, __LINE__);
     return 0;
 }
 
