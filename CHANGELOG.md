@@ -1,4 +1,9 @@
 # Change Log
+
+## Unreleased
+### Fixed
+- Bend calculation for `FlexPath` correctly accounts for bending angle to make sure the bend fits
+
 ## 0.4.0 - 2021-04-11
 ### Added
 - `Cell.filter` to remove elements by layer and data/text type

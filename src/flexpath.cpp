@@ -308,7 +308,7 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
             segments_intersection(p1, t0, p2, t1, u0, u1);
             Vec2 p_next = 0.5 * (p1 + u0 * t0 + p2 + u1 * t1);
             Vec2 p = p0;
-            double len_sq_next = (p_next - p).length_sq();
+            double len_next = (p_next - p).length();
 
             // Right side: -n
             Vec2 r2 = p - n0 * half_widths[2 * 0];
@@ -360,40 +360,34 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
                 tl1.normalize();
 
                 // Check whether there is enough room for the bend
-                int8_t bend_dir = 0;
+                double bend_dir = 0;
+                double len_factor = 0;
                 double center_radius = 0;
                 if (bend_type != BendType::None) {
-                    const double len_sq_prev = len_sq_next;
-                    len_sq_next = (p_next - p).length_sq();
-                    if (t0.cross(t1) > 0) {
-                        center_radius = bend_radius - offsets[2 * i];
-                        const double min_len_sq = 4 * center_radius * center_radius;
-                        if (center_radius > half_widths[2 * i] &&
-                            (len_sq_prev >= min_len_sq ||
-                             (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
-                            (len_sq_next >= min_len_sq ||
-                             (i == spine_points.count - 2 && len_sq_next >= min_len_sq / 4)))
-                            bend_dir = 1;  // Left
+                    bend_dir = t0.cross(t1) < 0 ? -1 : 1;
+                    const Vec2 sum_t = t0 + t1;
+                    const double len_prev = len_next;
+                    len_next = (p_next - p).length();
+                    len_factor = (fabs(sum_t.x) > fabs(sum_t.y))
+                                     ? bend_dir * (n0.x - n1.x) / sum_t.x
+                                     : bend_dir * (n0.y - n1.y) / sum_t.y;
+                    center_radius = bend_radius - bend_dir * offsets[2 * i];
+                    const double len_required = len_factor * center_radius;
+                    if (len_required > len_prev || len_required > len_next ||
+                        center_radius <= half_widths[2 * i]) {
+                        // Not enough room for the bend
+                        bend_dir = 0;
                     } else {
-                        center_radius = bend_radius + offsets[2 * i];
-                        const double min_len_sq = 4 * center_radius * center_radius;
-                        if (center_radius > half_widths[2 * i] &&
-                            (len_sq_prev >= min_len_sq ||
-                             (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
-                            (len_sq_next >= min_len_sq ||
-                             (i == spine_points.count - 2 && len_sq_next >= min_len_sq / 4)))
-                            bend_dir = -1;  // Right
+                        len_next -= len_required;
                     }
                 }
 
                 if (bend_dir < 0) {
-                    const Vec2 sum_t = t0 + t1;
-                    const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n1.x - n0.x) / sum_t.x
-                                                                     : (n1.y - n0.y) / sum_t.y;
                     const double initial_angle = n0.angle();
                     double final_angle = n1.angle();
                     if (final_angle > initial_angle) final_angle -= 2 * M_PI;
-                    const Vec2 center = p - 0.5 * center_radius * (n0 + n1 + d * (t0 - t1));
+                    const Vec2 center =
+                        p - 0.5 * center_radius * (n0 + n1 + len_factor * (t0 - t1));
 
                     // Right: inner side of the bend
                     double radius = center_radius - half_widths[2 * i];
@@ -421,13 +415,10 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
                         point_array.clear();
                     }
                 } else if (bend_dir > 0) {
-                    const Vec2 sum_t = t0 + t1;
-                    const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n0.x - n1.x) / sum_t.x
-                                                                     : (n0.y - n1.y) / sum_t.y;
                     const double initial_angle = (-n0).angle();
                     double final_angle = (-n1).angle();
                     if (final_angle < initial_angle) final_angle += 2 * M_PI;
-                    Vec2 center = p + 0.5 * center_radius * (n0 + n1 + d * (t1 - t0));
+                    Vec2 center = p + 0.5 * center_radius * (n0 + n1 + len_factor * (t1 - t0));
 
                     // Right: outer side of the bend
                     double radius = center_radius + half_widths[2 * i];
@@ -642,6 +633,7 @@ void FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
     const Array<Vec2> spine_points = spine.point_array;
     const BendType bend_type = el->bend_type;
     const double bend_radius = el->bend_radius;
+    const double* path_half_widths = (double*)el->half_width_and_offset.items;
     const double* path_offsets = ((double*)el->half_width_and_offset.items) + 1;
     Vec2 spine_normal = (spine_points[1] - spine_points[0]).ortho();
     spine_normal.normalize();
@@ -666,7 +658,7 @@ void FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
         segments_intersection(p1, t0, p2, t1, u0, u1);
         Vec2 p_next = 0.5 * (p1 + u0 * t0 + p2 + u1 * t1);
         Vec2 p = p0;
-        double len_sq_next = (p_next - p).length_sq();
+        double len_next = (p_next - p).length();
 
         for (uint64_t i = 1; i < spine_points.count - 1; i++) {
             Vec2 t2, n2;
@@ -691,67 +683,57 @@ void FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
                 p_next = 0.5 * (p1 + u0 * t1 + p2 + u1 * t2);
             }
 
-            int8_t bend_dir = 0;
-            double radius = 0;
             if (bend_type != BendType::None) {
-                const double len_sq_prev = len_sq_next;
-                len_sq_next = (p_next - p).length_sq();
-                if (t0.cross(t1) > 0) {
-                    radius = bend_radius - path_offsets[2 * i];
-                    const double min_len_sq = 4 * radius * radius;
-                    if ((len_sq_prev >= min_len_sq || (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
-                        (len_sq_next >= min_len_sq ||
-                         (i == spine_points.count - 2 && len_sq_next >= min_len_sq / 4)))
-                        bend_dir = 1;  // Left
+                const double bend_dir = t0.cross(t1) < 0 ? -1 : 1;
+                const double len_prev = len_next;
+                len_next = (p_next - p).length();
+                const Vec2 sum_t = t0 + t1;
+                const double len_factor = (fabs(sum_t.x) > fabs(sum_t.y))
+                                              ? bend_dir * (n0.x - n1.x) / sum_t.x
+                                              : bend_dir * (n0.y - n1.y) / sum_t.y;
+                const double radius = bend_radius - bend_dir * path_offsets[2 * i];
+                const double len_required = len_factor * radius;
+                if (len_required > len_prev || len_required > len_next ||
+                    radius <= path_half_widths[2 * 1]) {
+                    // Not enough room for the bend
+                    result.append(p);
                 } else {
-                    radius = bend_radius + path_offsets[2 * i];
-                    const double min_len_sq = 4 * radius * radius;
-                    if ((len_sq_prev >= min_len_sq || (i == 1 && len_sq_prev >= min_len_sq / 4)) &&
-                        (len_sq_next >= min_len_sq ||
-                         (i == spine_points.count - 2 && len_sq_next >= min_len_sq / 4)))
-                        bend_dir = -1;  // Right
-                }
-            }
-
-            if (bend_dir < 0) {
-                const Vec2 sum_t = t0 + t1;
-                const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n1.x - n0.x) / sum_t.x
-                                                                 : (n1.y - n0.y) / sum_t.y;
-                const double initial_angle = n0.angle();
-                double final_angle = n1.angle();
-                if (final_angle > initial_angle) final_angle -= 2 * M_PI;
-                const Vec2 center = p - 0.5 * radius * (n0 + n1 + d * (t0 - t1));
-                if (bend_type == BendType::Circular) {
-                    const Vec2 arc_start = center + n0 * radius;
-                    arc.append(arc_start);
-                    arc.arc(radius, radius, initial_angle, final_angle, 0);
-                    result.extend(arc.point_array);
-                    arc.point_array.count = 0;
-                } else if (bend_type == BendType::Function) {
-                    Array<Vec2> bend_array = (*el->bend_function)(
-                        radius, initial_angle, final_angle, center, el->bend_function_data);
-                    result.extend(bend_array);
-                    bend_array.clear();
-                }
-            } else if (bend_dir > 0) {
-                const Vec2 sum_t = t0 + t1;
-                const double d = (fabs(sum_t.x) > fabs(sum_t.y)) ? (n0.x - n1.x) / sum_t.x
-                                                                 : (n0.y - n1.y) / sum_t.y;
-                const double initial_angle = (-n0).angle();
-                double final_angle = (-n1).angle();
-                if (final_angle < initial_angle) final_angle += 2 * M_PI;
-                Vec2 center = p + 0.5 * radius * (n0 + n1 + d * (t1 - t0));
-                if (bend_type == BendType::Circular) {
-                    const Vec2 arc_start = center - n0 * radius;
-                    arc.append(arc_start);
-                    arc.arc(radius, radius, initial_angle, final_angle, 0);
-                    result.extend(arc.point_array);
-                    arc.point_array.count = 0;
-                } else if (bend_type == BendType::Function) {
-                    Array<Vec2> bend_array = (*el->bend_function)(
-                        radius, initial_angle, final_angle, center, el->bend_function_data);
-                    result.extend(bend_array);
-                    bend_array.clear();
+                    len_next -= len_required;
+                    if (bend_dir < 0) {  // Right turn
+                        const double initial_angle = n0.angle();
+                        double final_angle = n1.angle();
+                        if (final_angle > initial_angle) final_angle -= 2 * M_PI;
+                        const Vec2 center = p - 0.5 * radius * (n0 + n1 + len_factor * (t0 - t1));
+                        if (bend_type == BendType::Circular) {
+                            const Vec2 arc_start = center + n0 * radius;
+                            arc.append(arc_start);
+                            arc.arc(radius, radius, initial_angle, final_angle, 0);
+                            result.extend(arc.point_array);
+                            arc.point_array.count = 0;
+                        } else if (bend_type == BendType::Function) {
+                            Array<Vec2> bend_array = (*el->bend_function)(
+                                radius, initial_angle, final_angle, center, el->bend_function_data);
+                            result.extend(bend_array);
+                            bend_array.clear();
+                        }
+                    } else {  // Left turn
+                        const double initial_angle = (-n0).angle();
+                        double final_angle = (-n1).angle();
+                        if (final_angle < initial_angle) final_angle += 2 * M_PI;
+                        Vec2 center = p + 0.5 * radius * (n0 + n1 + len_factor * (t1 - t0));
+                        if (bend_type == BendType::Circular) {
+                            const Vec2 arc_start = center - n0 * radius;
+                            arc.append(arc_start);
+                            arc.arc(radius, radius, initial_angle, final_angle, 0);
+                            result.extend(arc.point_array);
+                            arc.point_array.count = 0;
+                        } else if (bend_type == BendType::Function) {
+                            Array<Vec2> bend_array = (*el->bend_function)(
+                                radius, initial_angle, final_angle, center, el->bend_function_data);
+                            result.extend(bend_array);
+                            bend_array.clear();
+                        }
+                    }
                 }
             } else {
                 result.append(p);
