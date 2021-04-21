@@ -56,6 +56,27 @@ It depends on:
 Windows users are suggested to install via [Conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock).
 The recipe works on MacOS and Linux as well.
 
+To install in a new Conda environment:
+
+```sh
+# Create a new conda environment named gdstk
+conda create -n gdstk -c conda-forge --strict-channel-priority
+# Activate the new environment
+conda activate gdstk
+# Install gdstk
+conda install gdstk
+```
+
+To use an existing environment, make sure it is configured to prioritize the conda-forge channel:
+
+```sh
+# Configure the conda-forge channel
+conda config --env --add channels conda-forge
+conda config --env --set channel_priority strict
+# Install gdstk
+conda install gdstk
+```
+
 #### From source
 
 The module must be linked aginst LAPACK and zlib.
