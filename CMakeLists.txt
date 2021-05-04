@@ -29,7 +29,7 @@ foreach(IT ${LAPACK_LIBRARIES})
     set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
 endforeach()
 
-find_package(ZLIB REQUIRED)
+find_package(ZLIB 1.2.9 REQUIRED)
 foreach(IT ${ZLIB_LIBRARIES})
     set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
 endforeach()
