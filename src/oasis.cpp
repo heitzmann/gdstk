@@ -87,7 +87,7 @@ int oasis_putc(int c, OasisStream& out) {
         uint8_t c_cast = (uint8_t)c;
         out.signature = checksum32(out.signature, &c_cast, 1);
     }
-    return fputc(c, out.file);
+    return putc(c, out.file);
 }
 
 uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& count) {
