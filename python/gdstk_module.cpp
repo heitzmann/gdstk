@@ -540,7 +540,14 @@ static PyTypeObject gdswriter_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gds
 
 #include "parsing.cpp"
 
+// These two globals are required because we don't want to pollute the C++ API
+// and add unnecessary steps before passing a comparator function to std::sort
+// in cell.to_svg.
 PyObject* polygon_comparison_pyfunc;
+// This list will be populated with PolygonObjects that need to be created for
+// sorting (because the original polygons might not have a corresponding python
+// owner).  It should be initialized to an empty list before the sort call and
+// cleared afterwards.
 PyObject* polygon_comparison_pylist;
 bool polygon_comparison(Polygon* p1, Polygon* p2) {
     PyObject* p1_obj;
