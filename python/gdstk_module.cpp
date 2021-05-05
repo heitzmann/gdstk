@@ -11,10 +11,16 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define PY_SSIZE_T_CLEAN
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 
-#define PYDEBUG(o)                             \
-    PyObject_Print((PyObject*)(o), stdout, 0); \
-    putchar('\n');                             \
-    fflush(stdout);
+#ifdef NDEBUG
+#define DEBUG_PYTHON(o) ((void)0)
+#else
+#define DEBUG_PYTHON(o)                            \
+    do {                                           \
+        PyObject_Print((PyObject*)(o), stderr, 0); \
+        putc('\n', stderr);                        \
+        fflush(stderr);                            \
+    } while (false)
+#endif
 
 #define CellObject_Check(o) PyObject_TypeCheck((o), &cell_object_type)
 #define FlexPathObject_Check(o) PyObject_TypeCheck((o), &flexpath_object_type)

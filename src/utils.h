@@ -23,9 +23,21 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 // Smooth interpolation (3rd order polynomial with zero derivatives at 0 and 1)
 #define SERP(a, b, u) ((a) + ((b) - (a)) * (3 - 2 * (u)) * (u) * (u))
 
-#define DEBUG_PRINT                               \
-    printf("%s:%d: DEBUG\n", __FILE__, __LINE__); \
-    fflush(stdout);
+#ifdef NDEBUG
+#define DEBUG_HERE ((void)0)
+#define DEBUG_PRINT(...) ((void)0)
+#else
+#define DEBUG_HERE                                                   \
+    do {                                                             \
+        fprintf(stderr, "%s:%d:%s\n", __FILE__, __LINE__, __func__); \
+        fflush(stderr);                                              \
+    } while (false)
+#define DEBUG_PRINT(...)              \
+    do {                              \
+        fprintf(stderr, __VA_ARGS__); \
+        fflush(stderr);               \
+    } while (false)
+#endif
 
 // From http://esr.ibiblio.org/?p=5095
 #define IS_BIG_ENDIAN (*(uint16_t*)"\0\xFF" < 0x100)
