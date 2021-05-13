@@ -631,7 +631,10 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
                      PolygonComparisonFunction comp) const {
     Vec2 min, max;
     bounding_box(min, max);
-    if (min.x > max.x) return;
+    if (min.x > max.x) {
+        min = Vec2{0, 0};
+        max = Vec2{1, 1};
+    }
 
     min *= scaling;
     max *= scaling;
