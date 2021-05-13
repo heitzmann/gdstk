@@ -405,8 +405,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
         if (array) {
             if (repetition.columns > UINT16_MAX || repetition.rows > UINT16_MAX) {
                 fputs(
-                    "[GDSTK] Repetition with more than 65535 columns "
-                    "or rows cannot be saved to a GDSII file.\n",
+                    "[GDSTK] Repetition with more than 65535 columns or rows cannot be saved to a GDSII file.\n",
                     stderr);
                 buffer_array[2] = UINT16_MAX;
                 buffer_array[3] = UINT16_MAX;

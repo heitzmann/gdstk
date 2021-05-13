@@ -956,10 +956,10 @@ int RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, dou
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr,
-            "[GDSTK] No intersection found in RobustPath spine "
-            "construction around (%lg, %lg) and (%lg, %lg).\n",
-            p0.x, p0.y, p1.x, p1.y);
+    fprintf(
+        stderr,
+        "[GDSTK] No intersection found in RobustPath spine construction around (%lg, %lg) and (%lg, %lg).\n",
+        p0.x, p0.y, p1.x, p1.y);
     return -1;
 }
 
@@ -1010,10 +1010,10 @@ int RobustPath::center_intersection(const SubPath &sub0, const Interpolation &of
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr,
-            "[GDSTK] No intersection found in RobustPath center"
-            "construction around (%lg, %lg) and (%lg, %lg).\n",
-            p0.x, p0.y, p1.x, p1.y);
+    fprintf(
+        stderr,
+        "[GDSTK] No intersection found in RobustPath center construction around (%lg, %lg) and (%lg, %lg).\n",
+        p0.x, p0.y, p1.x, p1.y);
     return -1;
 }
 
@@ -1065,10 +1065,10 @@ int RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offs
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr,
-            "[GDSTK] No intersection found in RobustPath left side "
-            "construction around (%lg, %lg) and (%lg, %lg).\n",
-            p0.x, p0.y, p1.x, p1.y);
+    fprintf(
+        stderr,
+        "[GDSTK] No intersection found in RobustPath left side construction around (%lg, %lg) and (%lg, %lg).\n",
+        p0.x, p0.y, p1.x, p1.y);
     return -1;
 }
 
@@ -1120,10 +1120,10 @@ int RobustPath::right_intersection(const SubPath &sub0, const Interpolation &off
             du1 /= norm_v1;
         }
     }
-    fprintf(stderr,
-            "[GDSTK] No intersection found in RobustPath right side "
-            "construction around (%lg, %lg) and (%lg, %lg).\n",
-            p0.x, p0.y, p1.x, p1.y);
+    fprintf(
+        stderr,
+        "[GDSTK] No intersection found in RobustPath right side construction around (%lg, %lg) and (%lg, %lg).\n",
+        p0.x, p0.y, p1.x, p1.y);
     return -1;
 }
 
