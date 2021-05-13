@@ -59,6 +59,10 @@ static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {
     uint64_t len;
     cell->name = copy_string(name, len);
     cell->owner = self;
+    if (len <= 1) {
+        PyErr_SetString(PyExc_ValueError, "Empty cell name.");
+        return -1;
+    }
     return 0;
 }
 
@@ -186,7 +190,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
     return result;
 }
 
-static PyObject* cell_object_bounding_box(CellObject* self, PyObject* args) {
+static PyObject* cell_object_bounding_box(CellObject* self, PyObject*) {
     Vec2 min, max;
     self->cell->bounding_box(min, max);
     if (min.x > max.x) {
@@ -196,7 +200,7 @@ static PyObject* cell_object_bounding_box(CellObject* self, PyObject* args) {
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 
-static PyObject* cell_object_convex_hull(CellObject* self, PyObject* args) {
+static PyObject* cell_object_convex_hull(CellObject* self, PyObject*) {
     Array<Vec2> points = {0};
     self->cell->convex_hull(points);
     npy_intp dims[] = {(npy_intp)points.count, 2};
@@ -286,6 +290,11 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "s|Oddpp:copy", (char**)keywords, &name, &py_trans,
                                      &rotation, &magnification, &x_reflection, &deep_copy))
         return NULL;
+
+    if (strlen(name) == 0) {
+        PyErr_SetString(PyExc_ValueError, "Empty cell name.");
+        return NULL;
+    }
 
     Vec2 translation = {0, 0};
     if (py_trans && parse_point(py_trans, translation, "translation") != 0) return NULL;
@@ -456,7 +465,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
 
     if (sort_obj == Py_None) {
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                              pad_as_percentage, NULL);
+                                       pad_as_percentage, NULL);
     } else {
         if (!PyCallable_Check(sort_obj)) {
             PyErr_SetString(PyExc_TypeError, "Argument sort_function must be callable.");
@@ -468,7 +477,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         polygon_comparison_pyfunc = sort_obj;
         polygon_comparison_pylist = PyList_New(0);
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                              pad_as_percentage, polygon_comparison);
+                                       pad_as_percentage, polygon_comparison);
         Py_DECREF(polygon_comparison_pylist);
         polygon_comparison_pylist = NULL;
         polygon_comparison_pyfunc = NULL;
@@ -558,8 +567,13 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
                                      &py_types, &operation, &polygons, &paths, &labels))
         return NULL;
 
-    if (PySequence_Check(py_layers) == 0 || PySequence_Check(py_types) == 0) {
-        PyErr_SetString(PyExc_TypeError, "Arguments layers and types must be sequences.");
+    if (PySequence_Check(py_layers) == 0) {
+        PyErr_SetString(PyExc_TypeError, "Argument layers must be a sequence.");
+        return NULL;
+    }
+
+    if (PySequence_Check(py_types) == 0) {
+        PyErr_SetString(PyExc_TypeError, "Argument types must be a sequence.");
         return NULL;
     }
 
@@ -783,6 +797,10 @@ int cell_object_set_name(CellObject* self, PyObject* arg, void*) {
     const char* src = PyUnicode_AsUTF8AndSize(arg, &len);
     if (!src) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
+        return -1;
+    }
+    if (len <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Empty cell name.");
         return -1;
     }
 

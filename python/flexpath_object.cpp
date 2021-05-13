@@ -112,6 +112,13 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                  "Unable to convert width[%" PRIu64 "] to float.", i);
                     return -1;
                 }
+                if (half_width < 0) {
+                    flexpath_cleanup(self);
+                    PyErr_Format(PyExc_ValueError,
+                                 "Negative width value not allowed: width[%" PRIu64 "] = %lg.", i,
+                                 2 * half_width);
+                    return -1;
+                }
 
                 item = PySequence_ITEM(py_offset, i);
                 if (item == NULL) {
@@ -161,6 +168,13 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                  "Unable to convert width[%" PRIu64 "] to float.", i);
                     return -1;
                 }
+                if (half_width < 0) {
+                    flexpath_cleanup(self);
+                    PyErr_Format(PyExc_ValueError,
+                                 "Negative width value not allowed: width[%" PRIu64 "] = %lg.", i,
+                                 2 * half_width);
+                    return -1;
+                }
 
                 const Vec2 half_width_and_offset = {half_width,
                                                     (i - 0.5 * (num_elements - 1)) * offset};
@@ -180,6 +194,12 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         if (PyErr_Occurred()) {
             flexpath_cleanup(self);
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert width to float.");
+            return -1;
+        }
+        if (half_width < 0) {
+            flexpath_cleanup(self);
+            PyErr_Format(PyExc_ValueError, "Negative width value not allowed: %lg.",
+                         2 * half_width);
             return -1;
         }
 
@@ -216,6 +236,12 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         if (PyErr_Occurred()) {
             flexpath_cleanup(self);
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert width to float.");
+            return -1;
+        }
+        if (half_width < 0) {
+            flexpath_cleanup(self);
+            PyErr_Format(PyExc_ValueError, "Negative width value not allowed: %lg.",
+                         2 * half_width);
             return -1;
         }
         const double offset = py_offset == NULL ? 0 : PyFloat_AsDouble(py_offset);
@@ -584,7 +610,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
     return 0;
 }
 
-static PyObject* flexpath_object_copy(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_copy(FlexPathObject* self, PyObject*) {
     FlexPathObject* result = PyObject_New(FlexPathObject, &flexpath_object_type);
     result = (FlexPathObject*)PyObject_Init((PyObject*)result, &flexpath_object_type);
     result->flexpath = (FlexPath*)allocate_clear(sizeof(FlexPath));
@@ -593,7 +619,7 @@ static PyObject* flexpath_object_copy(FlexPathObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject*) {
     const Array<Vec2>* point_array = &self->flexpath->spine.point_array;
     npy_intp dims[] = {(npy_intp)point_array->count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
@@ -606,7 +632,7 @@ static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* flexpath_object_path_spines(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_path_spines(FlexPathObject* self, PyObject*) {
     Array<Vec2> point_array = {0};
     FlexPath* path = self->flexpath;
     PyObject* result = PyList_New(path->num_elements);
@@ -634,7 +660,7 @@ static PyObject* flexpath_object_path_spines(FlexPathObject* self, PyObject* arg
     return (PyObject*)result;
 }
 
-static PyObject* flexpath_object_widths(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_widths(FlexPathObject* self, PyObject*) {
     const FlexPath* flexpath = self->flexpath;
     npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.count,
                        (npy_intp)flexpath->num_elements};
@@ -653,7 +679,7 @@ static PyObject* flexpath_object_widths(FlexPathObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject*) {
     const FlexPath* flexpath = self->flexpath;
     npy_intp dims[] = {(npy_intp)flexpath->spine.point_array.count,
                        (npy_intp)flexpath->num_elements};
@@ -672,7 +698,7 @@ static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* flexpath_object_to_polygons(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_to_polygons(FlexPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
     self->flexpath->to_polygons(array);
     PyObject* result = PyList_New(array.count);
@@ -768,18 +794,29 @@ static int parse_flexpath_width(const FlexPath flexpath, PyObject* py_width, dou
                              "Unable to get item %" PRIu64 " from sequence width.", i);
                 return -1;
             }
-            *width++ = PyFloat_AsDouble(item);
+            const double value = PyFloat_AsDouble(item);
             Py_DECREF(item);
             if (PyErr_Occurred()) {
                 PyErr_Format(PyExc_RuntimeError,
                              "Unable to convert item %" PRIu64 " from sequence width to float.", i);
                 return -1;
             }
+            if (value < 0) {
+                PyErr_Format(PyExc_ValueError,
+                             "Negative width value not allowed: width[%" PRIu64 "] = %lg.", i,
+                             value);
+                return -1;
+            }
+            *width++ = value;
         }
     } else {
         const double value = PyFloat_AsDouble(py_width);
         if (PyErr_Occurred()) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert width to float.");
+            return -1;
+        }
+        if (value < 0) {
+            PyErr_Format(PyExc_ValueError, "Negative width value not allowed: %lg.", value);
             return -1;
         }
         for (uint64_t i = 0; i < flexpath.num_elements; i++) *width++ = value;
@@ -1455,6 +1492,13 @@ static PyObject* flexpath_object_arc(FlexPathObject* self, PyObject* args, PyObj
             return NULL;
         }
     }
+
+    if (radius_x <= 0 || radius_y <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Arc radius must be positive.");
+        free_allocation(buffer);
+        return NULL;
+    }
+
     flexpath->arc(radius_x, radius_y, initial_angle, final_angle, rotation, width, offset);
     free_allocation(buffer);
     Py_INCREF(self);
@@ -1487,6 +1531,11 @@ static PyObject* flexpath_object_turn(FlexPathObject* self, PyObject* args, PyOb
             free_allocation(buffer);
             return NULL;
         }
+    }
+    if (radius <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Turn radius must be positive.");
+        free_allocation(buffer);
+        return NULL;
     }
     flexpath->turn(radius, angle, width, offset);
     free_allocation(buffer);
@@ -1596,7 +1645,8 @@ static PyObject* flexpath_object_translate(FlexPathObject* self, PyObject* args)
         }
         v.y = PyFloat_AsDouble(dy);
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to convert dy to float and dx is not a vector.");
+            PyErr_SetString(PyExc_RuntimeError,
+                            "Unable to convert dy to float and dx is not a vector.");
             return NULL;
         }
     }
@@ -1648,7 +1698,7 @@ static PyObject* flexpath_object_rotate(FlexPathObject* self, PyObject* args, Py
     return (PyObject*)self;
 }
 
-static PyObject* flexpath_object_apply_repetition(FlexPathObject* self, PyObject* args) {
+static PyObject* flexpath_object_apply_repetition(FlexPathObject* self, PyObject*) {
     Array<FlexPath*> array = {0};
     self->flexpath->apply_repetition(array);
     PyObject* result = PyList_New(array.count);

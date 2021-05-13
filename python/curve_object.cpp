@@ -26,12 +26,17 @@ static int curve_object_init(CurveObject* self, PyObject* args, PyObject* kwds) 
     const char* keywords[] = {"xy", "tolerance", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:Curve", (char**)keywords, &xy, &tolerance))
         return -1;
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return -1;
+    }
     Vec2 v;
     if (parse_point(xy, v, "xy") != 0) return -1;
-    if (self->curve)
+    if (self->curve) {
         self->curve->clear();
-    else
+    } else {
         self->curve = (Curve*)allocate_clear(sizeof(Curve));
+    }
     Curve* curve = self->curve;
     curve->tolerance = tolerance;
     curve->append(v);
@@ -39,7 +44,7 @@ static int curve_object_init(CurveObject* self, PyObject* args, PyObject* kwds) 
     return 0;
 }
 
-static PyObject* curve_object_points(CurveObject* self, PyObject* args) {
+static PyObject* curve_object_points(CurveObject* self, PyObject*) {
     const Curve* curve = self->curve;
     npy_intp dims[] = {(npy_intp)curve->point_array.count, 2};
     if (curve->closed()) dims[0] -= 1;
@@ -130,8 +135,10 @@ static PyObject* curve_object_cubic(CurveObject* self, PyObject* args, PyObject*
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:cubic", (char**)keywords, &xy, &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0 || array.count < 3) {
         array.clear();
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Argument xy must be a sequence of at least 3 coordinates.");
         return NULL;
     }
     self->curve->cubic(array, relative > 0);
@@ -148,8 +155,10 @@ static PyObject* curve_object_cubic_smooth(CurveObject* self, PyObject* args, Py
                                      &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0 || array.count < 2) {
         array.clear();
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Argument xy must be a sequence of at least 2 coordinates.");
         return NULL;
     }
     self->curve->cubic_smooth(array, relative > 0);
@@ -165,8 +174,10 @@ static PyObject* curve_object_quadratic(CurveObject* self, PyObject* args, PyObj
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|p:quadratic", (char**)keywords, &xy, &relative))
         return NULL;
     Array<Vec2> array = {0};
-    if (parse_point_sequence(xy, array, "xy") < 0) {
+    if (parse_point_sequence(xy, array, "xy") < 0 || array.count < 2) {
         array.clear();
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Argument xy must be a sequence of at least 2 coordinates.");
         return NULL;
     }
     self->curve->quadratic(array, relative > 0);
@@ -428,6 +439,11 @@ static PyObject* curve_object_arc(CurveObject* self, PyObject* args, PyObject* k
         }
     }
 
+    if (radius_x <= 0 || radius_y <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Arc radius must be positive.");
+        return NULL;
+    }
+    
     self->curve->arc(radius_x, radius_y, initial_angle, final_angle, rotation);
 
     Py_INCREF(self);
@@ -440,6 +456,10 @@ static PyObject* curve_object_turn(CurveObject* self, PyObject* args, PyObject* 
     const char* keywords[] = {"radius", "angle", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "dd:turn", (char**)keywords, &radius, &angle))
         return NULL;
+    if (radius <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Turn radius must be positive.");
+        return NULL;
+    }
     self->curve->turn(radius, angle);
     Py_INCREF(self);
     return (PyObject*)self;
@@ -543,11 +563,16 @@ PyObject* curve_object_get_tolerance(CurveObject* self, void*) {
 }
 
 int curve_object_set_tolerance(CurveObject* self, PyObject* arg, void*) {
-    self->curve->tolerance = PyFloat_AsDouble(arg);
+    double tolerance = PyFloat_AsDouble(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert tolerance to float.");
         return -1;
     }
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return -1;
+    }
+    self->curve->tolerance = tolerance;
     return 0;
 }
 

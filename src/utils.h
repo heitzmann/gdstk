@@ -68,7 +68,8 @@ typedef Array<Vec2> (*JoinFunction)(const Vec2, const Vec2, const Vec2, const Ve
 // Arguments: radius, initial_angle, final_angle, center, user data
 typedef Array<Vec2> (*BendFunction)(double, double, double, const Vec2, void*);
 
-// Returns new dynamically allocated memory
+// Returns new dynamically allocated memory.  Output argument len includes the
+// 0 termination.
 char* copy_string(const char* str, uint64_t& len);
 
 // If true, m is set to the multiplicative factor, i.e., angle = 0.5 * M_PI * m
