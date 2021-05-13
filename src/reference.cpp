@@ -377,8 +377,6 @@ void Reference::to_gds(FILE* out, double scaling) const {
 
     if (repetition.type != RepetitionType::None) {
         if (repetition.type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
-            // printf("AREF (simple): ");
-            // print();
             array = true;
             x2 = origin.x + repetition.columns * repetition.spacing.x;
             y2 = origin.y;
@@ -396,8 +394,6 @@ void Reference::to_gds(FILE* out, double scaling) const {
                 fabs(u1.y - sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.x + sa) < REFERENCE_REPETITION_TOLERANCE &&
                 fabs(u2.y - ca) < REFERENCE_REPETITION_TOLERANCE) {
-                // printf("AREF (complex): ");
-                // print();
                 array = true;
                 x2 = origin.x + repetition.columns * repetition.v1.x;
                 y2 = origin.y + repetition.columns * repetition.v1.y;
@@ -409,11 +405,15 @@ void Reference::to_gds(FILE* out, double scaling) const {
         if (array) {
             if (repetition.columns > UINT16_MAX || repetition.rows > UINT16_MAX) {
                 fputs(
-                    "[GDSTK] Repetition with more than 65535 columns or rows cannot be saved to a GDSII file.\n",
+                    "[GDSTK] Repetition with more than 65535 columns "
+                    "or rows cannot be saved to a GDSII file.\n",
                     stderr);
+                buffer_array[2] = UINT16_MAX;
+                buffer_array[3] = UINT16_MAX;
+            } else {
+                buffer_array[2] = (uint16_t)repetition.columns;
+                buffer_array[3] = (uint16_t)repetition.rows;
             }
-            buffer_array[2] = (uint16_t)repetition.columns;
-            buffer_array[3] = (uint16_t)repetition.rows;
             big_endian_swap16(buffer_array, COUNT(buffer_array));
             buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
             buffer_coord[1] = (int32_t)(lround(origin.y * scaling));
@@ -426,8 +426,6 @@ void Reference::to_gds(FILE* out, double scaling) const {
             offsets.count = 0;
             offsets.items = NULL;
             repetition.get_offsets(offsets);
-            // printf("Repeated SREF: ");
-            // print();
         }
     }
 

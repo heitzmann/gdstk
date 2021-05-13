@@ -263,17 +263,17 @@ struct RobustPath {
     void simple_rotate(double angle);
     void x_reflection();
     void fill_widths_and_offsets(const Interpolation* width, const Interpolation* offset);
-    void spine_intersection(const SubPath& sub0, const SubPath& sub1, double& u0, double& u1) const;
-    void center_intersection(const SubPath& sub0, const Interpolation& offset0, const SubPath& sub1,
-                             const Interpolation& offset1, double& u0, double& u1) const;
-    void left_intersection(const SubPath& sub0, const Interpolation& offset0,
+    int spine_intersection(const SubPath& sub0, const SubPath& sub1, double& u0, double& u1) const;
+    int center_intersection(const SubPath& sub0, const Interpolation& offset0, const SubPath& sub1,
+                            const Interpolation& offset1, double& u0, double& u1) const;
+    int left_intersection(const SubPath& sub0, const Interpolation& offset0,
+                          const Interpolation& width0, const SubPath& sub1,
+                          const Interpolation& offset1, const Interpolation& width1, double& u0,
+                          double& u1) const;
+    int right_intersection(const SubPath& sub0, const Interpolation& offset0,
                            const Interpolation& width0, const SubPath& sub1,
                            const Interpolation& offset1, const Interpolation& width1, double& u0,
                            double& u1) const;
-    void right_intersection(const SubPath& sub0, const Interpolation& offset0,
-                            const Interpolation& width0, const SubPath& sub1,
-                            const Interpolation& offset1, const Interpolation& width1, double& u0,
-                            double& u1) const;
     Vec2 spine_position(const SubPath& subpath, double u) const;
     Vec2 spine_gradient(const SubPath& subpath, double u) const;
     Vec2 center_position(const SubPath& subpath, const Interpolation& offset, double u) const;
