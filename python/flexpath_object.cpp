@@ -115,8 +115,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (half_width < 0) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_ValueError,
-                                 "Negative width value not allowed: width[%" PRIu64 "] = %lg.", i,
-                                 2 * half_width);
+                                 "Negative width value not allowed: width[%" PRIu64 "].", i);
                     return -1;
                 }
 
@@ -171,8 +170,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 if (half_width < 0) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_ValueError,
-                                 "Negative width value not allowed: width[%" PRIu64 "] = %lg.", i,
-                                 2 * half_width);
+                                 "Negative width value not allowed: width[%" PRIu64 "].", i);
                     return -1;
                 }
 
@@ -198,8 +196,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         }
         if (half_width < 0) {
             flexpath_cleanup(self);
-            PyErr_Format(PyExc_ValueError, "Negative width value not allowed: %lg.",
-                         2 * half_width);
+            PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
             return -1;
         }
 
@@ -240,8 +237,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
         }
         if (half_width < 0) {
             flexpath_cleanup(self);
-            PyErr_Format(PyExc_ValueError, "Negative width value not allowed: %lg.",
-                         2 * half_width);
+            PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
             return -1;
         }
         const double offset = py_offset == NULL ? 0 : PyFloat_AsDouble(py_offset);
@@ -803,8 +799,7 @@ static int parse_flexpath_width(const FlexPath flexpath, PyObject* py_width, dou
             }
             if (value < 0) {
                 PyErr_Format(PyExc_ValueError,
-                             "Negative width value not allowed: width[%" PRIu64 "] = %lg.", i,
-                             value);
+                             "Negative width value not allowed: width[%" PRIu64 "].", i);
                 return -1;
             }
             *width++ = value;
@@ -816,7 +811,7 @@ static int parse_flexpath_width(const FlexPath flexpath, PyObject* py_width, dou
             return -1;
         }
         if (value < 0) {
-            PyErr_Format(PyExc_ValueError, "Negative width value not allowed: %lg.", value);
+            PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
             return -1;
         }
         for (uint64_t i = 0; i < flexpath.num_elements; i++) *width++ = value;
