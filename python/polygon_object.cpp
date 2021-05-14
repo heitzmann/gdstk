@@ -137,11 +137,11 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
     const char* keywords[] = {"radius", "tolerance", NULL};
     bool free_items = false;
     double radius = 0;
-    double tol = 0.01;
+    double tolerance = 0.01;
     PyObject* radius_obj = NULL;
     Array<double> radius_array = {0};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj, &tol))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj, &tolerance))
         return NULL;
     if (PySequence_Check(radius_obj)) {
         if (parse_double_sequence(radius_obj, radius_array, "radius") < 0) return NULL;
@@ -155,7 +155,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
         radius_array.count = 1;
         radius_array.items = &radius;
     }
-    self->polygon->fillet(radius_array, tol);
+    self->polygon->fillet(radius_array, tolerance);
     if (free_items) free_allocation(radius_array.items);
     Py_INCREF(self);
     return (PyObject*)self;

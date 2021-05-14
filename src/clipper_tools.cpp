@@ -184,7 +184,7 @@ void boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Opera
     paths_to_polygons(result_paths, scaling, result);
 }
 
-void offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join, double tol,
+void offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join, double tolerance,
             double scaling, bool use_union, Array<Polygon*>& result) {
     ClipperLib::JoinType jt_join = ClipperLib::jtSquare;
     ClipperLib::ClipperOffset clprof;
@@ -194,11 +194,11 @@ void offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join, d
             break;
         case OffsetJoin::Miter:
             jt_join = ClipperLib::jtMiter;
-            clprof.MiterLimit = tol;
+            clprof.MiterLimit = tolerance;
             break;
         case OffsetJoin::Round:
             jt_join = ClipperLib::jtRound;
-            clprof.ArcTolerance = distance * scaling * (1.0 - cos(M_PI / tol));
+            clprof.ArcTolerance = distance * scaling * (1.0 - cos(M_PI / tolerance));
     }
 
     ClipperLib::Paths original_polys = polygons_to_paths(polygons, scaling);

@@ -19,8 +19,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Curve::print(bool all) const {
-    printf("Curve <%p>, count %" PRIu64 ", tol %lg, last ctrl (%lg, %lg), owner <%p>:\n", this,
-           point_array.count, tolerance, last_ctrl.x, last_ctrl.y, owner);
+    printf("Curve <%p>, count %" PRIu64 ", tolerance %lg, last ctrl (%lg, %lg), owner <%p>:\n",
+           this, point_array.count, tolerance, last_ctrl.x, last_ctrl.y, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);

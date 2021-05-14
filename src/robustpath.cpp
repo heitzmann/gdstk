@@ -381,7 +381,7 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
 
 void RobustPath::print(bool all) const {
     printf("RobustPath <%p> at (%lg, %lg), count %" PRIu64 ", %" PRIu64
-           " elements, tol %lg, max_evals %" PRIu64 ", properties <%p>, owner <%p>\n",
+           " elements, tolerance %lg, max_evals %" PRIu64 ", properties <%p>, owner <%p>\n",
            this, end_point.x, end_point.y, subpath_array.count, num_elements, tolerance, max_evals,
            properties, owner);
     if (all) {

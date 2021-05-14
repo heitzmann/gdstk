@@ -35,7 +35,7 @@ void boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Opera
 // in erosion).  The effects of internal polygon edges (in polygons with holes,
 // for example) can be suppressed by setting use_union to true.  Resulting
 // polygons are appended to result.
-void offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, double tol,
+void offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, double tolerance,
             double scaling, bool use_union, Array<Polygon*>& result);
 
 // Check whether the points in groups are inside or outside the set of

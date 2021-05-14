@@ -443,7 +443,7 @@ static PyObject* curve_object_arc(CurveObject* self, PyObject* args, PyObject* k
         PyErr_SetString(PyExc_ValueError, "Arc radius must be positive.");
         return NULL;
     }
-    
+
     self->curve->arc(radius_x, radius_y, initial_angle, final_angle, rotation);
 
     Py_INCREF(self);

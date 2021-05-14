@@ -12,7 +12,7 @@ from matplotlib.textpath import TextPath
 
 
 def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1):
-    tol = 0.1 * tolerance
+    precision = 0.1 * tolerance
     path = TextPath(position, text, size=size, prop=font_prop)
     polys = []
     xmax = position[0]
@@ -31,14 +31,14 @@ def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1)
                 if poly[:, 0].min() < xmax:
                     i = len(polys) - 1
                     while i >= 0:
-                        if gdstk.inside(poly[:1], [polys[i]], precision=tol)[0]:
+                        if gdstk.inside(poly[:1], [polys[i]], precision=precision)[0]:
                             p = polys.pop(i)
-                            b = gdstk.boolean([p], [poly], "xor", tol)
+                            b = gdstk.boolean([p], [poly], "xor", precision)
                             poly = b[0].points
                             break
-                        elif gdstk.inside(polys[i][:1], [poly], precision=tol)[0]:
+                        elif gdstk.inside(polys[i][:1], [poly], precision=precision)[0]:
                             p = polys.pop(i)
-                            b = gdstk.boolean([p], [poly], "xor", tol)
+                            b = gdstk.boolean([p], [poly], "xor", precision)
                             poly = b[0].points
                         i -= 1
                 xmax = max(xmax, poly[:, 0].max())
