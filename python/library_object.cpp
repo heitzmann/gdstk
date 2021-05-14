@@ -35,6 +35,17 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|sdd:Library", (char**)keywords, &name, &unit,
                                      &precision))
         return -1;
+
+    if (unit <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Unit must be positive.");
+        return -1;
+    }
+
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        return -1;
+    }
+
     Library* library = self->library;
     if (library) {
         for (uint64_t i = 0; i < library->cell_array.count; i++)
@@ -96,6 +107,10 @@ static PyObject* library_object_add(LibraryObject* self, PyObject* args) {
 static PyObject* library_object_new_cell(LibraryObject* self, PyObject* args) {
     const char* name = NULL;
     if (!PyArg_ParseTuple(args, "s:new_cell", &name)) return NULL;
+    if (name[0] == 0) {
+        PyErr_SetString(PyExc_ValueError, "Empty cell name.");
+        return NULL;
+    }
     CellObject* result = PyObject_New(CellObject, &cell_object_type);
     result = (CellObject*)PyObject_Init((PyObject*)result, &cell_object_type);
     result->cell = (Cell*)allocate_clear(sizeof(Cell));
@@ -134,7 +149,7 @@ static PyObject* library_object_remove(LibraryObject* self, PyObject* args) {
     return (PyObject*)self;
 }
 
-static PyObject* library_object_top_level(LibraryObject* self, PyObject* args) {
+static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
     Library* library = self->library;
     Array<Cell*> top_cells = {0};
     Array<RawCell*> top_rawcells = {0};
@@ -215,6 +230,7 @@ static PyObject* library_object_write_oas(LibraryObject* self, PyObject* args, P
         } else {
             PyErr_SetString(PyExc_ValueError,
                             "Argument validation must be \"crc32\", \"checksum32\", or None.");
+            Py_DECREF(pybytes);
             return NULL;
         }
     }
@@ -282,8 +298,7 @@ int library_object_set_name(LibraryObject* self, PyObject* arg, void*) {
     if (!src) return -1;
 
     Library* library = self->library;
-    if (library->name) free_allocation(library->name);
-    library->name = (char*)allocate(++len);
+    library->name = (char*)reallocate(library->name, ++len);
     memcpy(library->name, src, len);
     return 0;
 }
@@ -298,6 +313,10 @@ int library_object_set_unit(LibraryObject* self, PyObject* arg, void*) {
         PyErr_SetString(PyExc_ValueError, "Unable to convert value to float.");
         return -1;
     }
+    if (value <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Unit must be positive.");
+        return -1;
+    }
     self->library->unit = value;
     return 0;
 }
@@ -310,6 +329,10 @@ int library_object_set_precision(LibraryObject* self, PyObject* arg, void*) {
     double value = PyFloat_AsDouble(arg);
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_ValueError, "Unable to convert value to float.");
+        return -1;
+    }
+    if (value <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
         return -1;
     }
     self->library->precision = value;

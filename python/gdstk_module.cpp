@@ -745,6 +745,14 @@ static PyObject* regular_polygon_function(PyObject* mod, PyObject* args, PyObjec
                                      &datatype))
         return NULL;
     if (parse_point(py_center, center, "center") != 0) return NULL;
+    if (side_length <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Argument side_length must be positive.");
+        return NULL;
+    }
+    if (sides <= 2) {
+        PyErr_SetString(PyExc_ValueError, "Argument sides must be greater than 2.");
+        return NULL;
+    }
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -790,6 +798,14 @@ static PyObject* ellipse_function(PyObject* mod, PyObject* args, PyObject* kwds)
             return NULL;
         }
     }
+    if (radius.x <= 0 || radius.y <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Ellipse radius must be positive.");
+        return NULL;
+    }
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return NULL;
+    }
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -817,6 +833,18 @@ static PyObject* racetrack_function(PyObject* mod, PyObject* args, PyObject* kwd
                                      &vertical, &tolerance, &layer, &datatype))
         return NULL;
     if (parse_point(py_center, center, "center") != 0) return NULL;
+    if (radius <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Radius must be positive.");
+        return NULL;
+    }
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return NULL;
+    }
+    if (straight_length < 0) {
+        PyErr_SetString(PyExc_ValueError, "Argument straight_length cannot be negative.");
+        return NULL;
+    }
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -869,6 +897,16 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
                                      &distance, &join, &tolerance, &precision, &use_union, &layer,
                                      &datatype))
         return NULL;
+
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return NULL;
+    }
+
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        return NULL;
+    }
 
     OffsetJoin offset_join = OffsetJoin::Miter;
     if (join) {
@@ -925,6 +963,11 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs|dkk:boolean", (char**)keywords, &py_polygons1,
                                      &py_polygons2, &operation, &precision, &layer, &datatype))
         return NULL;
+
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        return NULL;
+    }
 
     Operation oper;
     if (strcmp(operation, "or") == 0)
@@ -991,6 +1034,11 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs|d:slice", (char**)keywords, &py_polygons,
                                      &py_position, &axis, &precision))
         return NULL;
+
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        return NULL;
+    }
 
     bool x_axis;
     if (strcmp(axis, "x") == 0)
@@ -1081,6 +1129,11 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         return NULL;
 
     ShortCircuit sc;
+
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        return NULL;
+    }
 
     if (!PySequence_Check(py_points) || PySequence_Length(py_points) == 0) {
         PyErr_SetString(PyExc_RuntimeError,
@@ -1195,7 +1248,7 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     return result;
 }
 
-static PyObject* link_library(Library* library) {
+static PyObject* create_library_objects(Library* library) {
     LibraryObject* result = PyObject_New(LibraryObject, &library_object_type);
     result = (LibraryObject*)PyObject_Init((PyObject*)result, &library_object_type);
     result->library = library;
@@ -1273,12 +1326,18 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
                                      PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
         return NULL;
 
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        Py_DECREF(pybytes);
+        return NULL;
+    }
+
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
     *library = read_gds(filename, unit, tolerance);
     Py_DECREF(pybytes);
 
-    return link_library(library);
+    return create_library_objects(library);
 }
 
 static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds) {
@@ -1290,12 +1349,18 @@ static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds
                                      PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
         return NULL;
 
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        Py_DECREF(pybytes);
+        return NULL;
+    }
+
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
     *library = read_oas(filename, unit, tolerance);
     Py_DECREF(pybytes);
 
-    return link_library(library);
+    return create_library_objects(library);
 }
 
 static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {

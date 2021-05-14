@@ -21,7 +21,7 @@ static void label_object_dealloc(LabelObject* self) {
 }
 
 static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) {
-    const char* s;
+    const char* text;
     PyObject* py_origin;
     PyObject* py_anchor = NULL;
     double rotation = 0;
@@ -29,10 +29,9 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     int x_reflection = 0;
     unsigned long layer = 0;
     unsigned long texttype = 0;
-    uint64_t len;
     const char* keywords[] = {"text",         "origin", "anchor",   "rotation", "magnification",
                               "x_reflection", "layer",  "texttype", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oddpkk:Label", (char**)keywords, &s,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oddpkk:Label", (char**)keywords, &text,
                                      &py_origin, &py_anchor, &rotation, &magnification,
                                      &x_reflection, &layer, &texttype))
         return -1;
@@ -46,7 +45,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     label->layer = layer;
     label->texttype = texttype;
     if (parse_point(py_origin, label->origin, "origin") != 0) return -1;
-    if (py_anchor == NULL || py_anchor == Py_None) {
+    if (py_anchor == NULL) {
         label->anchor = Anchor::O;
     } else {
         if (!PyUnicode_Check(py_anchor)) {
@@ -55,40 +54,75 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
                 "Argument anchor must be one of 'n', 's', 'e', 'w', 'o', 'ne', 'nw', 'se', 'sw'.");
             return -1;
         }
-        if (PyUnicode_CompareWithASCIIString(py_anchor, "o") == 0)
-            label->anchor = Anchor::O;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "n") == 0)
-            label->anchor = Anchor::N;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "s") == 0)
-            label->anchor = Anchor::S;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "w") == 0)
-            label->anchor = Anchor::W;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "e") == 0)
-            label->anchor = Anchor::E;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "nw") == 0)
-            label->anchor = Anchor::NW;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "ne") == 0)
-            label->anchor = Anchor::NE;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "sw") == 0)
-            label->anchor = Anchor::SW;
-        else if (PyUnicode_CompareWithASCIIString(py_anchor, "se") == 0)
-            label->anchor = Anchor::SE;
-        else {
-            PyErr_SetString(
-                PyExc_RuntimeError,
-                "Argument anchor must be one of 'n', 's', 'e', 'w', 'o', 'ne', 'nw', 'se', 'sw'.");
-            return -1;
+        Py_ssize_t len = 0;
+        const char* anchor = PyUnicode_AsUTF8AndSize(py_anchor, &len);
+        if (len == 1) {
+            switch (anchor[0]) {
+                case 'o':
+                    label->anchor = Anchor::O;
+                    break;
+                case 'n':
+                    label->anchor = Anchor::N;
+                    break;
+                case 's':
+                    label->anchor = Anchor::S;
+                    break;
+                case 'w':
+                    label->anchor = Anchor::W;
+                    break;
+                case 'e':
+                    label->anchor = Anchor::E;
+                    break;
+                default:
+                    goto anchor_error;
+            }
+        } else if (len == 2) {
+            switch (anchor[0]) {
+                case 'n': {
+                    switch (anchor[1]) {
+                        case 'w':
+                            label->anchor = Anchor::NW;
+                            break;
+                        case 'e':
+                            label->anchor = Anchor::NE;
+                            break;
+                        default:
+                            goto anchor_error;
+                    }
+                } break;
+                case 's': {
+                    switch (anchor[1]) {
+                        case 'w':
+                            label->anchor = Anchor::SW;
+                            break;
+                        case 'e':
+                            label->anchor = Anchor::SE;
+                            break;
+                        default:
+                            goto anchor_error;
+                    }
+                } break;
+                default:
+                    goto anchor_error;
+            }
         }
     }
     label->rotation = rotation;
     label->magnification = magnification;
     label->x_reflection = x_reflection > 0;
-    label->text = copy_string(s, len);
+    uint64_t len;
+    label->text = copy_string(text, len);
     label->owner = self;
     return 0;
+
+anchor_error:
+    PyErr_SetString(
+        PyExc_RuntimeError,
+        "Argument anchor must be one of 'n', 's', 'e', 'w', 'o', 'ne', 'nw', 'se', 'sw'.");
+    return -1;
 }
 
-static PyObject* label_object_copy(LabelObject* self, PyObject* args) {
+static PyObject* label_object_copy(LabelObject* self, PyObject*) {
     LabelObject* result = PyObject_New(LabelObject, &label_object_type);
     result = (LabelObject*)PyObject_Init((PyObject*)result, &label_object_type);
     result->label = (Label*)allocate_clear(sizeof(Label));
@@ -97,7 +131,7 @@ static PyObject* label_object_copy(LabelObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* label_object_apply_repetition(LabelObject* self, PyObject* args) {
+static PyObject* label_object_apply_repetition(LabelObject* self, PyObject*) {
     Array<Label*> array = {0};
     self->label->apply_repetition(array);
     PyObject* result = PyList_New(array.count);
@@ -194,8 +228,7 @@ int label_object_set_text(LabelObject* self, PyObject* arg, void*) {
     if (!src) return -1;
 
     Label* label = self->label;
-    if (label->text) free_allocation(label->text);
-    label->text = (char*)allocate(++len);
+    label->text = (char*)reallocate(label->text, ++len);
     memcpy(label->text, src, len);
     return 0;
 }
@@ -253,31 +286,64 @@ int label_object_set_anchor(LabelObject* self, PyObject* arg, void*) {
                         "Anchor must be one of 'n', 's', 'e', 'w', 'o', 'ne', 'nw', 'se', 'sw'.");
         return -1;
     }
-    if (PyUnicode_CompareWithASCIIString(arg, "o") == 0)
-        self->label->anchor = Anchor::O;
-    else if (PyUnicode_CompareWithASCIIString(arg, "n") == 0)
-        self->label->anchor = Anchor::N;
-    else if (PyUnicode_CompareWithASCIIString(arg, "s") == 0)
-        self->label->anchor = Anchor::S;
-    else if (PyUnicode_CompareWithASCIIString(arg, "w") == 0)
-        self->label->anchor = Anchor::W;
-    else if (PyUnicode_CompareWithASCIIString(arg, "e") == 0)
-        self->label->anchor = Anchor::E;
-    else if (PyUnicode_CompareWithASCIIString(arg, "nw") == 0)
-        self->label->anchor = Anchor::NW;
-    else if (PyUnicode_CompareWithASCIIString(arg, "ne") == 0)
-        self->label->anchor = Anchor::NE;
-    else if (PyUnicode_CompareWithASCIIString(arg, "sw") == 0)
-        self->label->anchor = Anchor::SW;
-    else if (PyUnicode_CompareWithASCIIString(arg, "se") == 0)
-        self->label->anchor = Anchor::SE;
-    else {
-        PyErr_SetString(
-            PyExc_RuntimeError,
-            "Argument anchor must be one of 'n', 's', 'e', 'w', 'o', 'ne', 'nw', 'se', 'sw'.");
-        return -1;
+    Py_ssize_t len = 0;
+    const char* anchor = PyUnicode_AsUTF8AndSize(arg, &len);
+    if (len == 1) {
+        switch (anchor[0]) {
+            case 'o':
+                self->label->anchor = Anchor::O;
+                break;
+            case 'n':
+                self->label->anchor = Anchor::N;
+                break;
+            case 's':
+                self->label->anchor = Anchor::S;
+                break;
+            case 'w':
+                self->label->anchor = Anchor::W;
+                break;
+            case 'e':
+                self->label->anchor = Anchor::E;
+                break;
+            default:
+                goto error_out;
+        }
+    } else if (len == 2) {
+        switch (anchor[0]) {
+            case 'n': {
+                switch (anchor[1]) {
+                    case 'w':
+                        self->label->anchor = Anchor::NW;
+                        break;
+                    case 'e':
+                        self->label->anchor = Anchor::NE;
+                        break;
+                    default:
+                        goto error_out;
+                }
+            } break;
+            case 's': {
+                switch (anchor[1]) {
+                    case 'w':
+                        self->label->anchor = Anchor::SW;
+                        break;
+                    case 'e':
+                        self->label->anchor = Anchor::SE;
+                        break;
+                    default:
+                        goto error_out;
+                }
+            } break;
+            default:
+                goto error_out;
+        }
     }
     return 0;
+
+error_out:
+    PyErr_SetString(PyExc_RuntimeError,
+                    "Anchor must be one of 'n', 's', 'e', 'w', 'o', 'ne', 'nw', 'se', 'sw'.");
+    return -1;
 }
 
 static PyObject* label_object_get_rotation(LabelObject* self, void*) {

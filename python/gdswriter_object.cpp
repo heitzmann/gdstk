@@ -31,9 +31,23 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
                                      PyUnicode_FSConverter, &pybytes, &name, &unit, &precision,
                                      &max_points))
         return -1;
+
+    if (unit <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Unit must be positive.");
+        Py_DECREF(pybytes);
+        return -1;
+    }
+
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        Py_DECREF(pybytes);
+        return -1;
+    }
+
     if (!self->gdswriter) self->gdswriter = (GdsWriter*)allocate_clear(sizeof(GdsWriter));
 
     FILE* out = fopen(PyBytes_AS_STRING(pybytes), "wb");
+    Py_DECREF(pybytes);
     if (!out) {
         PyErr_SetString(PyExc_TypeError, "Could not open file for writing.");
         return -1;
@@ -70,7 +84,7 @@ static PyObject* gdswriter_object_write(GdsWriterObject* self, PyObject* args) {
     return (PyObject*)self;
 }
 
-static PyObject* gdswriter_object_close(GdsWriterObject* self, PyObject* args) {
+static PyObject* gdswriter_object_close(GdsWriterObject* self, PyObject*) {
     self->gdswriter->close();
     Py_INCREF(Py_None);
     return Py_None;

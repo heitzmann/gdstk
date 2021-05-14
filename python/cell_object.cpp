@@ -291,7 +291,7 @@ static PyObject* cell_object_copy(CellObject* self, PyObject* args, PyObject* kw
                                      &rotation, &magnification, &x_reflection, &deep_copy))
         return NULL;
 
-    if (strlen(name) == 0) {
+    if (name[0] == 0) {
         PyErr_SetString(PyExc_ValueError, "Empty cell name.");
         return NULL;
     }
@@ -465,7 +465,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
 
     if (sort_obj == Py_None) {
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                                       pad_as_percentage, NULL);
+                              pad_as_percentage, NULL);
     } else {
         if (!PyCallable_Check(sort_obj)) {
             PyErr_SetString(PyExc_TypeError, "Argument sort_function must be callable.");
@@ -477,7 +477,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         polygon_comparison_pyfunc = sort_obj;
         polygon_comparison_pylist = PyList_New(0);
         self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                                       pad_as_percentage, polygon_comparison);
+                              pad_as_percentage, polygon_comparison);
         Py_DECREF(polygon_comparison_pylist);
         polygon_comparison_pylist = NULL;
         polygon_comparison_pyfunc = NULL;
@@ -795,10 +795,7 @@ int cell_object_set_name(CellObject* self, PyObject* arg, void*) {
 
     Py_ssize_t len = 0;
     const char* src = PyUnicode_AsUTF8AndSize(arg, &len);
-    if (!src) {
-        PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
-        return -1;
-    }
+    if (!src) return -1;
     if (len <= 0) {
         PyErr_SetString(PyExc_ValueError, "Empty cell name.");
         return -1;
