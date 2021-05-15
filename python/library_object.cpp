@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* library_object_str(LibraryObject* self) {
-    char buffer[256];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer), "Library '%s' with %" PRIu64 " cells and %" PRIu64 " raw cells",
              self->library->name, self->library->cell_array.count,
              self->library->rawcell_array.count);

@@ -298,4 +298,3 @@ struct RobustPath {
 }  // namespace gdstk
 
 #endif
-

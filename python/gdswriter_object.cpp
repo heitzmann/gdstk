@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* gdswriter_object_str(GdsWriterObject* self) {
-    char buffer[256];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer),
              "GdsWriter with unit %lg, precision %lg, %" PRIu64 " maximal points per polygon",
              self->gdswriter->unit, self->gdswriter->precision, self->gdswriter->max_points);

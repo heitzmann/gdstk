@@ -244,9 +244,9 @@ void RobustPath::spine_points(const SubPath &subpath, double u0, double u1,
     double u = u0;
     Vec2 last = spine_position(subpath, u0);
     uint64_t counter = max_evals - 1;
-    double du = 1.0 / MIN_POINTS;
+    double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
-        if (du > 1.0 / MIN_POINTS) du = 1.0 / MIN_POINTS;
+        if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
         Vec2 next = spine_position(subpath, u + du);
         Vec2 mid = spine_position(subpath, u + 0.5 * du);
@@ -279,9 +279,9 @@ void RobustPath::center_points(const SubPath &subpath, const Interpolation &offs
     double u = u0;
     Vec2 last = center_position(subpath, offset, u0);
     uint64_t counter = max_evals - 1;
-    double du = 1.0 / MIN_POINTS;
+    double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
-        if (du > 1.0 / MIN_POINTS) du = 1.0 / MIN_POINTS;
+        if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
         Vec2 next = center_position(subpath, offset, u + du);
         Vec2 mid = center_position(subpath, offset, u + 0.5 * du);
@@ -315,9 +315,9 @@ void RobustPath::left_points(const SubPath &subpath, const Interpolation &offset
     double u = u0;
     Vec2 last = left_position(subpath, offset, width, u0);
     uint64_t counter = max_evals - 1;
-    double du = 1.0 / MIN_POINTS;
+    double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
-        if (du > 1.0 / MIN_POINTS) du = 1.0 / MIN_POINTS;
+        if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
         Vec2 next = left_position(subpath, offset, width, u + du);
         Vec2 mid = left_position(subpath, offset, width, u + 0.5 * du);
@@ -351,9 +351,9 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
     double u = u0;
     Vec2 last = right_position(subpath, offset, width, u0);
     uint64_t counter = max_evals - 1;
-    double du = 1.0 / MIN_POINTS;
+    double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
-        if (du > 1.0 / MIN_POINTS) du = 1.0 / MIN_POINTS;
+        if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
         Vec2 next = right_position(subpath, offset, width, u + du);
         Vec2 mid = right_position(subpath, offset, width, u + 0.5 * du);
@@ -1381,7 +1381,7 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
 
     Array<int32_t> coords = {0};
     Array<Vec2> point_array = {0};
-    point_array.ensure_slots(subpath_array.count * MIN_POINTS);
+    point_array.ensure_slots(subpath_array.count * GDSTK_MIN_POINTS);
 
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
@@ -1478,7 +1478,7 @@ void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
     bool has_repetition = repetition.get_count() > 1;
 
     Array<Vec2> point_array = {0};
-    point_array.ensure_slots(subpath_array.count * MIN_POINTS);
+    point_array.ensure_slots(subpath_array.count * GDSTK_MIN_POINTS);
 
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {

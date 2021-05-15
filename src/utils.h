@@ -11,9 +11,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS
 #define _USE_MATH_DEFINES
 
-#define MIN_POINTS 4
+#define GDSTK_PRINT_BUFFER_COUNT 1024
 
-#define PARALLEL_EPS 1e-8
+#define GDSTK_MIN_POINTS 4
+
+#define GDSTK_PARALLEL_EPS 1e-8
 
 #define COUNT(a) (sizeof(a) / sizeof(0 [a]))
 

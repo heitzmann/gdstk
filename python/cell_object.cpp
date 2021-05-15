@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* cell_object_str(CellObject* self) {
-    char buffer[256];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer),
              "Cell '%s' with %" PRIu64 " polygons, %" PRIu64 " flexpaths, %" PRIu64
              " robustpaths, %" PRIu64 " references, and %" PRIu64 " labels",

@@ -690,7 +690,7 @@ static bool is_circle(const Array<Vec2> point_array, double tolerance, Vec2& cen
         res_b += ab.y * r;
     }
     double den = coef_a * coef_b - coef_m * coef_m;
-    if (fabs(den) < PARALLEL_EPS) return false;
+    if (fabs(den) < GDSTK_PARALLEL_EPS) return false;
     center.x = (coef_b * res_a - coef_m * res_b) / den;
     center.y = (coef_a * res_b - coef_m * res_a) / den;
     // printf("Center: (%lf, %lf)\n", center.x, center.y);
@@ -928,12 +928,12 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
     if (inner_radius_x > 0 && inner_radius_y > 0) {
         uint64_t num_points1 =
             1 + arc_num_points(full_angle, radius_x > radius_y ? radius_x : radius_y, tolerance);
-        if (num_points1 < MIN_POINTS) num_points1 = MIN_POINTS;
+        if (num_points1 < GDSTK_MIN_POINTS) num_points1 = GDSTK_MIN_POINTS;
         uint64_t num_points2 =
             1 + arc_num_points(full_angle,
                                inner_radius_x > inner_radius_y ? inner_radius_x : inner_radius_y,
                                tolerance);
-        if (num_points2 < MIN_POINTS) num_points2 = MIN_POINTS;
+        if (num_points2 < GDSTK_MIN_POINTS) num_points2 = GDSTK_MIN_POINTS;
 
         result.point_array.ensure_slots(num_points1 + num_points2);
         result.point_array.count = num_points1 + num_points2;
@@ -971,7 +971,7 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
     } else {
         uint64_t num_points =
             1 + arc_num_points(full_angle, radius_x > radius_y ? radius_x : radius_y, tolerance);
-        if (num_points < MIN_POINTS) num_points = MIN_POINTS;
+        if (num_points < GDSTK_MIN_POINTS) num_points = GDSTK_MIN_POINTS;
         if (full_angle == 2 * M_PI) {
             // Full ellipse
             result.point_array.ensure_slots(num_points);
@@ -1020,7 +1020,7 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     const Vec2 c1 = center + direction;
     const Vec2 c2 = center - direction;
     uint64_t num_points = 1 + arc_num_points(M_PI, radius, tolerance);
-    if (num_points < MIN_POINTS) num_points = MIN_POINTS;
+    if (num_points < GDSTK_MIN_POINTS) num_points = GDSTK_MIN_POINTS;
     result.point_array.ensure_slots(2 * num_points);
     result.point_array.count = 2 * num_points;
     Vec2* v1 = result.point_array.items;
@@ -1033,7 +1033,7 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     }
     if (inner_radius > 0) {
         num_points = 1 + arc_num_points(M_PI, inner_radius, tolerance);
-        if (num_points < MIN_POINTS) num_points = MIN_POINTS;
+        if (num_points < GDSTK_MIN_POINTS) num_points = GDSTK_MIN_POINTS;
         result.point_array.ensure_slots(2 * num_points + 2);
         v2 = result.point_array.items + result.point_array.count;
         result.point_array.count += 2 * num_points + 2;

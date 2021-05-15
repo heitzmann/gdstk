@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* rawcell_object_str(RawCellObject* self) {
-    char buffer[256];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer),
              "RawCell '%s' with %" PRIu64 " bytes and %" PRIu64 " dependencies",
              self->rawcell->name, self->rawcell->size, self->rawcell->dependencies.count);

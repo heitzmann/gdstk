@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* repetition_object_str(RepetitionObject* self) {
-    char buffer[64];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     uint64_t count = self->repetition.get_count();
     switch (self->repetition.type) {
         case RepetitionType::None:

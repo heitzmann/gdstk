@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* flexpath_object_str(FlexPathObject* self) {
-    char buffer[64];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer), "FlexPath with %" PRIu64 " paths and %" PRIu64 " points",
              self->flexpath->num_elements, self->flexpath->spine.point_array.count);
     return PyUnicode_FromString(buffer);

@@ -66,4 +66,3 @@ int main(int argc, char* argv[]) {
     lib.write_gds("repetitions.gds", 0, NULL);
     return 0;
 }
-

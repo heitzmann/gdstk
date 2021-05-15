@@ -24,7 +24,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 //
 // #define GDSTK_CUSTOM_ALLOCATOR
 
-
 // After installation, this should be the only header required to be included
 // by the user.  All other headers are included below.
 

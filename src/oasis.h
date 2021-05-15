@@ -226,4 +226,3 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
 }  // namespace gdstk
 
 #endif
-

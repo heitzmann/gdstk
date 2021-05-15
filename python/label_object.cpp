@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* label_object_str(LabelObject* self) {
-    char buffer[256];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer), "Label '%s' at layer %" PRIu32 ", texttype %" PRIu32 "",
              self->label->text, self->label->layer, self->label->texttype);
     return PyUnicode_FromString(buffer);

@@ -169,4 +169,3 @@ struct FlexPath {
 }  // namespace gdstk
 
 #endif
-

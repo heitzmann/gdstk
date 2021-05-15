@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* robustpath_object_str(RobustPathObject* self) {
-    char buffer[64];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer), "RobustPath with %" PRIu64 " paths and %" PRIu64 " sections",
              self->robustpath->num_elements, self->robustpath->subpath_array.count);
     return PyUnicode_FromString(buffer);
@@ -1512,7 +1512,8 @@ static PyObject* robustpath_object_translate(RobustPathObject* self, PyObject* a
         }
         v.y = PyFloat_AsDouble(dy);
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to convert dy to float and dx is not a vector.");
+            PyErr_SetString(PyExc_RuntimeError,
+                            "Unable to convert dy to float and dx is not a vector.");
             return NULL;
         }
     }

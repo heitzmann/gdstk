@@ -102,7 +102,7 @@ void segments_intersection(const Vec2 p0, const Vec2 ut0, const Vec2 p1, const V
     const double den = ut0.cross(ut1);
     u0 = 0;
     u1 = 0;
-    if (den >= PARALLEL_EPS || den <= -PARALLEL_EPS) {
+    if (den >= GDSTK_PARALLEL_EPS || den <= -GDSTK_PARALLEL_EPS) {
         const Vec2 delta_p = p1 - p0;
         u0 = delta_p.cross(ut1) / den;
         u1 = delta_p.cross(ut0) / den;

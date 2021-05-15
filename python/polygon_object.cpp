@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* polygon_object_str(PolygonObject* self) {
-    char buffer[128];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer),
              "Polygon at layer %" PRIu32 ", datatype %" PRIu32 ", with %" PRIu64 " points",
              self->polygon->layer, self->polygon->datatype, self->polygon->point_array.count);

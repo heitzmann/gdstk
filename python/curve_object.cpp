@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* curve_object_str(CurveObject* self) {
-    char buffer[64];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer), "Curve with %" PRIu64 " points",
              self->curve->point_array.count);
     return PyUnicode_FromString(buffer);

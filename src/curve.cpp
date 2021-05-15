@@ -44,10 +44,10 @@ void Curve::append_cubic(const Vec2 p0, const Vec2 p1, const Vec2 p2, const Vec2
         Vec2 dc = eval_bezier2(t, dp0, dp1, dp2);
         Vec2 d2c = eval_line(t, d2p0, d2p1);
         double len_dc = dc.length();
-        double dt = 0.5 / MIN_POINTS;
+        double dt = 0.5 / GDSTK_MIN_POINTS;
         if (len_dc > 0) {
             double curvature = fabs(dc.cross(d2c)) / (len_dc * len_dc * len_dc);
-            if (curvature < PARALLEL_EPS) {
+            if (curvature < GDSTK_PARALLEL_EPS) {
                 dt = 1.0;
             } else {
                 double angle = 2 * acos(1 - curvature * tolerance);
@@ -55,7 +55,7 @@ void Curve::append_cubic(const Vec2 p0, const Vec2 p1, const Vec2 p2, const Vec2
             }
         }
         if (t + dt > 1) dt = 1 - t;
-        if (dt > 1.0 / MIN_POINTS) dt = 1.0 / MIN_POINTS;
+        if (dt > 1.0 / GDSTK_MIN_POINTS) dt = 1.0 / GDSTK_MIN_POINTS;
 
         Vec2 next = eval_bezier3(t + dt, p0, p1, p2, p3);
         Vec2 mid = eval_bezier3(t + 0.5 * dt, p0, p1, p2, p3);
@@ -95,10 +95,10 @@ void Curve::append_quad(const Vec2 p0, const Vec2 p1, const Vec2 p2) {
     while (t < 1) {
         Vec2 dc = eval_line(t, dp0, dp1);
         double len_dc = dc.length();
-        double dt = 0.5 / MIN_POINTS;
+        double dt = 0.5 / GDSTK_MIN_POINTS;
         if (len_dc > 0) {
             double curvature = fabs(dc.cross(d2c)) / (len_dc * len_dc * len_dc);
-            if (curvature < PARALLEL_EPS) {
+            if (curvature < GDSTK_PARALLEL_EPS) {
                 dt = 1.0;
             } else {
                 double angle = 2 * acos(1 - curvature * tolerance);
@@ -106,7 +106,7 @@ void Curve::append_quad(const Vec2 p0, const Vec2 p1, const Vec2 p2) {
             }
         }
         if (t + dt > 1) dt = 1 - t;
-        if (dt > 1.0 / MIN_POINTS) dt = 1.0 / MIN_POINTS;
+        if (dt > 1.0 / GDSTK_MIN_POINTS) dt = 1.0 / GDSTK_MIN_POINTS;
 
         Vec2 next = eval_bezier2(t + dt, p0, p1, p2);
         Vec2 mid = eval_bezier2(t + 0.5 * dt, p0, p1, p2);
@@ -163,7 +163,7 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
         double dt = 0.5 * dt_max;
         if (len_dc > 0) {
             double curvature = fabs(dc.cross(d2c)) / (len_dc * len_dc * len_dc);
-            if (curvature < PARALLEL_EPS) {
+            if (curvature < GDSTK_PARALLEL_EPS) {
                 dt = 1.0;
             } else {
                 double angle = 2 * acos(1 - curvature * tolerance);
@@ -432,7 +432,7 @@ void Curve::arc(double radius_x, double radius_y, double initial_angle, double f
     const double full_angle = fabs(final_angle - initial_angle);
     const double max_radius = radius_x > radius_y ? radius_x : radius_y;
     uint64_t num_points = 1 + arc_num_points(full_angle, max_radius, tolerance);
-    if (num_points < MIN_POINTS) num_points = MIN_POINTS;
+    if (num_points < GDSTK_MIN_POINTS) num_points = GDSTK_MIN_POINTS;
 
     initial_angle = elliptical_angle_transform(initial_angle - rotation, radius_x, radius_y);
     final_angle = elliptical_angle_transform(final_angle - rotation, radius_x, radius_y);
@@ -466,9 +466,9 @@ void Curve::parametric(ParametricVec2 curve_function, void* data, bool relative)
     double u = 0;
     Vec2 last = (*curve_function)(0, data) + ref;
     if ((last - last_curve_point).length_sq() > tolerance_sq) append(last);
-    double du = 1.0 / MIN_POINTS;
+    double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < 1) {
-        if (du > 1.0 / MIN_POINTS) du = 1.0 / MIN_POINTS;
+        if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > 1.0) du = 1.0 - u;
         Vec2 next = (*curve_function)(u + du, data) + ref;
         Vec2 mid = (*curve_function)(u + 0.5 * du, data) + ref;

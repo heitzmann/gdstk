@@ -6,7 +6,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
 static PyObject* reference_object_str(ReferenceObject* self) {
-    char buffer[128];
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
     Reference* reference = self->reference;
     snprintf(buffer, COUNT(buffer), "Reference to %s'%s' at (%lg, %lg)",
              reference->type == ReferenceType::Cell
