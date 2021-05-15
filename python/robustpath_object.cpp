@@ -60,6 +60,16 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                      &py_datatype))
         return -1;
 
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return -1;
+    }
+
+    if (max_evals < 1) {
+        PyErr_SetString(PyExc_ValueError, "Argument max_evals must be greater than 0.");
+        return -1;
+    }
+
     if (self->robustpath) {
         RobustPath* robustpath = self->robustpath;
         RobustPathElement* el = robustpath->elements;
@@ -121,6 +131,12 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                  "Unable to convert width[%" PRIu64 "] to float.", i);
                     return -1;
                 }
+                if (el->end_width < 0) {
+                    robustpath_cleanup(self);
+                    PyErr_Format(PyExc_ValueError,
+                                 "Negative width value not allowed: width[%" PRIu64 "].", i);
+                    return -1;
+                }
 
                 item = PySequence_ITEM(py_offset, i);
                 if (item == NULL) {
@@ -166,6 +182,12 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                  "Unable to convert width[%" PRIu64 "] to float.", i);
                     return -1;
                 }
+                if (el->end_width < 0) {
+                    robustpath_cleanup(self);
+                    PyErr_Format(PyExc_ValueError,
+                                 "Negative width value not allowed: width[%" PRIu64 "].", i);
+                    return -1;
+                }
             }
         }
     } else if (py_offset && PySequence_Check(py_offset)) {
@@ -178,6 +200,11 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
         if (PyErr_Occurred()) {
             robustpath_cleanup(self);
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert width to float.");
+            return -1;
+        }
+        if (width < 0) {
+            robustpath_cleanup(self);
+            PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
             return -1;
         }
 
@@ -209,6 +236,11 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
         if (PyErr_Occurred()) {
             robustpath_cleanup(self);
             PyErr_SetString(PyExc_RuntimeError, "Unable to convert width to float.");
+            return -1;
+        }
+        if (robustpath->elements[0].end_width < 0) {
+            robustpath_cleanup(self);
+            PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
             return -1;
         }
         if (py_offset != NULL) {
@@ -403,7 +435,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
     return 0;
 }
 
-static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject* args) {
+static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject*) {
     RobustPathObject* result = PyObject_New(RobustPathObject, &robustpath_object_type);
     result = (RobustPathObject*)PyObject_Init((PyObject*)result, &robustpath_object_type);
     result->robustpath = (RobustPath*)allocate_clear(sizeof(RobustPath));
@@ -412,7 +444,7 @@ static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject* args) 
     return (PyObject*)result;
 }
 
-static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args) {
+static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject*) {
     Array<Vec2> point_array = {0};
     self->robustpath->spine(point_array);
     npy_intp dims[] = {(npy_intp)point_array.count, 2};
@@ -428,7 +460,7 @@ static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject* args)
     return (PyObject*)result;
 }
 
-static PyObject* robustpath_object_path_spines(RobustPathObject* self, PyObject* args) {
+static PyObject* robustpath_object_path_spines(RobustPathObject* self, PyObject*) {
     Array<Vec2> point_array = {0};
     RobustPath* path = self->robustpath;
     PyObject* result = PyList_New(path->num_elements);
@@ -530,7 +562,7 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
     return (PyObject*)result;
 }
 
-static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject* args) {
+static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
     self->robustpath->to_polygons(array);
     PyObject* result = PyList_New(array.count);
@@ -755,6 +787,11 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                         "Width tuple must contain a number and the interpolation specification ('constant', 'linear', or 'smooth').");
                     return -1;
                 }
+                if (value < 0) {
+                    PyErr_Format(PyExc_ValueError,
+                                 "Negative width value not allowed: width[%" PRIu64 "].", i);
+                    return -1;
+                }
                 if (strcmp(type, "constant") == 0) {
                     width->type = InterpolationType::Constant;
                     width->value = value;
@@ -778,15 +815,21 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                 width->data = (void*)item;
                 Py_INCREF(item);
             } else {
-                width->type = InterpolationType::Linear;
-                width->initial_value = robustpath.elements[i].end_width;
-                width->final_value = PyFloat_AsDouble(item);
+                double value = PyFloat_AsDouble(item);
                 if (PyErr_Occurred()) {
                     PyErr_SetString(
                         PyExc_RuntimeError,
                         "Argument width must be a number, a 2-tuple, a callable, or a list of those.");
                     return -1;
                 }
+                if (value < 0) {
+                    PyErr_Format(PyExc_ValueError,
+                                 "Negative width value not allowed: width[%" PRIu64 "].", i);
+                    return -1;
+                }
+                width->type = InterpolationType::Linear;
+                width->initial_value = robustpath.elements[i].end_width;
+                width->final_value = value;
             }
         }
     } else {
@@ -797,6 +840,10 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                 PyErr_SetString(
                     PyExc_RuntimeError,
                     "Width tuple must contain a number and the interpolation specification ('constant', 'linear', or 'smooth').");
+                return -1;
+            }
+            if (value < 0) {
+                PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
                 return -1;
             }
             if (strcmp(type, "constant") == 0) {
@@ -838,6 +885,10 @@ static int parse_robustpath_width(RobustPath& robustpath, PyObject* py_width,
                     "Argument width must be a number, a 2-tuple, a callable, or a list of those.");
                 return -1;
             }
+            if (value < 0) {
+                PyErr_SetString(PyExc_ValueError, "Negative width value not allowed.");
+                return -1;
+            }
             for (uint64_t i = 0; i < robustpath.num_elements; i++, width++) {
                 width->type = InterpolationType::Linear;
                 width->initial_value = robustpath.elements[i].end_width;
@@ -866,11 +917,17 @@ static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* 
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->horizontal(coord, width, offset, relative > 0);
     free_allocation(o_buffer);
@@ -896,11 +953,17 @@ static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* ar
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if(parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->vertical(coord, width, offset, relative > 0);
     free_allocation(o_buffer);
@@ -927,11 +990,17 @@ static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* arg
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if(parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->segment(end_point, width, offset, relative > 0);
     free_allocation(o_buffer);
@@ -962,11 +1031,19 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if(parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->cubic(point_array[0], point_array[1], point_array[2], width, offset, relative > 0);
     point_array.clear();
@@ -999,11 +1076,19 @@ static PyObject* robustpath_object_cubic_smooth(RobustPathObject* self, PyObject
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->cubic_smooth(point_array[0], point_array[1], width, offset, relative > 0);
     point_array.clear();
@@ -1036,11 +1121,19 @@ static PyObject* robustpath_object_quadratic(RobustPathObject* self, PyObject* a
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->quadratic(point_array[0], point_array[1], width, offset, relative > 0);
     point_array.clear();
@@ -1069,11 +1162,17 @@ static PyObject* robustpath_object_quadratic_smooth(RobustPathObject* self, PyOb
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->quadratic_smooth(end_point, width, offset, relative > 0);
     Py_INCREF(self);
@@ -1104,11 +1203,19 @@ static PyObject* robustpath_object_bezier(RobustPathObject* self, PyObject* args
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            point_array.clear();
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     robustpath->bezier(point_array, width, offset, relative > 0);
     point_array.clear();
@@ -1284,11 +1391,21 @@ static PyObject* robustpath_object_intepolation(RobustPathObject* self, PyObject
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            point_array.clear();
+            free_allocation(tension);
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            point_array.clear();
+            free_allocation(tension);
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
 
     robustpath->interpolation(point_array, angles, angle_constraints, tension, initial_curl,
@@ -1360,12 +1477,25 @@ static PyObject* robustpath_object_arc(RobustPathObject* self, PyObject* args, P
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
+
+    if (radius_x <= 0 || radius_y <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Arc radius must be positive.");
+        free_allocation(o_buffer);
+        return NULL;
+    }
+
     robustpath->arc(radius_x, radius_y, initial_angle, final_angle, rotation, width, offset);
     free_allocation(o_buffer);
     Py_INCREF(self);
@@ -1389,11 +1519,22 @@ static PyObject* robustpath_object_turn(RobustPathObject* self, PyObject* args, 
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
+    }
+    if (radius <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Turn radius must be positive.");
+        free_allocation(o_buffer);
+        return NULL;
     }
     robustpath->turn(radius, angle, width, offset);
     free_allocation(o_buffer);
@@ -1429,11 +1570,17 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        parse_robustpath_offset(*robustpath, py_offset, offset);
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        parse_robustpath_width(*robustpath, py_width, width);
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
+            free_allocation(o_buffer);
+            return NULL;
+        }
     }
     Py_INCREF(py_function);
     if (py_gradient == Py_None) {
@@ -1565,7 +1712,7 @@ static PyObject* robustpath_object_rotate(RobustPathObject* self, PyObject* args
     return (PyObject*)self;
 }
 
-static PyObject* robustpath_object_apply_repetition(RobustPathObject* self, PyObject* args) {
+static PyObject* robustpath_object_apply_repetition(RobustPathObject* self, PyObject*) {
     Array<RobustPath*> array = {0};
     self->robustpath->apply_repetition(array);
     PyObject* result = PyList_New(array.count);

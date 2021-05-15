@@ -52,6 +52,11 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                      &scale_width, &py_layer, &py_datatype))
         return -1;
 
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return -1;
+    }
+
     if (self->flexpath) {
         FlexPath* flexpath = self->flexpath;
         FlexPathElement* el = flexpath->elements;

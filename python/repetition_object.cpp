@@ -84,7 +84,7 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
     return 0;
 }
 
-static PyObject* repetition_object_getoffsets(RepetitionObject* self, PyObject* args) {
+static PyObject* repetition_object_getoffsets(RepetitionObject* self, PyObject*) {
     Array<Vec2> offsets = {0};
     self->repetition.get_offsets(offsets);
     npy_intp dims[] = {(npy_intp)offsets.count, 2};
