@@ -105,7 +105,7 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
     return 0;
 }
 
-static PyObject* reference_object_copy(ReferenceObject* self, PyObject* args) {
+static PyObject* reference_object_copy(ReferenceObject* self, PyObject*) {
     ReferenceObject* result = PyObject_New(ReferenceObject, &reference_object_type);
     result = (ReferenceObject*)PyObject_Init((PyObject*)result, &reference_object_type);
     result->reference = (Reference*)allocate_clear(sizeof(Reference));
@@ -114,7 +114,7 @@ static PyObject* reference_object_copy(ReferenceObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject* args) {
+static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject*) {
     Vec2 min, max;
     self->reference->bounding_box(min, max);
     if (min.x > max.x) {
@@ -124,7 +124,7 @@ static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject* 
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 
-static PyObject* reference_object_convex_hull(ReferenceObject* self, PyObject* args) {
+static PyObject* reference_object_convex_hull(ReferenceObject* self, PyObject*) {
     Array<Vec2> points = {0};
     self->reference->convex_hull(points);
     npy_intp dims[] = {(npy_intp)points.count, 2};
@@ -139,7 +139,7 @@ static PyObject* reference_object_convex_hull(ReferenceObject* self, PyObject* a
     return (PyObject*)result;
 }
 
-static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject* args) {
+static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject*) {
     Array<Reference*> array = {0};
     self->reference->apply_repetition(array);
     PyObject* result = PyList_New(array.count);

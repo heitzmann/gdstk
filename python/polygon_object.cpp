@@ -42,7 +42,7 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
     return 0;
 }
 
-static PyObject* polygon_object_copy(PolygonObject* self, PyObject* args) {
+static PyObject* polygon_object_copy(PolygonObject* self, PyObject*) {
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
@@ -51,12 +51,12 @@ static PyObject* polygon_object_copy(PolygonObject* self, PyObject* args) {
     return (PyObject*)result;
 }
 
-static PyObject* polygon_object_area(PolygonObject* self, PyObject* args) {
+static PyObject* polygon_object_area(PolygonObject* self, PyObject*) {
     const double area = self->polygon->area();
     return PyFloat_FromDouble(area);
 }
 
-static PyObject* polygon_object_bounding_box(PolygonObject* self, PyObject* args) {
+static PyObject* polygon_object_bounding_box(PolygonObject* self, PyObject*) {
     Vec2 min, max;
     self->polygon->bounding_box(min, max);
     if (min.x > max.x) {
@@ -80,7 +80,8 @@ static PyObject* polygon_object_translate(PolygonObject* self, PyObject* args) {
         }
         v.y = PyFloat_AsDouble(dy);
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to convert dy to float and dx is not a vector.");
+            PyErr_SetString(PyExc_RuntimeError,
+                            "Unable to convert dy to float and dx is not a vector.");
             return NULL;
         }
     }
@@ -141,8 +142,13 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
     PyObject* radius_obj = NULL;
     Array<double> radius_array = {0};
 
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj, &tolerance))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj,
+                                     &tolerance))
         return NULL;
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return NULL;
+    }
     if (PySequence_Check(radius_obj)) {
         if (parse_double_sequence(radius_obj, radius_array, "radius") < 0) return NULL;
         free_items = true;
@@ -170,6 +176,11 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
                                      &precision))
         return NULL;
 
+    if (precision <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
+        return NULL;
+    }
+
     Array<Polygon*> array = {0};
     self->polygon->fracture(max_points, precision, array);
     PyObject* result = PyList_New(array.count);
@@ -184,7 +195,7 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
     return result;
 }
 
-static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject* args) {
+static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject*) {
     Array<Polygon*> array = {0};
     self->polygon->apply_repetition(array);
     PyObject* result = PyList_New(array.count);
