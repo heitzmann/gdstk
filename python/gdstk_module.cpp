@@ -1317,6 +1317,29 @@ static PyObject* create_library_objects(Library* library) {
     return (PyObject*)result;
 }
 
+static void library_cleanup(Library* library) {
+    for (uint64_t i = 0; i < library->cell_array.count; i++) {
+        Cell* cell = library->cell_array[i];
+        for (uint64_t j = 0; j < cell->polygon_array.count; j++) {
+            cell->polygon_array[j]->clear();
+        }
+        for (uint64_t j = 0; j < cell->flexpath_array.count; j++) {
+            cell->flexpath_array[j]->clear();
+        }
+        for (uint64_t j = 0; j < cell->robustpath_array.count; j++) {
+            cell->robustpath_array[j]->clear();
+        }
+        for (uint64_t j = 0; j < cell->reference_array.count; j++) {
+            cell->reference_array[j]->clear();
+        }
+        for (uint64_t j = 0; j < cell->label_array.count; j++) {
+            cell->label_array[j]->clear();
+        }
+        cell->clear();
+    }
+    library->clear();
+}
+
 static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* pybytes = NULL;
     double unit = 0;
@@ -1334,10 +1357,35 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
 
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
-    *library = read_gds(filename, unit, tolerance);
+    ErrorCode error_code = ErrorCode::NoError;
+    *library = read_gds(filename, unit, tolerance, &error_code);
     Py_DECREF(pybytes);
 
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::UnsupportedRecord:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Unsupported record in file.", 2) != 0) {
+                goto error_out;
+            }
+            break;
+        case ErrorCode::InputFileOpenError:
+            PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
+            goto error_out;
+        case ErrorCode::InvalidFile:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid GDSII file.");
+            goto error_out;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            goto error_out;
+    }
+
     return create_library_objects(library);
+
+error_out:
+    library_cleanup(library);
+    free_allocation(library);
+    return NULL;
 }
 
 static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds) {
@@ -1357,18 +1405,64 @@ static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds
 
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
-    *library = read_oas(filename, unit, tolerance);
+    ErrorCode error_code = ErrorCode::NoError;
+    *library = read_oas(filename, unit, tolerance, &error_code);
     Py_DECREF(pybytes);
 
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::UnsupportedRecord:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Unsupported record in file.", 2) != 0) {
+                goto error_out;
+            }
+            break;
+        case ErrorCode::InputFileOpenError:
+            PyErr_SetString(PyExc_RuntimeError, "Unable to open file for reading.");
+            goto error_out;
+        case ErrorCode::InvalidFile:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid OASIS file.");
+            goto error_out;
+        case ErrorCode::ZlibError:
+            PyErr_SetString(PyExc_RuntimeError, "Internal zlib error.");
+            goto error_out;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            goto error_out;
+    }
+
     return create_library_objects(library);
+
+error_out:
+    library_cleanup(library);
+    free_allocation(library);
+    return NULL;
 }
 
 static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:read_rawcells", PyUnicode_FSConverter, &pybytes)) return NULL;
     const char* filename = PyBytes_AS_STRING(pybytes);
-    Map<RawCell*> map = read_rawcells(filename);
+    ErrorCode error_code = ErrorCode::NoError;
+    Map<RawCell*> map = read_rawcells(filename, &error_code);
     Py_DECREF(pybytes);
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::MissingReference:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Missing reference in file.", 2) != 0)
+                return NULL;
+            break;
+        case ErrorCode::InputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Error opening input GDSII file.");
+            return NULL;
+        case ErrorCode::InvalidFile:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid GDSII file.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     PyObject* result = PyDict_New();
     if (!result) {
@@ -1400,8 +1494,23 @@ static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
     double unit = 0;
     double precision = 0;
     const char* filename = PyBytes_AS_STRING(pybytes);
-    gds_units(filename, unit, precision);
+    ErrorCode error_code = ErrorCode::NoError;
+    gds_units(filename, unit, precision, &error_code);
     Py_DECREF(pybytes);
+
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::InputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Error opening input GDSII file.");
+            return NULL;
+        case ErrorCode::InvalidFile:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid GDSII file.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     return Py_BuildValue("dd", unit, precision);
 }
@@ -1412,8 +1521,23 @@ static PyObject* oas_precision_function(PyObject* mod, PyObject* args) {
 
     double precision = 0;
     const char* filename = PyBytes_AS_STRING(pybytes);
-    oas_precision(filename, precision);
+    ErrorCode error_code = ErrorCode::NoError;
+    oas_precision(filename, precision, &error_code);
     Py_DECREF(pybytes);
+
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::InputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Error opening input GDSII file.");
+            return NULL;
+        case ErrorCode::InvalidFile:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid GDSII file.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     return PyFloat_FromDouble(precision);
 }
@@ -1424,8 +1548,25 @@ static PyObject* oas_validate_function(PyObject* mod, PyObject* args) {
 
     const char* filename = PyBytes_AS_STRING(pybytes);
     uint32_t signature = 0;
-    bool result = oas_validate(filename, &signature);
+    ErrorCode error_code = ErrorCode::NoError;
+    bool result = oas_validate(filename, &signature, &error_code);
     Py_DECREF(pybytes);
+
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::ChecksumError:
+            return Py_BuildValue("Ok", Py_None, signature);
+        case ErrorCode::InputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Error opening input GDSII file.");
+            return NULL;
+        case ErrorCode::InvalidFile:
+            PyErr_SetString(PyExc_RuntimeError, "Invalid GDSII file.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     return Py_BuildValue("Ok", result ? Py_True : Py_False, signature);
 }

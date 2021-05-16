@@ -12,11 +12,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = read_gds("layout.gds", 0, 1e-2);
-    if (lib.unit == 0) {
-        // File not found
-        exit(EXIT_FAILURE);
-    }
+    ErrorCode error_code = ErrorCode::NoError;
+    Library lib = read_gds("layout.gds", 0, 1e-2, &error_code);
+    if (error_code != ErrorCode::NoError) exit(EXIT_FAILURE);
 
     for (int64_t i = 0; i < lib.cell_array.count; i++) {
         Cell* cell = lib.cell_array[i];

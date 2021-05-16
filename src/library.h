@@ -67,7 +67,7 @@ struct Library {
     // max_points before saving (but the originals are kept) if max_points > 4.
     // GDSII files include a timestamp, which can be specified bu the caller or
     // left NULL, in which case the current time will be used.
-    void write_gds(const char* filename, uint64_t max_points, tm* timestamp) const;
+    ErrorCode write_gds(const char* filename, uint64_t max_points, tm* timestamp) const;
 
     // Output this library to an OASIS file.  The OASIS specification includes
     // support for a few special shapes, which can significantly decrease the
@@ -76,34 +76,40 @@ struct Library {
     // reduction can be achieved by setting deflate_level > 0 (up to 9, for
     // maximal compression).  Finally, config_flags is a bit-field value
     // obtained by or-ing OASIS_CONFIG_* constants, defined in oasis.h
-    void write_oas(const char* filename, double circle_tolerance, uint8_t deflate_level,
-                   uint16_t config_flags);
+    ErrorCode write_oas(const char* filename, double circle_tolerance, uint8_t deflate_level,
+                        uint16_t config_flags);
 };
 
 // Read the contents of a GDSII file into a new library.  If unit is not zero,
 // the units in the file are converted (all elements are properly scaled to the
 // desired unit).  The value of tolerance is used as the initial tolerance for
-// paths in the library.
-Library read_gds(const char* filename, double unit, double tolerance);
+// paths in the library.  If not NULL, any errors will be reported through
+// error_code.
+Library read_gds(const char* filename, double unit, double tolerance, ErrorCode* error_code);
 
 // Read the contents of an OASIS file into a new library.  If unit is not zero,
 // the units in the file are converted (all elements are properly scaled to the
 // desired unit).  The value of tolerance is used as the initial tolerance for
-// paths in the library and for the creation of circles.
-Library read_oas(const char* filename, double unit, double tolerance);
+// paths in the library and for the creation of circles.  If not NULL, any
+// errors will be reported through error_code.
+Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code);
 
 // Read the unit and precision of a GDSII file and return in the respective
-// arguments.  Return zero on success.
-int gds_units(const char* filename, double& unit, double& precision);
+// arguments.  Return zero on success.  If not NULL, any errors will be
+// reported through error_code.
+int gds_units(const char* filename, double& unit, double& precision, ErrorCode* error_code);
 
 // Read the precision of an OASIS file (unit is always 1e-6) and return in the
-// precision argument.  Return zero on success.
-int oas_precision(const char* filename, double& precision);
+// precision argument.  Return zero on success.  If not NULL, any errors will
+// be reported through error_code.
+int oas_precision(const char* filename, double& precision, ErrorCode* error_code);
 
 // Return true if the file signature checks or if the file has no validation
-// data.  If signature is provided, the calculated signature is stored there
-// (it is set to zero if the file has no validation data).
-bool oas_validate(const char* filename, uint32_t* signature);
+// data.  If signature is provided, the calculated signature is stored there.
+// If not NULL, any errors will be reported through error_code.  If the file
+// has no checksum data, signature will be set to zero and error_code to
+// ErrorCode::ChecksumError if they are not NULL.
+bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_code);
 
 }  // namespace gdstk
 

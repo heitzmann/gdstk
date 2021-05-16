@@ -147,9 +147,9 @@ struct Cell {
     // which case it is interpreted as a percentage of the largest bounding box
     // dimension.  Argument comp in to_svg can be used to sort the polygons in
     // the SVG output, which affects their draw order.
-    void write_svg(const char* filename, double scaling, StyleMap& style, StyleMap& label_style,
-                   const char* background, double pad, bool pad_as_percentage,
-                   PolygonComparisonFunction comp) const;
+    ErrorCode write_svg(const char* filename, double scaling, StyleMap& style,
+                        StyleMap& label_style, const char* background, double pad,
+                        bool pad_as_percentage, PolygonComparisonFunction comp) const;
 };
 
 }  // namespace gdstk

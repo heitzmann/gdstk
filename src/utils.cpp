@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "utils.h"
 
+#include <assert.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <math.h>
@@ -68,8 +69,12 @@ bool is_multiple_of_pi_over_2(double angle, int64_t& m) {
     return false;
 }
 
-uint64_t arc_num_points(double angle, double radius, double tol) {
-    return (uint64_t)(0.5 + 0.5 * fabs(angle) / acos(1 - tol / radius));
+uint64_t arc_num_points(double angle, double radius, double tolerance) {
+    assert(radius > 0);
+    assert(tolerance > 0);
+    double c = 1 - tolerance / radius;
+    double a = c < -1 ? M_PI : acos(c);
+    return (uint64_t)(0.5 + 0.5 * fabs(angle) / a);
 }
 
 static double modulo(double x, double y) {

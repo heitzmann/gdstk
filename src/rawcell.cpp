@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "rawcell.h"
 
+#include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -85,25 +86,26 @@ void RawCell::to_gds(FILE* out) {
     fwrite(data, 1, size, out);
 }
 
-Map<RawCell*> read_rawcells(const char* filename) {
+Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
+    Map<RawCell*> result = {0};
     uint32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
 
-    Map<RawCell*> result = {0};
-    RawCell* rawcell = NULL;
-
     RawSource* source = (RawSource*)allocate(sizeof(RawSource));
-    source->file = fopen(filename, "rb");
     source->uses = 0;
+    source->file = fopen(filename, "rb");
     if (source->file == NULL) {
         fputs("[GDSTK] Unable to open input GDSII file.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return result;
     }
 
+    RawCell* rawcell = NULL;
+
     while ((record_length = gdsii_read_record(source->file, buffer)) > 0) {
         switch (buffer[2]) {
-            case 0x04:  // ENDLIB
+            case 0x04: {  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
                     Array<RawCell*>* dependencies = &item->value->dependencies;
                     for (uint64_t i = 0; i < dependencies->count;) {
@@ -118,7 +120,8 @@ Map<RawCell*> read_rawcells(const char* filename) {
                             }
                         } else {
                             dependencies->remove_unordered(i);
-                            fprintf(stderr, "[GDSTK] Referenced cell %s not found.", name);
+                            fprintf(stderr, "[GDSTK] Referenced cell %s not found.\n", name);
+                            if (error_code) *error_code = ErrorCode::MissingReference;
                         }
                         free_allocation(name);
                     }
@@ -128,7 +131,7 @@ Map<RawCell*> read_rawcells(const char* filename) {
                     free_allocation(source);
                 }
                 return result;
-                break;
+            } break;
             case 0x05:  // BGNSTR
                 rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
                 rawcell->source = source;
@@ -169,11 +172,22 @@ Map<RawCell*> read_rawcells(const char* filename) {
         }
     }
 
-    if (source->uses == 0) {
-        fclose(source->file);
-        free_allocation(source);
+    source->uses++;  // ensure rawcell->clear() won't close and free source
+    for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
+        rawcell = item->value;
+        Array<RawCell*>* dependencies = &rawcell->dependencies;
+        for (uint64_t i = 0; i < dependencies->count;) {
+            char* name = (char*)((*dependencies)[i]);
+            free_allocation(name);
+        }
+        rawcell->clear();
     }
-    return Map<RawCell*>{0};
+    fclose(source->file);
+    free_allocation(source);
+    result.clear();
+    fprintf(stderr, "[GDSTK] Invalid GDSII file %s.\n", filename);
+    if (error_code) *error_code = ErrorCode::InvalidFile;
+    return result;
 }
 
 }  // namespace gdstk

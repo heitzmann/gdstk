@@ -3072,4 +3072,4 @@ Args:
 
 Returns:
     Validation result (True/False) and the calculated signature. If the
-    file does not have a signature, returns (True, 0))!");
+    file does not have a signature, returns (None, 0))!");

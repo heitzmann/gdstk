@@ -1,6 +1,8 @@
 # Change Log
 
 ## Unreleased
+### Changed
+- `oas_validate` returns `None` if the file has no checksum information
 ### Fixed
 - Bend calculation for `FlexPath` correctly accounts for bending angle to make sure the bend fits
 

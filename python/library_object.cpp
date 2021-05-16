@@ -194,8 +194,19 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
         return NULL;
 
     const char* filename = PyBytes_AS_STRING(pybytes);
-    self->library->write_gds(filename, max_points, NULL);
+    ErrorCode error_code = self->library->write_gds(filename, max_points, NULL);
     Py_DECREF(pybytes);
+
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::OutputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Could not open file for writing.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -236,8 +247,23 @@ static PyObject* library_object_write_oas(LibraryObject* self, PyObject* args, P
     }
 
     const char* filename = PyBytes_AS_STRING(pybytes);
-    self->library->write_oas(filename, circle_tolerance, compression_level, config_flags);
+    ErrorCode error_code =
+        self->library->write_oas(filename, circle_tolerance, compression_level, config_flags);
     Py_DECREF(pybytes);
+
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::OutputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Could not open file for writing.");
+            return NULL;
+        case ErrorCode::ZlibError:
+            PyErr_SetString(PyExc_RuntimeError, "Internal zlib error.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     Py_INCREF(Py_None);
     return Py_None;

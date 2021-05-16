@@ -924,7 +924,7 @@ static PyObject* robustpath_object_horizontal(RobustPathObject* self, PyObject* 
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
             free_allocation(o_buffer);
             return NULL;
         }
@@ -953,14 +953,14 @@ static PyObject* robustpath_object_vertical(RobustPathObject* self, PyObject* ar
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        if(parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
             free_allocation(o_buffer);
             return NULL;
         }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
             free_allocation(o_buffer);
             return NULL;
         }
@@ -990,14 +990,14 @@ static PyObject* robustpath_object_segment(RobustPathObject* self, PyObject* arg
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        if(parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
             free_allocation(o_buffer);
             return NULL;
         }
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
             free_allocation(o_buffer);
             return NULL;
         }
@@ -1031,7 +1031,7 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
     Interpolation* width = NULL;
     if (py_offset != Py_None) {
         offset = o_buffer;
-        if(parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
+        if (parse_robustpath_offset(*robustpath, py_offset, offset) < 0) {
             point_array.clear();
             free_allocation(o_buffer);
             return NULL;
@@ -1039,7 +1039,7 @@ static PyObject* robustpath_object_cubic(RobustPathObject* self, PyObject* args,
     }
     if (py_width != Py_None) {
         width = w_buffer;
-        if(parse_robustpath_width(*robustpath, py_width, width) < 0) {
+        if (parse_robustpath_width(*robustpath, py_width, width) < 0) {
             point_array.clear();
             free_allocation(o_buffer);
             return NULL;

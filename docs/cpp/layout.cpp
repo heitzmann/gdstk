@@ -36,15 +36,13 @@ int main(int argc, char* argv[]) {
     double unit = 0;
     double precision = 0;
 
-    gds_units("photonics.gds", unit, precision);
-    if (unit == 0) {
-        // File not found.
-        exit(EXIT_FAILURE);
-    }
+    ErrorCode error_code = ErrorCode::NoError;
+    gds_units("photonics.gds", unit, precision, &error_code);
+    if (error_code != ErrorCode::NoError) exit(EXIT_FAILURE);
 
     printf("Using unit = %.3g, precision = %.3g\n", unit, precision);
 
-    Map<RawCell*> pdk = read_rawcells("photonics.gds");
+    Map<RawCell*> pdk = read_rawcells("photonics.gds", NULL);
 
     char dev_cell_name[] = "Device";
     Cell dev_cell = {.name = dev_cell_name};

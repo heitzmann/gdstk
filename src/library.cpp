@@ -107,11 +107,11 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     }
 }
 
-void Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
+ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
     FILE* out = fopen(filename, "wb");
     if (out == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);
-        return;
+        return ErrorCode::OutputFileOpenError;
     }
 
     uint64_t len = strlen(name);
@@ -165,6 +165,7 @@ void Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 
     fclose(out);
+    return ErrorCode::NoError;
 }
 
 static uint64_t max_string_length(Property* property) {
@@ -190,8 +191,9 @@ static void* zalloc(void*, uInt count, uInt size) { return allocate(count * size
 
 static void zfree(void*, void* ptr) { free_allocation(ptr); }
 
-void Library::write_oas(const char* filename, double circle_tolerance, uint8_t compression_level,
-                        uint16_t config_flags) {
+ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
+                             uint8_t compression_level, uint16_t config_flags) {
+    ErrorCode error_code = ErrorCode::NoError;
     const uint64_t c_size = cell_array.count;
     OasisState state = {0};
     state.circle_tolerance = circle_tolerance;
@@ -203,7 +205,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     out.file = fopen(filename, "wb");
     if (out.file == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for output.\n", stderr);
-        return;
+        return ErrorCode::OutputFileOpenError;
     }
     out.data_size = 1024 * 1024;
     out.data = (uint8_t*)allocate(out.data_size);
@@ -443,6 +445,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
             Reference* ref = *ref_p++;
             if (ref->type == ReferenceType::RawCell) {
                 fputs("[GDSTK] Reference to a RawCell cannot be used in an OASIS file.\n", stderr);
+                error_code = ErrorCode::MissingReference;
                 continue;
             }
             uint8_t info = 0xF0;
@@ -516,6 +519,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
             if (deflateInit2(&s, compression_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) !=
                 Z_OK) {
                 fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
+                error_code = ErrorCode::ZlibError;
             }
             s.avail_out = deflateBound(&s, (uLong)uncompressed_size);
             uint8_t* buffer = (uint8_t*)allocate(s.avail_out);
@@ -525,6 +529,7 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
             int ret = deflate(&s, Z_FINISH);
             if (ret != Z_STREAM_END) {
                 fputs("[GDSTK] Unable to compress CBLOCK.\n", stderr);
+                error_code = ErrorCode::ZlibError;
             }
 
             oasis_putc((int)OasisRecord::CBLOCK, out);
@@ -653,9 +658,10 @@ void Library::write_oas(const char* filename, double circle_tolerance, uint8_t c
     text_string_map.clear();
     state.property_name_map.clear();
     state.property_value_array.clear();
+    return error_code;
 }
 
-Library read_gds(const char* filename, double unit, double tolerance) {
+Library read_gds(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
         "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
@@ -691,6 +697,7 @@ Library read_gds(const char* filename, double unit, double tolerance) {
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return library;
     }
 
@@ -928,10 +935,12 @@ Library read_gds(const char* filename, double unit, double tolerance) {
                     reference->x_reflection = (data16[0] & 0x8000) != 0;
                 else if (label)
                     label->x_reflection = (data16[0] & 0x8000) != 0;
-                if (data16[0] & 0x0006)
+                if (data16[0] & 0x0006) {
                     fputs(
                         "[GDSTK] Absolute magnification and rotation of references is not supported.\n",
                         stderr);
+                    if (error_code) *error_code = ErrorCode::UnsupportedRecord;
+                }
                 break;
             case GdsiiRecord::MAG:
                 if (reference)
@@ -1011,11 +1020,13 @@ Library read_gds(const char* filename, double unit, double tolerance) {
             // case GdsiiRecord::SRFNAME:
             // case GdsiiRecord::LIBSECUR:
             default:
-                if (buffer[2] < COUNT(gdsii_record_names))
+                if (buffer[2] < COUNT(gdsii_record_names)) {
                     fprintf(stderr, "[GDSTK] Record type %s (0x%02X) is not supported.\n",
                             gdsii_record_names[buffer[2]], buffer[2]);
-                else
+                } else {
                     fprintf(stderr, "[GDSTK] Unknown record type 0x%02X.\n", buffer[2]);
+                }
+                if (error_code) *error_code = ErrorCode::UnsupportedRecord;
         }
     }
 
@@ -1023,13 +1034,14 @@ Library read_gds(const char* filename, double unit, double tolerance) {
     return Library{0};
 }
 
-Library read_oas(const char* filename, double unit, double tolerance) {
+Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {0};
 
     OasisStream in = {0};
     in.file = fopen(filename, "rb");
     if (in.file == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return library;
     }
 
@@ -1037,6 +1049,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
     char header[14];
     if (fread(header, 1, 14, in.file) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
         fputs("[GDSTK] Invalid OASIS header found.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in.file);
         return library;
     }
@@ -1046,6 +1059,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
     uint8_t* version = oasis_read_string(in, false, len);
     if (memcmp(version, "1.0", 3) != 0) {
         fputs("[GDSTK] Unsupported OASIS file version.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
     }
     free_allocation(version);
 
@@ -1109,6 +1123,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
             case OasisRecord::START:
                 // START is parsed before this loop
                 fputs("[GDSTK] Unexpected START record out of position in file.\n", stderr);
+                if (error_code) *error_code = ErrorCode::InvalidFile;
                 break;
             case OasisRecord::END: {
                 fseek(in.file, 0, SEEK_END);
@@ -1999,17 +2014,20 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                 oasis_read_unsigned_integer(in);
                 free_allocation(oasis_read_string(in, false, len));
                 fputs("[GDSTK] Record type XNAME ignored.\n", stderr);
+                if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
             case OasisRecord::XNAME: {
                 oasis_read_unsigned_integer(in);
                 free_allocation(oasis_read_string(in, false, len));
                 oasis_read_unsigned_integer(in);
                 fputs("[GDSTK] Record type XNAME ignored.\n", stderr);
+                if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
             case OasisRecord::XELEMENT: {
                 oasis_read_unsigned_integer(in);
                 free_allocation(oasis_read_string(in, false, len));
                 fputs("[GDSTK] Record type XELEMENT ignored.\n", stderr);
+                if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
             case OasisRecord::XGEOMETRY: {
                 uint8_t info;
@@ -2042,10 +2060,12 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     oasis_read_repetition(in, factor, modal_repetition);
                 }
                 fputs("[GDSTK] Record type XGEOMETRY ignored.\n", stderr);
+                if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
             case OasisRecord::CBLOCK: {
                 if (oasis_read_unsigned_integer(in) != 0) {
                     fputs("[GDSTK] CBLOCK compression method not supported.\n", stderr);
+                    if (error_code) *error_code = ErrorCode::InvalidFile;
                     oasis_read_unsigned_integer(in);
                     len = oasis_read_unsigned_integer(in);
                     fseek(in.file, (long)len, SEEK_SET);
@@ -2063,13 +2083,16 @@ Library read_oas(const char* filename, double unit, double tolerance) {
                     s.next_in = (Bytef*)data;
                     if (fread(s.next_in, 1, s.avail_in, in.file) != s.avail_in) {
                         fputs("[GDSTK] Unable to read full CBLOCK.\n", stderr);
+                        if (error_code) *error_code = ErrorCode::InvalidFile;
                     }
                     if (inflateInit2(&s, -15) != Z_OK) {
                         fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
+                        if (error_code) *error_code = ErrorCode::ZlibError;
                     }
                     int ret = inflate(&s, Z_FINISH);
                     if (ret != Z_STREAM_END) {
                         fputs("[GDSTK] Unable to decompress CBLOCK.\n", stderr);
+                        if (error_code) *error_code = ErrorCode::ZlibError;
                     }
                     free_allocation(data);
                     inflateEnd(&s);
@@ -2077,6 +2100,7 @@ Library read_oas(const char* filename, double unit, double tolerance) {
             } break;
             default:
                 fprintf(stderr, "[GDSTK] Unknown record type <0x%02X>.\n", (uint8_t)record);
+                if (error_code) *error_code = ErrorCode::UnsupportedRecord;
         }
     }
     fclose(in.file);
@@ -2119,12 +2143,13 @@ Library read_oas(const char* filename, double unit, double tolerance) {
     return library;
 }
 
-int gds_units(const char* filename, double& unit, double& precision) {
+int gds_units(const char* filename, double& unit, double& precision, ErrorCode* error_code) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return -1;
     }
 
@@ -2138,14 +2163,16 @@ int gds_units(const char* filename, double& unit, double& precision) {
         }
     }
     fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
+    if (error_code) *error_code = ErrorCode::InvalidFile;
     fclose(in);
     return -1;
 }
 
-int oas_precision(const char* filename, double& precision) {
+int oas_precision(const char* filename, double& precision, ErrorCode* error_code) {
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return -1;
     }
 
@@ -2153,6 +2180,7 @@ int oas_precision(const char* filename, double& precision) {
     char header[14];
     if (fread(header, 1, 14, in) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
         fputs("[GDSTK] Invalid OASIS header found.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in);
         return -1;
     }
@@ -2163,6 +2191,7 @@ int oas_precision(const char* filename, double& precision) {
     uint8_t* version = oasis_read_string(s, false, len);
     if (memcmp(version, "1.0", 3) != 0) {
         fputs("[GDSTK] Unsupported OASIS file version.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
     }
     free_allocation(version);
 
@@ -2171,11 +2200,12 @@ int oas_precision(const char* filename, double& precision) {
     return 0;
 }
 
-bool oas_validate(const char* filename, uint32_t* signature) {
+bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_code) {
     uint8_t buffer[32 * 1024];
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return false;
     }
 
@@ -2183,12 +2213,14 @@ bool oas_validate(const char* filename, uint32_t* signature) {
     char header[14];
     if (fread(header, 1, 14, in) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
         fputs("[GDSTK] Invalid OASIS header found.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in);
         return false;
     }
 
     if (fseek(in, -5, SEEK_END) != 0) {
         fputs("[GDSTK] Unable to find the END record of the file.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in);
         return false;
     }
@@ -2197,6 +2229,7 @@ bool oas_validate(const char* filename, uint32_t* signature) {
     uint8_t file_sum[5];
     if (fread(file_sum, 1, COUNT(file_sum), in) < 5) {
         fputs("[GDSTK] Unable to read the END record of the file.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in);
         return false;
     }
@@ -2208,12 +2241,14 @@ bool oas_validate(const char* filename, uint32_t* signature) {
         while (size >= COUNT(buffer)) {
             if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
                 fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+                if (error_code) *error_code = ErrorCode::InvalidFile;
             }
             sig = crc32_z(sig, buffer, COUNT(buffer));
             size -= COUNT(buffer);
         }
         if (fread(buffer, 1, size, in) < size) {
             fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+            if (error_code) *error_code = ErrorCode::InvalidFile;
         }
         sig = crc32_z(sig, buffer, size);
         little_endian_swap32(&sig, 1);
@@ -2227,12 +2262,14 @@ bool oas_validate(const char* filename, uint32_t* signature) {
         while (size >= COUNT(buffer)) {
             if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
                 fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+                if (error_code) *error_code = ErrorCode::InvalidFile;
             }
             sig = checksum32(sig, buffer, COUNT(buffer));
             size -= COUNT(buffer);
         }
         if (fread(buffer, 1, size, in) < size) {
             fprintf(stderr, "[GDSTK] Error reading file %s", filename);
+            if (error_code) *error_code = ErrorCode::InvalidFile;
         }
         sig = checksum32(sig, buffer, size);
         little_endian_swap32(&sig, 1);
@@ -2240,10 +2277,11 @@ bool oas_validate(const char* filename, uint32_t* signature) {
         // printf("Checksum32: 0x%08X == 0x%08X\n", sig, *(uint32_t*)(file_sum + 1));
         if (sig != *(uint32_t*)(file_sum + 1)) return false;
     } else {
+        // No checksum
+        if (error_code) *error_code = ErrorCode::ChecksumError;
         if (signature) *signature = 0;
     }
 
-    // No checksum
     return true;
 }
 

@@ -20,6 +20,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.h"
 #include "map.h"
+#include "utils.h"
 
 namespace gdstk {
 
@@ -70,8 +71,8 @@ struct RawCell {
     void to_gds(FILE* out);
 };
 
-// Load a GDSII file and extract its cells as RawCell
-Map<RawCell*> read_rawcells(const char* filename);
+// Load a GDSII file and extract its cells as RawCell.
+Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code);
 
 }  // namespace gdstk
 

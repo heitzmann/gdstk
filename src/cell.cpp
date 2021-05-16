@@ -626,9 +626,9 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes,
     free_allocation(buffer);
 }
 
-void Cell::write_svg(const char* filename, double scaling, StyleMap& style, StyleMap& label_style,
-                     const char* background, double pad, bool pad_as_percentage,
-                     PolygonComparisonFunction comp) const {
+ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
+                          StyleMap& label_style, const char* background, double pad,
+                          bool pad_as_percentage, PolygonComparisonFunction comp) const {
     Vec2 min, max;
     bounding_box(min, max);
     if (min.x > max.x) {
@@ -652,8 +652,9 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
     FILE* out = fopen(filename, "w");
     if (out == NULL) {
         fputs("[GDSTK] Unable to open file for SVG output.\n", stderr);
-        return;
+        return ErrorCode::OutputFileOpenError;
     }
+
     fprintf(out,
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<svg xmlns=\"http://www.w3.org/2000/svg\" "
@@ -737,6 +738,7 @@ void Cell::write_svg(const char* filename, double scaling, StyleMap& style, Styl
     to_svg(out, scaling, "transform=\"scale(1 -1)\"", comp);
     fputs("</svg>", out);
     fclose(out);
+    return ErrorCode::NoError;
 }
 
 }  // namespace gdstk

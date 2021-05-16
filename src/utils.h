@@ -52,6 +52,19 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// Error codes
+enum struct ErrorCode {
+    NoError = 0,
+    MissingReference,
+    InputFileOpenError,
+    OutputFileOpenError,
+    InvalidFile,
+    UnsupportedRecord,
+    ChecksumError,
+    IntersectionNotFound,
+    ZlibError,
+};
+
 // Argument between 0 and 1, plus user data
 typedef double (*ParametricDouble)(double, void*);
 
@@ -78,7 +91,7 @@ char* copy_string(const char* str, uint64_t& len);
 bool is_multiple_of_pi_over_2(double angle, int64_t& m);
 
 // Number of points needed to approximate an arc within some tolerance
-uint64_t arc_num_points(double angle, double radius, double tol);
+uint64_t arc_num_points(double angle, double radius, double tolerance);
 
 double elliptical_angle_transform(double angle, double radius_x, double radius_y);
 

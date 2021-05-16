@@ -463,9 +463,10 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
 
     const char* filename = PyBytes_AS_STRING(pybytes);
 
+    ErrorCode error_code;
     if (sort_obj == Py_None) {
-        self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                              pad_as_percentage, NULL);
+        error_code = self->cell->write_svg(filename, scaling, style, label_style, background, pad,
+                                           pad_as_percentage, NULL);
     } else {
         if (!PyCallable_Check(sort_obj)) {
             PyErr_SetString(PyExc_TypeError, "Argument sort_function must be callable.");
@@ -476,8 +477,8 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         }
         polygon_comparison_pyfunc = sort_obj;
         polygon_comparison_pylist = PyList_New(0);
-        self->cell->write_svg(filename, scaling, style, label_style, background, pad,
-                              pad_as_percentage, polygon_comparison);
+        error_code = self->cell->write_svg(filename, scaling, style, label_style, background, pad,
+                                           pad_as_percentage, polygon_comparison);
         Py_DECREF(polygon_comparison_pylist);
         polygon_comparison_pylist = NULL;
         polygon_comparison_pyfunc = NULL;
@@ -487,6 +488,17 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
 
     style.clear();
     label_style.clear();
+
+    switch (error_code) {
+        case ErrorCode::NoError:
+            break;
+        case ErrorCode::OutputFileOpenError:
+            PyErr_SetString(PyExc_OSError, "Could not open file for writing.");
+            return NULL;
+        default:
+            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
+            return NULL;
+    }
 
     Py_INCREF(self);
     return (PyObject*)self;
