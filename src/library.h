@@ -53,6 +53,31 @@ struct Library {
         properties_clear(properties);
     }
 
+    // Clear and free the memory of the whole library (this should be used with
+    // caution)
+    void free_all() {
+        for (uint64_t i = 0; i < cell_array.count; i++) {
+            Cell* cell = cell_array[i];
+            for (uint64_t j = 0; j < cell->polygon_array.count; j++) {
+                cell->polygon_array[j]->clear();
+            }
+            for (uint64_t j = 0; j < cell->flexpath_array.count; j++) {
+                cell->flexpath_array[j]->clear();
+            }
+            for (uint64_t j = 0; j < cell->robustpath_array.count; j++) {
+                cell->robustpath_array[j]->clear();
+            }
+            for (uint64_t j = 0; j < cell->reference_array.count; j++) {
+                cell->reference_array[j]->clear();
+            }
+            for (uint64_t j = 0; j < cell->label_array.count; j++) {
+                cell->label_array[j]->clear();
+            }
+            cell->clear();
+        }
+        clear();
+    }
+
     // This library instance must be zeroed before copy_from.
     // If deep_copy == true, new cells are allocated and deep copied from the
     // source.  Otherwise, the same cell pointers are used.
@@ -95,14 +120,12 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
 Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code);
 
 // Read the unit and precision of a GDSII file and return in the respective
-// arguments.  Return zero on success.  If not NULL, any errors will be
-// reported through error_code.
-int gds_units(const char* filename, double& unit, double& precision, ErrorCode* error_code);
+// arguments.
+ErrorCode gds_units(const char* filename, double& unit, double& precision);
 
 // Read the precision of an OASIS file (unit is always 1e-6) and return in the
-// precision argument.  Return zero on success.  If not NULL, any errors will
-// be reported through error_code.
-int oas_precision(const char* filename, double& precision, ErrorCode* error_code);
+// precision argument.
+ErrorCode oas_precision(const char* filename, double& precision);
 
 // Return true if the file signature checks or if the file has no validation
 // data.  If signature is provided, the calculated signature is stored there.

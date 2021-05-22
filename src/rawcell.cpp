@@ -88,7 +88,6 @@ void RawCell::to_gds(FILE* out) {
 
 Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
     Map<RawCell*> result = {0};
-    uint32_t record_length;
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
 
@@ -103,7 +102,14 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
 
     RawCell* rawcell = NULL;
 
-    while ((record_length = gdsii_read_record(source->file, buffer)) > 0) {
+    while (true) {
+        uint64_t record_length = COUNT(buffer);
+        ErrorCode err = gdsii_read_record(source->file, buffer, record_length);
+        if (err != ErrorCode::NoError) {
+            if (error_code) *error_code = err;
+            break;
+        }
+
         switch (buffer[2]) {
             case 0x04: {  // ENDLIB
                 for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {

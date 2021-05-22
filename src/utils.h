@@ -55,13 +55,16 @@ namespace gdstk {
 // Error codes
 enum struct ErrorCode {
     NoError = 0,
+    // Warnings
+    IntersectionNotFound,
     MissingReference,
+    UnsupportedRecord,
+    // Errors
+    ChecksumError,
     InputFileOpenError,
     OutputFileOpenError,
     InvalidFile,
-    UnsupportedRecord,
-    ChecksumError,
-    IntersectionNotFound,
+    InsufficientMemory,
     ZlibError,
 };
 

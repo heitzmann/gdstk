@@ -14,6 +14,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 
+#include "utils.h"
+
 namespace gdstk {
 
 enum struct GdsiiRecord : uint8_t {
@@ -93,8 +95,9 @@ uint64_t gdsii_real_from_double(double value);
 
 double gdsii_real_to_double(uint64_t real);
 
-// Read record and make necessary swaps
-uint32_t gdsii_read_record(FILE* in, uint8_t* buffer);
+// Read record and make necessary swaps.  The size of the buffer must be passed
+// in buffer_count.  On return, the record lenght is returned in buffer_count.
+ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count);
 
 }  // namespace gdstk
 

@@ -59,13 +59,16 @@ static int return_error(ErrorCode error_code) {
             PyErr_SetString(PyExc_RuntimeError, "Unsupported record in file.");
             return -1;
         case ErrorCode::InputFileOpenError:
-            PyErr_SetString(PyExc_RuntimeError, "Error opening input file.");
+            PyErr_SetString(PyExc_OSError, "Error opening input file.");
             return -1;
         case ErrorCode::OutputFileOpenError:
-            PyErr_SetString(PyExc_RuntimeError, "Error opening output file.");
+            PyErr_SetString(PyExc_OSError, "Error opening output file.");
             return -1;
         case ErrorCode::InvalidFile:
             PyErr_SetString(PyExc_RuntimeError, "Invalid or corrupted file.");
+            return -1;
+        case ErrorCode::InsufficientMemory:
+            PyErr_SetString(PyExc_MemoryError, "Insufficient memory.");
             return -1;
         case ErrorCode::ChecksumError:
             PyErr_SetString(PyExc_RuntimeError, "Checksum error.");
@@ -1351,29 +1354,6 @@ static PyObject* create_library_objects(Library* library) {
     return (PyObject*)result;
 }
 
-static void library_cleanup(Library* library) {
-    for (uint64_t i = 0; i < library->cell_array.count; i++) {
-        Cell* cell = library->cell_array[i];
-        for (uint64_t j = 0; j < cell->polygon_array.count; j++) {
-            cell->polygon_array[j]->clear();
-        }
-        for (uint64_t j = 0; j < cell->flexpath_array.count; j++) {
-            cell->flexpath_array[j]->clear();
-        }
-        for (uint64_t j = 0; j < cell->robustpath_array.count; j++) {
-            cell->robustpath_array[j]->clear();
-        }
-        for (uint64_t j = 0; j < cell->reference_array.count; j++) {
-            cell->reference_array[j]->clear();
-        }
-        for (uint64_t j = 0; j < cell->label_array.count; j++) {
-            cell->label_array[j]->clear();
-        }
-        cell->clear();
-    }
-    library->clear();
-}
-
 static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* pybytes = NULL;
     double unit = 0;
@@ -1396,7 +1376,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     Py_DECREF(pybytes);
 
     if (return_error(error_code)) {
-        library_cleanup(library);
+        library->free_all();
         free_allocation(library);
         return NULL;
     }
@@ -1426,7 +1406,7 @@ static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds
     Py_DECREF(pybytes);
 
     if (return_error(error_code)) {
-        library_cleanup(library);
+        library->free_all();
         free_allocation(library);
         return NULL;
     }
@@ -1473,8 +1453,7 @@ static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
     double unit = 0;
     double precision = 0;
     const char* filename = PyBytes_AS_STRING(pybytes);
-    ErrorCode error_code = ErrorCode::NoError;
-    gds_units(filename, unit, precision, &error_code);
+    ErrorCode error_code = gds_units(filename, unit, precision);
     Py_DECREF(pybytes);
     if (return_error(error_code)) return NULL;
 
@@ -1487,8 +1466,7 @@ static PyObject* oas_precision_function(PyObject* mod, PyObject* args) {
 
     double precision = 0;
     const char* filename = PyBytes_AS_STRING(pybytes);
-    ErrorCode error_code = ErrorCode::NoError;
-    oas_precision(filename, precision, &error_code);
+    ErrorCode error_code = oas_precision(filename, precision);
     Py_DECREF(pybytes);
     if (return_error(error_code)) return NULL;
 

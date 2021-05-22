@@ -682,7 +682,6 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
     int32_t* data32 = (int32_t*)(buffer + 4);
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     char* str = (char*)(buffer + 4);
-    uint32_t record_length;
 
     Cell* cell = NULL;
     Polygon* polygon = NULL;
@@ -701,12 +700,18 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
         return library;
     }
 
-    while ((record_length = gdsii_read_record(in, buffer)) > 0) {
-        uint32_t data_length;
+    while (true) {
+        uint64_t record_length = COUNT(buffer);
+        ErrorCode err = gdsii_read_record(in, buffer, record_length);
+        if (err != ErrorCode::NoError) {
+            if (error_code) *error_code = err;
+            break;
+        }
 
         // printf("%02X %s (%" PRIu32 " bytes)", buffer[2], gdsii_record_names[buffer[2]],
         // record_length);
 
+        uint64_t data_length;
         switch ((GdsiiDataType)buffer[3]) {
             case GdsiiDataType::BitArray:
             case GdsiiDataType::TwoByteSignedInteger:
@@ -756,6 +761,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                 library.precision = db_in_meters;
             } break;
             case GdsiiRecord::ENDLIB: {
+                // TODO: Check missing references
                 Map<Cell*> map = {0};
                 uint64_t c_size = library.cell_array.count;
                 map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
@@ -842,7 +848,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                     polygon->point_array.ensure_slots(data_length / 2);
                     double* d = (double*)polygon->point_array.items + polygon->point_array.count;
                     int32_t* s = data32;
-                    for (uint32_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
+                    for (uint64_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
                     polygon->point_array.count += data_length / 2;
                 } else if (path) {
                     Array<Vec2> point_array = {0};
@@ -853,13 +859,13 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                         point_array.ensure_slots(data_length / 2 - 1);
                         double* d = (double*)point_array.items;
                         int32_t* s = data32 + 2;
-                        for (uint32_t i = data_length - 2; i > 0; i--) *d++ = factor * (*s++);
+                        for (uint64_t i = data_length - 2; i > 0; i--) *d++ = factor * (*s++);
                         point_array.count += data_length / 2 - 1;
                     } else {
                         point_array.ensure_slots(data_length / 2);
                         double* d = (double*)point_array.items;
                         int32_t* s = data32;
-                        for (uint32_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
+                        for (uint64_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
                         point_array.count += data_length / 2;
                     }
                     path->segment(point_array, NULL, NULL, false);
@@ -1030,6 +1036,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
         }
     }
 
+    library.free_all();
     fclose(in);
     return Library{0};
 }
@@ -1126,6 +1133,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 break;
             case OasisRecord::END: {
+                // TODO: Check missing references
                 fseek(in.file, 0, SEEK_END);
                 library.name = (char*)allocate(4);
                 library.name[0] = 'L';
@@ -2143,46 +2151,48 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     return library;
 }
 
-int gds_units(const char* filename, double& unit, double& precision, ErrorCode* error_code) {
+ErrorCode gds_units(const char* filename, double& unit, double& precision) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
-        if (error_code) *error_code = ErrorCode::InputFileOpenError;
-        return -1;
+        return ErrorCode::InputFileOpenError;
     }
 
-    while (gdsii_read_record(in, buffer) > 0) {
+    while (true) {
+        uint64_t record_length = COUNT(buffer);
+        ErrorCode error_code = gdsii_read_record(in, buffer, record_length);
+        if (error_code != ErrorCode::NoError) {
+            fclose(in);
+            return error_code;
+        }
         if (buffer[2] == 0x03) {  // UNITS
             big_endian_swap64(data64, 2);
             precision = gdsii_real_to_double(data64[1]);
             unit = precision / gdsii_real_to_double(data64[0]);
             fclose(in);
-            return 0;
+            return ErrorCode::NoError;
         }
     }
-    fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
-    if (error_code) *error_code = ErrorCode::InvalidFile;
     fclose(in);
-    return -1;
+    fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
+    return ErrorCode::InvalidFile;
 }
 
-int oas_precision(const char* filename, double& precision, ErrorCode* error_code) {
+ErrorCode oas_precision(const char* filename, double& precision) {
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
-        if (error_code) *error_code = ErrorCode::InputFileOpenError;
-        return -1;
+        return ErrorCode::InputFileOpenError;
     }
 
     // Check header bytes and START record
     char header[14];
     if (fread(header, 1, 14, in) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
         fputs("[GDSTK] Invalid OASIS header found.\n", stderr);
-        if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in);
-        return -1;
+        return ErrorCode::InvalidFile;
     }
 
     // Process START record
@@ -2191,13 +2201,14 @@ int oas_precision(const char* filename, double& precision, ErrorCode* error_code
     uint8_t* version = oasis_read_string(s, false, len);
     if (memcmp(version, "1.0", 3) != 0) {
         fputs("[GDSTK] Unsupported OASIS file version.\n", stderr);
-        if (error_code) *error_code = ErrorCode::InvalidFile;
+        free_allocation(version);
+        return ErrorCode::InvalidFile;
     }
     free_allocation(version);
 
     precision = 1e-6 / oasis_read_real(s);
     fclose(in);
-    return 0;
+    return ErrorCode::NoError;
 }
 
 bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_code) {
