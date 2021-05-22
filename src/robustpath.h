@@ -21,6 +21,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "polygon.h"
 #include "property.h"
 #include "repetition.h"
+#include "utils.h"
 
 namespace gdstk {
 
@@ -239,14 +240,14 @@ struct RobustPath {
 
     // Calculate the polygonal spine of this path and append the resulting
     // curve to result.
-    void spine(Array<Vec2>& result) const;
+    ErrorCode spine(Array<Vec2>& result) const;
 
     // Calculate the center of an element of this path and append the resulting
     // curve to result.
-    void element_center(const RobustPathElement* el, Array<Vec2>& result) const;
+    ErrorCode element_center(const RobustPathElement* el, Array<Vec2>& result) const;
 
     // Append the polygonal representation of this path to result
-    void to_polygons(Array<Polygon*>& result) const;
+    ErrorCode to_polygons(Array<Polygon*>& result) const;
 
     // These functions output the polygon in the GDSII, OASIS and SVG formats.
     // They are not supposed to be called by the user.  Because fracturing
@@ -254,26 +255,28 @@ struct RobustPath {
     // needed, fractured.  Therefore, to_gds should be used only when
     // simple_path == true to produce true GDSII path elements.  The same is
     // valid for to_oas, even though no fracturing ever occurs for OASIS files.
-    void to_gds(FILE* out, double scaling) const;
-    void to_oas(OasisStream& out, OasisState& state) const;
-    void to_svg(FILE* out, double scaling) const;
+    ErrorCode to_gds(FILE* out, double scaling) const;
+    ErrorCode to_oas(OasisStream& out, OasisState& state) const;
+    ErrorCode to_svg(FILE* out, double scaling) const;
 
    private:
     void simple_scale(double scale);
     void simple_rotate(double angle);
     void x_reflection();
     void fill_widths_and_offsets(const Interpolation* width, const Interpolation* offset);
-    int spine_intersection(const SubPath& sub0, const SubPath& sub1, double& u0, double& u1) const;
-    int center_intersection(const SubPath& sub0, const Interpolation& offset0, const SubPath& sub1,
-                            const Interpolation& offset1, double& u0, double& u1) const;
-    int left_intersection(const SubPath& sub0, const Interpolation& offset0,
-                          const Interpolation& width0, const SubPath& sub1,
-                          const Interpolation& offset1, const Interpolation& width1, double& u0,
-                          double& u1) const;
-    int right_intersection(const SubPath& sub0, const Interpolation& offset0,
-                           const Interpolation& width0, const SubPath& sub1,
-                           const Interpolation& offset1, const Interpolation& width1, double& u0,
-                           double& u1) const;
+    ErrorCode spine_intersection(const SubPath& sub0, const SubPath& sub1, double& u0,
+                                 double& u1) const;
+    ErrorCode center_intersection(const SubPath& sub0, const Interpolation& offset0,
+                                  const SubPath& sub1, const Interpolation& offset1, double& u0,
+                                  double& u1) const;
+    ErrorCode left_intersection(const SubPath& sub0, const Interpolation& offset0,
+                                const Interpolation& width0, const SubPath& sub1,
+                                const Interpolation& offset1, const Interpolation& width1,
+                                double& u0, double& u1) const;
+    ErrorCode right_intersection(const SubPath& sub0, const Interpolation& offset0,
+                                 const Interpolation& width0, const SubPath& sub1,
+                                 const Interpolation& offset1, const Interpolation& width1,
+                                 double& u0, double& u1) const;
     Vec2 spine_position(const SubPath& subpath, double u) const;
     Vec2 spine_gradient(const SubPath& subpath, double u) const;
     Vec2 center_position(const SubPath& subpath, const Interpolation& offset, double u) const;

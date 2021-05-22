@@ -136,6 +136,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
+            // NOTE: return ErrorCode ignored here
             (*robustpath)->to_polygons(array);
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
@@ -202,6 +203,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
 
     RobustPath** robustpath = robustpath_array.items;
     for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
+        // NOTE: return ErrorCode ignored here
         (*robustpath)->to_polygons(array);
         polygon = array.items;
         for (uint64_t j = 0; j < array.count; j++, polygon++) {
@@ -308,6 +310,7 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
+            // NOTE: return ErrorCode ignored here
             (*robustpath)->to_polygons(result);
         }
     }
@@ -537,6 +540,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
             robustpath->to_gds(out, scaling);
         } else {
             Array<Polygon*> rp_array = {0};
+            // TODO: handle ErrorCode
             robustpath->to_polygons(rp_array);
             p_item = rp_array.items;
             for (uint64_t i = 0; i < rp_array.count; i++, p_item++) {

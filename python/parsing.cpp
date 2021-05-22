@@ -132,7 +132,16 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
     } else if (FlexPathObject_Check(py_polygons)) {
         ((FlexPathObject*)py_polygons)->flexpath->to_polygons(polygon_array);
     } else if (RobustPathObject_Check(py_polygons)) {
-        ((RobustPathObject*)py_polygons)->robustpath->to_polygons(polygon_array);
+        ErrorCode error_code =
+            ((RobustPathObject*)py_polygons)->robustpath->to_polygons(polygon_array);
+        if (return_error(error_code)) {
+            for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
+                polygon_array[j]->clear();
+                free_allocation(polygon_array[j]);
+            }
+            polygon_array.clear();
+            return -1;
+        }
     } else if (ReferenceObject_Check(py_polygons)) {
         ((ReferenceObject*)py_polygons)->reference->polygons(true, true, -1, polygon_array);
     } else if (PySequence_Check(py_polygons)) {
@@ -155,17 +164,31 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
             } else if (FlexPathObject_Check(arg)) {
                 ((FlexPathObject*)arg)->flexpath->to_polygons(polygon_array);
             } else if (RobustPathObject_Check(arg)) {
-                ((RobustPathObject*)arg)->robustpath->to_polygons(polygon_array);
+                ErrorCode error_code =
+                    ((RobustPathObject*)arg)->robustpath->to_polygons(polygon_array);
+                if (return_error(error_code)) {
+                    for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
+                        polygon_array[j]->clear();
+                        free_allocation(polygon_array[j]);
+                    }
+                    polygon_array.clear();
+                    return -1;
+                }
             } else if (ReferenceObject_Check(arg)) {
                 ((ReferenceObject*)arg)->reference->polygons(true, true, -1, polygon_array);
             } else {
                 Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+                polygon_array.append(polygon);
                 if (parse_point_sequence(arg, polygon->point_array, "") < 0) {
                     PyErr_Format(PyExc_RuntimeError,
                                  "Unable to parse item %" PRIu64 " from sequence %s.", i, name);
+                    for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
+                        polygon_array[j]->clear();
+                        free_allocation(polygon_array[j]);
+                    }
+                    polygon_array.clear();
                     return -1;
                 }
-                polygon_array.append(polygon);
             }
             Py_DECREF(arg);
         }

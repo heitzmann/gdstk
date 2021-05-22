@@ -446,7 +446,8 @@ static PyObject* robustpath_object_copy(RobustPathObject* self, PyObject*) {
 
 static PyObject* robustpath_object_spine(RobustPathObject* self, PyObject*) {
     Array<Vec2> point_array = {0};
-    self->robustpath->spine(point_array);
+    if (return_error(self->robustpath->spine(point_array))) return NULL;
+
     npy_intp dims[] = {(npy_intp)point_array.count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
     if (!result) {
@@ -470,7 +471,11 @@ static PyObject* robustpath_object_path_spines(RobustPathObject* self, PyObject*
     }
     RobustPathElement* el = path->elements;
     for (uint64_t i = 0; i < path->num_elements; i++) {
-        path->element_center(el++, point_array);
+        if (return_error(path->element_center(el++, point_array))) {
+            Py_DECREF(result);
+            point_array.clear();
+            return NULL;
+        }
         npy_intp dims[] = {(npy_intp)point_array.count, 2};
         PyObject* spine = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
         if (!spine) {
@@ -564,7 +569,14 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
 
 static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
-    self->robustpath->to_polygons(array);
+    if (return_error(self->robustpath->to_polygons(array))) {
+        for (uint64_t i = 0; i < array.count; i++) {
+            array[i]->clear();
+            free_allocation(array[i]);
+        }
+        array.clear();
+        return NULL;
+    }
     PyObject* result = PyList_New(array.count);
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return array.");

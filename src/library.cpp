@@ -310,14 +310,16 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                         tmp_array.count = 0;
                         RobustPathElement* el = path->elements;
                         for (uint64_t ne = 0; ne < path->num_elements; ne++, el++) {
-                            path->element_center(el, tmp_array);
+                            ErrorCode err = path->element_center(el, tmp_array);
+                            if (err != ErrorCode::NoError) error_code = err;
                             len = tmp_array.count;
                             if (len > path_max) path_max = len;
                         }
                     }
                 } else {
                     Array<Polygon*> array = {0};
-                    path->to_polygons(array);
+                    ErrorCode err = path->to_polygons(array);
+                    if (err != ErrorCode::NoError) error_code = err;
                     poly_p = array.items;
                     for (uint64_t k = array.count; k > 0; k--) {
                         Polygon* poly = *poly_p++;
@@ -428,7 +430,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 path->to_oas(out, state);
             } else {
                 Array<Polygon*> array = {0};
-                path->to_polygons(array);
+                ErrorCode err = path->to_polygons(array);
+                if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
                     Polygon* poly = *poly_p++;

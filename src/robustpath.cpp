@@ -910,14 +910,14 @@ void RobustPath::offset(double u, bool from_below, double *result) const {
         *result++ = interp(el->offset_array[idx], u) * offset_scale;
 }
 
-int RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, double &u0,
-                                   double &u1) const {
+ErrorCode RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, double &u0,
+                                         double &u1) const {
     const double tolerance_sq = tolerance * tolerance;
     Vec2 p0 = spine_position(sub0, u0);
     Vec2 p1 = spine_position(sub1, u1);
     double err_sq = (p0 - p1).length_sq();
 
-    if (err_sq <= tolerance_sq) return 0;
+    if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
     Vec2 v0 = spine_gradient(sub0, u0);
     Vec2 v1 = spine_gradient(sub1, u1);
@@ -945,7 +945,7 @@ int RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, dou
             u1 = new_u1;
             err_sq = new_err_sq;
 
-            if (err_sq <= tolerance_sq) return 0;
+            if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
             v0 = spine_gradient(sub0, u0);
             v1 = spine_gradient(sub1, u1);
@@ -960,18 +960,18 @@ int RobustPath::spine_intersection(const SubPath &sub0, const SubPath &sub1, dou
         stderr,
         "[GDSTK] No intersection found in RobustPath spine construction around (%lg, %lg) and (%lg, %lg).\n",
         p0.x, p0.y, p1.x, p1.y);
-    return -1;
+    return ErrorCode::IntersectionNotFound;
 }
 
-int RobustPath::center_intersection(const SubPath &sub0, const Interpolation &offset0,
-                                    const SubPath &sub1, const Interpolation &offset1, double &u0,
-                                    double &u1) const {
+ErrorCode RobustPath::center_intersection(const SubPath &sub0, const Interpolation &offset0,
+                                          const SubPath &sub1, const Interpolation &offset1,
+                                          double &u0, double &u1) const {
     const double tolerance_sq = tolerance * tolerance;
     Vec2 p0 = center_position(sub0, offset0, u0);
     Vec2 p1 = center_position(sub1, offset1, u1);
     double err_sq = (p0 - p1).length_sq();
 
-    if (err_sq <= tolerance_sq) return 0;
+    if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
     Vec2 v0 = center_gradient(sub0, offset0, u0);
     Vec2 v1 = center_gradient(sub1, offset1, u1);
@@ -999,7 +999,7 @@ int RobustPath::center_intersection(const SubPath &sub0, const Interpolation &of
             u1 = new_u1;
             err_sq = new_err_sq;
 
-            if (err_sq <= tolerance_sq) return 0;
+            if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
             v0 = center_gradient(sub0, offset0, u0);
             v1 = center_gradient(sub1, offset1, u1);
@@ -1014,19 +1014,19 @@ int RobustPath::center_intersection(const SubPath &sub0, const Interpolation &of
         stderr,
         "[GDSTK] No intersection found in RobustPath center construction around (%lg, %lg) and (%lg, %lg).\n",
         p0.x, p0.y, p1.x, p1.y);
-    return -1;
+    return ErrorCode::IntersectionNotFound;
 }
 
-int RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offset0,
-                                  const Interpolation &width0, const SubPath &sub1,
-                                  const Interpolation &offset1, const Interpolation &width1,
-                                  double &u0, double &u1) const {
+ErrorCode RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offset0,
+                                        const Interpolation &width0, const SubPath &sub1,
+                                        const Interpolation &offset1, const Interpolation &width1,
+                                        double &u0, double &u1) const {
     const double tolerance_sq = tolerance * tolerance;
     Vec2 p0 = left_position(sub0, offset0, width0, u0);
     Vec2 p1 = left_position(sub1, offset1, width1, u1);
     double err_sq = (p0 - p1).length_sq();
 
-    if (err_sq <= tolerance_sq) return 0;
+    if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
     Vec2 v0 = left_gradient(sub0, offset0, width0, u0);
     Vec2 v1 = left_gradient(sub1, offset1, width1, u1);
@@ -1054,7 +1054,7 @@ int RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offs
             u1 = new_u1;
             err_sq = new_err_sq;
 
-            if (err_sq <= tolerance_sq) return 0;
+            if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
             v0 = left_gradient(sub0, offset0, width0, u0);
             v1 = left_gradient(sub1, offset1, width1, u1);
@@ -1069,19 +1069,19 @@ int RobustPath::left_intersection(const SubPath &sub0, const Interpolation &offs
         stderr,
         "[GDSTK] No intersection found in RobustPath left side construction around (%lg, %lg) and (%lg, %lg).\n",
         p0.x, p0.y, p1.x, p1.y);
-    return -1;
+    return ErrorCode::IntersectionNotFound;
 }
 
-int RobustPath::right_intersection(const SubPath &sub0, const Interpolation &offset0,
-                                   const Interpolation &width0, const SubPath &sub1,
-                                   const Interpolation &offset1, const Interpolation &width1,
-                                   double &u0, double &u1) const {
+ErrorCode RobustPath::right_intersection(const SubPath &sub0, const Interpolation &offset0,
+                                         const Interpolation &width0, const SubPath &sub1,
+                                         const Interpolation &offset1, const Interpolation &width1,
+                                         double &u0, double &u1) const {
     const double tolerance_sq = tolerance * tolerance;
     Vec2 p0 = right_position(sub0, offset0, width0, u0);
     Vec2 p1 = right_position(sub1, offset1, width1, u1);
     double err_sq = (p0 - p1).length_sq();
 
-    if (err_sq <= tolerance_sq) return 0;
+    if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
     Vec2 v0 = right_gradient(sub0, offset0, width0, u0);
     Vec2 v1 = right_gradient(sub1, offset1, width1, u1);
@@ -1109,7 +1109,7 @@ int RobustPath::right_intersection(const SubPath &sub0, const Interpolation &off
             u1 = new_u1;
             err_sq = new_err_sq;
 
-            if (err_sq <= tolerance_sq) return 0;
+            if (err_sq <= tolerance_sq) return ErrorCode::NoError;
 
             v0 = right_gradient(sub0, offset0, width0, u0);
             v1 = right_gradient(sub1, offset1, width1, u1);
@@ -1124,11 +1124,12 @@ int RobustPath::right_intersection(const SubPath &sub0, const Interpolation &off
         stderr,
         "[GDSTK] No intersection found in RobustPath right side construction around (%lg, %lg) and (%lg, %lg).\n",
         p0.x, p0.y, p1.x, p1.y);
-    return -1;
+    return ErrorCode::IntersectionNotFound;
 }
 
-void RobustPath::spine(Array<Vec2> &result) const {
-    if (subpath_array.count == 0) return;
+ErrorCode RobustPath::spine(Array<Vec2> &result) const {
+    ErrorCode error_code = ErrorCode::NoError;
+    if (subpath_array.count == 0) return error_code;
     result.ensure_slots(subpath_array.count + 1);
     double u0 = 0;
     SubPath *sub0 = subpath_array.items;
@@ -1137,7 +1138,8 @@ void RobustPath::spine(Array<Vec2> &result) const {
     for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++) {
         double u1 = 1;
         double u2 = 0;
-        spine_intersection(*sub0, *sub1, u1, u2);
+        ErrorCode err = spine_intersection(*sub0, *sub1, u1, u2);
+        if (err != ErrorCode::NoError) error_code = err;
         if (u2 < 1) {
             if (u1 > u0) spine_points(*sub0, u0, u1, result);
             u0 = u2;
@@ -1145,10 +1147,12 @@ void RobustPath::spine(Array<Vec2> &result) const {
         }
     }
     spine_points(*sub0, u0, 1, result);
+    return error_code;
 }
 
-void RobustPath::to_polygons(Array<Polygon *> &result) const {
-    if (num_elements == 0 || subpath_array.count == 0) return;
+ErrorCode RobustPath::to_polygons(Array<Polygon *> &result) const {
+    ErrorCode error_code = ErrorCode::NoError;
+    if (num_elements == 0 || subpath_array.count == 0) return error_code;
 
     const double tolerance_sq = tolerance * tolerance;
     result.ensure_slots(num_elements);
@@ -1226,7 +1230,9 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
             for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++, offset1++, width1++) {
                 double u1 = 1;
                 double u2 = 0;
-                left_intersection(*sub0, *offset0, *width0, *sub1, *offset1, *width1, u1, u2);
+                ErrorCode err =
+                    left_intersection(*sub0, *offset0, *width0, *sub1, *offset1, *width1, u1, u2);
+                if (err != ErrorCode::NoError) error_code = err;
                 if (u2 < 1) {
                     if (u1 > u0) left_points(*sub0, *offset0, *width0, u0, u1, left_side);
                     u0 = u2;
@@ -1249,7 +1255,9 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
             for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++, offset1++, width1++) {
                 double u1 = 1;
                 double u2 = 0;
-                right_intersection(*sub0, *offset0, *width0, *sub1, *offset1, *width1, u1, u2);
+                ErrorCode err =
+                    right_intersection(*sub0, *offset0, *width0, *sub1, *offset1, *width1, u1, u2);
+                if (err != ErrorCode::NoError) error_code = err;
                 if (u2 < 1) {
                     if (u1 > u0) right_points(*sub0, *offset0, *width0, u0, u1, right_side);
                     u0 = u2;
@@ -1341,9 +1349,12 @@ void RobustPath::to_polygons(Array<Polygon *> &result) const {
         result_polygon->properties = properties_copy(properties);
         result.append_unsafe(result_polygon);
     }
+    return error_code;
 }
 
-void RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result) const {
+ErrorCode RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result) const {
+    ErrorCode error_code = ErrorCode::NoError;
+    if (subpath_array.count == 0) return error_code;
     double u0 = 0;
     SubPath *sub0 = subpath_array.items;
     SubPath *sub1 = sub0 + 1;
@@ -1353,7 +1364,8 @@ void RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result
     for (uint64_t ns = 1; ns < subpath_array.count; ns++, sub1++, offset1++) {
         double u1 = 1;
         double u2 = 0;
-        center_intersection(*sub0, *offset0, *sub1, *offset1, u1, u2);
+        ErrorCode err = center_intersection(*sub0, *offset0, *sub1, *offset1, u1, u2);
+        if (err != ErrorCode::NoError) error_code = err;
         if (u2 < 1) {
             if (u1 > u0) center_points(*sub0, *offset0, u0, u1, result);
             u0 = u2;
@@ -1362,10 +1374,12 @@ void RobustPath::element_center(const RobustPathElement *el, Array<Vec2> &result
         }
     }
     center_points(*sub0, *offset0, u0, 1, result);
+    return error_code;
 }
 
-void RobustPath::to_gds(FILE *out, double scaling) const {
-    if (num_elements == 0 || subpath_array.count == 0) return;
+ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
+    ErrorCode error_code = ErrorCode::NoError;
+    if (num_elements == 0 || subpath_array.count == 0) return error_code;
 
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -1422,7 +1436,9 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
             big_endian_swap32((uint32_t *)ext_size, COUNT(ext_size));
         }
 
-        element_center(el, point_array);
+        ErrorCode err = element_center(el, point_array);
+        if (err != ErrorCode::NoError) error_code = err;
+
         coords.ensure_slots(point_array.count * 2);
         coords.count = point_array.count * 2;
 
@@ -1470,10 +1486,12 @@ void RobustPath::to_gds(FILE *out, double scaling) const {
     coords.clear();
     point_array.clear();
     if (repetition.type != RepetitionType::None) offsets.clear();
+    return error_code;
 }
 
-void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
-    if (num_elements == 0 || subpath_array.count == 0) return;
+ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
+    ErrorCode error_code = ErrorCode::NoError;
+    if (num_elements == 0 || subpath_array.count == 0) return error_code;
 
     bool has_repetition = repetition.get_count() > 1;
 
@@ -1525,7 +1543,9 @@ void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
                 oasis_putc(0x05, out);
         }
 
-        element_center(el, point_array);
+        ErrorCode err = element_center(el, point_array);
+        if (err != ErrorCode::NoError) error_code = err;
+
         oasis_write_point_list(out, point_array, state.scaling, false);
         oasis_write_integer(out, (int64_t)llround(point_array[0].x * state.scaling));
         oasis_write_integer(out, (int64_t)llround(point_array[0].y * state.scaling));
@@ -1535,17 +1555,19 @@ void RobustPath::to_oas(OasisStream &out, OasisState &state) const {
         point_array.count = 0;
     }
     point_array.clear();
+    return error_code;
 }
 
-void RobustPath::to_svg(FILE *out, double scaling) const {
+ErrorCode RobustPath::to_svg(FILE *out, double scaling) const {
     Array<Polygon *> array = {0};
-    to_polygons(array);
+    ErrorCode error_code = to_polygons(array);
     for (uint64_t i = 0; i < array.count; i++) {
         array[i]->to_svg(out, scaling);
         array[i]->clear();
         free_allocation(array[i]);
     }
     array.clear();
+    return error_code;
 }
 
 }  // namespace gdstk
