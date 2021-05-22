@@ -36,8 +36,7 @@ int main(int argc, char* argv[]) {
     double unit = 0;
     double precision = 0;
 
-    ErrorCode error_code = ErrorCode::NoError;
-    gds_units("photonics.gds", unit, precision, &error_code);
+    ErrorCode error_code = gds_units("photonics.gds", unit, precision);
     if (error_code != ErrorCode::NoError) exit(EXIT_FAILURE);
 
     printf("Using unit = %.3g, precision = %.3g\n", unit, precision);
