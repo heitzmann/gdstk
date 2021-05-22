@@ -761,7 +761,6 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                 library.precision = db_in_meters;
             } break;
             case GdsiiRecord::ENDLIB: {
-                // TODO: Check missing references
                 Map<Cell*> map = {0};
                 uint64_t c_size = library.cell_array.count;
                 map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
@@ -778,6 +777,10 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                             free_allocation(reference->name);
                             reference->type = ReferenceType::Cell;
                             reference->cell = cp;
+                        } else {
+                            if (error_code) *error_code = ErrorCode::MissingReference;
+                            fprintf(stderr, "[GDSTK] Missing referenced cell %s\n",
+                                    reference->name);
                         }
                     }
                 }
@@ -1133,7 +1136,6 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 break;
             case OasisRecord::END: {
-                // TODO: Check missing references
                 fseek(in.file, 0, SEEK_END);
                 library.name = (char*)allocate(4);
                 library.name[0] = 'L';
@@ -1189,12 +1191,24 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                             // Using reference number
                             ByteArray* cell_name = cell_name_table.items + (uint64_t)ref->cell;
                             ref->cell = map.get((char*)cell_name->bytes);
+                            if (!ref->cell) {
+                                ref->type = ReferenceType::Name;
+                                ref->name = (char*)allocate(cell_name->count);
+                                memcpy(ref->name, cell_name->bytes, cell_name->count);
+                                if (error_code) *error_code = ErrorCode::MissingReference;
+                                fprintf(stderr, "[GDSTK] Missing referenced cell %s\n", ref->name);
+                            }
                         } else {
                             // Using name
                             cell = map.get(ref->name);
-                            free_allocation(ref->name);
-                            ref->cell = cell;
-                            ref->type = ReferenceType::Cell;
+                            if (cell) {
+                                free_allocation(ref->name);
+                                ref->cell = cell;
+                                ref->type = ReferenceType::Cell;
+                            } else {
+                                if (error_code) *error_code = ErrorCode::MissingReference;
+                                fprintf(stderr, "[GDSTK] Missing referenced cell %s\n", ref->name);
+                            }
                         }
                     }
                 }
