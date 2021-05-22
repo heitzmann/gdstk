@@ -489,16 +489,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     style.clear();
     label_style.clear();
 
-    switch (error_code) {
-        case ErrorCode::NoError:
-            break;
-        case ErrorCode::OutputFileOpenError:
-            PyErr_SetString(PyExc_OSError, "Could not open file for writing.");
-            return NULL;
-        default:
-            PyErr_SetString(PyExc_RuntimeError, "Unexpected error.");
-            return NULL;
-    }
+    if (return_error(error_code)) return NULL;
 
     Py_INCREF(self);
     return (PyObject*)self;
