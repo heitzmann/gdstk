@@ -1586,7 +1586,7 @@ static PyObject* flexpath_object_parametric(FlexPathObject* self, PyObject* args
 static PyObject* flexpath_object_commands(FlexPathObject* self, PyObject* args) {
     uint64_t count = PyTuple_GET_SIZE(args);
     CurveInstruction* instructions =
-        (CurveInstruction*)allocate(sizeof(CurveInstruction) * count * 2);
+        (CurveInstruction*)allocate_clear(sizeof(CurveInstruction) * count * 2);
     CurveInstruction* instr = instructions;
 
     for (uint64_t i = 0; i < count; i++) {

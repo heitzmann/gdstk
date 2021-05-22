@@ -1600,7 +1600,7 @@ static PyObject* robustpath_object_parametric(RobustPathObject* self, PyObject* 
 static PyObject* robustpath_object_commands(RobustPathObject* self, PyObject* args) {
     uint64_t count = PyTuple_GET_SIZE(args);
     CurveInstruction* instructions =
-        (CurveInstruction*)allocate(sizeof(CurveInstruction) * count * 2);
+        (CurveInstruction*)allocate_clear(sizeof(CurveInstruction) * count * 2);
     CurveInstruction* instr = instructions;
 
     for (uint64_t i = 0; i < count; i++) {
