@@ -108,6 +108,8 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
 }
 
 ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
+    // TODO: error handling in *.to_gds
+    ErrorCode error_code = ErrorCode::NoError;
     FILE* out = fopen(filename, "wb");
     if (out == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);
@@ -158,14 +160,17 @@ ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* time
     }
 
     RawCell** rawcell = rawcell_array.items;
-    for (uint64_t i = 0; i < rawcell_array.count; i++, rawcell++) (*rawcell)->to_gds(out);
+    for (uint64_t i = 0; i < rawcell_array.count; i++, rawcell++) {
+        ErrorCode err = (*rawcell)->to_gds(out);
+        if (err != ErrorCode::NoError) error_code = err;
+    }
 
     uint16_t buffer_end[] = {4, 0x0400};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 
     fclose(out);
-    return ErrorCode::NoError;
+    return error_code;
 }
 
 static uint64_t max_string_length(Property* property) {
@@ -193,6 +198,7 @@ static void zfree(void*, void* ptr) { free_allocation(ptr); }
 
 ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                              uint8_t compression_level, uint16_t config_flags) {
+    // TODO: error handling in *.to_oas
     ErrorCode error_code = ErrorCode::NoError;
     const uint64_t c_size = cell_array.count;
     OasisState state = {0};

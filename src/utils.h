@@ -59,10 +59,12 @@ enum struct ErrorCode {
     IntersectionNotFound,
     MissingReference,
     UnsupportedRecord,
+    InvalidRepetition,
     // Errors
     ChecksumError,
     InputFileOpenError,
     OutputFileOpenError,
+    InputFileError,
     InvalidFile,
     InsufficientMemory,
     ZlibError,

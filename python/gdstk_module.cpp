@@ -50,6 +50,9 @@ static int return_error(ErrorCode error_code) {
         case ErrorCode::MissingReference:
             if (PyErr_WarnEx(PyExc_RuntimeWarning, "Missing reference.", 2) != 0) return -1;
             return 0;
+        case ErrorCode::InvalidRepetition:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Invalid repetition.", 2) != 0) return -1;
+            return 0;
         case ErrorCode::IntersectionNotFound:
             if (PyErr_WarnEx(PyExc_RuntimeWarning, "Intersection not found in path construction.",
                              2) != 0)
@@ -57,6 +60,9 @@ static int return_error(ErrorCode error_code) {
             return 0;
         case ErrorCode::UnsupportedRecord:
             PyErr_SetString(PyExc_RuntimeError, "Unsupported record in file.");
+            return -1;
+        case ErrorCode::InputFileError:
+            PyErr_SetString(PyExc_OSError, "Error reading input file.");
             return -1;
         case ErrorCode::InputFileOpenError:
             PyErr_SetString(PyExc_OSError, "Error opening input file.");

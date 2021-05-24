@@ -52,15 +52,15 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
             fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
         }
         buffer_count = read_length;
-        return ErrorCode::InvalidFile;
+        return ErrorCode::InputFileError;
     }
     big_endian_swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
     const uint32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) {
         DEBUG_PRINT("Record length should be at beast 4. Found %" PRIu32 "\n", record_length);
-        fputs("[GDSTK] Corrupted GDSII file.\n", stderr);
+        fputs("[GDSTK] Invalid or corrupted GDSII file.\n", stderr);
         buffer_count = read_length;
-        return ErrorCode::InvalidFile;
+        return ErrorCode::InputFileError;
     } else if (record_length == 4) {
         buffer_count = read_length;
         return ErrorCode::NoError;
@@ -80,7 +80,7 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
         } else {
             fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
         }
-        return ErrorCode::InvalidFile;
+        return ErrorCode::InputFileError;
     }
     return ErrorCode::NoError;
 }

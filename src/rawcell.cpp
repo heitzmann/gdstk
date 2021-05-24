@@ -67,13 +67,15 @@ void RawCell::get_dependencies(bool recursive, Map<RawCell*>& result) const {
     }
 }
 
-void RawCell::to_gds(FILE* out) {
+ErrorCode RawCell::to_gds(FILE* out) {
+    ErrorCode error_code = ErrorCode::NoError;
     if (source) {
         uint64_t off = offset;
         data = (uint8_t*)allocate(size);
         int64_t result = source->offset_read(data, size, off);
         if (result < 0 || (uint64_t)result != size) {
             fputs("[GDSTK] Unable to read RawCell data form input file.\n", stderr);
+            error_code = ErrorCode::InputFileError;
             size = 0;
         }
         source->uses--;
@@ -84,6 +86,7 @@ void RawCell::to_gds(FILE* out) {
         source = NULL;
     }
     fwrite(data, 1, size, out);
+    return error_code;
 }
 
 Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {

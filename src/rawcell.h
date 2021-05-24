@@ -68,7 +68,7 @@ struct RawCell {
 
     // This function outputs the rawcell in the GDSII.  It is not supposed to
     // be called by the user.
-    void to_gds(FILE* out);
+    ErrorCode to_gds(FILE* out);
 };
 
 // Load a GDSII file and extract its cells as RawCell.
