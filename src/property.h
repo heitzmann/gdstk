@@ -86,7 +86,7 @@ PropertyValue* get_gds_property(Property* properties, uint16_t attribute);
 // These functions output the properties in the GDSII and OASIS formats.  They
 // are not supposed to be called by the user.
 ErrorCode properties_to_gds(const Property* properties, FILE* out);
-void properties_to_oas(const Property* properties, OasisStream& out, OasisState& state);
+ErrorCode properties_to_oas(const Property* properties, OasisStream& out, OasisState& state);
 
 }  // namespace gdstk
 

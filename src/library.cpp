@@ -198,7 +198,6 @@ static void zfree(void*, void* ptr) { free_allocation(ptr); }
 
 ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                              uint8_t compression_level, uint16_t config_flags) {
-    // TODO: error handling in *.to_oas
     ErrorCode error_code = ErrorCode::NoError;
     const uint64_t c_size = cell_array.count;
     OasisState state = {0};
@@ -286,7 +285,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                         tmp_array.count = 0;
                         FlexPathElement* el = path->elements;
                         for (uint64_t ne = 0; ne < path->num_elements; ne++, el++) {
-                            path->element_center(el, tmp_array);
+                            ErrorCode err = path->element_center(el, tmp_array);
+                            if (err != ErrorCode::NoError) error_code = err;
                             len = tmp_array.count;
                             if (len > path_max) path_max = len;
                         }
@@ -373,7 +373,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
         set_property(properties, s_max_path_property_name, path_max, true);
     }
 
-    properties_to_oas(properties, out, state);
+    ErrorCode err = properties_to_oas(properties, out, state);
+    if (err != ErrorCode::NoError) error_code = err;
 
     Map<uint64_t> cell_name_map = {0};
     Map<uint64_t> cell_offset_map = {0};
@@ -408,22 +409,25 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
         // Cell contents
         Polygon** poly_p = cell->polygon_array.items;
         for (uint64_t j = cell->polygon_array.count; j > 0; j--) {
-            (*poly_p++)->to_oas(out, state);
+            err = (*poly_p++)->to_oas(out, state);
+            if (err != ErrorCode::NoError) error_code = err;
         }
 
         FlexPath** flexpath_p = cell->flexpath_array.items;
         for (uint64_t j = cell->flexpath_array.count; j > 0; j--) {
             FlexPath* path = *flexpath_p++;
             if (path->simple_path) {
-                path->to_oas(out, state);
+                err = path->to_oas(out, state);
+                if (err != ErrorCode::NoError) error_code = err;
             } else {
                 Array<Polygon*> array = {0};
-                ErrorCode err = path->to_polygons(array);
+                err = path->to_polygons(array);
                 if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
                     Polygon* poly = *poly_p++;
-                    poly->to_oas(out, state);
+                    err = poly->to_oas(out, state);
+                    if (err != ErrorCode::NoError) error_code = err;
                     poly->clear();
                     free_allocation(poly);
                 }
@@ -435,15 +439,17 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
         for (uint64_t j = cell->robustpath_array.count; j > 0; j--) {
             RobustPath* path = *robustpath_p++;
             if (path->simple_path) {
-                path->to_oas(out, state);
+                err = path->to_oas(out, state);
+                if (err != ErrorCode::NoError) error_code = err;
             } else {
                 Array<Polygon*> array = {0};
-                ErrorCode err = path->to_polygons(array);
+                err = path->to_polygons(array);
                 if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
                     Polygon* poly = *poly_p++;
-                    poly->to_oas(out, state);
+                    err = poly->to_oas(out, state);
+                    if (err != ErrorCode::NoError) error_code = err;
                     poly->clear();
                     free_allocation(poly);
                 }
@@ -493,7 +499,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
             oasis_write_integer(out, (int64_t)llround(ref->origin.x * state.scaling));
             oasis_write_integer(out, (int64_t)llround(ref->origin.y * state.scaling));
             if (has_repetition) oasis_write_repetition(out, ref->repetition, state.scaling);
-            properties_to_oas(ref->properties, out, state);
+            err = properties_to_oas(ref->properties, out, state);
+            if (err != ErrorCode::NoError) error_code = err;
         }
 
         Label** label_p = cell->label_array.items;
@@ -517,7 +524,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
             oasis_write_integer(out, (int64_t)llround(label->origin.x * state.scaling));
             oasis_write_integer(out, (int64_t)llround(label->origin.y * state.scaling));
             if (has_repetition) oasis_write_repetition(out, label->repetition, state.scaling);
-            properties_to_oas(label->properties, out, state);
+            err = properties_to_oas(label->properties, out, state);
+            if (err != ErrorCode::NoError) error_code = err;
         }
 
         if (compression_level > 0) {
@@ -589,7 +597,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
             set_property(cell->properties, s_cell_offset_property_name,
                          cell_offset_map.get(cell->name), true);
         }
-        properties_to_oas(cell->properties, out, state);
+        err = properties_to_oas(cell->properties, out, state);
+        if (err != ErrorCode::NoError) error_code = err;
     }
     for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
         item->value.clear();

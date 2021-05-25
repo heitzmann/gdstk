@@ -725,7 +725,8 @@ static bool is_circle(const Array<Vec2> point_array, double tolerance, Vec2& cen
     return true;
 }
 
-void Polygon::to_oas(OasisStream& out, OasisState& state) const {
+ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
+    ErrorCode error_code = ErrorCode::NoError;
     Vec2 center;
     double radius;
     IntVec2 corner, size;
@@ -838,9 +839,11 @@ void Polygon::to_oas(OasisStream& out, OasisState& state) const {
         // printf("POLYGON @ (%ld, %ld)\n", points[0].x, points[0].y);
     }
     if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
-    properties_to_oas(properties, out, state);
+    ErrorCode err = properties_to_oas(properties, out, state);
+    if (err != ErrorCode::NoError) error_code = err;
 
     points.clear();
+    return error_code;
 }
 
 ErrorCode Polygon::to_svg(FILE* out, double scaling) const {

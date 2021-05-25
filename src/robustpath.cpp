@@ -1551,7 +1551,8 @@ ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
         oasis_write_integer(out, (int64_t)llround(point_array[0].x * state.scaling));
         oasis_write_integer(out, (int64_t)llround(point_array[0].y * state.scaling));
         if (has_repetition) oasis_write_repetition(out, repetition, state.scaling);
-        properties_to_oas(properties, out, state);
+        err = properties_to_oas(properties, out, state);
+        if (err != ErrorCode::NoError) error_code = err;
 
         point_array.count = 0;
     }

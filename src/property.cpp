@@ -337,7 +337,7 @@ ErrorCode properties_to_gds(const Property* properties, FILE* out) {
     return ErrorCode::NoError;
 }
 
-void properties_to_oas(const Property* properties, OasisStream& out, OasisState& state) {
+ErrorCode properties_to_oas(const Property* properties, OasisStream& out, OasisState& state) {
     while (properties) {
         uint8_t info = 0x06;
         if (is_gds_property(properties)) info |= 0x01;
@@ -413,6 +413,7 @@ void properties_to_oas(const Property* properties, OasisStream& out, OasisState&
 
         properties = properties->next;
     }
+    return ErrorCode::NoError;
 }
 
 }  // namespace gdstk

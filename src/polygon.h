@@ -77,7 +77,7 @@ struct Polygon {
     // These functions output the polygon in the GDSII, OASIS and SVG formats.
     // They are not supposed to be called by the user.
     ErrorCode to_gds(FILE* out, double scaling) const;
-    void to_oas(OasisStream& out, OasisState& state) const;
+    ErrorCode to_oas(OasisStream& out, OasisState& state) const;
     ErrorCode to_svg(FILE* out, double scaling) const;
 };
 
