@@ -333,6 +333,7 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
     uint64_t total = point_array.count + 1;
     if (total > 8190) {
+        // TODO: error handling
         fputs(
             "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
             stderr);
@@ -839,8 +840,8 @@ void Polygon::to_oas(OasisStream& out, OasisState& state) const {
     points.clear();
 }
 
-void Polygon::to_svg(FILE* out, double scaling) const {
-    if (point_array.count < 3) return;
+ErrorCode Polygon::to_svg(FILE* out, double scaling) const {
+    if (point_array.count < 3) return ErrorCode::NoError;
     fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this, layer,
             datatype);
     Vec2* p = point_array.items;
@@ -861,6 +862,7 @@ void Polygon::to_svg(FILE* out, double scaling) const {
         }
         offsets.clear();
     }
+    return ErrorCode::NoError;
 }
 
 Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype) {

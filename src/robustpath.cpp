@@ -1562,7 +1562,8 @@ ErrorCode RobustPath::to_svg(FILE *out, double scaling) const {
     Array<Polygon *> array = {0};
     ErrorCode error_code = to_polygons(array);
     for (uint64_t i = 0; i < array.count; i++) {
-        array[i]->to_svg(out, scaling);
+        ErrorCode err = array[i]->to_svg(out, scaling);
+        if (err != ErrorCode::NoError) error_code = err;
         array[i]->clear();
         free_allocation(array[i]);
     }

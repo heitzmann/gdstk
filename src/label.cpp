@@ -165,7 +165,7 @@ void Label::to_gds(FILE* out, double scaling) const {
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Label::to_svg(FILE* out, double scaling) const {
+ErrorCode Label::to_svg(FILE* out, double scaling) const {
     fprintf(out, "<text id=\"%p\" class=\"l%" PRIu32 "t%" PRIu32 "\"", this, layer, texttype);
     switch (anchor) {
         case Anchor::NW:
@@ -241,6 +241,7 @@ void Label::to_svg(FILE* out, double scaling) const {
         }
         offsets.clear();
     }
+    return ErrorCode::NoError;
 }
 
 }  // namespace gdstk

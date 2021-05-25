@@ -21,6 +21,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "polygon.h"
 #include "property.h"
 #include "repetition.h"
+#include "utils.h"
 
 namespace gdstk {
 
@@ -159,7 +160,7 @@ struct FlexPath {
     // valid for to_oas, even though no fracturing ever occurs for OASIS files.
     void to_gds(FILE* out, double scaling);
     void to_oas(OasisStream& out, OasisState& state);
-    void to_svg(FILE* out, double scaling);
+    ErrorCode to_svg(FILE* out, double scaling);
 
    private:
     void remove_overlapping_points();

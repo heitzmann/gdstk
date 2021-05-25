@@ -531,6 +531,7 @@ void Reference::to_svg(FILE* out, double scaling) const {
     }
     free_allocation(ref_name);
     if (repetition.type != RepetitionType::None) offsets.clear();
+    return ErrorCode::NoError;
 }
 
 }  // namespace gdstk

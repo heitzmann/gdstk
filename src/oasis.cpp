@@ -18,6 +18,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// TODO: error handling
+
 size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
     if (in.data) {
         uint64_t total = size * count;

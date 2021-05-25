@@ -135,8 +135,8 @@ struct Cell {
     // Library.write_gds and Cell.write_svg instead.
     void to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
                 const tm* timestamp) const;
-    void to_svg(FILE* out, double scaling, const char* attributes,
-                PolygonComparisonFunction comp) const;
+    ErrorCode to_svg(FILE* out, double scaling, const char* attributes,
+                     PolygonComparisonFunction comp) const;
 
     // Output this cell to filename in SVG format.  The geometry is drawn in
     // the default units (px), but can be scaled freely.  Arguments style and

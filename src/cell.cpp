@@ -537,6 +537,7 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     for (uint64_t k = 0; k < robustpath_array.count; k++, rp_item++) {
         RobustPath* robustpath = *rp_item;
         if (robustpath->simple_path) {
+            // TODO: handle ErrorCode
             robustpath->to_gds(out, scaling);
         } else {
             Array<Polygon*> rp_array = {0};
@@ -579,8 +580,9 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
 }
 
-void Cell::to_svg(FILE* out, double scaling, const char* attributes,
-                  PolygonComparisonFunction comp) const {
+ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,
+                       PolygonComparisonFunction comp) const {
+    ErrorCode error_code = ErrorCode::NoError;
     char* buffer = (char*)allocate(strlen(name) + 1);
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only
     // for strings, but who knows…
@@ -588,23 +590,30 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes,
     for (char* c = name; *c != 0; c++, d++) *d = *c == '#' ? '_' : *c;
     *d = 0;
 
-    if (attributes)
+    if (attributes) {
         fprintf(out, "<g id=\"%s\" %s>\n", buffer, attributes);
-    else
+    } else {
         fprintf(out, "<g id=\"%s\">\n", buffer);
+    }
 
     if (comp == NULL) {
         Polygon** polygon = polygon_array.items;
-        for (uint64_t i = 0; i < polygon_array.count; i++, polygon++)
-            (*polygon)->to_svg(out, scaling);
+        for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
+            ErrorCode err = (*polygon)->to_svg(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
+        }
 
         FlexPath** flexpath = flexpath_array.items;
-        for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++)
-            (*flexpath)->to_svg(out, scaling);
+        for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
+            ErrorCode err = (*flexpath)->to_svg(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
+        }
 
         RobustPath** robustpath = robustpath_array.items;
-        for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++)
-            (*robustpath)->to_svg(out, scaling);
+        for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
+            ErrorCode err = (*robustpath)->to_svg(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
+        }
     } else {
         Array<Polygon*> all_polygons = {0};
         get_polygons(false, true, -1, all_polygons);
@@ -613,26 +622,34 @@ void Cell::to_svg(FILE* out, double scaling, const char* attributes,
 
         Polygon** polygon = all_polygons.items;
         for (uint64_t i = 0; i < all_polygons.count; i++, polygon++) {
-            (*polygon)->to_svg(out, scaling);
+            ErrorCode err = (*polygon)->to_svg(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
             (*polygon)->clear();
         }
         all_polygons.clear();
     }
 
     Reference** reference = reference_array.items;
-    for (uint64_t i = 0; i < reference_array.count; i++, reference++)
-        (*reference)->to_svg(out, scaling);
+    for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
+        ErrorCode err = (*reference)->to_svg(out, scaling);
+        if (err != ErrorCode::NoError) error_code = err;
+    }
 
     Label** label = label_array.items;
-    for (uint64_t i = 0; i < label_array.count; i++, label++) (*label)->to_svg(out, scaling);
+    for (uint64_t i = 0; i < label_array.count; i++, label++) {
+        ErrorCode err = (*label)->to_svg(out, scaling);
+        if (err != ErrorCode::NoError) error_code = err;
+    }
 
     fputs("</g>\n", out);
     free_allocation(buffer);
+    return error_code;
 }
 
 ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
                           StyleMap& label_style, const char* background, double pad,
                           bool pad_as_percentage, PolygonComparisonFunction comp) const {
+    ErrorCode error_code = ErrorCode::NoError;
     Vec2 min, max;
     bounding_box(min, max);
     if (min.x > max.x) {
@@ -728,8 +745,10 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
 
     fputs("</style>\n", out);
 
-    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item))
-        item->value->to_svg(out, scaling, NULL, comp);
+    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
+        ErrorCode err = item->value->to_svg(out, scaling, NULL, comp);
+        if (err != ErrorCode::NoError) error_code = err;
+    }
 
     cell_map.clear();
 
@@ -739,10 +758,11 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
             out,
             "<rect x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" fill=\"%s\" stroke=\"none\"/>\n",
             x, y, w, h, background);
-    to_svg(out, scaling, "transform=\"scale(1 -1)\"", comp);
+    ErrorCode err = to_svg(out, scaling, "transform=\"scale(1 -1)\"", comp);
+    if (err != ErrorCode::NoError) error_code = err;
     fputs("</svg>", out);
     fclose(out);
-    return ErrorCode::NoError;
+    return error_code;
 }
 
 }  // namespace gdstk

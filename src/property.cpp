@@ -329,6 +329,7 @@ void properties_to_gds(const Property* properties, FILE* out) {
         if (free_bytes) free_allocation(bytes);
     }
     if (count > 128)
+        // TODO: error handling
         fputs(
             "[GDSTK] Properties with count larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
             stderr);

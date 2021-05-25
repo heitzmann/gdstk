@@ -923,15 +923,20 @@ void FlexPath::to_oas(OasisStream& out, OasisState& state) {
     point_array.clear();
 }
 
-void FlexPath::to_svg(FILE* out, double scaling) {
+ErrorCode FlexPath::to_svg(FILE* out, double scaling) {
     Array<Polygon*> array = {0};
+    // TODO: Possible error returned here.
+    // ErrorCode error_code = to_polygons(array);
+    ErrorCode error_code = ErrorCode::NoError;
     to_polygons(array);
     for (uint64_t i = 0; i < array.count; i++) {
-        array[i]->to_svg(out, scaling);
+        ErrorCode err = array[i]->to_svg(out, scaling);
+        if (err != ErrorCode::NoError) error_code = err;
         array[i]->clear();
         free_allocation(array[i]);
     }
     array.clear();
+    return error_code;
 }
 
 void FlexPath::fill_offsets_and_widths(const double* width, const double* offset) {

@@ -19,6 +19,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "allocator.h"
 #include "property.h"
 #include "repetition.h"
+#include "utils.h"
 #include "vec.h"
 
 namespace gdstk {
@@ -58,7 +59,7 @@ struct Label {
     // These functions output the label in the GDSII and SVG formats.  They are
     // not supposed to be called by the user.
     void to_gds(FILE* out, double scaling) const;
-    void to_svg(FILE* out, double scaling) const;
+    ErrorCode to_svg(FILE* out, double scaling) const;
 };
 
 }  // namespace gdstk

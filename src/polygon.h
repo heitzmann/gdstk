@@ -18,6 +18,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "oasis.h"
 #include "property.h"
 #include "repetition.h"
+#include "utils.h"
 #include "vec.h"
 
 namespace gdstk {
@@ -77,7 +78,7 @@ struct Polygon {
     // They are not supposed to be called by the user.
     void to_gds(FILE* out, double scaling) const;
     void to_oas(OasisStream& out, OasisState& state) const;
-    void to_svg(FILE* out, double scaling) const;
+    ErrorCode to_svg(FILE* out, double scaling) const;
 };
 
 Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype);
