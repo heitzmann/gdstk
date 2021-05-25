@@ -146,11 +146,11 @@ struct FlexPath {
     uint64_t commands(const CurveInstruction* items, uint64_t count);
 
     // Append the polygonal representation of this path to result
-    void to_polygons(Array<Polygon*>& result);
+    ErrorCode to_polygons(Array<Polygon*>& result);
 
     // Calculate the center of an element of this path and append the resulting
     // curve to result.
-    void element_center(const FlexPathElement* el, Array<Vec2>& result);
+    ErrorCode element_center(const FlexPathElement* el, Array<Vec2>& result);
 
     // These functions output the polygon in the GDSII, OASIS and SVG formats.
     // They are not supposed to be called by the user.  Because fracturing
@@ -158,8 +158,8 @@ struct FlexPath {
     // needed, fractured.  Therefore, to_gds should be used only when
     // simple_path == true to produce true GDSII path elements.  The same is
     // valid for to_oas, even though no fracturing ever occurs for OASIS files.
-    void to_gds(FILE* out, double scaling);
-    void to_oas(OasisStream& out, OasisState& state);
+    ErrorCode to_gds(FILE* out, double scaling);
+    ErrorCode to_oas(OasisStream& out, OasisState& state);
     ErrorCode to_svg(FILE* out, double scaling);
 
    private:

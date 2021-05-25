@@ -130,7 +130,15 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
         polygon->copy_from(*((PolygonObject*)py_polygons)->polygon);
         polygon_array.append(polygon);
     } else if (FlexPathObject_Check(py_polygons)) {
-        ((FlexPathObject*)py_polygons)->flexpath->to_polygons(polygon_array);
+        ErrorCode error_code = ((FlexPathObject*)py_polygons)->flexpath->to_polygons(polygon_array);
+        if (return_error(error_code)) {
+            for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
+                polygon_array[j]->clear();
+                free_allocation(polygon_array[j]);
+            }
+            polygon_array.clear();
+            return -1;
+        }
     } else if (RobustPathObject_Check(py_polygons)) {
         ErrorCode error_code =
             ((RobustPathObject*)py_polygons)->robustpath->to_polygons(polygon_array);
@@ -162,7 +170,15 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
                 polygon->copy_from(*((PolygonObject*)arg)->polygon);
                 polygon_array.append(polygon);
             } else if (FlexPathObject_Check(arg)) {
-                ((FlexPathObject*)arg)->flexpath->to_polygons(polygon_array);
+                ErrorCode error_code = ((FlexPathObject*)arg)->flexpath->to_polygons(polygon_array);
+                if (return_error(error_code)) {
+                    for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
+                        polygon_array[j]->clear();
+                        free_allocation(polygon_array[j]);
+                    }
+                    polygon_array.clear();
+                    return -1;
+                }
             } else if (RobustPathObject_Check(arg)) {
                 ErrorCode error_code =
                     ((RobustPathObject*)arg)->robustpath->to_polygons(polygon_array);

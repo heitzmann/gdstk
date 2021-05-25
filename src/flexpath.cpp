@@ -219,9 +219,9 @@ void FlexPath::remove_overlapping_points() {
     }
 }
 
-void FlexPath::to_polygons(Array<Polygon*>& result) {
+ErrorCode FlexPath::to_polygons(Array<Polygon*>& result) {
     remove_overlapping_points();
-    if (spine.point_array.count < 2) return;
+    if (spine.point_array.count < 2) return ErrorCode::NoError;
 
     const Array<Vec2> spine_points = spine.point_array;
     uint64_t curve_size_guess = spine_points.count * 2 + 4;
@@ -627,9 +627,10 @@ void FlexPath::to_polygons(Array<Polygon*>& result) {
         result_polygon->properties = properties_copy(properties);
         result.append_unsafe(result_polygon);
     }
+    return ErrorCode::NoError;
 }
 
-void FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
+ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
     const Array<Vec2> spine_points = spine.point_array;
     const BendType bend_type = el->bend_type;
     const double bend_radius = el->bend_radius;
@@ -747,11 +748,15 @@ void FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
         arc.clear();
     }
     result.append(p1);
+    return ErrorCode::NoError;
 }
 
-void FlexPath::to_gds(FILE* out, double scaling) {
+ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
+    ErrorCode error_code = ErrorCode::NoError;
+
     remove_overlapping_points();
-    if (spine.point_array.count < 2) return;
+
+    if (spine.point_array.count < 2) return error_code;
 
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -808,7 +813,8 @@ void FlexPath::to_gds(FILE* out, double scaling) {
             big_endian_swap32((uint32_t*)ext_size, COUNT(ext_size));
         }
 
-        element_center(el, point_array);
+        ErrorCode err = element_center(el, point_array);
+        if (err != ErrorCode::NoError) error_code = err;
         coords.ensure_slots(point_array.count * 2);
         coords.count = point_array.count * 2;
 
@@ -856,11 +862,15 @@ void FlexPath::to_gds(FILE* out, double scaling) {
     coords.clear();
     point_array.clear();
     if (repetition.type != RepetitionType::None) offsets.clear();
+    return error_code;
 }
 
-void FlexPath::to_oas(OasisStream& out, OasisState& state) {
+ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
+    ErrorCode error_code = ErrorCode::NoError;
+
     remove_overlapping_points();
-    if (spine.point_array.count < 2) return;
+
+    if (spine.point_array.count < 2) return error_code;
 
     bool has_repetition = repetition.get_count() > 1;
 
@@ -911,7 +921,8 @@ void FlexPath::to_oas(OasisStream& out, OasisState& state) {
                 oasis_putc(0x05, out);
         }
 
-        element_center(el, point_array);
+        ErrorCode err = element_center(el, point_array);
+        if (err != ErrorCode::NoError) error_code = err;
         oasis_write_point_list(out, point_array, state.scaling, false);
         oasis_write_integer(out, (int64_t)llround(point_array[0].x * state.scaling));
         oasis_write_integer(out, (int64_t)llround(point_array[0].y * state.scaling));
@@ -921,14 +932,12 @@ void FlexPath::to_oas(OasisStream& out, OasisState& state) {
         point_array.count = 0;
     }
     point_array.clear();
+    return error_code;
 }
 
 ErrorCode FlexPath::to_svg(FILE* out, double scaling) {
     Array<Polygon*> array = {0};
-    // TODO: Possible error returned here.
-    // ErrorCode error_code = to_polygons(array);
-    ErrorCode error_code = ErrorCode::NoError;
-    to_polygons(array);
+    ErrorCode error_code = to_polygons(array);
     for (uint64_t i = 0; i < array.count; i++) {
         ErrorCode err = array[i]->to_svg(out, scaling);
         if (err != ErrorCode::NoError) error_code = err;

@@ -293,7 +293,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                     }
                 } else {
                     Array<Polygon*> array = {0};
-                    path->to_polygons(array);
+                    ErrorCode err = path->to_polygons(array);
+                    if (err != ErrorCode::NoError) error_code = err;
                     poly_p = array.items;
                     for (uint64_t k = array.count; k > 0; k--) {
                         Polygon* poly = *poly_p++;
@@ -417,7 +418,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 path->to_oas(out, state);
             } else {
                 Array<Polygon*> array = {0};
-                path->to_polygons(array);
+                ErrorCode err = path->to_polygons(array);
+                if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
                     Polygon* poly = *poly_p++;

@@ -120,6 +120,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
         Array<Polygon*> array = {0};
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
+            // NOTE: return ErrorCode ignored here
             (*flexpath)->to_polygons(array);
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
@@ -191,6 +192,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     Array<Polygon*> array = {0};
     FlexPath** flexpath = flexpath_array.items;
     for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
+        // NOTE: return ErrorCode ignored here
         (*flexpath)->to_polygons(array);
         polygon = array.items;
         for (uint64_t j = 0; j < array.count; j++, polygon++) {
@@ -305,6 +307,7 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
     if (include_paths) {
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
+            // NOTE: return ErrorCode ignored here
             (*flexpath)->to_polygons(result);
         }
 
@@ -506,9 +509,11 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     for (uint64_t k = 0; k < flexpath_array.count; k++, fp_item++) {
         FlexPath* flexpath = *fp_item;
         if (flexpath->simple_path) {
+            // TODO: handle ErrorCode
             flexpath->to_gds(out, scaling);
         } else {
             Array<Polygon*> fp_array = {0};
+            // TODO: handle ErrorCode
             flexpath->to_polygons(fp_array);
             p_item = fp_array.items;
             for (uint64_t i = 0; i < fp_array.count; i++, p_item++) {
