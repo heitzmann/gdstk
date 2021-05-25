@@ -461,8 +461,9 @@ void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
     }
 }
 
-void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
-                  const tm* timestamp) const {
+ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
+                       const tm* timestamp) const {
+    ErrorCode error_code = ErrorCode::NoError;
     uint64_t len = strlen(name);
     if (len % 2) len++;
     uint16_t buffer_start[] = {28,
@@ -495,13 +496,15 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
             Polygon** a_item = fractured_array.items;
             for (uint64_t j = 0; j < fractured_array.count; j++, a_item++) {
                 Polygon* p = *a_item;
-                p->to_gds(out, scaling);
+                ErrorCode err = p->to_gds(out, scaling);
+                if (err != ErrorCode::NoError) error_code = err;
                 p->clear();
                 free_allocation(p);
             }
             fractured_array.count = 0;
         } else {
-            polygon->to_gds(out, scaling);
+            ErrorCode err = polygon->to_gds(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
         }
     }
 
@@ -509,12 +512,12 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     for (uint64_t k = 0; k < flexpath_array.count; k++, fp_item++) {
         FlexPath* flexpath = *fp_item;
         if (flexpath->simple_path) {
-            // TODO: handle ErrorCode
-            flexpath->to_gds(out, scaling);
+            ErrorCode err = flexpath->to_gds(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
         } else {
             Array<Polygon*> fp_array = {0};
-            // TODO: handle ErrorCode
-            flexpath->to_polygons(fp_array);
+            ErrorCode err = flexpath->to_polygons(fp_array);
+            if (err != ErrorCode::NoError) error_code = err;
             p_item = fp_array.items;
             for (uint64_t i = 0; i < fp_array.count; i++, p_item++) {
                 Polygon* polygon = *p_item;
@@ -523,13 +526,15 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
                     Polygon** a_item = fractured_array.items;
                     for (uint64_t j = 0; j < fractured_array.count; j++, a_item++) {
                         Polygon* p = *a_item;
-                        p->to_gds(out, scaling);
+                        err = p->to_gds(out, scaling);
+                        if (err != ErrorCode::NoError) error_code = err;
                         p->clear();
                         free_allocation(p);
                     }
                     fractured_array.count = 0;
                 } else {
-                    polygon->to_gds(out, scaling);
+                    err = polygon->to_gds(out, scaling);
+                    if (err != ErrorCode::NoError) error_code = err;
                 }
                 polygon->clear();
                 free_allocation(polygon);
@@ -542,12 +547,12 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     for (uint64_t k = 0; k < robustpath_array.count; k++, rp_item++) {
         RobustPath* robustpath = *rp_item;
         if (robustpath->simple_path) {
-            // TODO: handle ErrorCode
-            robustpath->to_gds(out, scaling);
+            ErrorCode err = robustpath->to_gds(out, scaling);
+            if (err != ErrorCode::NoError) error_code = err;
         } else {
             Array<Polygon*> rp_array = {0};
-            // TODO: handle ErrorCode
-            robustpath->to_polygons(rp_array);
+            ErrorCode err = robustpath->to_polygons(rp_array);
+            if (err != ErrorCode::NoError) error_code = err;
             p_item = rp_array.items;
             for (uint64_t i = 0; i < rp_array.count; i++, p_item++) {
                 Polygon* polygon = *p_item;
@@ -556,13 +561,15 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
                     Polygon** a_item = fractured_array.items;
                     for (uint64_t j = 0; j < fractured_array.count; j++, a_item++) {
                         Polygon* p = *a_item;
-                        p->to_gds(out, scaling);
+                        err = p->to_gds(out, scaling);
+                        if (err != ErrorCode::NoError) error_code = err;
                         p->clear();
                         free_allocation(p);
                     }
                     fractured_array.count = 0;
                 } else {
-                    polygon->to_gds(out, scaling);
+                    err = polygon->to_gds(out, scaling);
+                    if (err != ErrorCode::NoError) error_code = err;
                 }
                 polygon->clear();
                 free_allocation(polygon);
@@ -574,15 +581,21 @@ void Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precisi
     fractured_array.clear();
 
     Label** label = label_array.items;
-    for (uint64_t i = 0; i < label_array.count; i++, label++) (*label)->to_gds(out, scaling);
+    for (uint64_t i = 0; i < label_array.count; i++, label++) {
+        ErrorCode err = (*label)->to_gds(out, scaling);
+        if (err != ErrorCode::NoError) error_code = err;
+    }
 
     Reference** reference = reference_array.items;
-    for (uint64_t i = 0; i < reference_array.count; i++, reference++)
-        (*reference)->to_gds(out, scaling);
+    for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
+        ErrorCode err = (*reference)->to_gds(out, scaling);
+        if (err != ErrorCode::NoError) error_code = err;
+    }
 
     uint16_t buffer_end[] = {4, 0x0700};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
     fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
+    return error_code;
 }
 
 ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,

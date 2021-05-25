@@ -69,11 +69,11 @@ struct GdsWriter {
         fwrite(units, sizeof(uint64_t), COUNT(units), out);
     }
 
-    void write_cell(Cell& cell) const {
-        cell.to_gds(out, unit / precision, max_points, precision, &timestamp);
+    ErrorCode write_cell(Cell& cell) const {
+        return cell.to_gds(out, unit / precision, max_points, precision, &timestamp);
     }
 
-    void write_rawcell(RawCell& rawcell) const { rawcell.to_gds(out); }
+    ErrorCode write_rawcell(RawCell& rawcell) const { return rawcell.to_gds(out); }
 
     void close() {
         uint16_t buffer_end[] = {4, 0x0400};

@@ -14,6 +14,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 
+#include "utils.h"
+
 namespace gdstk {
 
 struct OasisStream;
@@ -83,7 +85,7 @@ PropertyValue* get_gds_property(Property* properties, uint16_t attribute);
 
 // These functions output the properties in the GDSII and OASIS formats.  They
 // are not supposed to be called by the user.
-void properties_to_gds(const Property* properties, FILE* out);
+ErrorCode properties_to_gds(const Property* properties, FILE* out);
 void properties_to_oas(const Property* properties, OasisStream& out, OasisState& state);
 
 }  // namespace gdstk

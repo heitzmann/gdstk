@@ -362,7 +362,8 @@ void Reference::labels(bool apply_repetitions, int64_t depth, Array<Label*>& res
 }
 
 #define REFERENCE_REPETITION_TOLERANCE 1e-12
-void Reference::to_gds(FILE* out, double scaling) const {
+ErrorCode Reference::to_gds(FILE* out, double scaling) const {
+    ErrorCode error_code = ErrorCode::NoError;
     bool array = false;
     double x2, y2, x3, y3;
     Vec2 zero = {0, 0};
@@ -407,6 +408,7 @@ void Reference::to_gds(FILE* out, double scaling) const {
                 fputs(
                     "[GDSTK] Repetition with more than 65535 columns or rows cannot be saved to a GDSII file.\n",
                     stderr);
+                error_code = ErrorCode::InvalidRepetition;
                 buffer_array[2] = UINT16_MAX;
                 buffer_array[3] = UINT16_MAX;
             } else {
@@ -492,14 +494,16 @@ void Reference::to_gds(FILE* out, double scaling) const {
             fwrite(buffer_single_coord, sizeof(int32_t), COUNT(buffer_single_coord), out);
         }
 
-        properties_to_gds(properties, out);
+        ErrorCode err = properties_to_gds(properties, out);
+        if (err != ErrorCode::NoError) error_code = err;
         fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
 
     if (repetition.type != RepetitionType::None && !array) offsets.clear();
+    return error_code;
 }
 
-void Reference::to_svg(FILE* out, double scaling) const {
+ErrorCode Reference::to_svg(FILE* out, double scaling) const {
     const char* src_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);

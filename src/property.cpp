@@ -299,7 +299,7 @@ PropertyValue* get_gds_property(Property* properties, uint16_t attribute) {
     return NULL;
 }
 
-void properties_to_gds(const Property* properties, FILE* out) {
+ErrorCode properties_to_gds(const Property* properties, FILE* out) {
     uint64_t count = 0;
     for (; properties; properties = properties->next) {
         if (!is_gds_property(properties)) continue;
@@ -328,11 +328,13 @@ void properties_to_gds(const Property* properties, FILE* out) {
 
         if (free_bytes) free_allocation(bytes);
     }
-    if (count > 128)
-        // TODO: error handling
+    if (count > 128) {
         fputs(
             "[GDSTK] Properties with count larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
             stderr);
+        return ErrorCode::UnofficialSpecification;
+    }
+    return ErrorCode::NoError;
 }
 
 void properties_to_oas(const Property* properties, OasisStream& out, OasisState& state) {

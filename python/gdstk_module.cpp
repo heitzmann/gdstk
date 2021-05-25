@@ -47,6 +47,7 @@ static int return_error(ErrorCode error_code) {
     switch (error_code) {
         case ErrorCode::NoError:
             return 0;
+        // Warnings
         case ErrorCode::MissingReference:
             if (PyErr_WarnEx(PyExc_RuntimeWarning, "Missing reference.", 2) != 0) return -1;
             return 0;
@@ -58,6 +59,12 @@ static int return_error(ErrorCode error_code) {
                              2) != 0)
                 return -1;
             return 0;
+        case ErrorCode::UnofficialSpecification:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning,
+                             "Saved file uses unofficially supported extensions.", 2) != 0)
+                return -1;
+            return 0;
+        // Errors
         case ErrorCode::UnsupportedRecord:
             PyErr_SetString(PyExc_RuntimeError, "Unsupported record in file.");
             return -1;

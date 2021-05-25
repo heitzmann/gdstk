@@ -59,6 +59,7 @@ enum struct ErrorCode {
     IntersectionNotFound,
     MissingReference,
     UnsupportedRecord,
+    UnofficialSpecification,
     InvalidRepetition,
     // Errors
     ChecksumError,

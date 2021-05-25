@@ -83,7 +83,8 @@ void Label::apply_repetition(Array<Label*>& result) {
     return;
 }
 
-void Label::to_gds(FILE* out, double scaling) const {
+ErrorCode Label::to_gds(FILE* out, double scaling) const {
+    ErrorCode error_code = ErrorCode::NoError;
     uint16_t buffer_start[] = {
         4,      0x0C00,          6, 0x0D02, (uint16_t)layer, 6, 0x1602, (uint16_t)texttype, 6,
         0x1701, (uint16_t)anchor};
@@ -159,10 +160,12 @@ void Label::to_gds(FILE* out, double scaling) const {
         fwrite(buffer_text, sizeof(uint16_t), COUNT(buffer_text), out);
         fwrite(text, 1, len, out);
 
-        properties_to_gds(properties, out);
+        ErrorCode err = properties_to_gds(properties, out);
+        if (err != ErrorCode::NoError) error_code = err;
         fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
     if (repetition.type != RepetitionType::None) offsets.clear();
+    return error_code;
 }
 
 ErrorCode Label::to_svg(FILE* out, double scaling) const {

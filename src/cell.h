@@ -133,7 +133,7 @@ struct Cell {
     // These functions output the cell and its contents in the GDSII and SVG
     // formats.  They are not supposed to be called by the user.  Use
     // Library.write_gds and Cell.write_svg instead.
-    void to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
+    ErrorCode to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
                 const tm* timestamp) const;
     ErrorCode to_svg(FILE* out, double scaling, const char* attributes,
                      PolygonComparisonFunction comp) const;

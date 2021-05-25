@@ -108,7 +108,6 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
 }
 
 ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
-    // TODO: error handling in *.to_gds
     ErrorCode error_code = ErrorCode::NoError;
     FILE* out = fopen(filename, "wb");
     if (out == NULL) {
@@ -156,7 +155,8 @@ ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* time
     double scaling = unit / precision;
     Cell** cell = cell_array.items;
     for (uint64_t i = 0; i < cell_array.count; i++, cell++) {
-        (*cell)->to_gds(out, scaling, max_points, precision, timestamp);
+        ErrorCode err = (*cell)->to_gds(out, scaling, max_points, precision, timestamp);
+        if (err != ErrorCode::NoError) error_code = err;
     }
 
     RawCell** rawcell = rawcell_array.items;

@@ -322,8 +322,9 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
     return;
 }
 
-void Polygon::to_gds(FILE* out, double scaling) const {
-    if (point_array.count < 3) return;
+ErrorCode Polygon::to_gds(FILE* out, double scaling) const {
+    ErrorCode error_code = ErrorCode::NoError;
+    if (point_array.count < 3) return error_code;
 
     uint16_t buffer_start[] = {
         4, 0x0800, 6, 0x0D02, (uint16_t)layer, 6, 0x0E02, (uint16_t)datatype};
@@ -333,10 +334,10 @@ void Polygon::to_gds(FILE* out, double scaling) const {
 
     uint64_t total = point_array.count + 1;
     if (total > 8190) {
-        // TODO: error handling
         fputs(
             "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
             stderr);
+        error_code = ErrorCode::UnofficialSpecification;
     }
     Array<int32_t> coords = {0};
     coords.ensure_slots(2 * total);
@@ -378,13 +379,15 @@ void Polygon::to_gds(FILE* out, double scaling) const {
             i0 = i1;
         }
 
-        properties_to_gds(properties, out);
+        ErrorCode err = properties_to_gds(properties, out);
+        if (err != ErrorCode::NoError) error_code = err;
 
         fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
     }
 
     if (repetition.type != RepetitionType::None) offsets.clear();
     coords.clear();
+    return error_code;
 }
 
 static bool is_rectangle(const Array<IntVec2> points, IntVec2& corner, IntVec2& size) {

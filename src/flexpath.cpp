@@ -850,7 +850,8 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                 i0 = i1;
             }
 
-            properties_to_gds(properties, out);
+            err = properties_to_gds(properties, out);
+            if (err != ErrorCode::NoError) error_code = err;
 
             fwrite(buffer_end, sizeof(uint16_t), COUNT(buffer_end), out);
         }
