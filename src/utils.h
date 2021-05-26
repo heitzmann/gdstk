@@ -61,10 +61,11 @@ enum struct ErrorCode {
     UnsupportedRecord,
     UnofficialSpecification,
     InvalidRepetition,
+    Overflow,
     // Errors
     ChecksumError,
-    InputFileOpenError,
     OutputFileOpenError,
+    InputFileOpenError,
     InputFileError,
     InvalidFile,
     InsufficientMemory,

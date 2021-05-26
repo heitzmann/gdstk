@@ -64,6 +64,10 @@ static int return_error(ErrorCode error_code) {
                              "Saved file uses unofficially supported extensions.", 2) != 0)
                 return -1;
             return 0;
+        case ErrorCode::Overflow:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Large number in file causes overflow.", 2) != 0)
+                return -1;
+            return 0;
         // Errors
         case ErrorCode::UnsupportedRecord:
             PyErr_SetString(PyExc_RuntimeError, "Unsupported record in file.");

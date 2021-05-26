@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "oasis.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -18,9 +19,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// TODO: error handling
-
-size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
+ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
     if (in.data) {
         uint64_t total = size * count;
         memcpy(buffer, in.cursor, size * count);
@@ -29,9 +28,13 @@ size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
             free_allocation(in.data);
             in.data = NULL;
         }
-        return total;
+        return in.error_code;
     }
-    return fread(buffer, size, count, in.file);
+    if (fread(buffer, size, count, in.file) < count) {
+        fputs("[GDSTK] Error reading OASIS file", stderr);
+        if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
+    }
+    return in.error_code;
 }
 
 static uint8_t oasis_peek(OasisStream& in) {
@@ -41,6 +44,7 @@ static uint8_t oasis_peek(OasisStream& in) {
     } else {
         if (fread(&byte, 1, 1, in.file) < 1) {
             fputs("[GDSTK] Error reading OASIS file", stderr);
+            if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
         }
         fseek(in.file, -1, SEEK_CUR);
     }
@@ -92,15 +96,36 @@ int oasis_putc(int c, OasisStream& out) {
     return putc(c, out.file);
 }
 
+uint64_t oasis_read_unsigned_integer(OasisStream& in) {
+    uint8_t byte;
+    if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return 0;
+
+    uint64_t result = (uint64_t)(byte & 0x7F);
+    uint8_t num_bits = 7;
+    while (byte & 0x80) {
+        if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return result;
+        if (num_bits == 63 && byte > 1) {
+            fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", stderr);
+            if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::Overflow;
+            return 0xFFFFFFFFFFFFFFFF;
+        }
+        result |= ((uint64_t)(byte & 0x7F)) << num_bits;
+        num_bits += 7;
+    }
+    return result;
+}
+
 uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& count) {
     uint8_t* bytes;
     count = oasis_read_unsigned_integer(in);
     if (append_terminating_null) {
         bytes = (uint8_t*)allocate(count + 1);
-    } else {
+    } else if (count > 0) {
         bytes = (uint8_t*)allocate(count);
+    } else {
+        return NULL;
     }
-    if (oasis_read(bytes, 1, count, in) < count) {
+    if (oasis_read(bytes, 1, count, in) != ErrorCode::NoError) {
         free_allocation(bytes);
         bytes = NULL;
         count = -1;
@@ -120,47 +145,18 @@ uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64
     return bytes;
 }
 
-uint64_t oasis_read_unsigned_integer(OasisStream& in) {
-    uint8_t byte;
-    if (oasis_read(&byte, 1, 1, in) < 1) {
-        fputs("[GDSTK] Error reading file.\n", stderr);
-        return 0;
-    }
-
-    uint64_t result = (uint64_t)(byte & 0x7F);
-
-    uint8_t num_bits = 7;
-    while (byte & 0x80) {
-        if (oasis_read(&byte, 1, 1, in) < 1) {
-            fputs("[GDSTK] Error reading file.\n", stderr);
-            return result;
-        }
-        if (num_bits == 63 && byte > 1) {
-            fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", stderr);
-            return 0xFFFFFFFFFFFFFFFF;
-        }
-        result |= ((uint64_t)(byte & 0x7F)) << num_bits;
-        num_bits += 7;
-    }
-    return result;
-}
-
 static uint8_t oasis_read_int_internal(OasisStream& in, uint8_t skip_bits, int64_t& result) {
     uint8_t byte;
-    if (oasis_read(&byte, 1, 1, in) < 1) {
-        fputs("[GDSTK] Error reading file.\n", stderr);
-        return 0;
-    }
+    if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return 0;
+
     result = ((uint64_t)(byte & 0x7F)) >> skip_bits;
     uint8_t bits = byte & ((1 << skip_bits) - 1);
     uint8_t num_bits = 7 - skip_bits;
     while (byte & 0x80) {
-        if (oasis_read(&byte, 1, 1, in) < 1) {
-            fputs("[GDSTK] Error reading file.\n", stderr);
-            return bits;
-        }
+        if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return bits;
         if (num_bits > 56 && (byte >> (63 - num_bits)) > 0) {
             fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", stderr);
+            if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::Overflow;
             result = 0x7FFFFFFFFFFFFFFF;
             return bits;
         }
@@ -239,6 +235,7 @@ void oasis_read_3delta(OasisStream& in, int64_t& x, int64_t& y) {
 
 void oasis_read_gdelta(OasisStream& in, int64_t& x, int64_t& y) {
     uint8_t bits = oasis_peek(in);
+    if (in.error_code != ErrorCode::NoError) return;
 
     if ((bits & 0x01) == 0) {
         int64_t value;
@@ -303,26 +300,30 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
         }
         case OasisDataType::RealFloat: {
             float value;
-            oasis_read(&value, sizeof(float), 1, in);
+            if (oasis_read(&value, sizeof(float), 1, in) != ErrorCode::NoError) return 0;
             little_endian_swap32((uint32_t*)&value, 1);
             return (double)value;
         }
         case OasisDataType::RealDouble: {
             double value;
-            oasis_read(&value, sizeof(double), 1, in);
+            if (oasis_read(&value, sizeof(double), 1, in) != ErrorCode::NoError) return 0;
             little_endian_swap64((uint64_t*)&value, 1);
             return value;
         }
         default:
             fputs("[GDSTK] Unable to determine real value.\n", stderr);
+            if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
     }
     return 0;
 }
 
 uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Array<Vec2>& result) {
     uint8_t byte;
-    if (oasis_read(&byte, 1, 1, in) < 1) return 0;
+    if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return 0;
+
     uint64_t num = oasis_read_unsigned_integer(in);
+    if (in.error_code != ErrorCode::NoError) return 0;
+
     switch ((OasisPointList)byte) {
         case OasisPointList::ManhattanHorizontalFirst:
         case OasisPointList::ManhattanVerticalFirst: {
@@ -405,6 +406,7 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Arr
         } break;
         default:
             fputs("[GDSTK] Point list type not supported.\n", stderr);
+            if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
             return 0;
     }
     return num;
@@ -412,13 +414,13 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Arr
 
 void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetition) {
     uint8_t type;
-    if (oasis_read(&type, 1, 1, in) < 1) {
-        fputs("[GDSTK] Error reading file.\n", stderr);
-        return;
-    }
+
+    if (oasis_read(&type, 1, 1, in) != ErrorCode::NoError) return;
+
     if (type == 0) return;
 
     repetition.clear();
+
     switch (type) {
         case 1: {
             repetition.type = RepetitionType::Rectangular;
@@ -549,6 +551,7 @@ void oasis_write_integer(OasisStream& out, int64_t value) {
 }
 
 void oasis_write_2delta(OasisStream& out, int64_t x, int64_t y) {
+    assert(x == 0 || y == 0);
     if (x == 0) {
         if (y < 0) {
             oasis_write_int_internal(out, -y, 2, (uint8_t)OasisDirection::S);
@@ -567,6 +570,7 @@ void oasis_write_2delta(OasisStream& out, int64_t x, int64_t y) {
 }
 
 void oasis_write_3delta(OasisStream& out, int64_t x, int64_t y) {
+    assert(x == 0 || y == 0 || x == y || x == -y);
     if (x == 0) {
         if (y < 0) {
             oasis_write_int_internal(out, -y, 3, (uint8_t)OasisDirection::S);

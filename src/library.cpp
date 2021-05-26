@@ -222,6 +222,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     } else if (out.checksum32) {
         out.signature = 0;
     }
+    out.error_code = ErrorCode::NoError;
 
     char header[] = {'%', 'S', 'E', 'M', 'I',  '-',  'O',
                      'A', 'S', 'I', 'S', '\r', '\n', (char)OasisRecord::START,
@@ -1087,7 +1088,12 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     // Process START record
     uint64_t len;
     uint8_t* version = oasis_read_string(in, false, len);
-    if (memcmp(version, "1.0", 3) != 0) {
+    if (in.error_code != ErrorCode::NoError) {
+        if (error_code) *error_code = in.error_code;
+        fclose(in.file);
+        return library;
+    }
+    if (len != 3 || memcmp(version, "1.0", 3) != 0) {
         fputs("[GDSTK] Unsupported OASIS file version.\n", stderr);
         if (error_code) *error_code = ErrorCode::InvalidFile;
     }
@@ -1146,7 +1152,8 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     Cell* cell = NULL;
 
     OasisRecord record;
-    while (oasis_read(&record, 1, 1, in) > 0) {
+    while (oasis_read(&record, 1, 1, in) != ErrorCode::NoError &&
+           in.error_code != ErrorCode::NoError) {
         switch (record) {
             case OasisRecord::PAD:
                 break;
@@ -2182,6 +2189,8 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     unfinished_property_name.clear();
     unfinished_property_value.clear();
 
+    if (in.error_code != ErrorCode::NoError && error_code) *error_code = in.error_code;
+
     return library;
 }
 
@@ -2230,7 +2239,7 @@ ErrorCode oas_precision(const char* filename, double& precision) {
     }
 
     // Process START record
-    OasisStream s = {in, NULL, NULL, 0};
+    OasisStream s = {in};
     uint64_t len;
     uint8_t* version = oasis_read_string(s, false, len);
     if (memcmp(version, "1.0", 3) != 0) {

@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "array.h"
 #include "map.h"
 #include "repetition.h"
+#include "utils.h"
 
 namespace gdstk {
 
@@ -152,6 +153,7 @@ struct OasisStream {
     uint32_t signature;
     bool crc32;
     bool checksum32;
+    ErrorCode error_code;
 };
 
 struct OasisState {
@@ -162,7 +164,7 @@ struct OasisState {
     uint16_t config_flags;
 };
 
-size_t oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);
+ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);
 
 size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& out);
 
@@ -186,7 +188,7 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type);
 
 inline double oasis_read_real(OasisStream& in) {
     OasisDataType type;
-    if (oasis_read(&type, 1, 1, in) < 1) return 0;
+    if (oasis_read(&type, 1, 1, in) != ErrorCode::NoError) return 0;
     return oasis_read_real_by_type(in, type);
 }
 
