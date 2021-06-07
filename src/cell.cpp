@@ -68,8 +68,9 @@ void Cell::bounding_box(Vec2& min, Vec2& max) const {
     GeometryInfo info = bounding_box(cache);
     min = info.bounding_box_min;
     max = info.bounding_box_max;
-    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
-        item->value.clear();
+    const MapItem<GeometryInfo>* limit = cache.items + cache.capacity;
+    for (MapItem<GeometryInfo>* item = cache.items; item != limit; ++item) {
+        if (item->key) item->value.clear();
     }
     cache.clear();
 }
@@ -165,8 +166,9 @@ void Cell::convex_hull(Array<Vec2>& result) const {
     Map<GeometryInfo> cache = {0};
     GeometryInfo info = convex_hull(cache);
     result.extend(info.convex_hull);
-    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
-        item->value.clear();
+    const MapItem<GeometryInfo>* limit = cache.items + cache.capacity;
+    for (MapItem<GeometryInfo>* item = cache.items; item != limit; item++) {
+        if (item->key) item->value.clear();
     }
     cache.clear();
 }
@@ -727,31 +729,35 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
 
     Map<Cell*> cell_map = {0};
     get_dependencies(true, cell_map);
-    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
-        const Array<Polygon*>* polygons = &item->value->polygon_array;
-        for (uint64_t i = 0; i < polygons->count; i++) {
-            style.set((*polygons)[i]->layer, (*polygons)[i]->datatype, NULL);
-        }
-
-        const Array<FlexPath*>* flexpaths = &item->value->flexpath_array;
-        for (uint64_t i = 0; i < flexpaths->count; i++) {
-            const FlexPath* flexpath = flexpaths->items[i];
-            for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
-                style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
+    const MapItem<Cell*>* limit = cell_map.items + cell_map.capacity;
+    for (MapItem<Cell*>* item = cell_map.items; item != limit; item++) {
+        if (item->key) {
+            const Array<Polygon*>* polygons = &item->value->polygon_array;
+            for (uint64_t i = 0; i < polygons->count; i++) {
+                style.set((*polygons)[i]->layer, (*polygons)[i]->datatype, NULL);
             }
-        }
 
-        const Array<RobustPath*>* robustpaths = &item->value->robustpath_array;
-        for (uint64_t i = 0; i < robustpaths->count; i++) {
-            const RobustPath* robustpath = robustpaths->items[i];
-            for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
-                style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
+            const Array<FlexPath*>* flexpaths = &item->value->flexpath_array;
+            for (uint64_t i = 0; i < flexpaths->count; i++) {
+                const FlexPath* flexpath = flexpaths->items[i];
+                for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
+                    style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
+                }
             }
-        }
 
-        const Array<Label*>* labels = &item->value->label_array;
-        for (uint64_t i = 0; i < labels->count; i++) {
-            style.set((*labels)[i]->layer, (*labels)[i]->texttype, NULL);
+            const Array<RobustPath*>* robustpaths = &item->value->robustpath_array;
+            for (uint64_t i = 0; i < robustpaths->count; i++) {
+                const RobustPath* robustpath = robustpaths->items[i];
+                for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
+                    style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype,
+                              NULL);
+                }
+            }
+
+            const Array<Label*>* labels = &item->value->label_array;
+            for (uint64_t i = 0; i < labels->count; i++) {
+                style.set((*labels)[i]->layer, (*labels)[i]->texttype, NULL);
+            }
         }
     }
 
@@ -763,9 +769,11 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
 
     fputs("</style>\n", out);
 
-    for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
-        ErrorCode err = item->value->to_svg(out, scaling, NULL, comp);
-        if (err != ErrorCode::NoError) error_code = err;
+    for (MapItem<Cell*>* item = cell_map.items; item != limit; item++) {
+        if (item->key) {
+            ErrorCode err = item->value->to_svg(out, scaling, NULL, comp);
+            if (err != ErrorCode::NoError) error_code = err;
+        }
     }
 
     cell_map.clear();

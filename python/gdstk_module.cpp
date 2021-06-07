@@ -1445,19 +1445,25 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to create return dictionary.");
         return NULL;
     }
-    for (MapItem<RawCell*>* item = map.next(NULL); item; item = map.next(item)) {
-        RawCellObject* rawcell_obj = PyObject_New(RawCellObject, &rawcell_object_type);
-        rawcell_obj = (RawCellObject*)PyObject_Init((PyObject*)rawcell_obj, &rawcell_object_type);
-        rawcell_obj->rawcell = item->value;
-        rawcell_obj->rawcell->owner = rawcell_obj;
-        if (PyDict_SetItemString(result, rawcell_obj->rawcell->name, (PyObject*)rawcell_obj) < 0) {
+    const MapItem<RawCell*>* limit = map.items + map.capacity;
+    for (MapItem<RawCell*>* item = map.items; item != limit; item++) {
+        if (item->key) {
+            RawCellObject* rawcell_obj = PyObject_New(RawCellObject, &rawcell_object_type);
+            rawcell_obj =
+                (RawCellObject*)PyObject_Init((PyObject*)rawcell_obj, &rawcell_object_type);
+            rawcell_obj->rawcell = item->value;
+            rawcell_obj->rawcell->owner = rawcell_obj;
+            if (PyDict_SetItemString(result, rawcell_obj->rawcell->name, (PyObject*)rawcell_obj) <
+                0) {
+                Py_DECREF(rawcell_obj);
+                Py_DECREF(result);
+                map.clear();
+                PyErr_SetString(PyExc_RuntimeError,
+                                "Unable to insert item into result dictionary.");
+                return NULL;
+            }
             Py_DECREF(rawcell_obj);
-            Py_DECREF(result);
-            map.clear();
-            PyErr_SetString(PyExc_RuntimeError, "Unable to insert item into result dictionary.");
-            return NULL;
         }
-        Py_DECREF(rawcell_obj);
     }
     map.clear();
     return (PyObject*)result;

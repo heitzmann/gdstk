@@ -12,9 +12,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define _USE_MATH_DEFINES
 
 #define MAP_GROWTH_FACTOR 2
-#define INITIAL_MAP_CAPACITY 4
-#define MAP_CAPACITY_THRESHOLD 7  // in tenths
+#define INITIAL_MAP_CAPACITY 8
+#define MAP_CAPACITY_THRESHOLD 5  // in tenths
 
+#include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -38,12 +39,10 @@ static inline uint64_t hash(const char* key) {
     return result;
 }
 
-// NULL-terminated linked-list of map items
 template <class T>
 struct MapItem {
     char* key;
     T value;
-    MapItem<T>* next;
 };
 
 // Hash map indexed by NULL-terminated strings
@@ -59,12 +58,8 @@ struct Map {
         if (all) {
             MapItem<T>* item = items;
             for (uint64_t i = 0; i < capacity; i++, item++) {
-                printf("(%" PRIu64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, item,
-                       item->key, item->key ? item->key : "", item->value, item->next);
-                for (MapItem<T>* it = item->next; it; it = it->next) {
-                    printf("(%" PRIu64 ") Item <%p>, key <%p> %s, value <%p>, next <%p>\n", i, it,
-                           it->key, it->key ? it->key : "", it->value, it->next);
-                }
+                printf("(%" PRIu64 ") Item <%p>, key %p (%s), value <%p>\n", i, item, item->key,
+                       item->key ? item->key : "", item->value);
             }
         }
     }
@@ -83,30 +78,22 @@ struct Map {
         new_map.count = 0;
         new_map.capacity = new_capacity;
         new_map.items = (MapItem<T>*)allocate_clear(new_capacity * sizeof(MapItem<T>));
-        for (MapItem<T>* it = next(NULL); it; it = next(it)) new_map.set(it->key, it->value);
+        const MapItem<T>* limit = items + capacity;
+        for (MapItem<T>* it = items; it != limit; it++) {
+            if (it->key) new_map.set(it->key, it->value);
+        }
         clear();
         capacity = new_map.capacity;
         count = new_map.count;
         items = new_map.items;
     }
 
-    // Function to iterate over all values in the map:
-    // for (MapItem<T>* item = map.next(NULL); item; item = map.next(item)) {…}
-    MapItem<T>* next(const MapItem<T>* current) const {
-        if (!current) {
-            for (uint64_t i = 0; i < capacity; i++)
-                if (items[i].key) return items + i;
-            return NULL;
-        }
-        if (current->next) return current->next;
-        for (uint64_t i = hash(current->key) % capacity + 1; i < capacity; i++)
-            if (items[i].key) return items + i;
-        return NULL;
-    }
-
     void to_array(Array<T>& result) const {
         result.ensure_slots(count);
-        for (MapItem<T>* it = next(NULL); it; it = next(it)) result.append_unsafe(it->value);
+        const MapItem<T>* limit = items + capacity;
+        for (MapItem<T>* it = items; it != limit; it++) {
+            if (it->key) result.append_unsafe(it->value);
+        }
     }
 
     void clear() {
@@ -117,13 +104,6 @@ struct Map {
                     free_allocation(item->key);
                     item->key = NULL;
                 }
-                MapItem<T>* it = item->next;
-                while (it) {
-                    MapItem<T>* tmp = it->next;
-                    free_allocation(it->key);
-                    free_allocation(it);
-                    it = tmp;
-                }
             }
             free_allocation(items);
             items = NULL;
@@ -132,86 +112,74 @@ struct Map {
         count = 0;
     }
 
+    MapItem<T>* get_slot(const char* key) const {
+        assert(capacity > 0);
+        uint64_t h = hash(key) % capacity;
+        MapItem<T>* item = items + h;
+        while (item->key != NULL && strcmp(item->key, key) != 0) {
+            item++;
+            if (item == items + capacity) item = items;
+        }
+        // DEBUG_PRINT("get_slot %s [%" PRIu64 "] -> [%" PRIu64 "]\n", key, h, item - items);
+        return item;
+    }
+
     // Key is internally allocated and copied; value is simply assigned
     void set(const char* key, T value) {
         // Equallity is important for capacity == 0
         if (count * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
             resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
                                                     : INITIAL_MAP_CAPACITY);
-
-        uint64_t h = hash(key) % capacity;
-        MapItem<T>* item = items + h;
+        MapItem<T>* item = get_slot(key);
         if (item->key == NULL) {
             uint64_t len;
             item->key = copy_string(key, len);
-            item->value = value;
             count++;
-        } else if (strcmp(item->key, key) == 0) {
-            item->value = value;
-        } else {
-            while (item->next && strcmp(item->next->key, key) != 0) item = item->next;
-            if (item->next) {
-                item->next->value = value;
-            } else {
-                item->next = (MapItem<T>*)allocate(sizeof(MapItem<T>));
-                item = item->next;
-                uint64_t len;
-                item->key = copy_string(key, len);
-                item->value = value;
-                item->next = NULL;
-                count++;
-            }
         }
+        item->value = value;
     }
 
     bool has_key(const char* key) const {
         if (count == 0) return false;
-        uint64_t h = hash(key) % capacity;
-        MapItem<T>* item = items + h;
-        if (item->key == NULL) return false;
-        for (; item != NULL; item = item->next) {
-            if (strcmp(item->key, key) == 0) return true;
-        }
-        return false;
+        const MapItem<T>* item = get_slot(key);
+        return item->key != NULL;
     }
 
     // If the desired key is not found, returns T{0}
     T get(const char* key) const {
         if (count == 0) return T{0};
-        uint64_t h = hash(key) % capacity;
-        MapItem<T>* item = items + h;
-        if (item->key == NULL) return T{0};
-        if (strcmp(item->key, key) == 0) return item->value;
-        while (item->next && strcmp(item->next->key, key) != 0) item = item->next;
-        if (item->next) return item->next->value;
-        return T{0};
+        const MapItem<T>* item = get_slot(key);
+        return item->key == NULL ? T{0} : item->value;
     }
 
-    void del(const char* key) {
-        if (count == 0) return;
-        uint64_t h = hash(key) % capacity;
-        MapItem<T>* item = items + h;
-        if (item->key == NULL) return;
-        if (strcmp(item->key, key) == 0) {
-            free_allocation(item->key);
-            if (item->next) {
-                MapItem<T>* it = item;
-                while (it->next->next) it = it->next;
-                item->key = it->next->key;
-                item->value = it->next->value;
-                it->next = NULL;
-            } else {
-                item->key = 0;
+    // Return true if the key existed, false otherwise
+    bool del(const char* key) {
+        if (count == 0) return false;
+        MapItem<T>* item = get_slot(key);
+        if (item->key == NULL) return false;
+
+        // DEBUG_PRINT("DEL [%" PRIu64 "] %s\n", item - items, item->key);
+        free_allocation(item->key);
+        item->key = NULL;
+        count--;
+
+        // Re-insert this block to fill any undesired gaps
+        while (true) {
+            item++;
+            if (item == items + capacity) item = items;
+            if (item->key == NULL) return true;
+            char* temp_key = item->key;
+            item->key = NULL;
+            MapItem<T>* new_item = get_slot(temp_key);
+            new_item->key = temp_key;
+            if (new_item != item) {
+                // DEBUG_PRINT("MOVE %s [%" PRIu64 "] -> [%" PRIu64 "]\n", new_item->key,
+                //             item - items, new_item - items);
+                new_item->value == item->value;
             }
-            return;
         }
-        while (item->next && strcmp(item->next->key, key) != 0) item = item->next;
-        if (item->next) {
-            MapItem<T>* it = item->next->next;
-            free_allocation(item->next->key);
-            free_allocation(item->next);
-            item->next = it;
-        }
+        assert(false);
+        return true;
     }
 };
 

@@ -601,29 +601,37 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
         err = properties_to_oas(cell->properties, out, state);
         if (err != ErrorCode::NoError) error_code = err;
     }
-    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
-        item->value.clear();
+    const MapItem<GeometryInfo>* limit = cache.items + cache.capacity;
+    for (MapItem<GeometryInfo>* item = cache.items; item != limit; item++) {
+        if (item->key) item->value.clear();
     }
     cache.clear();
 
     uint64_t text_string_offset = text_string_map.count > 0 ? ftell(out.file) : 0;
-    for (MapItem<uint64_t>* item = text_string_map.next(NULL); item;
-         item = text_string_map.next(item)) {
-        oasis_putc((int)OasisRecord::TEXTSTRING, out);
-        uint64_t len = strlen(item->key);
-        oasis_write_unsigned_integer(out, len);
-        oasis_write(item->key, 1, len, out);
-        oasis_write_unsigned_integer(out, item->value);
+    const MapItem<uint64_t>* text_string_map_limit =
+        text_string_map.items + text_string_map.capacity;
+    for (MapItem<uint64_t>* item = text_string_map.items; item != text_string_map_limit; item++) {
+        if (item->key) {
+            oasis_putc((int)OasisRecord::TEXTSTRING, out);
+            uint64_t len = strlen(item->key);
+            oasis_write_unsigned_integer(out, len);
+            oasis_write(item->key, 1, len, out);
+            oasis_write_unsigned_integer(out, item->value);
+        }
     }
 
     uint64_t prop_name_offset = state.property_name_map.count > 0 ? ftell(out.file) : 0;
-    for (MapItem<uint64_t>* item = state.property_name_map.next(NULL); item;
-         item = state.property_name_map.next(item)) {
-        oasis_putc((int)OasisRecord::PROPNAME, out);
-        uint64_t len = strlen(item->key);
-        oasis_write_unsigned_integer(out, len);
-        oasis_write(item->key, 1, len, out);
-        oasis_write_unsigned_integer(out, item->value);
+    const MapItem<uint64_t>* property_name_map_limit =
+        state.property_name_map.items + state.property_name_map.capacity;
+    for (MapItem<uint64_t>* item = state.property_name_map.items; item != property_name_map_limit;
+         item++) {
+        if (item->key) {
+            oasis_putc((int)OasisRecord::PROPNAME, out);
+            uint64_t len = strlen(item->key);
+            oasis_write_unsigned_integer(out, len);
+            oasis_write(item->key, 1, len, out);
+            oasis_write_unsigned_integer(out, item->value);
+        }
     }
 
     uint64_t prop_string_offset = state.property_value_array.count > 0 ? ftell(out.file) : 0;
@@ -1065,6 +1073,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
     return Library{0};
 }
 
+// TODO: https://github.com/heitzmann/gdstk/issues/29
 Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {0};
 

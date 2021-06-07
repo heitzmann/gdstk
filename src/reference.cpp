@@ -107,8 +107,9 @@ void Reference::repeat_and_transform(Array<Vec2>& point_array) const {
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
     Map<GeometryInfo> cache = {0};
     bounding_box(min, max, cache);
-    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
-        item->value.clear();
+    const MapItem<GeometryInfo>* limit = cache.items + cache.capacity;
+    for (MapItem<GeometryInfo>* item = cache.items; item != limit; item++) {
+        if (item->key) item->value.clear();
     }
     cache.clear();
 }
@@ -159,8 +160,9 @@ void Reference::convex_hull(Array<Vec2>& result) const {
     if (type != ReferenceType::Cell) return;
     Map<GeometryInfo> cache = {0};
     convex_hull(result, cache);
-    for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
-        item->value.clear();
+    const MapItem<GeometryInfo>* limit = cache.items + cache.capacity;
+    for (MapItem<GeometryInfo>* item = cache.items; item != limit; item++) {
+        if (item->key) item->value.clear();
     }
     cache.clear();
 }
