@@ -115,27 +115,24 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
 
         switch (buffer[2]) {
             case 0x04: {  // ENDLIB
-                const MapItem<RawCell*>* limit = result.items + result.capacity;
-                for (MapItem<RawCell*>* item = result.items; item != limit; item++) {
-                    if (item->key) {
-                        Array<RawCell*>* dependencies = &item->value->dependencies;
-                        for (uint64_t i = 0; i < dependencies->count;) {
-                            char* name = (char*)((*dependencies)[i]);
-                            rawcell = result.get(name);
-                            if (rawcell) {
-                                if (dependencies->contains(rawcell)) {
-                                    dependencies->remove_unordered(i);
-                                } else {
-                                    (*dependencies)[i] = rawcell;
-                                    i++;
-                                }
-                            } else {
+                for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
+                    Array<RawCell*>* dependencies = &item->value->dependencies;
+                    for (uint64_t i = 0; i < dependencies->count;) {
+                        char* name = (char*)((*dependencies)[i]);
+                        rawcell = result.get(name);
+                        if (rawcell) {
+                            if (dependencies->contains(rawcell)) {
                                 dependencies->remove_unordered(i);
-                                fprintf(stderr, "[GDSTK] Referenced cell %s not found.\n", name);
-                                if (error_code) *error_code = ErrorCode::MissingReference;
+                            } else {
+                                (*dependencies)[i] = rawcell;
+                                i++;
                             }
-                            free_allocation(name);
+                        } else {
+                            dependencies->remove_unordered(i);
+                            fprintf(stderr, "[GDSTK] Referenced cell %s not found.\n", name);
+                            if (error_code) *error_code = ErrorCode::MissingReference;
                         }
+                        free_allocation(name);
                     }
                 }
                 if (source->uses == 0) {
@@ -185,17 +182,14 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
     }
 
     source->uses++;  // ensure rawcell->clear() won't close and free source
-    const MapItem<RawCell*>* limit = result.items + result.capacity;
-    for (MapItem<RawCell*>* item = result.items; item != limit; item++) {
-        if (item->key) {
-            rawcell = item->value;
-            Array<RawCell*>* dependencies = &rawcell->dependencies;
-            for (uint64_t i = 0; i < dependencies->count;) {
-                char* name = (char*)((*dependencies)[i]);
-                free_allocation(name);
-            }
-            rawcell->clear();
+    for (MapItem<RawCell*>* item = result.next(NULL); item; item = result.next(item)) {
+        rawcell = item->value;
+        Array<RawCell*>* dependencies = &rawcell->dependencies;
+        for (uint64_t i = 0; i < dependencies->count;) {
+            char* name = (char*)((*dependencies)[i]);
+            free_allocation(name);
         }
+        rawcell->clear();
     }
     fclose(source->file);
     free_allocation(source);

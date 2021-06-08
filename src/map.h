@@ -88,6 +88,18 @@ struct Map {
         items = new_map.items;
     }
 
+    // Function to iterate over all values in the map:
+    // for (MapItem<T>* item = map.next(NULL); item; item = map.next(item)) {…}
+    MapItem<T>* next(const MapItem<T>* current) const {
+        MapItem<T>* next = current ? (MapItem<T>*)(current + 1) : items;
+        const MapItem<T>* limit = items + capacity;
+        while (next < limit) {
+            if (next->key) return next;
+            next++;
+        }
+        return NULL;
+    }
+
     void to_array(Array<T>& result) const {
         result.ensure_slots(count);
         const MapItem<T>* limit = items + capacity;

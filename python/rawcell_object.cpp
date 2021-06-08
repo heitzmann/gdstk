@@ -55,13 +55,11 @@ static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args
         return NULL;
     }
     uint64_t i = 0;
-    const MapItem<RawCell*>* rawcell_map_limit = rawcell_map.items + rawcell_map.capacity;
-    for (MapItem<RawCell*>* item = rawcell_map.items; item != rawcell_map_limit; item++) {
-        if (item->key) {
-            PyObject* rawcell_obj = (PyObject*)item->value->owner;
-            Py_INCREF(rawcell_obj);
-            PyList_SET_ITEM(result, i++, rawcell_obj);
-        }
+    for (MapItem<RawCell*>* item = rawcell_map.next(NULL); item != NULL;
+         item = rawcell_map.next(item)) {
+        PyObject* rawcell_obj = (PyObject*)item->value->owner;
+        Py_INCREF(rawcell_obj);
+        PyList_SET_ITEM(result, i++, rawcell_obj);
     }
     rawcell_map.clear();
     return result;
