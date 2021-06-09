@@ -13,7 +13,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include <zlib.h>
 
 #include "allocator.h"
@@ -115,12 +114,12 @@ ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* time
         return ErrorCode::OutputFileOpenError;
     }
 
+    tm now = {0};
+    if (!timestamp) timestamp = get_now(&now);
+
     uint64_t len = strlen(name);
     if (len % 2) len++;
-    if (!timestamp) {
-        time_t now = time(NULL);
-        timestamp = localtime(&now);
-    }
+
     uint16_t buffer_start[] = {6,
                                0x0002,
                                0x0258,

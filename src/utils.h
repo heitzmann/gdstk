@@ -47,6 +47,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <math.h>
 #include <stdint.h>
+#include <time.h>
 
 #include "array.h"
 #include "vec.h"
@@ -169,6 +170,9 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result);
 // Return a global buffer with the representation of the value in fixed format
 // with a maximal precision set.  This function is meant for internal use only.
 char* double_print(double value, uint32_t precision, char* buffer, size_t buffer_size);
+
+// Thread-safe version of localtime.
+tm* get_now(tm* result);
 
 }  // namespace gdstk
 

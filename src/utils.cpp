@@ -13,6 +13,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 
 #include "allocator.h"
 #include "vec.h"
@@ -554,6 +555,17 @@ char* double_print(double value, uint32_t precision, char* buffer, size_t buffer
         buffer[len] = 0;
     }
     return buffer;
+}
+
+tm* get_now(tm* result) {
+    assert(result);
+    time_t t = time(NULL);
+#ifdef _WIN32
+    localtime_s(result, &t);
+#else
+    localtime_r(&t, result);
+#endif
+    return result;
 }
 
 }  // namespace gdstk

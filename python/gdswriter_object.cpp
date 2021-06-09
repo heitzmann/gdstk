@@ -26,7 +26,6 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
     char* name = NULL;
     double unit = 1e-6;
     double precision = 1e-9;
-    time_t now = time(NULL);
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|sddK:GdsWriter", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &name, &unit, &precision,
                                      &max_points))
@@ -53,11 +52,11 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
         return -1;
     }
     GdsWriter* gdswriter = self->gdswriter;
+    get_now(&gdswriter->timestamp);
     gdswriter->out = out;
     gdswriter->unit = unit;
     gdswriter->precision = precision;
     gdswriter->max_points = max_points;
-    gdswriter->timestamp = *localtime(&now);
     gdswriter->owner = self;
     if (!name)
         gdswriter->write_gds(default_name);
