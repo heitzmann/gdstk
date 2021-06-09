@@ -19,16 +19,19 @@ static void gdswriter_object_dealloc(GdsWriterObject* self) {
 }
 
 static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject* kwds) {
-    const char* keywords[] = {"outfile", "name", "unit", "precision", "max_points", NULL};
+    const char* keywords[] = {"outfile",    "name",      "unit", "precision",
+                              "max_points", "timestamp", NULL};
     const char* default_name = "library";
     PyObject* pybytes = NULL;
+    PyObject* pytimestamp = Py_None;
+    tm timestamp = {0};
     uint64_t max_points = 199;
     char* name = NULL;
     double unit = 1e-6;
     double precision = 1e-9;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|sddK:GdsWriter", (char**)keywords,
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|sddKO:GdsWriter", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &name, &unit, &precision,
-                                     &max_points))
+                                     &max_points, &pytimestamp))
         return -1;
 
     if (unit <= 0) {
@@ -43,6 +46,22 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
         return -1;
     }
 
+    if (pytimestamp != Py_None) {
+        if (!PyDateTime_Check(pytimestamp)) {
+            PyErr_SetString(PyExc_TypeError, "Timestamp must be a datetime object.");
+            Py_DECREF(pybytes);
+            return -1;
+        }
+        timestamp.tm_year = PyDateTime_GET_YEAR(pytimestamp) - 1900;
+        timestamp.tm_mon = PyDateTime_GET_MONTH(pytimestamp) - 1;
+        timestamp.tm_mday = PyDateTime_GET_DAY(pytimestamp);
+        timestamp.tm_hour = PyDateTime_DATE_GET_HOUR(pytimestamp);
+        timestamp.tm_min = PyDateTime_DATE_GET_MINUTE(pytimestamp);
+        timestamp.tm_sec = PyDateTime_DATE_GET_SECOND(pytimestamp);
+    } else {
+        get_now(&timestamp);
+    }
+
     if (!self->gdswriter) self->gdswriter = (GdsWriter*)allocate_clear(sizeof(GdsWriter));
 
     FILE* out = fopen(PyBytes_AS_STRING(pybytes), "wb");
@@ -52,7 +71,7 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
         return -1;
     }
     GdsWriter* gdswriter = self->gdswriter;
-    get_now(&gdswriter->timestamp);
+    gdswriter->timestamp = timestamp;
     gdswriter->out = out;
     gdswriter->unit = unit;
     gdswriter->precision = precision;

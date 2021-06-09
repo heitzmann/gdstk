@@ -34,6 +34,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define RobustPathObject_Check(o) PyObject_TypeCheck((o), &robustpath_object_type)
 
 #include <Python.h>
+#include <datetime.h>
 #include <inttypes.h>
 #include <numpy/arrayobject.h>
 #include <structmember.h>
@@ -1844,6 +1845,7 @@ static struct PyModuleDef gdstk_module = {PyModuleDef_HEAD_INIT,
                                           NULL};
 
 PyMODINIT_FUNC PyInit_gdstk(void) {
+    PyDateTime_IMPORT;
     PyObject* module = PyModuleDef_Init(&gdstk_module);
     if (!module) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to initialize module.");

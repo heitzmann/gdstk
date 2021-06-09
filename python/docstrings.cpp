@@ -2440,7 +2440,7 @@ Return the top-level cells in the library.
 Top-level cells are cells that do not appear as dependency of any other
 cells in the library.)!");
 
-PyDoc_STRVAR(library_object_write_gds_doc, R"!(write_gds(outfile, max_points=199) -> None
+PyDoc_STRVAR(library_object_write_gds_doc, R"!(write_gds(outfile, max_points=199, timestamp=None) -> None
 
 Save this library to a GDSII file.
 
@@ -2448,6 +2448,8 @@ Args:
     outfile (str or pathlib.Path): Name of the output file.
     max_points: Maximal number of vertices per polygon. Polygons with
       more vertices that this are automatically fractured.
+    timestamp (datetime object): Timestamp to be stored in the GDSII
+      file. If ``None``, the current time is used.
 
 See also:
     :ref:`getting-started`)!");
@@ -2493,7 +2495,7 @@ Notes:
 // GdsWriter
 
 PyDoc_STRVAR(gdswriter_object_type_doc,
-             R"!(GdsWriter(outfile, name="library", unit=1e-6, precision=1e-9, max_points=199)
+             R"!(GdsWriter(outfile, name="library", unit=1e-6, precision=1e-9, max_points=199, timestamp=None)
 
 Multi-step GDSII stream file writer.
 
@@ -2510,6 +2512,8 @@ Args:
       GDSII file.
     max_points: Maximal number of vertices per polygon. Polygons with
       more vertices that this are automatically fractured.
+    timestamp (datetime object): Timestamp to be stored in the GDSII
+      file. If ``None``, the current time is used.
 
 Eaxmples:
     >>> writer = gdstk.GdsWriter()

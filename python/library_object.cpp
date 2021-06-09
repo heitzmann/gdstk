@@ -186,15 +186,33 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
 }
 
 static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, PyObject* kwds) {
-    const char* keywords[] = {"outfile", "max_points", NULL};
+    const char* keywords[] = {"outfile", "max_points", "timestamp", NULL};
     PyObject* pybytes = NULL;
+    PyObject* pytimestamp = Py_None;
+    tm* timestamp = NULL;
+    tm _timestamp = {0};
     uint64_t max_points = 199;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|K:write_gds", (char**)keywords,
-                                     PyUnicode_FSConverter, &pybytes, &max_points))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|KO:write_gds", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &max_points, &pytimestamp))
         return NULL;
 
+    if (pytimestamp != Py_None) {
+        if (!PyDateTime_Check(pytimestamp)) {
+            PyErr_SetString(PyExc_TypeError, "Timestamp must be a datetime object.");
+            Py_DECREF(pybytes);
+            return NULL;
+        }
+        _timestamp.tm_year = PyDateTime_GET_YEAR(pytimestamp) - 1900;
+        _timestamp.tm_mon = PyDateTime_GET_MONTH(pytimestamp) - 1;
+        _timestamp.tm_mday = PyDateTime_GET_DAY(pytimestamp);
+        _timestamp.tm_hour = PyDateTime_DATE_GET_HOUR(pytimestamp);
+        _timestamp.tm_min = PyDateTime_DATE_GET_MINUTE(pytimestamp);
+        _timestamp.tm_sec = PyDateTime_DATE_GET_SECOND(pytimestamp);
+        timestamp = &_timestamp;
+    }
+
     const char* filename = PyBytes_AS_STRING(pybytes);
-    ErrorCode error_code = self->library->write_gds(filename, max_points, NULL);
+    ErrorCode error_code = self->library->write_gds(filename, max_points, timestamp);
     Py_DECREF(pybytes);
     if (return_error(error_code)) return NULL;
 
