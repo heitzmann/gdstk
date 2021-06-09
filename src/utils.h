@@ -69,6 +69,7 @@ enum struct ErrorCode {
     OutputFileOpenError,
     InputFileOpenError,
     InputFileError,
+    FileError,
     InvalidFile,
     InsufficientMemory,
     ZlibError,

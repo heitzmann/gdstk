@@ -123,6 +123,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
 // arguments.
 ErrorCode gds_units(const char* filename, double& unit, double& precision);
 
+// Get/set the timestamps in the GDSII file.  If timestamp is not NULL, set the
+// timestamps of the file.  The main library timestamp before any modification
+// is returned.
+tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error_code);
+
 // Read the precision of an OASIS file (unit is always 1e-6) and return in the
 // precision argument.
 ErrorCode oas_precision(const char* filename, double& precision);

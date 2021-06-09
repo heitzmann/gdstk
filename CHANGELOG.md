@@ -3,6 +3,7 @@
 ## Unreleased
 ### Added
 - Argument `precision` in `Cell.write_svg` controls the maximum number of digits of coordinates in the SVG
+- Function `gds_timestamp` can be used to query or set the timestamp in a GDSII file
 ### Changed
 - `oas_validate` returns `None` if the file has no checksum information
 ### Fixed

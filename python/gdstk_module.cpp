@@ -82,6 +82,9 @@ static int return_error(ErrorCode error_code) {
         case ErrorCode::OutputFileOpenError:
             PyErr_SetString(PyExc_OSError, "Error opening output file.");
             return -1;
+        case ErrorCode::FileError:
+            PyErr_SetString(PyExc_OSError, "Error handling file.");
+            return -1;
         case ErrorCode::InvalidFile:
             PyErr_SetString(PyExc_RuntimeError, "Invalid or corrupted file.");
             return -1;
@@ -1478,6 +1481,44 @@ static PyObject* gds_units_function(PyObject* mod, PyObject* args) {
     return Py_BuildValue("dd", unit, precision);
 }
 
+static PyObject* gds_timestamp_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+    PyObject* pybytes = NULL;
+    PyObject* pytimestamp = Py_None;
+    tm* timestamp = NULL;
+    tm _timestamp = {0};
+    const char* keywords[] = {"filename", "timestamp", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O:gds_timestamp", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &pytimestamp))
+        return NULL;
+
+    if (pytimestamp != Py_None) {
+        if (!PyDateTime_Check(pytimestamp)) {
+            PyErr_SetString(PyExc_TypeError, "Timestamp must be a datetime object.");
+            Py_DECREF(pybytes);
+            return NULL;
+        }
+        _timestamp.tm_year = PyDateTime_GET_YEAR(pytimestamp) - 1900;
+        _timestamp.tm_mon = PyDateTime_GET_MONTH(pytimestamp) - 1;
+        _timestamp.tm_mday = PyDateTime_GET_DAY(pytimestamp);
+        _timestamp.tm_hour = PyDateTime_DATE_GET_HOUR(pytimestamp);
+        _timestamp.tm_min = PyDateTime_DATE_GET_MINUTE(pytimestamp);
+        _timestamp.tm_sec = PyDateTime_DATE_GET_SECOND(pytimestamp);
+        timestamp = &_timestamp;
+    }
+
+    ErrorCode error_code = ErrorCode::NoError;
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    const tm lib_tm = gds_timestamp(filename, timestamp, &error_code);
+    if (return_error(error_code)) {
+        Py_DECREF(pybytes);
+        return NULL;
+    }
+
+    Py_DECREF(pybytes);
+    return PyDateTime_FromDateAndTime(lib_tm.tm_year + 1900, lib_tm.tm_mon + 1, lib_tm.tm_mday,
+                                      lib_tm.tm_hour, lib_tm.tm_min, lib_tm.tm_sec, 0);
+}
+
 static PyObject* oas_precision_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:oas_precision", PyUnicode_FSConverter, &pybytes)) return NULL;
@@ -1532,6 +1573,8 @@ static PyMethodDef gdstk_methods[] = {
     {"read_rawcells", (PyCFunction)read_rawcells_function, METH_VARARGS,
      read_rawcells_function_doc},
     {"gds_units", (PyCFunction)gds_units_function, METH_VARARGS, gds_units_function_doc},
+    {"gds_timestamp", (PyCFunction)gds_timestamp_function, METH_VARARGS | METH_KEYWORDS,
+     gds_timestamp_function_doc},
     {"oas_precision", (PyCFunction)oas_precision_function, METH_VARARGS,
      oas_precision_function_doc},
     {"oas_validate", (PyCFunction)oas_validate_function, METH_VARARGS, oas_validate_function_doc},

@@ -3049,6 +3049,24 @@ Examples:
     >>> print(deps[0] is raw_cells["CELL_1"])
     True)!");
 
+PyDoc_STRVAR(gds_timestamp_function_doc, R"!(gds_timestamp(filename, timestamp=None) -> datetime
+
+Get and set the timestamp of a GDSII file.
+
+Args:
+    filename (str or pathlib.Path): Name of the GDSII file.
+    timestamp (datetime object): If not ``None``, the timestamp of the
+      file is set to this value.
+
+Returns:
+    Timestamp of the file before modification (if any).
+
+Notes:
+    This function modifies the contents of the file. The creation,
+    modification and access timestamps of the file itself are modified
+    according to the file system rules in place for reading and
+    writing.)!");
+
 PyDoc_STRVAR(gds_units_function_doc, R"!(gds_units(infile) -> tuple
 
 Read the unit and precision of a GDSII file.

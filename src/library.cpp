@@ -2210,7 +2210,7 @@ ErrorCode gds_units(const char* filename, double& unit, double& precision) {
             fclose(in);
             return error_code;
         }
-        if (buffer[2] == 0x03) {  // UNITS
+        if ((GdsiiRecord)buffer[2] == GdsiiRecord::UNITS) {
             big_endian_swap64(data64, 2);
             precision = gdsii_real_to_double(data64[1]);
             unit = precision / gdsii_real_to_double(data64[0]);
@@ -2221,6 +2221,89 @@ ErrorCode gds_units(const char* filename, double& unit, double& precision) {
     fclose(in);
     fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
     return ErrorCode::InvalidFile;
+}
+
+tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error_code) {
+    tm result = {0};
+    uint8_t buffer[65537];
+    uint16_t* data16 = (uint16_t*)(buffer + 4);
+    uint16_t new_tm_buffer[12];
+    FILE* inout = NULL;
+
+    if (new_timestamp) {
+        new_tm_buffer[0] = new_timestamp->tm_year + 1900;
+        new_tm_buffer[1] = new_timestamp->tm_mon + 1;
+        new_tm_buffer[2] = new_timestamp->tm_mday;
+        new_tm_buffer[3] = new_timestamp->tm_hour;
+        new_tm_buffer[4] = new_timestamp->tm_min;
+        new_tm_buffer[5] = new_timestamp->tm_sec;
+        big_endian_swap16(new_tm_buffer, 6);
+        memcpy(new_tm_buffer + 6, new_tm_buffer, 6 * sizeof(uint16_t));
+        inout = fopen(filename, "r+b");
+    } else {
+        inout = fopen(filename, "rb");
+    }
+    if (inout == NULL) {
+        fputs("[GDSTK] Unable to open GDSII file.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
+        return result;
+    }
+
+    while (true) {
+        uint64_t record_length = COUNT(buffer);
+        ErrorCode err = gdsii_read_record(inout, buffer, record_length);
+        if (err != ErrorCode::NoError) {
+            if (error_code) *error_code = err;
+            fclose(inout);
+            return result;
+        }
+
+        GdsiiRecord record = (GdsiiRecord)buffer[2];
+        if (record == GdsiiRecord::BGNLIB) {
+            if (record_length != 28) {
+                fclose(inout);
+                fputs("[GDSTK] Invalid or corrupted GDSII file.\n", stderr);
+                if (error_code) *error_code = ErrorCode::InvalidFile;
+                return result;
+            }
+            big_endian_swap16(data16, 6);
+            result.tm_year = data16[0] - 1900;
+            result.tm_mon = data16[1] - 1;
+            result.tm_mday = data16[2];
+            result.tm_hour = data16[3];
+            result.tm_min = data16[4];
+            result.tm_sec = data16[5];
+            if (!new_timestamp) {
+                fclose(inout);
+                return result;
+            }
+            if (fseek(inout, -24, SEEK_CUR) != 0) {
+                fclose(inout);
+                fputs("[GDSTK] Unable to rewrite library timestamp.\n", stderr);
+                if (error_code) *error_code = ErrorCode::FileError;
+                return result;
+            }
+            fwrite(new_tm_buffer, sizeof(uint16_t), 12, inout);
+        } else if (record == GdsiiRecord::BGNSTR && new_timestamp) {
+            if (record_length != 28) {
+                fclose(inout);
+                fputs("[GDSTK] Invalid or corrupted GDSII file.\n", stderr);
+                if (error_code) *error_code = ErrorCode::InvalidFile;
+                return result;
+            }
+            if (fseek(inout, -24, SEEK_CUR) != 0) {
+                fclose(inout);
+                fputs("[GDSTK] Unable to rewrite cell timestamp.\n", stderr);
+                if (error_code) *error_code = ErrorCode::FileError;
+                return result;
+            }
+            fwrite(new_tm_buffer, sizeof(uint16_t), 12, inout);
+        } else if (record == GdsiiRecord::ENDLIB) {
+            break;
+        }
+    }
+    fclose(inout);
+    return result;
 }
 
 ErrorCode oas_precision(const char* filename, double& precision) {
