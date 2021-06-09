@@ -545,4 +545,15 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
 #endif
 }
 
+char* double_print(double value, uint32_t precision, char* buffer, size_t buffer_size) {
+    uint64_t len = snprintf(buffer, buffer_size, "%.*f", precision, value);
+    if (precision) {
+        while (buffer[--len] == '0')
+            ;
+        if (buffer[len] != '.') len++;
+        buffer[len] = 0;
+    }
+    return buffer;
+}
+
 }  // namespace gdstk

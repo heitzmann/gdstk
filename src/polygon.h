@@ -78,7 +78,7 @@ struct Polygon {
     // They are not supposed to be called by the user.
     ErrorCode to_gds(FILE* out, double scaling) const;
     ErrorCode to_oas(OasisStream& out, OasisState& state) const;
-    ErrorCode to_svg(FILE* out, double scaling) const;
+    ErrorCode to_svg(FILE* out, double scaling, uint32_t precision) const;
 };
 
 Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype);

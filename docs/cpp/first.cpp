@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 
     StyleMap style = {0};
     StyleMap label_style = {0};
-    cell.write_svg("first.svg", 10, style, label_style, "#222222", 5, true, NULL);
+    cell.write_svg("first.svg", 10, 6, style, label_style, "#222222", 5, true, NULL);
 
     return 0;
 }

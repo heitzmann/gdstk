@@ -12,6 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define _USE_MATH_DEFINES
 
 #define GDSTK_PRINT_BUFFER_COUNT 1024
+#define GDSTK_DOUBLE_BUFFER_COUNT 1024
 
 #define GDSTK_MIN_POINTS 4
 
@@ -164,6 +165,10 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
 
 // Stores the convex hull of points into result
 void convex_hull(const Array<Vec2> points, Array<Vec2>& result);
+
+// Return a global buffer with the representation of the value in fixed format
+// with a maximal precision set.  This function is meant for internal use only.
+char* double_print(double value, uint32_t precision, char* buffer, size_t buffer_size);
 
 }  // namespace gdstk
 

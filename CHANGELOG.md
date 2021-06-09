@@ -1,6 +1,8 @@
 # Change Log
 
 ## Unreleased
+### Added
+- Argument `precision` in `Cell.write_svg` controls the maximum number of digits of coordinates in the SVG
 ### Changed
 - `oas_validate` returns `None` if the file has no checksum information
 ### Fixed

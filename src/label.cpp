@@ -168,7 +168,7 @@ ErrorCode Label::to_gds(FILE* out, double scaling) const {
     return error_code;
 }
 
-ErrorCode Label::to_svg(FILE* out, double scaling) const {
+ErrorCode Label::to_svg(FILE* out, double scaling, uint32_t precision) const {
     fprintf(out, "<text id=\"%p\" class=\"l%" PRIu32 "t%" PRIu32 "\"", this, layer, texttype);
     switch (anchor) {
         case Anchor::NW:
@@ -205,12 +205,29 @@ ErrorCode Label::to_svg(FILE* out, double scaling) const {
             break;
     }
 
-    fprintf(out, " transform=\"scale(1 -1) translate(%lf %lf)", scaling * origin.x,
-            -scaling * origin.y);
+    char double_buffer[GDSTK_DOUBLE_BUFFER_COUNT];
+    fputs(" transform=\"scale(1 -1) translate(", out);
+    fputs(double_print(scaling * origin.x, precision, double_buffer, COUNT(double_buffer)), out);
+    fputc(' ', out);
+    fputs(double_print(scaling * origin.y, precision, double_buffer, COUNT(double_buffer)), out);
+    fputc(')', out);
+
     // Negative sign to correct for the default coordinate system with y-down
-    if (rotation != 0) fprintf(out, " rotate(%lf)", rotation * (-180.0 / M_PI));
-    if (x_reflection) fputs(" scale(1 -1)", out);
-    if (magnification != 1) fprintf(out, " scale(%lf)", magnification);
+    if (rotation != 0) {
+        fputs(" rotate(", out);
+        fputs(double_print(rotation * (-180.0 / M_PI), precision, double_buffer,
+                           COUNT(double_buffer)),
+              out);
+        fputc(')', out);
+    }
+    if (x_reflection) {
+        fputs(" scale(1 -1)", out);
+    }
+    if (magnification != 1) {
+        fputs(" scale(", out);
+        fputs(double_print(magnification, precision, double_buffer, COUNT(double_buffer)), out);
+        fputc(')', out);
+    }
 
     // NOTE: Escape “<”, “>”, and “&” inside the SVG tag.  Here be dragons if the text is not ASCII.
     // The GDSII specification imposes ASCII-only for strings, but who knows…
@@ -239,8 +256,13 @@ ErrorCode Label::to_svg(FILE* out, double scaling) const {
         for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
-            fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,
-                    offset_y * scaling);
+            fprintf(out, "<use href=\"#%p\" x=\"", this);
+            fputs(double_print(offset_x * scaling, precision, double_buffer, COUNT(double_buffer)),
+                  out);
+            fputs("\" y=\"", out);
+            fputs(double_print(offset_y * scaling, precision, double_buffer, COUNT(double_buffer)),
+                  out);
+            fputs("\"/>\n", out);
         }
         offsets.clear();
     }

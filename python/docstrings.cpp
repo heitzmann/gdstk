@@ -2235,7 +2235,7 @@ Returns:
 
 PyDoc_STRVAR(
     cell_object_write_svg_doc,
-    R"!(write_svg(outfile, scaling=10, style=None, fontstyle=None, background=\"#222222\", pad=\"5%\", sort_function=None) -> self
+    R"!(write_svg(outfile, scaling=10, precision=6, style=None, fontstyle=None, background="#222222", pad="5%", sort_function=None) -> self
 
 Export this cell to an SVG image file. Colors and attributes must follow
 SVG specification.
@@ -2243,6 +2243,8 @@ SVG specification.
 Args:
     outfile (str or pathlib.Path): Name of the output file.
     scaling: Scaling factor for the whole geometry.
+    precision (positive integer): Maximum number of digits for
+      coordinates after scaling.
     style (dict): SVG attributes for each layer and data type. See the
       example below.
     fontstyle (dict): SVG attributes for each layer and text type.

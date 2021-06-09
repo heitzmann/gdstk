@@ -160,7 +160,7 @@ struct FlexPath {
     // valid for to_oas, even though no fracturing ever occurs for OASIS files.
     ErrorCode to_gds(FILE* out, double scaling);
     ErrorCode to_oas(OasisStream& out, OasisState& state);
-    ErrorCode to_svg(FILE* out, double scaling);
+    ErrorCode to_svg(FILE* out, double scaling, uint32_t precision);
 
    private:
     void remove_overlapping_points();

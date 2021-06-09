@@ -94,7 +94,7 @@ struct Reference {
     // These functions output the reference in the GDSII and SVG formats.  They
     // are not supposed to be called by the user.
     ErrorCode to_gds(FILE* out, double scaling) const;
-    ErrorCode to_svg(FILE* out, double scaling) const;
+    ErrorCode to_svg(FILE* out, double scaling, uint32_t precision) const;
 };
 
 }  // namespace gdstk

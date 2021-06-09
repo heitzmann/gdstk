@@ -503,7 +503,7 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
     return error_code;
 }
 
-ErrorCode Reference::to_svg(FILE* out, double scaling) const {
+ErrorCode Reference::to_svg(FILE* out, double scaling, uint32_t precision) const {
     const char* src_name = type == ReferenceType::Cell
                                ? cell->name
                                : (type == ReferenceType::RawCell ? rawcell->name : name);
@@ -523,14 +523,31 @@ ErrorCode Reference::to_svg(FILE* out, double scaling) const {
         offsets.items = &zero;
     }
 
+    char double_buffer[GDSTK_DOUBLE_BUFFER_COUNT];
     double* offset_p = (double*)offsets.items;
     for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
         double offset_x = scaling * (origin.x + *offset_p++);
         double offset_y = scaling * (origin.y + *offset_p++);
-        fprintf(out, "<use transform=\"translate(%lf %lf)", offset_x, offset_y);
-        if (rotation != 0) fprintf(out, " rotate(%lf)", rotation * (180.0 / M_PI));
-        if (x_reflection) fputs(" scale(1 -1)", out);
-        if (magnification != 1) fprintf(out, " scale(%lf)", magnification);
+        fputs("<use transform=\"translate(", out);
+        fputs(double_print(offset_x, precision, double_buffer, COUNT(double_buffer)), out);
+        fputc(' ', out);
+        fputs(double_print(offset_y, precision, double_buffer, COUNT(double_buffer)), out);
+        fputc(')', out);
+        if (rotation != 0) {
+            fputs(" rotate(", out);
+            fputs(double_print(rotation * (180.0 / M_PI), precision, double_buffer,
+                               COUNT(double_buffer)),
+                  out);
+            fputc(')', out);
+        }
+        if (x_reflection) {
+            fputs(" scale(1 -1)", out);
+        }
+        if (magnification != 1) {
+            fputs(" scale(", out);
+            fputs(double_print(magnification, precision, double_buffer, COUNT(double_buffer)), out);
+            fputc(')', out);
+        }
         fprintf(out, "\" xlink:href=\"#%s\"/>\n", ref_name);
     }
     free_allocation(ref_name);

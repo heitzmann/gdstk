@@ -598,7 +598,7 @@ ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double pr
     return error_code;
 }
 
-ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,
+ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char* attributes,
                        PolygonComparisonFunction comp) const {
     ErrorCode error_code = ErrorCode::NoError;
     char* buffer = (char*)allocate(strlen(name) + 1);
@@ -617,19 +617,19 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,
     if (comp == NULL) {
         Polygon** polygon = polygon_array.items;
         for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
-            ErrorCode err = (*polygon)->to_svg(out, scaling);
+            ErrorCode err = (*polygon)->to_svg(out, scaling, precision);
             if (err != ErrorCode::NoError) error_code = err;
         }
 
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
-            ErrorCode err = (*flexpath)->to_svg(out, scaling);
+            ErrorCode err = (*flexpath)->to_svg(out, scaling, precision);
             if (err != ErrorCode::NoError) error_code = err;
         }
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
-            ErrorCode err = (*robustpath)->to_svg(out, scaling);
+            ErrorCode err = (*robustpath)->to_svg(out, scaling, precision);
             if (err != ErrorCode::NoError) error_code = err;
         }
     } else {
@@ -640,7 +640,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,
 
         Polygon** polygon = all_polygons.items;
         for (uint64_t i = 0; i < all_polygons.count; i++, polygon++) {
-            ErrorCode err = (*polygon)->to_svg(out, scaling);
+            ErrorCode err = (*polygon)->to_svg(out, scaling, precision);
             if (err != ErrorCode::NoError) error_code = err;
             (*polygon)->clear();
         }
@@ -649,13 +649,13 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,
 
     Reference** reference = reference_array.items;
     for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
-        ErrorCode err = (*reference)->to_svg(out, scaling);
+        ErrorCode err = (*reference)->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;
     }
 
     Label** label = label_array.items;
     for (uint64_t i = 0; i < label_array.count; i++, label++) {
-        ErrorCode err = (*label)->to_svg(out, scaling);
+        ErrorCode err = (*label)->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;
     }
 
@@ -664,7 +664,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, const char* attributes,
     return error_code;
 }
 
-ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
+ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precision, StyleMap& style,
                           StyleMap& label_style, const char* background, double pad,
                           bool pad_as_percentage, PolygonComparisonFunction comp) const {
     ErrorCode error_code = ErrorCode::NoError;
@@ -694,14 +694,24 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
         return ErrorCode::OutputFileOpenError;
     }
 
-    fprintf(out,
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<svg xmlns=\"http://www.w3.org/2000/svg\" "
-            "xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
-            "     width=\"%lf\" height=\"%lf\" viewBox=\"%lf %lf %lf %lf\">\n"
-            "<defs>\n"
-            "<style type=\"text/css\">\n",
-            w, h, x, y, w, h);
+    fputs(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" "
+        "xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"",
+        out);
+    char double_buffer[GDSTK_DOUBLE_BUFFER_COUNT];
+    fputs(double_print(w, precision, double_buffer, COUNT(double_buffer)), out);
+    fputs("\" height=\"", out);
+    fputs(double_print(h, precision, double_buffer, COUNT(double_buffer)), out);
+    fputs("\" viewBox=\"", out);
+    fputs(double_print(x, precision, double_buffer, COUNT(double_buffer)), out);
+    fputc(' ', out);
+    fputs(double_print(y, precision, double_buffer, COUNT(double_buffer)), out);
+    fputc(' ', out);
+    fputs(double_print(w, precision, double_buffer, COUNT(double_buffer)), out);
+    fputc(' ', out);
+    fputs(double_print(h, precision, double_buffer, COUNT(double_buffer)), out);
+    fputs("\">\n<defs>\n<style type=\"text/css\">\n", out);
 
     for (uint64_t i = 0; i < polygon_array.count; i++) {
         style.set(polygon_array[i]->layer, polygon_array[i]->datatype, NULL);
@@ -764,19 +774,25 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, StyleMap& style,
     fputs("</style>\n", out);
 
     for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
-        ErrorCode err = item->value->to_svg(out, scaling, NULL, comp);
+        ErrorCode err = item->value->to_svg(out, scaling, precision, NULL, comp);
         if (err != ErrorCode::NoError) error_code = err;
     }
 
     cell_map.clear();
 
     fputs("</defs>\n", out);
-    if (background)
-        fprintf(
-            out,
-            "<rect x=\"%lf\" y=\"%lf\" width=\"%lf\" height=\"%lf\" fill=\"%s\" stroke=\"none\"/>\n",
-            x, y, w, h, background);
-    ErrorCode err = to_svg(out, scaling, "transform=\"scale(1 -1)\"", comp);
+    if (background) {
+        fputs("<rect x=\"", out);
+        fputs(double_print(x, precision, double_buffer, COUNT(double_buffer)), out);
+        fputs("\" y=\"", out);
+        fputs(double_print(y, precision, double_buffer, COUNT(double_buffer)), out);
+        fputs("\" width=\"", out);
+        fputs(double_print(w, precision, double_buffer, COUNT(double_buffer)), out);
+        fputs("\" height=\"", out);
+        fputs(double_print(h, precision, double_buffer, COUNT(double_buffer)), out);
+        fprintf(out, "\" fill=\"%s\" stroke=\"none\"/>\n", background);
+    }
+    ErrorCode err = to_svg(out, scaling, precision, "transform=\"scale(1 -1)\"", comp);
     if (err != ErrorCode::NoError) error_code = err;
     fputs("</svg>", out);
     fclose(out);

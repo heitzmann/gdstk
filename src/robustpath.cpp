@@ -1560,11 +1560,11 @@ ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
     return error_code;
 }
 
-ErrorCode RobustPath::to_svg(FILE *out, double scaling) const {
+ErrorCode RobustPath::to_svg(FILE *out, double scaling, uint32_t precision) const {
     Array<Polygon *> array = {0};
     ErrorCode error_code = to_polygons(array);
     for (uint64_t i = 0; i < array.count; i++) {
-        ErrorCode err = array[i]->to_svg(out, scaling);
+        ErrorCode err = array[i]->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;
         array[i]->clear();
         free_allocation(array[i]);

@@ -134,20 +134,22 @@ struct Cell {
     // formats.  They are not supposed to be called by the user.  Use
     // Library.write_gds and Cell.write_svg instead.
     ErrorCode to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
-                const tm* timestamp) const;
-    ErrorCode to_svg(FILE* out, double scaling, const char* attributes,
+                     const tm* timestamp) const;
+    ErrorCode to_svg(FILE* out, double scaling, uint32_t precision, const char* attributes,
                      PolygonComparisonFunction comp) const;
 
     // Output this cell to filename in SVG format.  The geometry is drawn in
-    // the default units (px), but can be scaled freely.  Arguments style and
-    // label_style can de used to customize the SVG style of elements by layer
-    // and data/text type.  If background is not NULL, it should be a valid SVG
-    // color for the image background.  Argument pad defines the margin (in px)
-    // added around the cell bounding box, unless pad_as_percentage == true, in
-    // which case it is interpreted as a percentage of the largest bounding box
-    // dimension.  Argument comp in to_svg can be used to sort the polygons in
-    // the SVG output, which affects their draw order.
-    ErrorCode write_svg(const char* filename, double scaling, StyleMap& style,
+    // the default units (px), but can be scaled freely.  Argument precision
+    // defines the maximum desired precision for floating point representation
+    // in the SVG file.  Arguments style and label_style can de used to
+    // customize the SVG style of elements by layer and data/text type.  If
+    // background is not NULL, it should be a valid SVG color for the image
+    // background.  Argument pad defines the margin (in px) added around the
+    // cell bounding box, unless pad_as_percentage == true, in which case it is
+    // interpreted as a percentage of the largest bounding box dimension.
+    // Argument comp in to_svg can be used to sort the polygons in the SVG
+    // output, which affects their draw order.
+    ErrorCode write_svg(const char* filename, double scaling, uint32_t precision, StyleMap& style,
                         StyleMap& label_style, const char* background, double pad,
                         bool pad_as_percentage, PolygonComparisonFunction comp) const;
 };

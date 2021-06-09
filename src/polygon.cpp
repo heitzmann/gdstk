@@ -846,16 +846,23 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
     return error_code;
 }
 
-ErrorCode Polygon::to_svg(FILE* out, double scaling) const {
+ErrorCode Polygon::to_svg(FILE* out, double scaling, uint32_t precision) const {
     if (point_array.count < 3) return ErrorCode::NoError;
+    char double_buffer[GDSTK_DOUBLE_BUFFER_COUNT];
     fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this, layer,
             datatype);
     Vec2* p = point_array.items;
     for (uint64_t j = 0; j < point_array.count - 1; j++) {
-        fprintf(out, "%lf,%lf ", p->x * scaling, p->y * scaling);
+        fputs(double_print(p->x * scaling, precision, double_buffer, COUNT(double_buffer)), out);
+        fputc(',', out);
+        fputs(double_print(p->y * scaling, precision, double_buffer, COUNT(double_buffer)), out);
+        fputc(' ', out);
         p++;
     }
-    fprintf(out, "%lf,%lf\"/>\n", p->x * scaling, p->y * scaling);
+    fputs(double_print(p->x * scaling, precision, double_buffer, COUNT(double_buffer)), out);
+    fputc(',', out);
+    fputs(double_print(p->y * scaling, precision, double_buffer, COUNT(double_buffer)), out);
+    fputs("\"/>\n", out);
     if (repetition.type != RepetitionType::None) {
         Array<Vec2> offsets = {0};
         repetition.get_offsets(offsets);
@@ -863,8 +870,13 @@ ErrorCode Polygon::to_svg(FILE* out, double scaling) const {
         for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
             double offset_x = *offset_p++;
             double offset_y = *offset_p++;
-            fprintf(out, "<use href=\"#%p\" x=\"%lf\" y=\"%lf\"/>\n", this, offset_x * scaling,
-                    offset_y * scaling);
+            fprintf(out, "<use href=\"#%p\" x=\"", this);
+            fputs(double_print(offset_x * scaling, precision, double_buffer, COUNT(double_buffer)),
+                  out);
+            fputs("\" y=\"", out);
+            fputs(double_print(offset_y * scaling, precision, double_buffer, COUNT(double_buffer)),
+                  out);
+            fputs("\"/>\n", out);
         }
         offsets.clear();
     }
