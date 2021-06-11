@@ -1,13 +1,16 @@
 # Change Log
 
-## Unreleased
+## 0.5.0 - 2021-06-11
 ### Added
 - Argument `precision` in `Cell.write_svg` controls the maximum number of digits of coordinates in the SVG
 - Function `gds_timestamp` can be used to query or set the timestamp in a GDSII file
+- Better error handling in the C++ API and argument validation for the Python wrapper
 ### Changed
 - `oas_validate` returns `None` if the file has no checksum information
+- `Library.write_gds` and `GdsWriter` accept a timestamp setting
 ### Fixed
 - Bend calculation for `FlexPath` correctly accounts for bending angle to make sure the bend fits
+- Missing files in the source distribution
 
 ## 0.4.0 - 2021-04-11
 ### Added
