@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+### Changed
+- `Reference.cell` is now writable
+
 ## 0.5.0 - 2021-06-11
 ### Added
 - Argument `precision` in `Cell.write_svg` controls the maximum number of digits of coordinates in the SVG

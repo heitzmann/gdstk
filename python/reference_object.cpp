@@ -243,6 +243,57 @@ static PyObject* reference_object_get_cell(ReferenceObject* self, void*) {
     return result;
 }
 
+int reference_object_set_cell(ReferenceObject* self, PyObject* arg, void*) {
+    Reference* reference = self->reference;
+    ReferenceType new_type;
+    char* new_name = NULL;
+
+    if (CellObject_Check(arg)) {
+        new_type = ReferenceType::Cell;
+    } else if (RawCellObject_Check(arg)) {
+        new_type = ReferenceType::RawCell;
+    } else if (PyUnicode_Check(arg)) {
+        new_type = ReferenceType::Name;
+        Py_ssize_t len = 0;
+        const char* name = PyUnicode_AsUTF8AndSize(arg, &len);
+        if (!name) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert cell argument to string.");
+            return -1;
+        }
+        new_name = (char*)allocate(++len);
+        memcpy(new_name, name, len);
+    } else {
+        PyErr_SetString(PyExc_TypeError, "Argument cell must be a Cell, RawCell, or string.");
+        return -1;
+    }
+
+    switch (reference->type) {
+        case ReferenceType::Cell:
+            Py_DECREF(reference->cell->owner);
+            break;
+        case ReferenceType::RawCell:
+            Py_DECREF(reference->rawcell->owner);
+            break;
+        case ReferenceType::Name:
+            free_allocation(reference->name);
+    }
+
+    reference->type = new_type;
+    switch (new_type) {
+        case ReferenceType::Cell:
+            reference->cell = ((CellObject*)arg)->cell;
+            Py_INCREF(arg);
+            break;
+        case ReferenceType::RawCell:
+            reference->rawcell = ((RawCellObject*)arg)->rawcell;
+            Py_INCREF(arg);
+            break;
+        case ReferenceType::Name:
+            reference->name = new_name;
+    }
+    return 0;
+}
+
 static PyObject* reference_object_get_origin(ReferenceObject* self, void*) {
     return Py_BuildValue("(dd)", self->reference->origin.x, self->reference->origin.y);
 }
@@ -328,7 +379,8 @@ int reference_object_set_repetition(ReferenceObject* self, PyObject* arg, void*)
 }
 
 static PyGetSetDef reference_object_getset[] = {
-    {"cell", (getter)reference_object_get_cell, NULL, reference_object_cell_doc, NULL},
+    {"cell", (getter)reference_object_get_cell, (setter)reference_object_set_cell,
+     reference_object_cell_doc, NULL},
     {"origin", (getter)reference_object_get_origin, (setter)reference_object_set_origin,
      reference_object_origin_doc, NULL},
     {"rotation", (getter)reference_object_get_rotation, (setter)reference_object_set_rotation,

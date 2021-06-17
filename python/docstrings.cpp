@@ -630,10 +630,7 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(reference_object_cell_doc, R"!(Cell referenced by this object.
-
-Notes:
-    This attribute is read-only.)!");
+PyDoc_STRVAR(reference_object_cell_doc, R"!(Cell referenced by this object.)!");
 
 PyDoc_STRVAR(reference_object_origin_doc, R"!(Reference origin.)!");
 
