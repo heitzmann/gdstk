@@ -1,6 +1,8 @@
 # Change Log
 
 ## Unreleased
+### Added
+- `Library.replace`, used when adding cells with substitution of duplicate cell names
 ### Changed
 - `Reference.cell` is now writable
 

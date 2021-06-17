@@ -2411,11 +2411,32 @@ Examples:
     >>> cell = gdstk.Cell("MAIN")
     >>> cell.add(polygon)
     >>> lib = gdstk.Library()
-    >>> lib.add(cell))!");
+    >>> lib.add(cell)
+
+Notes:
+    This method does not check whether cell names are duplicated in the
+    library.  If duplicates are found in the library, the resulting file
+    will be invalid.
+
+See also:
+    :meth:`gdstk.Library.replace`)!");
 
 PyDoc_STRVAR(library_object_remove_doc, R"!(remove(*cells) -> self
 
 Remove cells from this library.)!");
+
+PyDoc_STRVAR(library_object_replace_doc, R"!(replace(*cells) -> self
+
+Add cells to this library, replacing any cells with the same name.
+
+References to any removed cells are also replaced with the new cell.
+
+Examples:
+    >>> polygon = gdstk.rectangle((-10, -10), (10, 10))
+    >>> cell = gdstk.Cell("Alignment Mark")
+    >>> cell.add(polygon)
+    >>> lib = gdstk.read_gds("layout.gds")
+    >>> lib.replace(cell))!");
 
 PyDoc_STRVAR(library_object_new_cell_doc, R"!(new_cell(name) -> gdstk.Cell
 

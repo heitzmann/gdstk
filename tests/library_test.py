@@ -134,10 +134,30 @@ def test_rw_gds(tmpdir):
     assert c.references[0].repetition.v2 == (0.0, 8.0)
 
 
+def test_replace(tree, tmpdir):
+    lib, c = tree
+    fname = tmpdir.join("tree.gds")
+    lib.write_gds(fname)
+    rc = gdstk.read_rawcells(fname)
+    c3 = gdstk.Cell(c[3].name)
+    c2 = rc[c[2].name]
+    lib.replace(c2, c3)
+    assert c[2] not in lib.cells
+    assert c[3] not in lib.cells
+    assert c2 in lib.cells
+    assert c3 in lib.cells
+    assert c[0].references[1].cell is c3
+    assert c[1].references[0].cell is c2
+    assert c[1].references[1].cell is c2
+    assert c[1].references[2].cell is c3
+    assert c[4].references[0].cell is c3
+
+
 def hash_file(fname):
-    with open(fname, 'rb') as fin:
+    with open(fname, "rb") as fin:
         md5 = hashlib.md5(fin.read()).digest()
     return md5
+
 
 def test_time_changes_gds_hash(tmpdir):
     fn1 = str(tmpdir.join("nofreeze1.gds"))
