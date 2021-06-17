@@ -85,16 +85,17 @@ struct Array {
 
     // Insert item at specified index, pushing the remaining forward
     void insert(uint64_t index, T item) {
+        if (count == capacity) {
+            capacity = capacity >= INITIAL_ARRAY_CAPACITY ? capacity * ARRAY_GROWTH_FACTOR
+                                                          : INITIAL_ARRAY_CAPACITY;
+            items = (T*)reallocate(items, sizeof(T) * capacity);
+        }
         if (index >= count) {
-            append(item);
+            append_unsafe(item);
         } else {
-            if (count == capacity) {
-                capacity = capacity >= INITIAL_ARRAY_CAPACITY ? capacity * ARRAY_GROWTH_FACTOR
-                                                              : INITIAL_ARRAY_CAPACITY;
-                items = (T*)reallocate(items, sizeof(T) * capacity);
-            }
             memmove(items + index + 1, items + index, sizeof(T) * (count - index));
             items[index] = item;
+            count++;
         }
     }
 
