@@ -39,7 +39,7 @@ void offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, doub
             double scaling, bool use_union, Array<Polygon*>& result);
 
 // Check whether the points in groups are inside or outside the set of
-// polygons.  Checking within each group can the short-circuited to analyse if
+// polygons.  Checking within each group can be short-circuited to analyse if
 // *any* point in the group is inside the polygon set, or if *all* of the
 // points in the group are.  When no short-circuit is used, checks for each
 // point are appended to results; otherwise, a single check per group.

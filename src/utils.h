@@ -45,6 +45,13 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 // From http://esr.ibiblio.org/?p=5095
 #define IS_BIG_ENDIAN (*(uint16_t*)"\0\xFF" < 0x100)
 
+#ifdef _WIN32
+#define FSEEK64 _fseeki64
+#else
+// Assuming sizeof(long) == 8
+#define FSEEK64 fseek
+#endif
+
 #include <math.h>
 #include <stdint.h>
 #include <time.h>

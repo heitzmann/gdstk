@@ -6,6 +6,7 @@
 import pathlib
 import gdstk
 
+
 def make_first_lib(filename):
     lib = gdstk.Library("First")
     main = lib.new_cell("Main")
@@ -18,6 +19,7 @@ def make_first_lib(filename):
     ref1.add(gdstk.Reference(ref2, (-10, 5)))
     lib.write_gds(filename)
 
+
 def make_second_lib(filename):
     lib = gdstk.Library("Second")
     main = lib.new_cell("Main")
@@ -26,6 +28,7 @@ def make_second_lib(filename):
     ref.add(gdstk.ellipse((-10, 5), 5))
     main.add(gdstk.Reference(ref))
     lib.write_gds(filename)
+
 
 if __name__ == "__main__":
     path = pathlib.Path(__file__).parent.absolute()

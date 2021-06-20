@@ -1163,7 +1163,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 break;
             case OasisRecord::END: {
-                fseek(in.file, 0, SEEK_END);
+                FSEEK64(in.file, 0, SEEK_END);
                 library.name = (char*)allocate(4);
                 library.name[0] = 'L';
                 library.name[1] = 'I';
@@ -2117,7 +2117,8 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     if (error_code) *error_code = ErrorCode::InvalidFile;
                     oasis_read_unsigned_integer(in);
                     len = oasis_read_unsigned_integer(in);
-                    fseek(in.file, (long)len, SEEK_SET);
+                    assert(len <= INT64_MAX);
+                    FSEEK64(in.file, (int64_t)len, SEEK_SET);
                 } else {
                     z_stream s = {0};
                     s.zalloc = zalloc;
@@ -2277,7 +2278,7 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
                 fclose(inout);
                 return result;
             }
-            if (fseek(inout, -24, SEEK_CUR) != 0) {
+            if (FSEEK64(inout, -24, SEEK_CUR) != 0) {
                 fclose(inout);
                 fputs("[GDSTK] Unable to rewrite library timestamp.\n", stderr);
                 if (error_code) *error_code = ErrorCode::FileError;
@@ -2291,7 +2292,7 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 return result;
             }
-            if (fseek(inout, -24, SEEK_CUR) != 0) {
+            if (FSEEK64(inout, -24, SEEK_CUR) != 0) {
                 fclose(inout);
                 fputs("[GDSTK] Unable to rewrite cell timestamp.\n", stderr);
                 if (error_code) *error_code = ErrorCode::FileError;
@@ -2355,7 +2356,7 @@ bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_co
         return false;
     }
 
-    if (fseek(in, -5, SEEK_END) != 0) {
+    if (FSEEK64(in, -5, SEEK_END) != 0) {
         fputs("[GDSTK] Unable to find the END record of the file.\n", stderr);
         if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in);
@@ -2374,7 +2375,7 @@ bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_co
     if (file_sum[0] == 1) {
         // CRC32
         uint32_t sig = crc32_z(0, NULL, 0);
-        fseek(in, 0, SEEK_SET);
+        FSEEK64(in, 0, SEEK_SET);
         while (size >= COUNT(buffer)) {
             if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
                 fprintf(stderr, "[GDSTK] Error reading file %s", filename);
@@ -2395,7 +2396,7 @@ bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_co
     } else if (file_sum[0] == 2) {
         // Checksum32
         uint32_t sig = 0;
-        fseek(in, 0, SEEK_SET);
+        FSEEK64(in, 0, SEEK_SET);
         while (size >= COUNT(buffer)) {
             if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
                 fprintf(stderr, "[GDSTK] Error reading file %s", filename);

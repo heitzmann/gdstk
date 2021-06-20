@@ -46,7 +46,7 @@ static uint8_t oasis_peek(OasisStream& in) {
             fputs("[GDSTK] Error reading OASIS file", stderr);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
         }
-        fseek(in.file, -1, SEEK_CUR);
+        FSEEK64(in.file, -1, SEEK_CUR);
     }
     return byte;
 }
