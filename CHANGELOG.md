@@ -1,10 +1,13 @@
 # Change Log
 
-## Unreleased
+## 0.6.0 - 2021-06-29
 ### Added
 - `Library.replace`, used when adding cells with substitution of duplicate cell names
+- Added pyproject.toml (thanks Ben Gollmer for the fix)
 ### Changed
 - `Reference.cell` is now writable
+### Fixed
+- Bug in Array::insert not incerasing the array count
 
 ## 0.5.0 - 2021-06-11
 ### Added
