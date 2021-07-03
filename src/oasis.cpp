@@ -25,14 +25,16 @@ ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
         memcpy(buffer, in.cursor, size * count);
         in.cursor += total;
         if (in.cursor >= in.data + in.data_size) {
+            if (in.cursor > in.data + in.data_size) {
+                fputs("[GDSTK] Error reading compressed data in file", stderr);
+                in.error_code = ErrorCode::InputFileError;
+            }
             free_allocation(in.data);
             in.data = NULL;
         }
-        return in.error_code;
-    }
-    if (fread(buffer, size, count, in.file) < count) {
+    } else if (fread(buffer, size, count, in.file) < count) {
         fputs("[GDSTK] Error reading OASIS file", stderr);
-        if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
+        in.error_code = ErrorCode::InputFileError;
     }
     return in.error_code;
 }

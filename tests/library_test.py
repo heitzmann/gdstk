@@ -51,7 +51,8 @@ def test_top_level_3(tree):
     assert lib.top_level() == []
 
 
-def test_rw_gds(tmpdir):
+@pytest.fixture
+def sample_library():
     lib = gdstk.Library("lib", unit=2e-3, precision=1e-5)
     c1 = gdstk.Cell("gl_rw_gds_1")
     c1.add(gdstk.rectangle((0, -1), (1, 2), 2, 4))
@@ -74,13 +75,17 @@ def test_rw_gds(tmpdir):
         )
     )
     lib.add(c1, c2, c3, c4)
+    return lib
 
-    fname1 = str(tmpdir.join("test1.gds"))
-    lib.write_gds(fname1, max_points=20)
-    lib1 = gdstk.read_gds(fname1, unit=1e-3)
-    assert lib1.name == "lib"
-    assert len(lib1.cells) == 4
-    cells = {c.name: c for c in lib1.cells}
+
+def test_rw_gds(tmpdir, sample_library):
+    fname = str(tmpdir.join("test.gds"))
+    sample_library.write_gds(fname, max_points=20)
+    library = gdstk.read_gds(fname, unit=1e-3)
+
+    assert library.name == "lib"
+    assert len(library.cells) == 4
+    cells = {c.name: c for c in library.cells}
     assert set(cells.keys()) == {
         "gl_rw_gds_1",
         "gl_rw_gds_2",
@@ -124,14 +129,69 @@ def test_rw_gds(tmpdir):
     assert c.references[0].rotation == numpy.pi
     assert c.references[0].magnification == 0.5
     assert c.references[0].x_reflection == True
-    print("spacing", c.references[0].repetition.spacing)
-    print("v1", c.references[0].repetition.v1)
-    print("v2", c.references[0].repetition.v2)
-    print("offsets", c.references[0].repetition.offsets)
     assert c.references[0].repetition.columns == 2
     assert c.references[0].repetition.rows == 3
     assert c.references[0].repetition.v1 == (-2.0, 0.0)
     assert c.references[0].repetition.v2 == (0.0, 8.0)
+
+
+
+
+def test_rw_oas(tmpdir, sample_library):
+    fname = str(tmpdir.join("test.oas"))
+    sample_library.write_oas(fname)
+    library = gdstk.read_oas(fname, unit=1e-3)
+
+    assert library.name == "LIB"
+    assert len(library.cells) == 4
+    cells = {c.name: c for c in library.cells}
+    assert set(cells.keys()) == {
+        "gl_rw_gds_1",
+        "gl_rw_gds_2",
+        "gl_rw_gds_3",
+        "gl_rw_gds_4",
+    }
+    c = cells["gl_rw_gds_1"]
+    assert len(c.polygons) == len(c.labels) == 1
+    assert c.polygons[0].area() == 12.0
+    assert c.polygons[0].layer == 2
+    assert c.polygons[0].datatype == 4
+    assert c.labels[0].text == "label"
+    assert c.labels[0].origin[0] == 2 and c.labels[0].origin[1] == -2
+    assert c.labels[0].anchor == "sw"
+    assert c.labels[0].rotation == 0
+    assert c.labels[0].magnification == 1
+    assert c.labels[0].x_reflection == False
+    assert c.labels[0].layer == 5
+    assert c.labels[0].texttype == 6
+
+    c = cells["gl_rw_gds_2"]
+    assert len(c.polygons) == 1
+    assert isinstance(c.polygons[0], gdstk.Polygon)
+
+    c = cells["gl_rw_gds_3"]
+    assert len(c.references) == 1
+    assert isinstance(c.references[0], gdstk.Reference)
+    assert c.references[0].cell == cells["gl_rw_gds_1"]
+    assert c.references[0].origin[0] == 0 and c.references[0].origin[1] == 2
+    assert c.references[0].rotation == -90
+    assert c.references[0].magnification == 2
+    assert c.references[0].x_reflection == True
+
+    c = cells["gl_rw_gds_4"]
+    assert len(c.references) == 1
+    assert isinstance(c.references[0], gdstk.Reference)
+    assert c.references[0].cell == cells["gl_rw_gds_2"]
+    assert c.references[0].origin[0] == -2 and c.references[0].origin[1] == -4
+    assert c.references[0].rotation == numpy.pi
+    assert c.references[0].magnification == 0.5
+    assert c.references[0].x_reflection == True
+    assert c.references[0].repetition.columns == 2
+    assert c.references[0].repetition.rows == 3
+    assert c.references[0].repetition.v1 == (-2.0, 0.0)
+    assert c.references[0].repetition.v2 == (0.0, 8.0)
+
+
 
 
 def test_replace(tree, tmpdir):

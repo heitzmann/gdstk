@@ -1151,9 +1151,51 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     // Elements
     Cell* cell = NULL;
 
+#ifndef NDEBUG
+    const char* oasis_record_names[] = {"PAD",
+                                        "START",
+                                        "END",
+                                        "CELLNAME_IMPLICIT",
+                                        "CELLNAME",
+                                        "TEXTSTRING_IMPLICIT",
+                                        "TEXTSTRING",
+                                        "PROPNAME_IMPLICIT",
+                                        "PROPNAME",
+                                        "PROPSTRING_IMPLICIT",
+                                        "PROPSTRING",
+                                        "LAYERNAME_DATA",
+                                        "LAYERNAME_TEXT",
+                                        "CELL_REF_NUM",
+                                        "CELL",
+                                        "XYABSOLUTE",
+                                        "XYRELATIVE",
+                                        "PLACEMENT",
+                                        "PLACEMENT_TRANSFORM",
+                                        "TEXT",
+                                        "RECTANGLE",
+                                        "POLYGON",
+                                        "PATH",
+                                        "TRAPEZOID_AB",
+                                        "TRAPEZOID_A",
+                                        "TRAPEZOID_B",
+                                        "CTRAPEZOID",
+                                        "CIRCLE",
+                                        "PROPERTY",
+                                        "LAST_PROPERTY",
+                                        "XNAME_IMPLICIT",
+                                        "XNAME",
+                                        "XELEMENT",
+                                        "XGEOMETRY",
+                                        "CBLOCK"};
+#endif
+
     OasisRecord record;
-    while (oasis_read(&record, 1, 1, in) != ErrorCode::NoError &&
-           in.error_code != ErrorCode::NoError) {
+    while ((error_code == NULL || *error_code == ErrorCode::NoError) &&
+           oasis_read(&record, 1, 1, in) == ErrorCode::NoError) {
+        // DEBUG_PRINT("Record [%02u] %s\n", (uint8_t)record,
+        //             (uint8_t)record < COUNT(oasis_record_names)
+        //                 ? oasis_record_names[(uint8_t)record]
+        //                 : "---");
         switch (record) {
             case OasisRecord::PAD:
                 break;
@@ -1257,6 +1299,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     property_value->bytes = (uint8_t*)allocate(prop_string->count);
                     memcpy(property_value->bytes, prop_string->bytes, prop_string->count);
                 }
+                goto CLEANUP;
             } break;
             case OasisRecord::CELLNAME_IMPLICIT: {
                 uint8_t* bytes = oasis_read_string(in, true, len);
@@ -2153,6 +2196,9 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (error_code) *error_code = ErrorCode::UnsupportedRecord;
         }
     }
+    if (in.error_code != ErrorCode::NoError && error_code) *error_code = in.error_code;
+
+CLEANUP:
     fclose(in.file);
 
     ByteArray* ba = cell_name_table.items;
@@ -2189,8 +2235,6 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
 
     unfinished_property_name.clear();
     unfinished_property_value.clear();
-
-    if (in.error_code != ErrorCode::NoError && error_code) *error_code = in.error_code;
 
     return library;
 }
