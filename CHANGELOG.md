@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.6.1 - 2021-07-03
+### Fixed
+- Bug in `gdstk::read_oas` and `Library.read_oas`
+
 ## 0.6.0 - 2021-06-29
 ### Added
 - `Library.replace`, used when adding cells with substitution of duplicate cell names
