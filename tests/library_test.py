@@ -196,7 +196,7 @@ def test_rw_oas(tmpdir, sample_library):
 
 def test_replace(tree, tmpdir):
     lib, c = tree
-    fname = tmpdir.join("tree.gds")
+    fname = srt(tmpdir.join("tree.gds"))
     lib.write_gds(fname)
     rc = gdstk.read_rawcells(fname)
     c3 = gdstk.Cell(c[3].name)
