@@ -1122,4 +1122,369 @@ void text(const char* s, double size, const Vec2 position, bool vertical, uint32
     }
 }
 
+enum ContourDirection { O = 0, S, W, N, E };
+
+#ifndef NDEBUG
+const char DEBUG_DIR[] = "OSWNE";
+#endif
+
+enum ContourState {
+    UNINITIALIZED = 0,
+    S0000,
+    S0001,
+    S0010,
+    S0011,
+    S0100,
+    S0101,
+    S0110,
+    S0111,
+    S1000,
+    S1001,
+    S1010,
+    S1011,
+    S1100,
+    S1101,
+    S1110,
+    S1111,
+    TERMINATED
+};
+
+static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, const double* field,
+                           const double contour_level, uint8_t* state, const int64_t state_rows,
+                           const int64_t state_cols, double& area) {
+    // DEBUG_PRINT("Start polygon\n");
+
+    const ContourDirection direction_lookup[] = {O, O, S, E, E, W, S, W, E,
+                                                 N, S, N, N, W, S, W, O, O};
+
+    Polygon* result = (Polygon*)allocate_clear(sizeof(Polygon));
+    Array<Vec2>* points = &result->point_array;
+    area = 0;
+
+    const double* f0 = field + start_col + start_row * (state_cols + 1);
+    uint8_t* s = state + start_col + start_row * state_cols;
+    int64_t row = start_row;
+    int64_t col = start_col;
+    const ContourDirection start_from = direction_lookup[*s];
+    ContourDirection from = start_from;
+
+    // Previously appended point
+    Vec2 v0 = {0, 0};
+
+    do {
+        // for (int r = state_rows; r >= 0; r--) {
+        //     if (r < state_rows) {
+        //         for (int c = 0; c < state_cols; c++) {
+        //             DEBUG_PRINT("|%2hd", state[c + r * state_cols] - 1);
+        //         }
+        //         DEBUG_PRINT("|\n");
+        //     }
+        //     for (int c = 0; c <= state_cols; c++) {
+        //         if (c) DEBUG_PRINT("--");
+        //         DEBUG_PRINT("%g", field[c + r * (state_cols + 1)]);
+        //     }
+        //     DEBUG_PRINT("\n");
+        // }
+
+        if (row == -1 && col < state_cols) {
+            // S edge
+            // DEBUG_PRINT("[%d, %d] ", col, row);
+
+            const double* fa = f0 + 1 + state_cols + 1;
+            while (*fa >= contour_level && col < state_cols) {
+                fa++;
+                col++;
+            }
+            if (col < state_cols) {
+                const double fb = *(fa - 1);
+                Vec2 v = {col + (contour_level - fb) / (*fa - fb), 0};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                row++;
+                s = state + col + row * state_cols;
+                from = S;
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
+                //             points->items[points->count - 1].y);
+            } else {
+                Vec2 v = {(double)state_cols, 0};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
+            }
+            f0 = field + col + row * (state_cols + 1);
+        } else if (col == state_cols && row < state_rows) {
+            // E edgd
+            // DEBUG_PRINT("[%d, %d] ", col, row);
+
+            const double* fa = f0 + state_cols + 1;
+            while (*fa >= contour_level && row < state_rows) {
+                fa += state_cols + 1;
+                row++;
+            }
+            if (row < state_rows) {
+                const double fb = *(fa - (state_cols + 1));
+                Vec2 v = {(double)state_cols, row + (contour_level - fb) / (*fa - fb)};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                col--;
+                s = state + col + row * state_cols;
+                from = E;
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
+                //             points->items[points->count - 1].y);
+            } else {
+                Vec2 v = {(double)state_cols, (double)state_rows};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
+            }
+            f0 = field + col + row * (state_cols + 1);
+        } else if (row == state_rows && col >= 0) {
+            // N edge
+            // DEBUG_PRINT("[%d, %d] ", col, row);
+
+            const double* fa = f0;
+            while (*fa >= contour_level && col >= 0) {
+                fa--;
+                col--;
+            }
+            if (col >= 0) {
+                const double fb = *(fa + 1);
+                Vec2 v = {col + (contour_level - *fa) / (fb - *fa), (double)state_rows};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                row--;
+                s = state + col + row * state_cols;
+                from = N;
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
+                //             points->items[points->count - 1].y);
+            } else {
+                Vec2 v = {0, (double)state_rows};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
+            }
+            f0 = field + col + row * (state_cols + 1);
+        } else if (col == -1 && row >= 0) {
+            // W edgd
+            // DEBUG_PRINT("[%d, %d] ", col, row);
+
+            const double* fa = f0 + 1;
+            while (*fa >= contour_level && row >= 0) {
+                fa -= state_cols + 1;
+                row--;
+            }
+            if (row >= 0) {
+                const double fb = *(fa + (state_cols + 1));
+                Vec2 v = {0, row + (contour_level - *fa) / (fb - *fa)};
+                area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                col++;
+                s = state + col + row * state_cols;
+                from = W;
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
+                //             points->items[points->count - 1].y);
+            } else {
+                Vec2 v = {0, 0};
+                // area += v0.cross(v);
+                v0 = v;
+                points->append(v);
+                // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
+            }
+            f0 = field + col + row * (state_cols + 1);
+        } else {
+            const double* f1 = f0 + 1;
+            const double* f2 = f0 + state_cols + 1;
+            const double* f3 = f1 + state_cols + 1;
+            Vec2 v = {(double)col, (double)row};
+
+            if (*s == UNINITIALIZED) {
+                *s = (*f3 >= contour_level) * 8 + (*f2 >= contour_level) * 4 +
+                     (*f1 >= contour_level) * 2 + (*f0 >= contour_level) + 1;
+            }
+            // DEBUG_PRINT("[%ld, %ld] CASE %hu from %c", col, row, *s - 1, DEBUG_DIR[from]);
+
+            switch (*s) {
+                // Exit N
+                case S0100:
+                case S0101:
+                case S0111:
+                    *s = TERMINATED;
+                    v.x += (contour_level - *f2) / (*f3 - *f2);
+                    v.y += 1;
+                    row++;
+                    f0 += state_cols + 1;
+                    s += state_cols;
+                    from = S;
+                    break;
+                // Exit E
+                case S1000:
+                case S1100:
+                case S1101:
+                    *s = TERMINATED;
+                    v.x += 1;
+                    v.y += (contour_level - *f1) / (*f3 - *f1);
+                    col++;
+                    f0++;
+                    s++;
+                    from = W;
+                    break;
+                // Exit W
+                case S0001:
+                case S0011:
+                case S1011:
+                    *s = TERMINATED;
+                    v.y += (contour_level - *f0) / (*f2 - *f0);
+                    col--;
+                    f0--;
+                    s--;
+                    from = E;
+                    break;
+                // Exit S
+                case S0010:
+                case S1010:
+                case S1110:
+                    *s = TERMINATED;
+                    v.x += (contour_level - *f0) / (*f1 - *f0);
+                    row--;
+                    f0 -= state_cols + 1;
+                    s -= state_cols;
+                    from = N;
+                    break;
+                case S0110:
+                    if ((0.25 * (*f0 + *f1 + *f2 + *f3) >= contour_level) ^ (from == W)) {
+                        // Exit N
+                        *s = from == W ? S0010 : S1110;
+                        v.x += (contour_level - *f2) / (*f3 - *f2);
+                        v.y += 1;
+                        row++;
+                        f0 += state_cols + 1;
+                        s += state_cols;
+                        from = S;
+                    } else {
+                        // Exit S
+                        *s = from == W ? S0111 : S0100;
+                        v.x += (contour_level - *f0) / (*f1 - *f0);
+                        row--;
+                        f0 -= state_cols + 1;
+                        s -= state_cols;
+                        from = N;
+                    }
+                    break;
+                case S1001:
+                    if ((0.25 * (*f0 + *f1 + *f2 + *f3) >= contour_level) ^ (from == S)) {
+                        // Exit W
+                        *s = from == S ? S1000 : S1101;
+                        v.y += (contour_level - *f0) / (*f2 - *f0);
+                        col--;
+                        f0--;
+                        s--;
+                        from = E;
+                    } else {
+                        // Exit E
+                        *s = from == S ? S1011 : S0001;
+                        v.x += 1;
+                        v.y += (contour_level - *f1) / (*f3 - *f1);
+                        col++;
+                        f0++;
+                        s++;
+                        from = W;
+                    }
+                    break;
+                default:
+                    assert(false);
+            }
+            area += v0.cross(v);
+            v0 = v;
+            points->append(v);
+            // DEBUG_PRINT(" → (%g, %g) → [%ld, %ld]\n", v.x, v.y, col, row);
+        }
+    } while (row != start_row || col != start_col || from != start_from);
+
+    area *= 0.5;
+    // DEBUG_PRINT("Finish polygon: %u points, area = %g\n", result->point_array.count,
+    //             result.area);
+    return result;
+}
+
+ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double contour_level,
+                  double scaling, Array<Polygon*>& result) {
+    if (rows == 0 || cols == 0) return ErrorCode::NoError;
+    if (rows >= UINT64_MAX - 2 || cols >= UINT64_MAX - 2) return ErrorCode::Overflow;
+
+    const uint64_t state_rows = rows - 1;
+    const uint64_t state_cols = cols - 1;
+    uint8_t* state = (uint8_t*)allocate_clear(sizeof(uint8_t) * state_rows * state_cols);
+
+    Array<Polygon*> islands = {0};
+    Array<Polygon*> holes = {0};
+    double max_island_area = -1;
+    double max_hole_area = -1;
+
+    for (uint64_t row = 0; row < state_rows; row++) {
+        for (uint64_t col = 0; col < state_cols; col++) {
+            const double* f0 = data + col + row * cols;
+            const double* f1 = f0 + 1;
+            const double* f2 = f0 + cols;
+            const double* f3 = f1 + cols;
+            uint8_t* s = state + col + row * state_cols;
+            if (*s == UNINITIALIZED) {
+                *s = (*f3 >= contour_level) * 8 + (*f2 >= contour_level) * 4 +
+                     (*f1 >= contour_level) * 2 + (*f0 >= contour_level) + 1;
+            }
+            // DEBUG_PRINT("Check [%lu, %lu]: %hu\n", col, row, *s - 1);
+            // Saddle points must be visited twice, that why we use a while here.
+            while (*s > S0000 && *s < S1111) {
+                double area;
+                Polygon* poly =
+                    get_polygon(row, col, data, contour_level, state, state_rows, state_cols, area);
+                if (area > 0) {
+                    if (area > max_island_area) max_island_area = area;
+                    islands.append(poly);
+                } else {
+                    if (-area > max_hole_area) max_hole_area = -area;
+                    holes.append(poly);
+                }
+            }
+        }
+    }
+
+    if (max_island_area <= max_hole_area || (max_island_area < 0 && data[0] >= contour_level)) {
+        // The whole data edge is above contour_level
+        Polygon* poly = (Polygon*)allocate(sizeof(Polygon));
+        *poly = rectangle(Vec2{0, 0}, Vec2{(double)state_cols, (double)state_rows}, 0, 0);
+        islands.append(poly);
+        // DEBUG_PRINT("Appending full rectangle: island %" PRIu64 ", area = %g\n",
+        //             islands.count - 1, islands[islands.count - 1]->area());
+    }
+
+    boolean(islands, holes, Operation::Not, scaling, result);
+
+    free_allocation(state);
+    for (uint64_t i = 0; i < islands.count; i++) islands[i]->clear();
+    islands.clear();
+    for (uint64_t i = 0; i < holes.count; i++) holes[i]->clear();
+    holes.clear();
+
+    return ErrorCode::NoError;
+}
+
 }  // namespace gdstk
