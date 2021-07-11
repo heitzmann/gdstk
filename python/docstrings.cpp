@@ -2849,6 +2849,40 @@ Notes:
     and columns are respectively spaced by 9 / 8 and 1 times ``size``.)!");
 
 PyDoc_STRVAR(
+    contour_function_doc,
+    R"!(contour(data, level=0, length_scale=1, precision=0.01, layer=0, datatype=0) -> list
+
+Extract polygonal contours from 2-d array data at given level.
+
+Args:
+    data (array-like[M][N]): 2-dimensional array with shape `(M, N)`.
+    level: Polygons are created representing the regions where `data` is
+      at least `level`.
+    length_scale: size of a single data element.
+    precision: Desired precision for rounding vertex coordinates.
+    layer: layer number assigned to the resulting polygons.
+    datatype: data type number assigned to the resulting polygons.
+
+Returns:
+    List of :class:`gdstk.Polygon`.
+
+Examples:
+    >>> y, x = numpy.mgrid[0:1:128j, -1:1:256j]
+    >>> data = (numpy.sin(4 * numpy.pi * x * y)
+    ...         - 0.8 * numpy.sin(2 * numpy.pi * y))
+    >>> contours = gdstk.contour(data, 0, 1 / 128, 0.01 / 128)
+    >>> rect = gdstk.rectange((0, 0), (2, 1), datatype=1)
+
+    .. image:: ../function/contour.*
+       :align: center
+
+Notes:
+    The length scale for the polygons is one element of `data`, i.e.,
+    the full region represented by `data` represents a rectangular area
+    of `lenght_scale * N` × `length_scale * M`.  Argument `precision` is
+    understood in this length scale.)!");
+
+PyDoc_STRVAR(
     offset_function_doc,
     R"!(offset(polygons, distance, join="miter", tolerance=2, precision=1e-3, use_union=False, layer=0, datatype=0) -> list
 

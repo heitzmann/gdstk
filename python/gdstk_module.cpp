@@ -939,6 +939,67 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     return result;
 }
 
+static PyObject* contour_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+    PyObject* py_data;
+    double level = 0;
+    double length_scale = 1;
+    double precision = 0.01;
+    unsigned long layer = 0;
+    unsigned long datatype = 0;
+    const char* keywords[] = {"data",     "level", "length_scale", "precision", "layer",
+                              "datatype", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|dddkk:contour", (char**)keywords, &py_data,
+                                     &level, &length_scale, &precision, &layer, &datatype))
+        return NULL;
+
+    PyArrayObject* data_array =
+        (PyArrayObject*)PyArray_FROM_OTF(py_data, NPY_DOUBLE, NPY_ARRAY_IN_ARRAY);
+    if (data_array == NULL) return NULL;
+
+    if (PyArray_NDIM(data_array) != 2) {
+        PyErr_SetString(PyExc_TypeError, "Data array must have 2 dimensions.");
+        Py_DECREF(data_array);
+        return NULL;
+    }
+
+    npy_intp* dims = PyArray_DIMS(data_array);
+    uint64_t rows = dims[0];
+    uint64_t cols = dims[1];
+
+    double* data = (double*)PyArray_DATA(data_array);
+
+    Array<Polygon*> result_array = {0};
+    ErrorCode error_code = contour(data, rows, cols, level, length_scale / precision, result_array);
+    Py_DECREF(data_array);
+
+    if (return_error(error_code)) {
+        for (uint64_t i = 0; i < result_array.count; i++) {
+            result_array[i]->clear();
+            free_allocation(result_array[i]);
+        }
+        result_array.clear();
+        return NULL;
+    }
+
+    const Vec2 scale = {length_scale, length_scale};
+    const Vec2 center = {0, 0};
+    PyObject* result = PyList_New(result_array.count);
+    for (uint64_t i = 0; i < result_array.count; i++) {
+        Polygon* poly = result_array[i];
+        poly->scale(scale, center);
+        PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
+        obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
+        obj->polygon = poly;
+        poly->layer = layer;
+        poly->datatype = datatype;
+        poly->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+
+    result_array.clear();
+    return result;
+}
+
 static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* py_polygons;
     double distance;
@@ -1563,6 +1624,7 @@ static PyMethodDef gdstk_methods[] = {
     {"racetrack", (PyCFunction)racetrack_function, METH_VARARGS | METH_KEYWORDS,
      racetrack_function_doc},
     {"text", (PyCFunction)text_function, METH_VARARGS | METH_KEYWORDS, text_function_doc},
+    {"contour", (PyCFunction)contour_function, METH_VARARGS | METH_KEYWORDS, contour_function_doc},
     {"offset", (PyCFunction)offset_function, METH_VARARGS | METH_KEYWORDS, offset_function_doc},
     {"boolean", (PyCFunction)boolean_function, METH_VARARGS | METH_KEYWORDS, boolean_function_doc},
     {"slice", (PyCFunction)slice_function, METH_VARARGS | METH_KEYWORDS, slice_function_doc},

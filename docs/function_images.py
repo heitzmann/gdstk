@@ -55,6 +55,14 @@ def text_image():
     return gdstk.Cell("text").add(*text, rect)
 
 
+def contour_image():
+    y, x = numpy.mgrid[0:1:128j, -1:1:256j]
+    data = numpy.sin(4 * numpy.pi * x * y) - 0.8 * numpy.sin(2 * numpy.pi * y)
+    contours = gdstk.contour(data, 0, 1 / 128, 0.01 / 128)
+    rect = gdstk.rectangle((0, 0), (2, 1), datatype=1)
+    return gdstk.Cell("contour").add(*contours, rect)
+
+
 def offset_image():
     text = gdstk.text("#A", 10, (0, 0), datatype=1)
     circle = gdstk.ellipse(
@@ -122,6 +130,7 @@ if __name__ == "__main__":
     draw(ellipse_image(), path)
     draw(racetrack_image(), path)
     draw(text_image(), path)
+    draw(contour_image(), path)
     draw(offset_image(), path)
     draw(boolean_image(), path)
     draw(slice_image(), path)

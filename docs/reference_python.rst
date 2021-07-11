@@ -32,6 +32,7 @@ Classes and functions for construction and manipulation of geometric objects.
    gdstk.ellipse
    gdstk.racetrack
    gdstk.text
+   gdstk.contour
    gdstk.offset
    gdstk.boolean
    gdstk.slice
