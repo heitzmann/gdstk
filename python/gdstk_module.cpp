@@ -66,8 +66,7 @@ static int return_error(ErrorCode error_code) {
                 return -1;
             return 0;
         case ErrorCode::Overflow:
-            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Large number in file causes overflow.", 2) != 0)
-                return -1;
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Overflow detected.", 2) != 0) return -1;
             return 0;
         // Errors
         case ErrorCode::UnsupportedRecord:
@@ -990,12 +989,13 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
 
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
+        Polygon* poly = result_array[i];
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
-        obj->polygon = result_array[i];
-        result_array[i]->layer = layer;
-        result_array[i]->datatype = datatype;
-        result_array[i]->owner = obj;
+        obj->polygon = poly;
+        poly->layer = layer;
+        poly->datatype = datatype;
+        poly->owner = obj;
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
 
@@ -1059,12 +1059,13 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
 
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
+        Polygon* poly = result_array[i];
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
-        obj->polygon = result_array[i];
-        result_array[i]->layer = layer;
-        result_array[i]->datatype = datatype;
-        result_array[i]->owner = obj;
+        obj->polygon = poly;
+        poly->layer = layer;
+        poly->datatype = datatype;
+        poly->owner = obj;
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
 

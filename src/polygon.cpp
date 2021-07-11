@@ -1150,8 +1150,8 @@ enum ContourState {
 };
 
 static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, const double* field,
-                           const double contour_level, uint8_t* state, const int64_t state_rows,
-                           const int64_t state_cols, double& area) {
+                            const double level, uint8_t* state, const int64_t state_rows,
+                            const int64_t state_cols, double& area) {
     // DEBUG_PRINT("Start polygon\n");
 
     const ContourDirection direction_lookup[] = {O, O, S, E, E, W, S, W, E,
@@ -1191,13 +1191,13 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0 + 1 + state_cols + 1;
-            while (*fa >= contour_level && col < state_cols) {
+            while (*fa >= level && col < state_cols) {
                 fa++;
                 col++;
             }
             if (col < state_cols) {
                 const double fb = *(fa - 1);
-                Vec2 v = {col + (contour_level - fb) / (*fa - fb), 0};
+                Vec2 v = {col + (level - fb) / (*fa - fb), 0};
                 area += v0.cross(v);
                 v0 = v;
                 points->append(v);
@@ -1222,13 +1222,13 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0 + state_cols + 1;
-            while (*fa >= contour_level && row < state_rows) {
+            while (*fa >= level && row < state_rows) {
                 fa += state_cols + 1;
                 row++;
             }
             if (row < state_rows) {
                 const double fb = *(fa - (state_cols + 1));
-                Vec2 v = {(double)state_cols, row + (contour_level - fb) / (*fa - fb)};
+                Vec2 v = {(double)state_cols, row + (level - fb) / (*fa - fb)};
                 area += v0.cross(v);
                 v0 = v;
                 points->append(v);
@@ -1253,13 +1253,13 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0;
-            while (*fa >= contour_level && col >= 0) {
+            while (*fa >= level && col >= 0) {
                 fa--;
                 col--;
             }
             if (col >= 0) {
                 const double fb = *(fa + 1);
-                Vec2 v = {col + (contour_level - *fa) / (fb - *fa), (double)state_rows};
+                Vec2 v = {col + (level - *fa) / (fb - *fa), (double)state_rows};
                 area += v0.cross(v);
                 v0 = v;
                 points->append(v);
@@ -1284,13 +1284,13 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0 + 1;
-            while (*fa >= contour_level && row >= 0) {
+            while (*fa >= level && row >= 0) {
                 fa -= state_cols + 1;
                 row--;
             }
             if (row >= 0) {
                 const double fb = *(fa + (state_cols + 1));
-                Vec2 v = {0, row + (contour_level - *fa) / (fb - *fa)};
+                Vec2 v = {0, row + (level - *fa) / (fb - *fa)};
                 area += v0.cross(v);
                 v0 = v;
                 points->append(v);
@@ -1317,8 +1317,8 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             Vec2 v = {(double)col, (double)row};
 
             if (*s == UNINITIALIZED) {
-                *s = (*f3 >= contour_level) * 8 + (*f2 >= contour_level) * 4 +
-                     (*f1 >= contour_level) * 2 + (*f0 >= contour_level) + 1;
+                *s = (*f3 >= level) * 8 + (*f2 >= level) * 4 + (*f1 >= level) * 2 + (*f0 >= level) +
+                     1;
             }
             // DEBUG_PRINT("[%ld, %ld] CASE %hu from %c", col, row, *s - 1, DEBUG_DIR[from]);
 
@@ -1328,7 +1328,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 case S0101:
                 case S0111:
                     *s = TERMINATED;
-                    v.x += (contour_level - *f2) / (*f3 - *f2);
+                    v.x += (level - *f2) / (*f3 - *f2);
                     v.y += 1;
                     row++;
                     f0 += state_cols + 1;
@@ -1341,7 +1341,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 case S1101:
                     *s = TERMINATED;
                     v.x += 1;
-                    v.y += (contour_level - *f1) / (*f3 - *f1);
+                    v.y += (level - *f1) / (*f3 - *f1);
                     col++;
                     f0++;
                     s++;
@@ -1352,7 +1352,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 case S0011:
                 case S1011:
                     *s = TERMINATED;
-                    v.y += (contour_level - *f0) / (*f2 - *f0);
+                    v.y += (level - *f0) / (*f2 - *f0);
                     col--;
                     f0--;
                     s--;
@@ -1363,17 +1363,17 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 case S1010:
                 case S1110:
                     *s = TERMINATED;
-                    v.x += (contour_level - *f0) / (*f1 - *f0);
+                    v.x += (level - *f0) / (*f1 - *f0);
                     row--;
                     f0 -= state_cols + 1;
                     s -= state_cols;
                     from = N;
                     break;
                 case S0110:
-                    if ((0.25 * (*f0 + *f1 + *f2 + *f3) >= contour_level) ^ (from == W)) {
+                    if ((0.25 * (*f0 + *f1 + *f2 + *f3) >= level) ^ (from == W)) {
                         // Exit N
                         *s = from == W ? S0010 : S1110;
-                        v.x += (contour_level - *f2) / (*f3 - *f2);
+                        v.x += (level - *f2) / (*f3 - *f2);
                         v.y += 1;
                         row++;
                         f0 += state_cols + 1;
@@ -1382,7 +1382,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                     } else {
                         // Exit S
                         *s = from == W ? S0111 : S0100;
-                        v.x += (contour_level - *f0) / (*f1 - *f0);
+                        v.x += (level - *f0) / (*f1 - *f0);
                         row--;
                         f0 -= state_cols + 1;
                         s -= state_cols;
@@ -1390,10 +1390,10 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                     }
                     break;
                 case S1001:
-                    if ((0.25 * (*f0 + *f1 + *f2 + *f3) >= contour_level) ^ (from == S)) {
+                    if ((0.25 * (*f0 + *f1 + *f2 + *f3) >= level) ^ (from == S)) {
                         // Exit W
                         *s = from == S ? S1000 : S1101;
-                        v.y += (contour_level - *f0) / (*f2 - *f0);
+                        v.y += (level - *f0) / (*f2 - *f0);
                         col--;
                         f0--;
                         s--;
@@ -1402,7 +1402,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                         // Exit E
                         *s = from == S ? S1011 : S0001;
                         v.x += 1;
-                        v.y += (contour_level - *f1) / (*f3 - *f1);
+                        v.y += (level - *f1) / (*f3 - *f1);
                         col++;
                         f0++;
                         s++;
@@ -1425,8 +1425,8 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
     return result;
 }
 
-ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double contour_level,
-                  double scaling, Array<Polygon*>& result) {
+ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level, double scaling,
+                  Array<Polygon*>& result) {
     if (rows == 0 || cols == 0) return ErrorCode::NoError;
     if (rows >= UINT64_MAX - 2 || cols >= UINT64_MAX - 2) return ErrorCode::Overflow;
 
@@ -1447,15 +1447,15 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double conto
             const double* f3 = f1 + cols;
             uint8_t* s = state + col + row * state_cols;
             if (*s == UNINITIALIZED) {
-                *s = (*f3 >= contour_level) * 8 + (*f2 >= contour_level) * 4 +
-                     (*f1 >= contour_level) * 2 + (*f0 >= contour_level) + 1;
+                *s = (*f3 >= level) * 8 + (*f2 >= level) * 4 + (*f1 >= level) * 2 + (*f0 >= level) +
+                     1;
             }
             // DEBUG_PRINT("Check [%lu, %lu]: %hu\n", col, row, *s - 1);
             // Saddle points must be visited twice, that why we use a while here.
             while (*s > S0000 && *s < S1111) {
                 double area;
                 Polygon* poly =
-                    get_polygon(row, col, data, contour_level, state, state_rows, state_cols, area);
+                    get_polygon(row, col, data, level, state, state_rows, state_cols, area);
                 if (area > 0) {
                     if (area > max_island_area) max_island_area = area;
                     islands.append(poly);
@@ -1467,8 +1467,8 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double conto
         }
     }
 
-    if (max_island_area <= max_hole_area || (max_island_area < 0 && data[0] >= contour_level)) {
-        // The whole data edge is above contour_level
+    if (max_island_area <= max_hole_area || (max_island_area < 0 && data[0] >= level)) {
+        // The whole data edge is above level
         Polygon* poly = (Polygon*)allocate(sizeof(Polygon));
         *poly = rectangle(Vec2{0, 0}, Vec2{(double)state_cols, (double)state_rows}, 0, 0);
         islands.append(poly);

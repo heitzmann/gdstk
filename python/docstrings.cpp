@@ -2144,7 +2144,7 @@ Notes:
     This operation can be slow because all paths and references are
     included in the computation.)!");
 
-PyDoc_STRVAR(cell_object_convex_hull_doc, R"!(convex_hull() -> ndarray
+PyDoc_STRVAR(cell_object_convex_hull_doc, R"!(convex_hull() -> numpy.ndarray
 
 Calculate the convex hull of the cell.
 
@@ -2474,7 +2474,7 @@ See also:
 
 PyDoc_STRVAR(
     library_object_write_oas_doc,
-    R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0, standard_properties=false, validation=None) -> None
+    R"!(write_oas(outfile, compression_level=6, detect_rectangles=True, detect_trapezoids=True, circletolerance=0, standard_properties=False, validation=None) -> None
 
 Save this library to an OASIS file.
 
@@ -2653,7 +2653,7 @@ Args:
     value (str, bytes, number, or sequence of those): Values associated with
       the property.
 
-Note:
+Notes:
     General properties are not supported by GDSII files. Use the
     specific methods to access GDSII properties.)!");
 

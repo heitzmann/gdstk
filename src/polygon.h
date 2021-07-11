@@ -110,12 +110,12 @@ void text(const char* s, double size, const Vec2 position, bool vertical, uint32
           uint32_t datatype, Array<Polygon*>& result);
 
 // Create polyogns based on the 2-d array data (in row-major orderr, with rows
-// * cols elements) by drawing the isolines at contour_level.  Scaling is used
-// in the boolean composition of resulting shapes to connect any holes and set
-// the overall precision.  Resulting polygons are appended to result.  Their
-// length scale is one data element, i.e., the data array has size cols × rows.
-ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double contour_level,
-                  double scaling, Array<Polygon*>& result);
+// * cols elements) by drawing the isolines at level.  Scaling is used in the
+// boolean composition of resulting shapes to connect any holes and set the
+// overall precision.  Resulting polygons are appended to result.  Their length
+// scale is one data element, i.e., the data array has size cols × rows.
+ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level, double scaling,
+                  Array<Polygon*>& result);
 
 }  // namespace gdstk
 
