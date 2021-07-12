@@ -94,6 +94,7 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node) {
     }
     result.reserve(count);
 
+    // TODO: We call min_element for each hole several times. Those results should be cached.
     sort(holes.begin(), holes.end(), path_compare);
 
     for (ClipperLib::Paths::iterator h = holes.begin(); h != holes.end(); h++) {
@@ -111,6 +112,12 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node) {
                     xnew = x;
                     p1 = pnext;
                 }
+            } else if ((pnext->Y == p->Y && pprev->Y == p->Y) &&
+                       ((pnext->X <= p->X && p->X <= pprev->X) ||
+                        (pprev->X <= p->X && p->X <= pnext->X))) {
+                xnew = p->X;
+                p1 = pnext;
+                break;
             }
         }
 

@@ -3,6 +3,8 @@
 ## Unreleased
 ### Added
 - Added `contour` function
+### Fixed
+- Holes in boolean results could lead to incorrect geometry in specific cases
 
 ## 0.6.1 - 2021-07-03
 ### Fixed
