@@ -115,9 +115,9 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node) {
         }
 
         ClipperLib::IntPoint pnew(xnew, p->Y);
-        if (pnew.X != p1->X || pnew.Y != p1->Y) result.insert(p1, pnew);
-        result.insert(p1, h->begin(), p + 1);
-        result.insert(p1, p, h->end());
+        if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = result.insert(p1, pnew);
+        p1 = result.insert(p1, h->begin(), p + 1);
+        p1 = result.insert(p1, p, h->end());
         result.insert(p1, pnew);
     }
 
