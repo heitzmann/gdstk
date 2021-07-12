@@ -2858,7 +2858,7 @@ Args:
     data (array-like[M][N]): 2-dimensional array with shape `(M, N)`.
     level: Polygons are created representing the regions where `data` is
       at least `level`.
-    length_scale: size of a single data element.
+    length_scale: Distance between neighboring elements in `data`.
     precision: Desired precision for rounding vertex coordinates.
     layer: layer number assigned to the resulting polygons.
     datatype: data type number assigned to the resulting polygons.
@@ -2867,11 +2867,11 @@ Returns:
     List of :class:`gdstk.Polygon`.
 
 Examples:
-    >>> y, x = numpy.mgrid[0:1:128j, -1:1:256j]
+    >>> y, x = numpy.mgrid[0:1:128j, -1:1:255j]
     >>> data = (numpy.sin(4 * numpy.pi * x * y)
     ...         - 0.8 * numpy.sin(2 * numpy.pi * y))
-    >>> contours = gdstk.contour(data, 0, 1 / 128, 0.01 / 128)
-    >>> rect = gdstk.rectange((0, 0), (2, 1), datatype=1)
+    >>> contours = gdstk.contour(data, 0, 1 / 127, 0.01 / 127)
+    >>> rect = gdstk.rectangle((0, 0), (2, 1), datatype=1)
 
     .. image:: ../function/contour.*
        :align: center
@@ -2879,8 +2879,8 @@ Examples:
 Notes:
     The length scale for the polygons is one element of `data`, i.e.,
     the full region represented by `data` represents a rectangular area
-    of `lenght_scale * N` × `length_scale * M`.  Argument `precision` is
-    understood in this length scale.)!");
+    of `lenght_scale * (N - 1)` × `length_scale * (M - 1)`.  Argument
+    `precision` is understood in this length scale.)!");
 
 PyDoc_STRVAR(
     offset_function_doc,
