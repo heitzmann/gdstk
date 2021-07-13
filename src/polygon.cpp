@@ -80,6 +80,56 @@ double Polygon::signed_area() const {
     return 0.5 * result;
 }
 
+// Based on algorithm 7 from: Kai Hormann, Alexander Agathos, “The point in
+// polygon problem for arbitrary polygons,” Computational Geometry, Volume 20,
+// Issue 3, 2001, Pages 131-144, ISSN 0925-7721.
+// https://doi.org/10.1016/S0925-7721(01)00012-8
+bool Polygon::contains(const Vec2 point) const {
+    if (point_array.count == 0) {
+        return false;
+    }
+
+    Vec2 p0 = point_array[point_array.count - 1];
+    if (point == p0) {
+        return true;
+    }
+
+    int64_t winding = 0;
+    Vec2* v = point_array.items;
+    for (uint64_t i = point_array.count; i > 0; i--, v++) {
+        Vec2 p1 = *v;
+        if (p1.y == point.y &&
+            (p1.x == point.x || (p0.y == point.y && (p1.x > point.x) == (p0.x < point.x)))) {
+            return true;
+        }
+        if ((p0.y < point.y) != (p1.y < point.y)) {
+            if (p0.x >= point.x) {
+                if (p1.x > point.x) {
+                    winding += p1.y > p0.y ? 1 : -1;
+                } else {
+                    double det = (p0 - point).cross(p1 - point);
+                    if (det == 0) {
+                        return true;
+                    }
+                    if ((det > 0) == (p1.y > p0.y)) {
+                        winding += p1.y > p0.y ? 1 : -1;
+                    }
+                }
+            } else if (p1.x > point.x) {
+                double det = (p0 - point).cross(p1 - point);
+                if (det == 0) {
+                    return true;
+                }
+                if ((det > 0) == (p1.y > p0.y)) {
+                    winding += p1.y > p0.y ? 1 : -1;
+                }
+            }
+        }
+        p0 = p1;
+    }
+    return winding != 0;
+}
+
 void Polygon::bounding_box(Vec2& min, Vec2& max) const {
     min.x = min.y = DBL_MAX;
     max.x = max.y = -DBL_MAX;
@@ -771,7 +821,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
         // if (is_square)
         //     printf("SQUARE @ (%ld, %ld) w %ld\n", corner.x, corner.y, size.x);
         // else
-        //     printf("RECTANGLE @ (%ld, %ld) w %ld, h %ld\n", corner.x, corner.y, size.x, size.y);
+        //     printf("RECTANGLE @ (%ld, %ld) w %ld, h %ld\n", corner.x, corner.y, size.x,
+        //     size.y);
     } else if ((state.config_flags & OASIS_CONFIG_DETECT_TRAPEZOIDS) &&
                is_trapezoid(points, type, corner, size, delta_a, delta_b)) {
         if (type > 25) {
@@ -792,17 +843,19 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
             if (delta_a == 0) {
                 oasis_write_1delta(out, delta_b);
                 // printf("TRAPEZOID_B %s @ (%ld, %ld) w %ld, h %ld, db %ld\n",
-                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y, delta_b);
+                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y,
+                //        delta_b);
             } else if (delta_b == 0) {
                 oasis_write_1delta(out, delta_a);
                 // printf("TRAPEZOID_A %s @ (%ld, %ld) w %ld, h %ld, da %ld\n",
-                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y, delta_a);
+                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y,
+                //        delta_a);
             } else {
                 oasis_write_1delta(out, delta_a);
                 oasis_write_1delta(out, delta_b);
                 // printf("TRAPEZOID_AB %s @ (%ld, %ld) w %ld, h %ld, da %ld, db %ld\n",
-                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y, delta_a,
-                //        delta_b);
+                //        type == 26 ? "hor" : "ver", corner.x, corner.y, size.x, size.y,
+                //        delta_a, delta_b);
             }
         } else {
             uint8_t info = 0x9B;
@@ -819,12 +872,15 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
             if (use_w) oasis_write_unsigned_integer(out, size.x);
             if (use_h) oasis_write_unsigned_integer(out, size.y);
             // if (use_w && use_h)
-            //     printf("CTRAPEZOID %hu @ (%ld, %ld) w  %ld, h %ld\n", type, corner.x, corner.y,
+            //     printf("CTRAPEZOID %hu @ (%ld, %ld) w  %ld, h %ld\n", type, corner.x,
+            //     corner.y,
             //            size.x, size.y);
             // else if (use_w)
-            //     printf("CTRAPEZOID %hu @ (%ld, %ld) w %ld\n", type, corner.x, corner.y, size.x);
+            //     printf("CTRAPEZOID %hu @ (%ld, %ld) w %ld\n", type, corner.x, corner.y,
+            //     size.x);
             // else
-            //     printf("CTRAPEZOID %hu @ (%ld, %ld) h %ld\n", type, corner.x, corner.y, size.y);
+            //     printf("CTRAPEZOID %hu @ (%ld, %ld) h %ld\n", type, corner.x, corner.y,
+            //     size.y);
         }
         oasis_write_integer(out, corner.x);
         oasis_write_integer(out, corner.y);
@@ -1180,7 +1236,8 @@ static inline void append_contour_point(Array<Vec2>* points, Vec2 v, const doubl
             if (v1_length > tolerance) {
                 // DEBUG_PRINT("Substitute: (%g, %g) -- (%g, %g) → (%g, %g)\n",
                 //             points->items[count - 2].x, points->items[count - 2].y,
-                //             points->items[count - 1].x, points->items[count - 1].y, v.x, v.y);
+                //             points->items[count - 1].x, points->items[count - 1].y, v.x,
+                //             v.y);
                 points->items[count - 1] = v;
             } else {
                 // DEBUG_PRINT("Remove: (%g, %g) ← (%g, %g) + (%g, %g)  [%g ≤ %g]\n",
@@ -1498,8 +1555,8 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
         *poly = rectangle(Vec2{0, 0}, Vec2{(double)state_cols, (double)state_rows}, 0, 0);
         islands.append(poly);
         island_areas.append((double)state_cols * (double)state_rows);
-        // DEBUG_PRINT("Appending full rectangle: island[%" PRIu64 "], area = %g\n", islands.count -
-        // 1, island_areas[islands.count - 1]);
+        // DEBUG_PRINT("Appending full rectangle: island[%" PRIu64 "], area = %g\n",
+        // islands.count - 1, island_areas[islands.count - 1]);
     }
 
     // Associate each hole to its island

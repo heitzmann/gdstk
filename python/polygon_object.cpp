@@ -66,6 +66,42 @@ static PyObject* polygon_object_bounding_box(PolygonObject* self, PyObject*) {
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 
+static PyObject* polygon_object_contains(PolygonObject* self, PyObject* args) {
+    PyObject* result;
+    Polygon* polygon = self->polygon;
+    uint64_t len = PyTuple_GET_SIZE(args);
+
+    if (len == 2) {
+        PyObject* x = PyTuple_GET_ITEM(args, 0);
+        PyObject* y = PyTuple_GET_ITEM(args, 1);
+        if (PyNumber_Check(x) && PyNumber_Check(y) && !PyComplex_Check(x) && !PyComplex_Check(y)) {
+            Vec2 point;
+            point.x = PyFloat_AsDouble(x);
+            point.y = PyFloat_AsDouble(y);
+            result = polygon->contains(point) ? Py_True : Py_False;
+            Py_INCREF(result);
+            return result;
+        }
+    }
+
+    Array<Vec2> points = {0};
+    if (parse_point_sequence(args, points, "points") < 0) return NULL;
+
+    if (points.count == 1) {
+        result = polygon->contains(points[0]) ? Py_True : Py_False;
+        Py_INCREF(result);
+    } else {
+        result = PyTuple_New(points.count);
+        for (uint64_t i = 0; i < points.count; i++) {
+            PyObject* res = polygon->contains(points[i]) ? Py_True : Py_False;
+            Py_INCREF(res);
+            PyTuple_SET_ITEM(result, i, res);
+        }
+    }
+    points.clear();
+    return result;
+}
+
 static PyObject* polygon_object_translate(PolygonObject* self, PyObject* args) {
     Vec2 v = {0, 0};
     PyObject* dx;
@@ -170,7 +206,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
 static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"max_points", "precision", NULL};
     uint64_t max_points = 199;
-    double precision = 0.001;
+    double precision = 1e-3;
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|Kd:fracture", (char**)keywords, &max_points,
                                      &precision))
@@ -261,6 +297,7 @@ static PyMethodDef polygon_object_methods[] = {
     {"area", (PyCFunction)polygon_object_area, METH_NOARGS, polygon_object_area_doc},
     {"bounding_box", (PyCFunction)polygon_object_bounding_box, METH_NOARGS,
      polygon_object_bounding_box_doc},
+    {"contains", (PyCFunction)polygon_object_contains, METH_VARARGS, polygon_object_contains_doc},
     {"translate", (PyCFunction)polygon_object_translate, METH_VARARGS,
      polygon_object_translate_doc},
     {"scale", (PyCFunction)polygon_object_scale, METH_VARARGS | METH_KEYWORDS,

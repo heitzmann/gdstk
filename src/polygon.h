@@ -47,6 +47,10 @@ struct Polygon {
     // (positive for counter clockwise)
     double signed_area() const;
 
+    // Check if point is inside this polygon (points lying on the edges or
+    // coinciding with a vertex of the polygon are considered inside).
+    bool contains(const Vec2 point) const;
+
     // Bounding box corners are returned in min and max.  If the polygons has
     // no vertices, return min.x > max.x.  Repetitions are taken into account
     // for the calculation.

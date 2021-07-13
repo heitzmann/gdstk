@@ -380,7 +380,7 @@ PyDoc_STRVAR(polygon_object_area_doc, R"!(area() -> float
 Polygon area.
 
 Returns:
-    float: Area of the polygon.)!");
+    Area of the polygon.)!");
 
 PyDoc_STRVAR(polygon_object_bounding_box_doc, R"!(bounding_box() -> tuple
 
@@ -399,6 +399,22 @@ Examples:
 
     .. image:: ../polygon/bounding_box.*
        :align: center)!");
+
+PyDoc_STRVAR(polygon_object_contains_doc, R"!(contains(*points) -> bool, tuple
+
+Check whether points are inside this polygon.
+
+Points on the polygon edges or coinciding with any of its vertices are
+considered inside.
+
+Args:
+    points (point or sequence of points): Points to check. Arguments
+      can be a pair of coordinates, a complex number, or a sequence of
+      those.
+
+Returns:
+    If the argument is a single point, returns a boolean. In the case of
+    a sequence, a tuple of booleans (one for each point) is returned.)!");
 
 PyDoc_STRVAR(polygon_object_translate_doc, R"!(translate(dx, dy=None) -> self
 
@@ -457,7 +473,7 @@ Examples:
     .. image:: ../polygon/fillet.*
        :align: center)!");
 
-PyDoc_STRVAR(polygon_object_fracture_doc, R"!(fracture(max_points=199, precision=0.001) -> list
+PyDoc_STRVAR(polygon_object_fracture_doc, R"!(fracture(max_points=199, precision=1e-3) -> list
 
 Fracture this polygon into a list of polygons.
 
@@ -2999,7 +3015,7 @@ Notes:
     their contents.)!");
 
 PyDoc_STRVAR(inside_function_doc,
-             R"!(inside(points, polygons, short_circuit=*, precision=1e=3) -> tuple
+             R"!(inside(points, polygons, short_circuit=*, precision=1e-3) -> tuple
 
 Test whether the points are inside the polygons.
 

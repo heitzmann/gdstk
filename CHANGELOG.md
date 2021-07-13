@@ -2,7 +2,8 @@
 
 ## Unreleased
 ### Added
-- Added `contour` function
+- `contour` function
+- `Polygon.contains` tests whether single points are inside the polygon
 ### Fixed
 - Holes in boolean results could lead to incorrect geometry in specific cases
 - Bug in boolean operations resulting in self-intersecting polygons
