@@ -1486,40 +1486,47 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
         // 1, island_areas[islands.count - 1]);
     }
 
-    Array<Polygon*> temp = {0};
-    for (uint64_t i = 0; i < holes.count; i++) {
-        Polygon* hole = holes[i];
-        double hole_area = hole_areas[i];
-
-        for (uint64_t j = 0; j < islands.count; j++) {
-            if (hole_area < island_areas[j] && all_inside(*hole, *islands[j], scaling)) {
-                ErrorCode err = boolean(*islands[j], *hole, Operation::Not, scaling, temp);
-                if (err != ErrorCode::NoError) error_code = err;
-                hole->clear();
-                islands[j]->clear();
-                islands.remove(j);
-                island_areas.remove(j);
-                for (uint64_t t = 0; t < temp.count; t++) {
-                    double area = temp[t]->area();
-                    uint64_t k = 0;
-                    while (k < island_areas.count && area >= island_areas[k]) k++;
-                    island_areas.insert(k, area);
-                    islands.insert(k, temp[t]);
-                }
-                temp.count = 0;
-                break;
+    // Associate each hole to its island
+    Array<Polygon*>* islands_holes =
+        (Array<Polygon*>*)allocate_clear(sizeof(Array<Polygon*>) * islands.count);
+    for (uint64_t h = 0; h < holes.count; h++) {
+        Polygon* hole = holes[h];
+        double hole_area = hole_areas[h];
+        bool found = false;
+        for (uint64_t i = 0; i < islands.count && !found; i++) {
+            if (hole_area < island_areas[i] && all_inside(*hole, *islands[i], scaling)) {
+                islands_holes[i].append(hole);
+                found = true;
             }
         }
+        if (!found) {
+            fprintf(stderr, "[GDSTK] Unable to process polygon hole in contour.\n");
+            error_code = ErrorCode::BooleanError;
+            hole->clear();
+        }
     }
-    temp.clear();
 
-    result.extend(islands);
-
-    free_allocation(state);
-    islands.clear();
     holes.clear();
-    island_areas.clear();
     hole_areas.clear();
+    island_areas.clear();
+
+    for (uint64_t i = 0; i < islands.count; i++) {
+        Polygon* island = islands[i];
+        Array<Polygon*>* island_holes = islands_holes + i;
+        if (island_holes->count > 0) {
+            ErrorCode err = boolean(*island, *island_holes, Operation::Not, scaling, result);
+            if (err != ErrorCode::NoError) error_code = err;
+            for (uint64_t h = 0; h < island_holes->count; h++) island_holes->items[h]->clear();
+            island_holes->clear();
+            island->clear();
+        } else {
+            result.append(island);
+        }
+    }
+
+    islands.clear();
+    free_allocation(islands_holes);
+    free_allocation(state);
 
     return error_code;
 }
