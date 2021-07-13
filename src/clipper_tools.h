@@ -35,8 +35,8 @@ inline ErrorCode boolean(const Polygon& poly1, const Polygon& poly2, Operation o
                          double scaling, Array<Polygon*>& result) {
     const Polygon* p1 = &poly1;
     const Polygon* p2 = &poly2;
-    const Array<Polygon*> polys1 = {.capacity = 1, .count = 1, .items = (Polygon**)&p1};
-    const Array<Polygon*> polys2 = {.capacity = 1, .count = 1, .items = (Polygon**)&p2};
+    const Array<Polygon*> polys1 = {1, 1, (Polygon**)&p1};
+    const Array<Polygon*> polys2 = {1, 1, (Polygon**)&p2};
     return boolean(polys1, polys2, operation, scaling, result);
 }
 
@@ -58,62 +58,62 @@ void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
 inline void inside(const Array<Polygon*>& groups, const Polygon& polygon,
                    ShortCircuit short_circuit, double scaling, Array<bool>& result) {
     const Polygon* p_poly = &polygon;
-    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    const Array<Polygon*> polygons = {1, 1, (Polygon**)&p_poly};
     inside(groups, polygons, short_circuit, scaling, result);
 }
 
 inline void inside(const Polygon& points, const Array<Polygon*>& polygons,
                    ShortCircuit short_circuit, double scaling, Array<bool>& result) {
     const Polygon* p_points = &points;
-    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Array<Polygon*> groups = {1, 1, (Polygon**)&p_points};
     inside(groups, polygons, short_circuit, scaling, result);
 }
 
 inline void inside(const Polygon& points, const Polygon& polygon, ShortCircuit short_circuit,
                    double scaling, Array<bool>& result) {
     const Polygon* p_points = &points;
-    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Array<Polygon*> groups = {1, 1, (Polygon**)&p_points};
     const Polygon* p_poly = &polygon;
-    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    const Array<Polygon*> polygons = {1, 1, (Polygon**)&p_poly};
     inside(groups, polygons, short_circuit, scaling, result);
 }
 
 inline bool all_inside(const Polygon& points, const Array<Polygon*>& polygons, double scaling) {
     const Polygon* p_points = &points;
-    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Array<Polygon*> groups = {1, 1, (Polygon**)&p_points};
     bool value = false;
-    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    Array<bool> result = {1, 0, &value};
     inside(groups, polygons, ShortCircuit::All, scaling, result);
     return value;
 }
 
 inline bool all_inside(const Polygon& points, const Polygon& polygon, double scaling) {
     const Polygon* p_points = &points;
-    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Array<Polygon*> groups = {1, 1, (Polygon**)&p_points};
     const Polygon* p_poly = &polygon;
-    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    const Array<Polygon*> polygons = {1, 1, (Polygon**)&p_poly};
     bool value = false;
-    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    Array<bool> result = {1, 0, &value};
     inside(groups, polygons, ShortCircuit::All, scaling, result);
     return value;
 }
 
 inline bool any_inside(const Polygon& points, const Array<Polygon*>& polygons, double scaling) {
     const Polygon* p_points = &points;
-    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Array<Polygon*> groups = {1, 1, (Polygon**)&p_points};
     bool value = false;
-    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    Array<bool> result = {1, 0, &value};
     inside(groups, polygons, ShortCircuit::Any, scaling, result);
     return value;
 }
 
 inline bool any_inside(const Polygon& points, const Polygon& polygon, double scaling) {
     const Polygon* p_points = &points;
-    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Array<Polygon*> groups = {1, 1, (Polygon**)&p_points};
     const Polygon* p_poly = &polygon;
-    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    const Array<Polygon*> polygons = {1, 1, (Polygon**)&p_poly};
     bool value = false;
-    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    Array<bool> result = {1, 0, &value};
     inside(groups, polygons, ShortCircuit::Any, scaling, result);
     return value;
 }
