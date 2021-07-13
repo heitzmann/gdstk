@@ -43,6 +43,10 @@ struct Polygon {
     // Total polygon area including any repetitions
     double area() const;
 
+    // Polygon area excluding repetitions with sign indicating orientation
+    // (positive for counter clockwise)
+    double signed_area() const;
+
     // Bounding box corners are returned in min and max.  If the polygons has
     // no vertices, return min.x > max.x.  Repetitions are taken into account
     // for the calculation.
