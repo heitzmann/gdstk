@@ -28,15 +28,24 @@ enum struct ShortCircuit { None, Any, All };
 // overflow of coordinates.
 
 // Resulting polygons are appended to result.
-void boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
-             double scaling, Array<Polygon*>& result);
+ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
+                  double scaling, Array<Polygon*>& result);
+
+inline ErrorCode boolean(const Polygon& poly1, const Polygon& poly2, Operation operation,
+                         double scaling, Array<Polygon*>& result) {
+    const Polygon* p1 = &poly1;
+    const Polygon* p2 = &poly2;
+    const Array<Polygon*> polys1 = {.capacity = 1, .count = 1, .items = (Polygon**)&p1};
+    const Array<Polygon*> polys2 = {.capacity = 1, .count = 1, .items = (Polygon**)&p2};
+    return boolean(polys1, polys2, operation, scaling, result);
+}
 
 // Dilates or erodes polygons acording to distance (negative distance results
 // in erosion).  The effects of internal polygon edges (in polygons with holes,
 // for example) can be suppressed by setting use_union to true.  Resulting
 // polygons are appended to result.
-void offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, double tolerance,
-            double scaling, bool use_union, Array<Polygon*>& result);
+ErrorCode offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, double tolerance,
+                 double scaling, bool use_union, Array<Polygon*>& result);
 
 // Check whether the points in groups are inside or outside the set of
 // polygons.  Checking within each group can be short-circuited to analyse if
@@ -46,12 +55,75 @@ void offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, doub
 void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             ShortCircuit short_circuit, double scaling, Array<bool>& result);
 
+inline void inside(const Array<Polygon*>& groups, const Polygon& polygon,
+                   ShortCircuit short_circuit, double scaling, Array<bool>& result) {
+    const Polygon* p_poly = &polygon;
+    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    inside(groups, polygons, short_circuit, scaling, result);
+}
+
+inline void inside(const Polygon& points, const Array<Polygon*>& polygons,
+                   ShortCircuit short_circuit, double scaling, Array<bool>& result) {
+    const Polygon* p_points = &points;
+    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    inside(groups, polygons, short_circuit, scaling, result);
+}
+
+inline void inside(const Polygon& points, const Polygon& polygon, ShortCircuit short_circuit,
+                   double scaling, Array<bool>& result) {
+    const Polygon* p_points = &points;
+    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Polygon* p_poly = &polygon;
+    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    inside(groups, polygons, short_circuit, scaling, result);
+}
+
+inline bool all_inside(const Polygon& points, const Array<Polygon*>& polygons, double scaling) {
+    const Polygon* p_points = &points;
+    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    bool value = false;
+    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    inside(groups, polygons, ShortCircuit::All, scaling, result);
+    return value;
+}
+
+inline bool all_inside(const Polygon& points, const Polygon& polygon, double scaling) {
+    const Polygon* p_points = &points;
+    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Polygon* p_poly = &polygon;
+    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    bool value = false;
+    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    inside(groups, polygons, ShortCircuit::All, scaling, result);
+    return value;
+}
+
+inline bool any_inside(const Polygon& points, const Array<Polygon*>& polygons, double scaling) {
+    const Polygon* p_points = &points;
+    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    bool value = false;
+    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    inside(groups, polygons, ShortCircuit::Any, scaling, result);
+    return value;
+}
+
+inline bool any_inside(const Polygon& points, const Polygon& polygon, double scaling) {
+    const Polygon* p_points = &points;
+    const Array<Polygon*> groups = {.capacity = 1, .count = 1, .items = (Polygon**)&p_points};
+    const Polygon* p_poly = &polygon;
+    const Array<Polygon*> polygons = {.capacity = 1, .count = 1, .items = (Polygon**)&p_poly};
+    bool value = false;
+    Array<bool> result = {.capacity = 1, .count = 0, .items = &value};
+    inside(groups, polygons, ShortCircuit::Any, scaling, result);
+    return value;
+}
+
 // Slice the given polygon along the coordinates in posiotions.  Cuts are
 // vertical (horizontal) when x_axis is set to true (false).  Argument result
 // must be an array with length at least positions.count + 1.  The resulting
 // slices are appendend to the arrays in their respective bins.
-void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
-           Array<Polygon*>* result);
+ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
+                Array<Polygon*>* result);
 
 }  // namespace gdstk
 

@@ -81,7 +81,30 @@ static bool path_compare(ClipperLib::Path& p1, ClipperLib::Path& p2) {
     return point_compare(*pt1, *pt2);
 }
 
-static ClipperLib::Path link_holes(ClipperLib::PolyNode* node) {
+static ClipperLib::Path link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
+    // static int dbg_counter = 0;
+    // char dbg_name[16];
+    // snprintf(dbg_name, COUNT(dbg_name), "d%d.gds", dbg_counter++);
+    // Library dbg_library = {.name = dbg_name, .unit = 1e-6, .precision = 1e-9};
+    // Cell dbg_cell = {.name = dbg_name};
+    // dbg_library.cell_array.append(&dbg_cell);
+    // Polygon* dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
+    // dbg_cell.polygon_array.append(dbg_poly);
+    // dbg_poly->layer = 1;
+    // ClipperLib::Path dbg_path = node->Contour;
+    // for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
+    //     dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
+    // for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child !=
+    // node->Childs.end();
+    //      child++) {
+    //     dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
+    //     dbg_cell.polygon_array.append(dbg_poly);
+    //     dbg_path = (*child)->Contour;
+    //     for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
+    //         dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
+    // }
+    // dbg_library.write_gds(dbg_name, 0, NULL);
+
     ClipperLib::Paths holes;
     holes.reserve(node->ChildCount());
 
@@ -121,24 +144,29 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node) {
             }
         }
 
-        ClipperLib::IntPoint pnew(xnew, p->Y);
-        if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = result.insert(p1, pnew);
-        p1 = result.insert(p1, h->begin(), p + 1);
-        p1 = result.insert(p1, p, h->end());
-        result.insert(p1, pnew);
+        if (p1 == result.end()) {
+            fprintf(stderr, "[GDSTK] Unable to link hole in boolean operation.\n");
+            error_code = ErrorCode::BooleanError;
+        } else {
+            ClipperLib::IntPoint pnew(xnew, p->Y);
+            if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = result.insert(p1, pnew);
+            p1 = result.insert(p1, h->begin(), p + 1);
+            p1 = result.insert(p1, p, h->end());
+            result.insert(p1, pnew);
+        }
     }
 
     return result;
 }
 
-static ClipperLib::Paths tree2paths(const ClipperLib::PolyTree& tree) {
+static ClipperLib::Paths tree_to_paths(const ClipperLib::PolyTree& tree, ErrorCode& error_code) {
     ClipperLib::Paths result;
     result.reserve(tree.ChildCount());
     ClipperLib::PolyNode* node = tree.GetFirst();
     while (node) {
         if (!node->IsHole()) {
             if (node->ChildCount() > 0)
-                result.push_back(link_holes(node));
+                result.push_back(link_holes(node, error_code));
             else
                 result.push_back(node->Contour);
         }
@@ -160,8 +188,8 @@ static void bounding_box(ClipperLib::Path& points, ClipperLib::cInt* bb) {
     }
 }
 
-void boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
-             double scaling, Array<Polygon*>& result) {
+ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
+                  double scaling, Array<Polygon*>& result) {
     ClipperLib::ClipType ct_operation = ClipperLib::ctUnion;
     switch (operation) {
         case Operation::Or:
@@ -180,19 +208,22 @@ void boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Opera
     ClipperLib::Paths paths1 = polygons_to_paths(polys1, scaling);
     ClipperLib::Paths paths2 = polygons_to_paths(polys2, scaling);
 
-    ClipperLib::Clipper clpr;
+    ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
     clpr.AddPaths(paths1, ClipperLib::ptSubject, true);
     clpr.AddPaths(paths2, ClipperLib::ptClip, true);
 
     ClipperLib::PolyTree solution;
     clpr.Execute(ct_operation, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
-    ClipperLib::Paths result_paths = tree2paths(solution);
+
+    ErrorCode error_code = ErrorCode::NoError;
+    ClipperLib::Paths result_paths = tree_to_paths(solution, error_code);
 
     paths_to_polygons(result_paths, scaling, result);
+    return error_code;
 }
 
-void offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join, double tolerance,
-            double scaling, bool use_union, Array<Polygon*>& result) {
+ErrorCode offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join,
+                 double tolerance, double scaling, bool use_union, Array<Polygon*>& result) {
     ClipperLib::JoinType jt_join = ClipperLib::jtSquare;
     ClipperLib::ClipperOffset clprof;
     switch (join) {
@@ -224,13 +255,17 @@ void offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join, d
 
     ClipperLib::PolyTree solution;
     clprof.Execute(solution, distance * scaling);
-    ClipperLib::Paths result_paths = tree2paths(solution);
+
+    ErrorCode error_code = ErrorCode::NoError;
+    ClipperLib::Paths result_paths = tree_to_paths(solution, error_code);
 
     paths_to_polygons(result_paths, scaling, result);
+    return error_code;
 }
 
-void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
-           Array<Polygon*>* result) {
+ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
+                Array<Polygon*>* result) {
+    ErrorCode error_code = ErrorCode::NoError;
     ClipperLib::Paths subj;
     subj.push_back(polygon_to_path(polygon, scaling));
 
@@ -255,7 +290,7 @@ void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, 
             clip[0][2].Y = clip[0][3].Y = pos;
         }
 
-        ClipperLib::Clipper clpr;
+        ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
         clpr.AddPaths(subj, ClipperLib::ptSubject, true);
         clpr.AddPaths(clip, ClipperLib::ptClip, true);
 
@@ -263,11 +298,15 @@ void slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, 
         clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftNonZero,
                      ClipperLib::pftNonZero);
 
-        ClipperLib::Paths result_paths = tree2paths(solution);
+        ClipperLib::Paths result_paths = tree_to_paths(solution, error_code);
         paths_to_polygons(result_paths, scaling, result[i]);
     }
+
+    return error_code;
 }
 
+// TODO: write our own version of inside for single points without scaling
+// http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.88.5498&rep=rep1&type=pdf
 void inside(const Array<Polygon*>& groups, const Array<Polygon*>& polygons,
             ShortCircuit short_circuit, double scaling, Array<bool>& result) {
     ClipperLib::Paths groups_paths = polygons_to_paths(groups, scaling);

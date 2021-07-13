@@ -65,6 +65,7 @@ namespace gdstk {
 enum struct ErrorCode {
     NoError = 0,
     // Warnings
+    BooleanError,
     IntersectionNotFound,
     MissingReference,
     UnsupportedRecord,

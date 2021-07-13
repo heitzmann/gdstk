@@ -50,23 +50,27 @@ static int return_error(ErrorCode error_code) {
             return 0;
         // Warnings
         case ErrorCode::MissingReference:
-            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Missing reference.", 2) != 0) return -1;
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Missing reference.", 1) != 0) return -1;
             return 0;
         case ErrorCode::InvalidRepetition:
-            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Invalid repetition.", 2) != 0) return -1;
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Invalid repetition.", 1) != 0) return -1;
+            return 0;
+        case ErrorCode::BooleanError:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Error in boolean operation.", 1) != 0)
+                return -1;
             return 0;
         case ErrorCode::IntersectionNotFound:
             if (PyErr_WarnEx(PyExc_RuntimeWarning, "Intersection not found in path construction.",
-                             2) != 0)
+                             1) != 0)
                 return -1;
             return 0;
         case ErrorCode::UnofficialSpecification:
             if (PyErr_WarnEx(PyExc_RuntimeWarning,
-                             "Saved file uses unofficially supported extensions.", 2) != 0)
+                             "Saved file uses unofficially supported extensions.", 1) != 0)
                 return -1;
             return 0;
         case ErrorCode::Overflow:
-            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Overflow detected.", 2) != 0) return -1;
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Overflow detected.", 1) != 0) return -1;
             return 0;
         // Errors
         case ErrorCode::UnsupportedRecord:
@@ -1045,8 +1049,23 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) return NULL;
 
     Array<Polygon*> result_array = {0};
-    offset(polygon_array, distance, offset_join, tolerance, 1 / precision, use_union > 0,
-           result_array);
+    ErrorCode error_code = offset(polygon_array, distance, offset_join, tolerance, 1 / precision,
+                                  use_union > 0, result_array);
+
+    if (return_error(error_code)) {
+        for (uint64_t j = 0; j < polygon_array.count; j++) {
+            polygon_array[j]->clear();
+            free_allocation(polygon_array[j]);
+        }
+        polygon_array.clear();
+        for (uint64_t j = 0; j < result_array.count; j++) {
+            result_array[j]->clear();
+            free_allocation(result_array[j]);
+        }
+        result_array.clear();
+        return NULL;
+    }
+
 
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
@@ -1116,7 +1135,27 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
     }
 
     Array<Polygon*> result_array = {0};
-    boolean(polygon_array1, polygon_array2, oper, 1 / precision, result_array);
+    ErrorCode error_code =
+        boolean(polygon_array1, polygon_array2, oper, 1 / precision, result_array);
+
+    if (return_error(error_code)) {
+        for (uint64_t j = 0; j < polygon_array1.count; j++) {
+            polygon_array1[j]->clear();
+            free_allocation(polygon_array1[j]);
+        }
+        polygon_array1.clear();
+        for (uint64_t j = 0; j < polygon_array2.count; j++) {
+            polygon_array2[j]->clear();
+            free_allocation(polygon_array2[j]);
+        }
+        polygon_array2.clear();
+        for (uint64_t j = 0; j < result_array.count; j++) {
+            result_array[j]->clear();
+            free_allocation(result_array[j]);
+        }
+        result_array.clear();
+        return NULL;
+    }
 
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
@@ -1209,6 +1248,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
         uint32_t datatype = polygon_array[i]->datatype;
         Array<Polygon*>* slices =
             (Array<Polygon*>*)allocate_clear((positions.count + 1) * sizeof(Array<Polygon*>));
+        // NOTE: slice should never result in an error
         slice(*polygon_array[i], positions, x_axis, 1 / precision, slices);
         Array<Polygon*>* slice_array = slices;
         for (uint64_t s = 0; s <= positions.count; s++, slice_array++) {
