@@ -84,7 +84,7 @@ double Polygon::signed_area() const {
 // polygon problem for arbitrary polygons,” Computational Geometry, Volume 20,
 // Issue 3, 2001, Pages 131-144, ISSN 0925-7721.
 // https://doi.org/10.1016/S0925-7721(01)00012-8
-bool Polygon::contains(const Vec2 point) const {
+bool Polygon::contain(const Vec2 point) const {
     if (point_array.count == 0) {
         return false;
     }
@@ -128,6 +128,31 @@ bool Polygon::contains(const Vec2 point) const {
         p0 = p1;
     }
     return winding != 0;
+}
+
+bool Polygon::contain_all(const Array<Vec2>& points) const {
+    Vec2 min, max;
+    bounding_box(min, max);
+    for (uint64_t i = 0; i < points.count; i++) {
+        Vec2 point = points[i];
+        if (point.x < min.x || point.x > max.x || point.y < min.y || point.x > max.x) return false;
+    }
+    for (uint64_t i = 0; i < points.count; i++) {
+        if (!contain(points[i])) return false;
+    }
+    return true;
+}
+
+bool Polygon::contain_any(const Array<Vec2>& points) const {
+    Vec2 min, max;
+    bounding_box(min, max);
+    for (uint64_t i = 0; i < points.count; i++) {
+        Vec2 point = points[i];
+        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.x <= max.x &&
+            contain(point))
+            return true;
+    }
+    return false;
 }
 
 void Polygon::bounding_box(Vec2& min, Vec2& max) const {
@@ -1567,7 +1592,7 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
         double hole_area = hole_areas[h];
         bool found = false;
         for (uint64_t i = 0; i < islands.count && !found; i++) {
-            if (hole_area < island_areas[i] && all_inside(*hole, *islands[i], scaling)) {
+            if (hole_area < island_areas[i] && islands[i]->contain_all(hole->point_array)) {
                 islands_holes[i].append(hole);
                 found = true;
             }
@@ -1602,6 +1627,57 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
     free_allocation(state);
 
     return error_code;
+}
+
+bool all_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons) {
+    Vec2 min = {DBL_MAX, DBL_MAX};
+    Vec2 max = {-DBL_MAX, -DBL_MAX};
+    for (uint64_t j = 0; j < polygons.count; j++) {
+        Vec2 a, b;
+        polygons[j]->bounding_box(a, b);
+        if (a.x < min.x) min.x = a.x;
+        if (a.y < min.y) min.y = a.y;
+        if (b.x > max.x) max.x = b.x;
+        if (b.y > max.y) max.y = b.y;
+    }
+    for (uint64_t i = 0; i < points.count; i++) {
+        Vec2 point = points[i];
+        if (point.x < min.x || point.x > max.x || point.y < min.y || point.x > max.x) return false;
+    }
+    for (uint64_t i = 0; i < points.count; i++) {
+        Vec2 point = points[i];
+        bool inside = false;
+        for (uint64_t j = 0; j < polygons.count; j++) {
+            if (polygons[j]->contain(point)) {
+                inside = true;
+                break;
+            }
+        }
+        if (!inside) return false;
+    }
+    return true;
+}
+
+bool any_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons) {
+    Vec2 min = {DBL_MAX, DBL_MAX};
+    Vec2 max = {-DBL_MAX, -DBL_MAX};
+    for (uint64_t j = 0; j < polygons.count; j++) {
+        Vec2 a, b;
+        polygons[j]->bounding_box(a, b);
+        if (a.x < min.x) min.x = a.x;
+        if (a.y < min.y) min.y = a.y;
+        if (b.x > max.x) max.x = b.x;
+        if (b.y > max.y) max.y = b.y;
+    }
+    for (uint64_t i = 0; i < points.count; i++) {
+        Vec2 point = points[i];
+        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.x <= max.x) {
+            for (uint64_t j = 0; j < polygons.count; j++) {
+                if (polygons[j]->contain(point)) return true;
+            }
+        }
+    }
+    return false;
 }
 
 }  // namespace gdstk

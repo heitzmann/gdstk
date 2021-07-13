@@ -47,9 +47,11 @@ struct Polygon {
     // (positive for counter clockwise)
     double signed_area() const;
 
-    // Check if point is inside this polygon (points lying on the edges or
-    // coinciding with a vertex of the polygon are considered inside).
-    bool contains(const Vec2 point) const;
+    // Check if the points are inside this polygon (points lying on the edges
+    // or coinciding with a vertex of the polygon are considered inside).
+    bool contain(const Vec2 point) const;
+    bool contain_all(const Array<Vec2>& points) const;
+    bool contain_any(const Array<Vec2>& points) const;
 
     // Bounding box corners are returned in min and max.  If the polygons has
     // no vertices, return min.x > max.x.  Repetitions are taken into account
@@ -124,6 +126,11 @@ void text(const char* s, double size, const Vec2 position, bool vertical, uint32
 // scale is one data element, i.e., the data array has size cols × rows.
 ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level, double scaling,
                   Array<Polygon*>& result);
+
+// Check if the points are inside a set of polygons (points lying on the edges
+// or coinciding with a vertex of the polygons are considered inside).
+bool all_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons);
+bool any_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons);
 
 }  // namespace gdstk
 

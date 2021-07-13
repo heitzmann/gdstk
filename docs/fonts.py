@@ -26,22 +26,21 @@ def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1)
         elif code == path.CURVE4:
             c.cubic(points.reshape(points.size // 2, 2))
         elif code == path.CLOSEPOLY:
-            poly = c.points()
-            if poly.size > 0:
-                if poly[:, 0].min() < xmax:
+            pts = c.points()
+            if pts.size > 0:
+                poly = gdstk.Polygon(pts)
+                if pts[:, 0].min() < xmax:
                     i = len(polys) - 1
                     while i >= 0:
-                        if gdstk.inside(poly[:1], [polys[i]], precision=precision)[0]:
+                        if polys[i].contain_any(*poly.points):
                             p = polys.pop(i)
-                            b = gdstk.boolean([p], [poly], "xor", precision)
-                            poly = b[0].points
+                            poly = gdstk.boolean(p, poly, "xor", precision)[0]
                             break
-                        elif gdstk.inside(polys[i][:1], [poly], precision=precision)[0]:
+                        elif poly.contain_any(*polys[i].points):
                             p = polys.pop(i)
-                            b = gdstk.boolean([p], [poly], "xor", precision)
-                            poly = b[0].points
+                            poly = gdstk.boolean(p, poly, "xor", precision)[0]
                         i -= 1
-                xmax = max(xmax, poly[:, 0].max())
+                xmax = max(xmax, poly.points[:, 0].max())
                 polys.append(poly)
     return polys
 
@@ -49,7 +48,7 @@ def render_text(text, size=None, position=(0, 0), font_prop=None, tolerance=0.1)
 if __name__ == "__main__":
     cell = gdstk.Cell("fonts")
     fp = FontProperties(family="serif", style="italic")
-    point_list = render_text("Text rendering", 10, font_prop=fp)
-    cell.add(gdstk.Polygon(pts) for pts in point_list)
+    polygons = render_text("Text rendering", 10, font_prop=fp)
+    cell.add(*polygons)
     path = pathlib.Path(__file__).parent.absolute() / "how-tos"
     draw(cell, path)

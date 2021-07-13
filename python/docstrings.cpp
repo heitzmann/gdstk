@@ -400,7 +400,7 @@ Examples:
     .. image:: ../polygon/bounding_box.*
        :align: center)!");
 
-PyDoc_STRVAR(polygon_object_contains_doc, R"!(contains(*points) -> bool, tuple
+PyDoc_STRVAR(polygon_object_contain_doc, R"!(contain(*points) -> bool, tuple
 
 Check whether points are inside this polygon.
 
@@ -415,6 +415,35 @@ Args:
 Returns:
     If the argument is a single point, returns a boolean. In the case of
     a sequence, a tuple of booleans (one for each point) is returned.)!");
+
+PyDoc_STRVAR(polygon_object_contain_all_doc, R"!(contain_all(*points) -> bool
+
+Check whether all points are inside this polygon.
+
+Points on the polygon edges or coinciding with any of its vertices are
+considered inside.
+
+Args:
+    points: Points to check. Each point can be a pair of coordinates or
+      a complex number.
+
+Returns:
+    `True` if all points are inside the polygon, `False` otherwise.)!");
+
+PyDoc_STRVAR(polygon_object_contain_any_doc, R"!(contain_any(*points) -> bool
+
+Check whether any of the points are inside this polygon.
+
+Points on the polygon edges or coinciding with any of its vertices are
+considered inside.
+
+Args:
+    points: Points to check. Each point can be a pair of coordinates or
+      a complex number.
+
+Returns:
+    `True` if any of the points are inside the polygon, `False`
+    otherwise.)!");
 
 PyDoc_STRVAR(polygon_object_translate_doc, R"!(translate(dx, dy=None) -> self
 
@@ -3014,45 +3043,41 @@ Notes:
     Repetitions are not applied to any elements, except references and
     their contents.)!");
 
-PyDoc_STRVAR(inside_function_doc,
-             R"!(inside(points, polygons, short_circuit=*, precision=1e-3) -> tuple
+PyDoc_STRVAR(all_inside_function_doc, R"!(all_inside(points, polygons) -> bool
 
-Test whether the points are inside the polygons.
+Check whether all points are inside the set of polygons.
+
+Points on polygon edges or coinciding with any of their vertices are
+considered inside.
 
 Args:
-    points: Testing points. This can be a sequence of points or a
-      sequence of point sequences (point groups).
+    points: Points to check. Each point can be a pair of coordinates or
+      a complex number.
     polygons (Polygon, FlexPath, RobustPath, Reference, sequence):
       Polygons to test against. If this is a sequence, each element can
       be any of the polygonal types or a sequence of points (coordinate
       pairs or complex).
-    short_circuit: One of "any", "all", or "none". Testing (within each
-      point group) can be short-circuited if "any" or "all" of the
-      points are inside the polygon set. This parameter defaults to
-      "any" if point groups are used, and "none" otherwise.
-    precision: Desired precision for rounding vertex coordinates.
 
 Returns:
-    Tuple of booleans indicating weather points or groups are inside the
-    polygons.
+    `True` if all points are inside the polygon set, `False` otherwise.)!");
 
-Examples:
-    >>> rect = gdstk.rectangle((0, 0), (1, 1))
-    >>> print(gdstk.inside([(0.5, 0.5), (2, 2)], rect))
-    (True, False)
-    >>> print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any"))
-    (True,)
-    >>> print(gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all"))
-    (False,)
-    >>> # Point groups
-    >>> print(gdstk.inside([[(0.5, 0.5), (2, 2)],
-    ...                     [(0, 0), (1, 1)],
-    ...                     [(2, 2), (3, 3)]], rect)
-    (True, True, False)
+PyDoc_STRVAR(any_inside_function_doc, R"!(any_inside(points, polygons) -> bool
 
-Notes:
-    Repetitions are not applied to any elements, except references and
-    their contents.)!");
+Check whether any of the points are inside the set of polygons.
+
+Points on polygon edges or coinciding with any of their vertices are
+considered inside.
+
+Args:
+    points: Points to check. Each point can be a pair of coordinates or
+      a complex number.
+    polygons (Polygon, FlexPath, RobustPath, Reference, sequence):
+      Polygons to test against. If this is a sequence, each element can
+      be any of the polygonal types or a sequence of points (coordinate
+      pairs or complex).
+
+Returns:
+    `True` if any point is inside the polygon set, `False` otherwise.)!");
 
 PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0, tolerance=1e-2) -> gdstk.Library
 

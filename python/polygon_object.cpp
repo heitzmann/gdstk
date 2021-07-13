@@ -66,39 +66,67 @@ static PyObject* polygon_object_bounding_box(PolygonObject* self, PyObject*) {
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 
-static PyObject* polygon_object_contains(PolygonObject* self, PyObject* args) {
+static PyObject* polygon_object_contain(PolygonObject* self, PyObject* args) {
     PyObject* result;
     Polygon* polygon = self->polygon;
-    uint64_t len = PyTuple_GET_SIZE(args);
 
-    if (len == 2) {
+    if (PyTuple_GET_SIZE(args) == 2) {
         PyObject* x = PyTuple_GET_ITEM(args, 0);
         PyObject* y = PyTuple_GET_ITEM(args, 1);
         if (PyNumber_Check(x) && PyNumber_Check(y) && !PyComplex_Check(x) && !PyComplex_Check(y)) {
             Vec2 point;
             point.x = PyFloat_AsDouble(x);
             point.y = PyFloat_AsDouble(y);
-            result = polygon->contains(point) ? Py_True : Py_False;
+            result = polygon->contain(point) ? Py_True : Py_False;
             Py_INCREF(result);
             return result;
         }
     }
 
     Array<Vec2> points = {0};
-    if (parse_point_sequence(args, points, "points") < 0) return NULL;
+    if (parse_point_sequence(args, points, "points") < 0) {
+        points.clear();
+        return NULL;
+    }
 
     if (points.count == 1) {
-        result = polygon->contains(points[0]) ? Py_True : Py_False;
+        result = polygon->contain(points[0]) ? Py_True : Py_False;
         Py_INCREF(result);
     } else {
         result = PyTuple_New(points.count);
         for (uint64_t i = 0; i < points.count; i++) {
-            PyObject* res = polygon->contains(points[i]) ? Py_True : Py_False;
+            PyObject* res = polygon->contain(points[i]) ? Py_True : Py_False;
             Py_INCREF(res);
             PyTuple_SET_ITEM(result, i, res);
         }
     }
     points.clear();
+    return result;
+}
+
+static PyObject* polygon_object_contain_all(PolygonObject* self, PyObject* args) {
+    Polygon* polygon = self->polygon;
+    Array<Vec2> points = {0};
+    if (parse_point_sequence(args, points, "points") < 0) {
+        points.clear();
+        return NULL;
+    }
+    PyObject* result = polygon->contain_all(points) ? Py_True : Py_False;
+    points.clear();
+    Py_INCREF(result);
+    return result;
+}
+
+static PyObject* polygon_object_contain_any(PolygonObject* self, PyObject* args) {
+    Polygon* polygon = self->polygon;
+    Array<Vec2> points = {0};
+    if (parse_point_sequence(args, points, "points") < 0) {
+        points.clear();
+        return NULL;
+    }
+    PyObject* result = polygon->contain_any(points) ? Py_True : Py_False;
+    points.clear();
+    Py_INCREF(result);
     return result;
 }
 
@@ -297,7 +325,11 @@ static PyMethodDef polygon_object_methods[] = {
     {"area", (PyCFunction)polygon_object_area, METH_NOARGS, polygon_object_area_doc},
     {"bounding_box", (PyCFunction)polygon_object_bounding_box, METH_NOARGS,
      polygon_object_bounding_box_doc},
-    {"contains", (PyCFunction)polygon_object_contains, METH_VARARGS, polygon_object_contains_doc},
+    {"contain", (PyCFunction)polygon_object_contain, METH_VARARGS, polygon_object_contain_doc},
+    {"contain_all", (PyCFunction)polygon_object_contain_all, METH_VARARGS,
+     polygon_object_contain_all_doc},
+    {"contain_any", (PyCFunction)polygon_object_contain_any, METH_VARARGS,
+     polygon_object_contain_any_doc},
     {"translate", (PyCFunction)polygon_object_translate, METH_VARARGS,
      polygon_object_translate_doc},
     {"scale", (PyCFunction)polygon_object_scale, METH_VARARGS | METH_KEYWORDS,

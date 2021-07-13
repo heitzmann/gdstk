@@ -11,18 +11,13 @@ import gdstk
 
 
 def test_inside():
-    r = gdstk.rectangle((0, 0), (20, 10))
-    pts = [
-        [(1, 1), (-1, -1)],
-        [(2, 2), (-2, 2), (2, -2)],
-        [(5, 5), (10, 5)],
-        [(-1, -1), (-2, -2)],
-        [(2, 3)],
-    ]
-    assert gdstk.inside(pts[0], r) == (True, False)
-    assert gdstk.inside(pts[1], r) == (True, False, False)
-    assert gdstk.inside(pts[1], r, "any") == (True,)
-    assert gdstk.inside(pts[1], r, "all") == (False,)
-    assert gdstk.inside(pts[4], r) == (True,)
-    assert gdstk.inside(pts, r, "any") == (True, True, True, False, True)
-    assert gdstk.inside(pts, r, "all") == (False, False, True, False, True)
+    polys = [gdstk.rectangle((0, 0), (10, 10)), gdstk.rectangle((10, 0), (20, 10))]
+    for pts, _any, _all in (
+        ([(1, 1), (-1, -1)], True, False),
+        ([(2, 2), (-2, 2), (2, -2)], True, False),
+        ([(5, 5), (10, 5)], True, True),
+        ([(-1, -1), (-2, -2)], False, False),
+        ([(2, 3)], True, True),
+    ):
+        assert gdstk.any_inside(pts, polys) == _any
+        assert gdstk.all_inside(pts, polys) == _all

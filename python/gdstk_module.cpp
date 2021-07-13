@@ -1066,7 +1066,6 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         return NULL;
     }
 
-
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
         Polygon* poly = result_array[i];
@@ -1278,133 +1277,69 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     return result;
 }
 
-static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+static PyObject* all_inside_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* py_points;
     PyObject* py_polygons;
-    const char* short_circuit = NULL;
-    double precision = 0.001;
-    const char* keywords[] = {"points", "polygons", "short_circuit", "precision", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO|sd:inside", (char**)keywords, &py_points,
-                                     &py_polygons, &short_circuit, &precision))
+    const char* keywords[] = {"points", "polygons", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:all_inside", (char**)keywords, &py_points,
+                                     &py_polygons))
         return NULL;
 
-    ShortCircuit sc;
-
-    if (precision <= 0) {
-        PyErr_SetString(PyExc_ValueError, "Precision must be positive.");
-        return NULL;
-    }
-
-    if (!PySequence_Check(py_points) || PySequence_Length(py_points) == 0) {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "Argument points must be a sequence of points or groups thereof.");
-        return NULL;
-    }
-
-    Array<Polygon*> points = {0};
-    PyObject* item = PySequence_ITEM(py_points, 0);
-    Vec2 point;
-    if (parse_point(item, point, "points") == 0) {
-        // no groups
-        Py_DECREF(item);
-        sc = ShortCircuit::None;
-        points.ensure_slots(1);
-        points.count = 1;
-        points[0] = (Polygon*)allocate_clear(sizeof(Polygon));
-        if (parse_point_sequence(py_points, points[0]->point_array, "") < 0) {
-            free_allocation(points[0]);
-            points.clear();
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Argument points must be a sequence of points or groups thereof.");
-            return NULL;
-        }
-    } else {
-        // groups
-        Py_DECREF(item);
-        PyErr_Clear();
-        sc = ShortCircuit::Any;
-        uint64_t num_groups = PySequence_Length(py_points);
-        points.ensure_slots(num_groups);
-        points.count = num_groups;
-        for (uint64_t j = 0; j < num_groups; j++) {
-            points[j] = (Polygon*)allocate_clear(sizeof(Polygon));
-            item = PySequence_ITEM(py_points, j);
-            if (parse_point_sequence(item, points[j]->point_array, "") < 0) {
-                Py_DECREF(item);
-                for (; j >= 0; j--) {
-                    points[j]->clear();
-                    free_allocation(points[j]);
-                }
-                points.clear();
-                PyErr_SetString(PyExc_RuntimeError,
-                                "Argument points must be a sequence of points or groups thereof.");
-                return NULL;
-            }
-            Py_DECREF(item);
-        }
-    }
-
-    if (short_circuit) {
-        if (strcmp(short_circuit, "none") == 0)
-            sc = ShortCircuit::None;
-        else if (strcmp(short_circuit, "any") == 0)
-            sc = ShortCircuit::Any;
-        else if (strcmp(short_circuit, "all") == 0)
-            sc = ShortCircuit::All;
-        else {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Argument short_circuit must be 'none', 'any' or 'all'.");
-            for (uint64_t j = 0; j < points.count; j++) {
-                points[j]->clear();
-                free_allocation(points[j]);
-            }
-            points.clear();
-            return NULL;
-        }
-    }
-
-    Array<Polygon*> polygon_array = {0};
-    if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) {
-        for (uint64_t j = 0; j < points.count; j++) {
-            points[j]->clear();
-            free_allocation(points[j]);
-        }
+    Array<Vec2> points = {0};
+    if (parse_point_sequence(py_points, points, "points") < 0) {
         points.clear();
         return NULL;
     }
 
-    Array<bool> result_array = {0};
-    inside(points, polygon_array, sc, 1 / precision, result_array);
-
-    PyObject* result = PyTuple_New(result_array.count);
-    if (!result) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
+    Array<Polygon*> polygons = {0};
+    if (parse_polygons(py_polygons, polygons, "polygons") < 0) {
+        points.clear();
         return NULL;
     }
-    bool* r_item = result_array.items;
-    for (uint64_t i = 0; i < result_array.count; i++) {
-        if (*r_item++) {
-            Py_INCREF(Py_True);
-            PyTuple_SET_ITEM(result, i, Py_True);
-        } else {
-            Py_INCREF(Py_False);
-            PyTuple_SET_ITEM(result, i, Py_False);
-        }
-    }
-    result_array.clear();
 
-    for (uint64_t j = 0; j < polygon_array.count; j++) {
-        polygon_array[j]->clear();
-        free_allocation(polygon_array[j]);
-    }
-    polygon_array.clear();
+    PyObject* result = all_inside(points, polygons) ? Py_True : Py_False;
 
-    for (uint64_t j = 0; j < polygon_array.count; j++) {
-        points[j]->clear();
-        free_allocation(points[j]);
+    for (uint64_t j = 0; j < polygons.count; j++) {
+        polygons[j]->clear();
+        free_allocation(polygons[j]);
     }
+    polygons.clear();
     points.clear();
 
+    Py_INCREF(result);
+    return result;
+}
+
+static PyObject* any_inside_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+    PyObject* py_points;
+    PyObject* py_polygons;
+    const char* keywords[] = {"points", "polygons", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:any_inside", (char**)keywords, &py_points,
+                                     &py_polygons))
+        return NULL;
+
+    Array<Vec2> points = {0};
+    if (parse_point_sequence(py_points, points, "points") < 0) {
+        points.clear();
+        return NULL;
+    }
+
+    Array<Polygon*> polygons = {0};
+    if (parse_polygons(py_polygons, polygons, "polygons") < 0) {
+        points.clear();
+        return NULL;
+    }
+
+    PyObject* result = any_inside(points, polygons) ? Py_True : Py_False;
+
+    for (uint64_t j = 0; j < polygons.count; j++) {
+        polygons[j]->clear();
+        free_allocation(polygons[j]);
+    }
+    polygons.clear();
+    points.clear();
+
+    Py_INCREF(result);
     return result;
 }
 
@@ -1668,7 +1603,10 @@ static PyMethodDef gdstk_methods[] = {
     {"offset", (PyCFunction)offset_function, METH_VARARGS | METH_KEYWORDS, offset_function_doc},
     {"boolean", (PyCFunction)boolean_function, METH_VARARGS | METH_KEYWORDS, boolean_function_doc},
     {"slice", (PyCFunction)slice_function, METH_VARARGS | METH_KEYWORDS, slice_function_doc},
-    {"inside", (PyCFunction)inside_function, METH_VARARGS | METH_KEYWORDS, inside_function_doc},
+    {"all_inside", (PyCFunction)all_inside_function, METH_VARARGS | METH_KEYWORDS,
+     all_inside_function_doc},
+    {"any_inside", (PyCFunction)any_inside_function, METH_VARARGS | METH_KEYWORDS,
+     any_inside_function_doc},
     {"read_gds", (PyCFunction)read_gds_function, METH_VARARGS | METH_KEYWORDS,
      read_gds_function_doc},
     {"read_oas", (PyCFunction)read_oas_function, METH_VARARGS | METH_KEYWORDS,

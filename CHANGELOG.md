@@ -3,10 +3,14 @@
 ## Unreleased
 ### Added
 - `contour` function
-- `Polygon.contains` tests whether single points are inside the polygon
+- `Polygon.contain` tests whether single points are inside the polygon
+- `Polygon.contain_all` and `Polygon.contain_any` test multiple points with short circuit
+- `all_inside` and `any_inside` test multiple points against multiple polygons with short circuit
 ### Fixed
 - Holes in boolean results could lead to incorrect geometry in specific cases
 - Bug in boolean operations resulting in self-intersecting polygons
+### Removed
+- `inside` has been replaced by `*_inside`, `Polygon.contain*`
 
 ## 0.6.1 - 2021-07-03
 ### Fixed

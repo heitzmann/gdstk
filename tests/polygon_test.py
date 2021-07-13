@@ -39,6 +39,26 @@ def test_bounding_box():
     assert poly.bounding_box() == ((-1, -2), (3, 4))
 
 
+def test_contain():
+    r = gdstk.rectangle((0, 0), (20, 10))
+    pts = [
+        [(1, 1), (-1, -1)],
+        [(2, 2), (-2, 2), (2, -2)],
+        [(5, 5), (10, 5)],
+        [(-1, -1), (-2, -2)],
+    ]
+    assert r.contain(pts[0][0]) == True
+    assert r.contain(pts[0][1]) == False
+    assert r.contain(*pts[0]) == (True, False)
+    assert r.contain(*pts[1]) == (True, False, False)
+    assert r.contain_any(*pts[1]) == True
+    assert r.contain_all(*pts[1]) == False
+    assert r.contain_any(*pts[2]) == True
+    assert r.contain_all(*pts[2]) == True
+    assert r.contain_any(*pts[3]) == False
+    assert r.contain_all(*pts[3]) == False
+
+
 def test_copy():
     points = [[-1, 0], [0, -2], [3, 0], [0, 4]]
     p1 = gdstk.Polygon(points, 5, 6)

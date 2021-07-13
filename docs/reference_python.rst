@@ -36,7 +36,8 @@ Classes and functions for construction and manipulation of geometric objects.
    gdstk.offset
    gdstk.boolean
    gdstk.slice
-   gdstk.inside
+   gdstk.all_inside
+   gdstk.any_inside
 
 
 

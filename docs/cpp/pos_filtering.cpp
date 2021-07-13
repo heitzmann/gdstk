@@ -50,12 +50,10 @@ int main(int argc, char* argv[]) {
 
     Array<Polygon*> txt = {0};
     text("PY", 8 * d, Vec2{0.5 * d, 0}, false, 1, 0, txt);
-    Array<bool> test = {0};
-    inside(main_cell.polygon_array, txt, ShortCircuit::Any, 1000, test);
-    for (int64_t i = 0, j = 0; i < test.count; i++, j++) {
-        if (test[i]) main_cell.polygon_array.remove(j--);
+    for (int64_t i = 0; i < main_cell.polygon_array.count; i++) {
+        if (any_inside(main_cell.polygon_array[i]->point_array, txt))
+            main_cell.polygon_array.remove(i--);
     }
-    test.clear();
 
     main_cell.polygon_array.extend(txt);
 

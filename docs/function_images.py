@@ -94,17 +94,6 @@ def slice_image():
     return gdstk.Cell("slice").add(*[p for polys in result for p in polys])
 
 
-def inside_example():
-    rect = gdstk.rectangle((0, 0), (1, 1))
-    assert gdstk.inside([(0.5, 0.5), (2, 2)], rect) == (True, False)
-    assert gdstk.inside([(0.5, 0.5), (2, 2)], rect, "any") == (True,)
-    assert gdstk.inside([(0.5, 0.5), (2, 2)], rect, "all") == (False,)
-    # Point groups
-    assert gdstk.inside(
-        [[(0.5, 0.5), (2, 2)], [(0, 0), (1, 1)], [(2, 2), (3, 3)]], rect
-    ) == (True, True, False)
-
-
 def read_rawcells_example():
     cell1 = gdstk.Cell("CELL_1")
     cell1.add(gdstk.rectangle((0, 0), (2, 1)))
@@ -134,5 +123,4 @@ if __name__ == "__main__":
     draw(offset_image(), path)
     draw(boolean_image(), path)
     draw(slice_image(), path)
-    inside_example()
     read_rawcells_example()

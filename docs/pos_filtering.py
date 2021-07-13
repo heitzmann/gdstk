@@ -26,9 +26,8 @@ if __name__ == "__main__":
     main.flatten()
 
     hole = gdstk.text("PY", 8 * d, (0.5 * d, 0), layer=1)
-    test = gdstk.inside([pol.points for pol in main.polygons], hole, "any")
-    for pol, inside in zip(main.polygons, test):
-        if inside:
+    for pol in main.polygons:
+        if gdstk.any_inside(pol.points, hole):
             main.remove(pol)
 
     main.add(*hole)
