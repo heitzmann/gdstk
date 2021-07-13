@@ -31,6 +31,20 @@ enum struct ShortCircuit { None, Any, All };
 ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
                   double scaling, Array<Polygon*>& result);
 
+inline ErrorCode boolean(const Polygon& poly1, const Array<Polygon*>& polys2, Operation operation,
+                         double scaling, Array<Polygon*>& result) {
+    const Polygon* p1 = &poly1;
+    const Array<Polygon*> polys1 = {1, 1, (Polygon**)&p1};
+    return boolean(polys1, polys2, operation, scaling, result);
+}
+
+inline ErrorCode boolean(const Array<Polygon*>& polys1, const Polygon& poly2, Operation operation,
+                         double scaling, Array<Polygon*>& result) {
+    const Polygon* p2 = &poly2;
+    const Array<Polygon*> polys2 = {1, 1, (Polygon**)&p2};
+    return boolean(polys1, polys2, operation, scaling, result);
+}
+
 inline ErrorCode boolean(const Polygon& poly1, const Polygon& poly2, Operation operation,
                          double scaling, Array<Polygon*>& result) {
     const Polygon* p1 = &poly1;
