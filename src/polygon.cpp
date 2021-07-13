@@ -1280,7 +1280,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (col == -1 && row >= 0) {
-            // W edgd
+            // W edge
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0 + 1;
@@ -1420,8 +1420,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
     } while (row != start_row || col != start_col || from != start_from);
 
     area *= 0.5;
-    // DEBUG_PRINT("Finish polygon: %u points, area = %g\n", result->point_array.count,
-    //             result.area);
+    // DEBUG_PRINT("Finish polygon: %lu points, area = %g\n", result->point_array.count, area);
     return result;
 }
 
@@ -1429,6 +1428,7 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
                   Array<Polygon*>& result) {
     if (rows == 0 || cols == 0) return ErrorCode::NoError;
     if (rows >= UINT64_MAX - 2 || cols >= UINT64_MAX - 2) return ErrorCode::Overflow;
+    ErrorCode error_code = ErrorCode::NoError;
 
     const uint64_t state_rows = rows - 1;
     const uint64_t state_cols = cols - 1;
@@ -1436,8 +1436,8 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
 
     Array<Polygon*> islands = {0};
     Array<Polygon*> holes = {0};
-    double max_island_area = -1;
-    double max_hole_area = -1;
+    Array<double> island_areas = {0};
+    Array<double> hole_areas = {0};
 
     for (uint64_t row = 0; row < state_rows; row++) {
         for (uint64_t col = 0; col < state_cols; col++) {
@@ -1457,34 +1457,71 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
                 Polygon* poly =
                     get_polygon(row, col, data, level, state, state_rows, state_cols, area);
                 if (area > 0) {
-                    if (area > max_island_area) max_island_area = area;
-                    islands.append(poly);
+                    // islands are ordered by increasing area
+                    uint64_t i = 0;
+                    while (i < island_areas.count && area >= island_areas[i]) i++;
+                    island_areas.insert(i, area);
+                    islands.insert(i, poly);
                 } else {
-                    if (-area > max_hole_area) max_hole_area = -area;
-                    holes.append(poly);
+                    area = -area;
+                    // holes are ordered by decreasing area
+                    uint64_t i = 0;
+                    while (i < hole_areas.count && area <= hole_areas[i]) i++;
+                    hole_areas.insert(i, area);
+                    holes.insert(i, poly);
                 }
             }
         }
     }
 
-    if (max_island_area <= max_hole_area || (max_island_area < 0 && data[0] >= level)) {
+    if ((island_areas.count == 0 && data[0] >= level) ||
+        (island_areas.count > 0 && hole_areas.count > 0 &&
+         island_areas[island_areas.count - 1] <= hole_areas[0])) {
         // The whole data edge is above level
         Polygon* poly = (Polygon*)allocate(sizeof(Polygon));
         *poly = rectangle(Vec2{0, 0}, Vec2{(double)state_cols, (double)state_rows}, 0, 0);
         islands.append(poly);
-        // DEBUG_PRINT("Appending full rectangle: island %" PRIu64 ", area = %g\n",
-        //             islands.count - 1, islands[islands.count - 1]->area());
+        island_areas.append((double)state_cols * (double)state_rows);
+        // DEBUG_PRINT("Appending full rectangle: island[%" PRIu64 "], area = %g\n", islands.count -
+        // 1, island_areas[islands.count - 1]);
     }
 
-    boolean(islands, holes, Operation::Not, scaling, result);
+    Array<Polygon*> temp = {0};
+    for (uint64_t i = 0; i < holes.count; i++) {
+        Polygon* hole = holes[i];
+        double hole_area = hole_areas[i];
+
+        for (uint64_t j = 0; j < islands.count; j++) {
+            if (hole_area < island_areas[j] && all_inside(*hole, *islands[j], scaling)) {
+                ErrorCode err = boolean(*islands[j], *hole, Operation::Not, scaling, temp);
+                if (err != ErrorCode::NoError) error_code = err;
+                hole->clear();
+                islands[j]->clear();
+                islands.remove(j);
+                island_areas.remove(j);
+                for (uint64_t t = 0; t < temp.count; t++) {
+                    double area = temp[t]->area();
+                    uint64_t k = 0;
+                    while (k < island_areas.count && area >= island_areas[k]) k++;
+                    island_areas.insert(k, area);
+                    islands.insert(k, temp[t]);
+                }
+                temp.count = 0;
+                break;
+            }
+        }
+    }
+    temp.clear();
+
+    result.extend(islands);
 
     free_allocation(state);
-    for (uint64_t i = 0; i < islands.count; i++) islands[i]->clear();
     islands.clear();
-    for (uint64_t i = 0; i < holes.count; i++) holes[i]->clear();
     holes.clear();
+    island_areas.clear();
+    hole_areas.clear();
 
-    return ErrorCode::NoError;
+    return error_code;
 }
 
 }  // namespace gdstk
