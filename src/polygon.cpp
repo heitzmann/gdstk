@@ -1164,7 +1164,6 @@ enum ContourState {
 };
 
 static inline void append_contour_point(Array<Vec2>* points, Vec2 v, const double tolerance) {
-#if 1
     // Simplify polygon
     uint64_t count = points->count;
     if (count < 2) {
@@ -1192,9 +1191,6 @@ static inline void append_contour_point(Array<Vec2>* points, Vec2 v, const doubl
             }
         }
     }
-#else
-    points->append(v);
-#endif
 }
 
 static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, const double* field,
