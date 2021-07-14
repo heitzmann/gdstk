@@ -23,15 +23,25 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 static ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) {
+    bool reverse = polygon.signed_area() < 0;
     uint64_t num = polygon.point_array.count;
     ClipperLib::Path path(num);
-    const Vec2* p = polygon.point_array.items;
+    const Vec2* p = reverse ? polygon.point_array.items + num - 1 : polygon.point_array.items;
     ClipperLib::IntPoint* q = &path[0];
-    for (; num > 0; num--) {
-        q->X = llround(scaling * p->x);
-        q->Y = llround(scaling * p->y);
-        p++;
-        q++;
+    if (reverse) {
+        for (; num > 0; num--) {
+            q->X = llround(scaling * p->x);
+            q->Y = llround(scaling * p->y);
+            p--;
+            q++;
+        }
+    } else {
+        for (; num > 0; num--) {
+            q->X = llround(scaling * p->x);
+            q->Y = llround(scaling * p->y);
+            p++;
+            q++;
+        }
     }
     return path;
 }
