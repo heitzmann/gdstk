@@ -106,6 +106,24 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
     }
 }
 
+Cell* Library::get_cell(const char* cell_name) const {
+    Cell** p = cell_array.items;
+    for (uint64_t i = cell_array.count; i > 0; i--) {
+        Cell* cell = *p++;
+        if (strcmp(cell->name, cell_name) == 0) return cell;
+    }
+    return NULL;
+}
+
+RawCell* Library::get_rawcell(const char* rawcell_name) const {
+    RawCell** p = rawcell_array.items;
+    for (uint64_t i = rawcell_array.count; i > 0; i--) {
+        RawCell* rawcell = *p++;
+        if (strcmp(rawcell->name, rawcell_name) == 0) return rawcell;
+    }
+    return NULL;
+}
+
 ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
     ErrorCode error_code = ErrorCode::NoError;
     FILE* out = fopen(filename, "wb");

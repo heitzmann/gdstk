@@ -25,9 +25,9 @@ enum struct ShortCircuit { None, Any, All };
 // The following operations are executed in an integer grid of vertices, so the
 // geometry should be scaled by a large enough factor to garante a minimal
 // precision level.  However, if the scaling factor is too large, it may cause
-// overflow of coordinates.
+// overflow of coordinates.  Resulting polygons are appended to result.
 
-// Resulting polygons are appended to result.
+// Boolean (clipping) operations on polygons
 ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
                   double scaling, Array<Polygon*>& result);
 
@@ -54,12 +54,25 @@ inline ErrorCode boolean(const Polygon& poly1, const Polygon& poly2, Operation o
     return boolean(polys1, polys2, operation, scaling, result);
 }
 
+// Shorthand for joining a set of polygons
+inline ErrorCode merge(const Array<Polygon*>& polygons, double scaling, Array<Polygon*>& result) {
+    const Array<Polygon*> empty = {0};
+    return boolean(polygons, empty, Operation::Or, scaling, result);
+}
+
 // Dilates or erodes polygons acording to distance (negative distance results
 // in erosion).  The effects of internal polygon edges (in polygons with holes,
 // for example) can be suppressed by setting use_union to true.  Resulting
 // polygons are appended to result.
 ErrorCode offset(const Array<Polygon*>& polys, double distance, OffsetJoin join, double tolerance,
                  double scaling, bool use_union, Array<Polygon*>& result);
+
+inline ErrorCode offset(const Polygon& poly, double distance, OffsetJoin join, double tolerance,
+                        double scaling, bool use_union, Array<Polygon*>& result) {
+    const Polygon* p = &poly;
+    const Array<Polygon*> polys = {1, 1, (Polygon**)&p};
+    return offset(polys, distance, join, tolerance, scaling, use_union, result);
+}
 
 // Slice the given polygon along the coordinates in posiotions.  Cuts are
 // vertical (horizontal) when x_axis is set to true (false).  Argument result

@@ -88,6 +88,10 @@ struct Library {
     // cells in the library.
     void top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const;
 
+    // Find cell or rawcell by name. Return NULL if not found.
+    Cell* get_cell(const char* name) const;
+    RawCell* get_rawcell(const char* name) const;
+
     // Output this library to a GDSII file.  All polygons are fractured to
     // max_points before saving (but the originals are kept) if max_points > 4.
     // GDSII files include a timestamp, which can be specified bu the caller or

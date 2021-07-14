@@ -6,9 +6,11 @@
 - `Polygon.contain` tests whether single points are inside the polygon
 - `Polygon.contain_all` and `Polygon.contain_any` test multiple points with short circuit
 - `all_inside` and `any_inside` test multiple points against multiple polygons with short circuit
+- Alternative function interfaces in the C++ API
 ### Fixed
 - Holes in boolean results could lead to incorrect geometry in specific cases
 - Bug in boolean operations resulting in self-intersecting polygons
+- Bug in boolean operations with clockwise-oriented polygons
 ### Changed
 - `inside` has changed to use the better interfaces: grouping has been removed, scaling is not necessary, and short-circuit is implemented in `all_inside` and `any_inside`
 
