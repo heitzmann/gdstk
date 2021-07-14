@@ -128,7 +128,9 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
                   Array<Polygon*>& result);
 
 // Check if the points are inside a set of polygons (points lying on the edges
-// or coinciding with a vertex of the polygons are considered inside).
+// or coinciding with a vertex of the polygons are considered inside).  Result
+// must be an array with size for at least points.count bools.
+void inside(const Array<Vec2>& points, const Array<Polygon*>& polygons, bool* result);
 bool all_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons);
 bool any_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons);
 

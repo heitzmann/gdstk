@@ -1277,6 +1277,47 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     return result;
 }
 
+static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) {
+    PyObject* py_points;
+    PyObject* py_polygons;
+    const char* keywords[] = {"points", "polygons", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OO:inside", (char**)keywords, &py_points,
+                                     &py_polygons))
+        return NULL;
+
+    Array<Vec2> points = {0};
+    if (parse_point_sequence(py_points, points, "points") < 0) {
+        points.clear();
+        return NULL;
+    }
+
+    Array<Polygon*> polygons = {0};
+    if (parse_polygons(py_polygons, polygons, "polygons") < 0) {
+        points.clear();
+        return NULL;
+    }
+
+    bool* values = (bool*)allocate(points.count * sizeof(bool));
+    inside(points, polygons, values);
+
+    PyObject* result = PyTuple_New(points.count);
+    for (uint64_t i = 0; i < points.count; i++) {
+        PyObject* res = values[i] ? Py_True : Py_False;
+        Py_INCREF(res);
+        PyTuple_SET_ITEM(result, i, res);
+    }
+
+    free_allocation(values);
+    for (uint64_t j = 0; j < polygons.count; j++) {
+        polygons[j]->clear();
+        free_allocation(polygons[j]);
+    }
+    polygons.clear();
+    points.clear();
+
+    return result;
+}
+
 static PyObject* all_inside_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* py_points;
     PyObject* py_polygons;
@@ -1603,6 +1644,7 @@ static PyMethodDef gdstk_methods[] = {
     {"offset", (PyCFunction)offset_function, METH_VARARGS | METH_KEYWORDS, offset_function_doc},
     {"boolean", (PyCFunction)boolean_function, METH_VARARGS | METH_KEYWORDS, boolean_function_doc},
     {"slice", (PyCFunction)slice_function, METH_VARARGS | METH_KEYWORDS, slice_function_doc},
+    {"inside", (PyCFunction)inside_function, METH_VARARGS | METH_KEYWORDS, inside_function_doc},
     {"all_inside", (PyCFunction)all_inside_function, METH_VARARGS | METH_KEYWORDS,
      all_inside_function_doc},
     {"any_inside", (PyCFunction)any_inside_function, METH_VARARGS | METH_KEYWORDS,

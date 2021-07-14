@@ -1629,6 +1629,31 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
     return error_code;
 }
 
+void inside(const Array<Vec2>& points, const Array<Polygon*>& polygons, bool* result) {
+    Vec2 min = {DBL_MAX, DBL_MAX};
+    Vec2 max = {-DBL_MAX, -DBL_MAX};
+    for (uint64_t j = 0; j < polygons.count; j++) {
+        Vec2 a, b;
+        polygons[j]->bounding_box(a, b);
+        if (a.x < min.x) min.x = a.x;
+        if (a.y < min.y) min.y = a.y;
+        if (b.x > max.x) max.x = b.x;
+        if (b.y > max.y) max.y = b.y;
+    }
+    for (uint64_t i = 0; i < points.count; i++) {
+        Vec2 point = points[i];
+        result[i] = false;
+        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.x <= max.x) {
+            for (uint64_t j = 0; j < polygons.count; j++) {
+                if (polygons[j]->contain(point)) {
+                    result[i] = true;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 bool all_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons) {
     Vec2 min = {DBL_MAX, DBL_MAX};
     Vec2 max = {-DBL_MAX, -DBL_MAX};

@@ -9,8 +9,8 @@
 ### Fixed
 - Holes in boolean results could lead to incorrect geometry in specific cases
 - Bug in boolean operations resulting in self-intersecting polygons
-### Removed
-- `inside` has been replaced by `*_inside`, `Polygon.contain*`
+### Changed
+- `inside` has changed to use the better interfaces: grouping has been removed, scaling is not necessary, and short-circuit is implemented in `all_inside` and `any_inside`
 
 ## 0.6.1 - 2021-07-03
 ### Fixed

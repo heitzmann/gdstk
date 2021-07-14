@@ -9,28 +9,30 @@
 import gdspy
 import gdstk
 
+gdspy_ring = gdspy.Round((0, 0), 1, inner_radius=0.5, tolerance=1e-3, max_points=0)
+gdspy_circle = gdspy.Round((0, 0), 0.5, tolerance=1e-3, max_points=0)
+gdstk_ring = gdstk.ellipse((0, 0), 1, inner_radius=0.5, tolerance=1e-3)
+gdstk_circle = gdstk.ellipse((0, 0), 0.5, tolerance=1e-3)
+points = [(0, 0), (0.2, 0), (-0.1, -0.8), (0.9, 0.7), (-0.4, 0.4)] * 10
+
+
 def bench_gdspy():
-    r = gdspy.Rectangle((0, 0), (20, 10))
-    pts = [[(1, 1), (-1, -1)], [(2, 2), (-2, 2), (2, -2)], [(5, 5), (10, 5)], [(-1, -1), (-2, -2)], [(2, 3)]]
-    assert gdspy.inside(pts[0], r) == (True, False)
-    assert gdspy.inside(pts[1], r) == (True, False, False)
-    assert gdspy.inside(pts[1:2], r, "any") == (True,)
-    assert gdspy.inside(pts[1:2], r, "all") == (False,)
-    assert gdspy.inside(pts[4], r) == (True,)
-    assert gdspy.inside(pts, r, "any") == (True, True, True, False, True)
-    assert gdspy.inside(pts, r, "all") == (False, False, True, False, True)
+    gdspy.inside(points, gdspy_ring)
+    gdspy.inside([points], gdspy_ring, "any")
+    gdspy.inside([points], gdspy_ring, "all")
+    gdspy.inside(points, [gdspy_ring, gdspy_circle])
+    gdspy.inside([points], [gdspy_ring, gdspy_circle], "any")
+    gdspy.inside([points], [gdspy_ring, gdspy_circle], "all")
 
 
 def bench_gdstk():
-    r = gdstk.rectangle((0, 0), (20, 10))
-    pts = [[(1, 1), (-1, -1)], [(2, 2), (-2, 2), (2, -2)], [(5, 5), (10, 5)], [(-1, -1), (-2, -2)], [(2, 3)]]
-    assert gdstk.inside(pts[0], r) == (True, False)
-    assert gdstk.inside(pts[1], r) == (True, False, False)
-    assert gdstk.inside(pts[1], r, "any") == (True,)
-    assert gdstk.inside(pts[1], r, "all") == (False,)
-    assert gdstk.inside(pts[4], r) == (True,)
-    assert gdstk.inside(pts, r, "any") == (True, True, True, False, True)
-    assert gdstk.inside(pts, r, "all") == (False, False, True, False, True)
+    gdstk_ring.contain(*points)
+    gdstk_ring.contain_any(*points)
+    gdstk_ring.contain_all(*points)
+    gdstk.inside(points, [gdstk_ring, gdstk_circle])
+    gdstk.any_inside(points, [gdstk_ring, gdstk_circle])
+    gdstk.all_inside(points, [gdstk_ring, gdstk_circle])
+
 
 if __name__ == "__main__":
     bench_gdspy()

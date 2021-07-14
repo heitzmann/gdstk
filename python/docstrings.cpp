@@ -3043,6 +3043,24 @@ Notes:
     Repetitions are not applied to any elements, except references and
     their contents.)!");
 
+PyDoc_STRVAR(inside_function_doc, R"!(inside(points, polygons) -> tuple
+
+Check whether each point is inside the set of polygons.
+
+Points on polygon edges or coinciding with any of their vertices are
+considered inside.
+
+Args:
+    points: Points to check. Each point can be a pair of coordinates or
+      a complex number.
+    polygons (Polygon, FlexPath, RobustPath, Reference, sequence):
+      Polygons to test against. If this is a sequence, each element can
+      be any of the polygonal types or a sequence of points (coordinate
+      pairs or complex).
+
+Returns:
+    Tuple of booleans (one for each point).)!");
+
 PyDoc_STRVAR(all_inside_function_doc, R"!(all_inside(points, polygons) -> bool
 
 Check whether all points are inside the set of polygons.
