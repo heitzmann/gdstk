@@ -22,7 +22,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-static ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) {
+static inline ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) {
     bool reverse = polygon.signed_area() < 0;
     uint64_t num = polygon.point_array.count;
     ClipperLib::Path path(num);
@@ -46,39 +46,13 @@ static ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) 
     return path;
 }
 
-static void path_to_polygon(const ClipperLib::Path& path, double scaling, Polygon& polygon) {
-    double invscaling = 1 / scaling;
-    uint64_t num = path.size();
-    polygon.point_array.ensure_slots(num);
-    polygon.point_array.count = num;
-    Vec2* p = polygon.point_array.items;
-    const ClipperLib::IntPoint* q = &path[0];
-    for (; num > 0; num--) {
-        p->x = invscaling * q->X;
-        p->y = invscaling * q->Y;
-        p++;
-        q++;
-    }
-}
-
-static ClipperLib::Paths polygons_to_paths(const Array<Polygon*>& polygon_array, double scaling) {
+static inline ClipperLib::Paths polygons_to_paths(const Array<Polygon*>& polygon_array,
+                                                  double scaling) {
     uint64_t num = polygon_array.count;
     ClipperLib::Paths paths;
     paths.reserve(num);
     for (uint64_t i = 0; i < num; i++) paths.push_back(polygon_to_path(*polygon_array[i], scaling));
     return paths;
-}
-
-static void paths_to_polygons(const ClipperLib::Paths& paths, double scaling,
-                              Array<Polygon*>& polygon_array) {
-    uint64_t num = paths.size();
-    polygon_array.ensure_slots(num);
-    Polygon** poly = polygon_array.items + polygon_array.count;
-    for (uint64_t i = 0; i < num; i++, poly++) {
-        *poly = (Polygon*)allocate_clear(sizeof(Polygon));
-        path_to_polygon(paths[i], scaling, **poly);
-    }
-    polygon_array.count += num;
 }
 
 static inline bool point_compare(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
@@ -91,7 +65,24 @@ static bool path_compare(ClipperLib::Path& p1, ClipperLib::Path& p2) {
     return point_compare(*pt1, *pt2);
 }
 
-static ClipperLib::Path link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
+static inline Polygon* path_to_polygon(const ClipperLib::Path& path, double scaling) {
+    const double invscaling = 1 / scaling;
+    uint64_t num = path.size();
+    Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+    polygon->point_array.ensure_slots(num);
+    polygon->point_array.count = num;
+    Vec2* p = polygon->point_array.items;
+    const ClipperLib::IntPoint* q = &path[0];
+    for (; num > 0; num--) {
+        p->x = invscaling * q->X;
+        p->y = invscaling * q->Y;
+        p++;
+        q++;
+    }
+    return polygon;
+}
+
+static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
     // static int dbg_counter = 0;
     // char dbg_name[16];
     // snprintf(dbg_name, COUNT(dbg_name), "d%d.gds", dbg_counter++);
@@ -118,30 +109,31 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node, ErrorCode& error_
     ClipperLib::Paths holes;
     holes.reserve(node->ChildCount());
 
-    ClipperLib::Path result = node->Contour;
-    uint64_t count = result.size();
+    ClipperLib::Path* contour = &node->Contour;
+    uint64_t count = contour->size();
     for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child != node->Childs.end();
          child++) {
         count += (*child)->Contour.size() + 3;
         holes.push_back((*child)->Contour);
     }
-    result.reserve(count);
+    contour->reserve(count);
 
     // TODO: We call min_element for each hole several times. Those results should be cached.
     sort(holes.begin(), holes.end(), path_compare);
 
     for (ClipperLib::Paths::iterator h = holes.begin(); h != holes.end(); h++) {
         // holes are guaranteed to be oriented opposite to their parent
-        ClipperLib::Path::iterator p = min_element(h->begin(), h->end(), point_compare);
-        ClipperLib::Path::iterator p1 = result.end();
-        ClipperLib::Path::iterator pprev = --result.end();
-        ClipperLib::Path::iterator pnext = result.begin();
+        const ClipperLib::Path::iterator p = min_element(h->begin(), h->end(), point_compare);
+        const ClipperLib::Path::iterator p_end = contour->end();
+        ClipperLib::Path::iterator pprev = contour->end();
+        ClipperLib::Path::iterator p1 = pprev--;
+        ClipperLib::Path::iterator pnext = contour->begin();
         ClipperLib::cInt xnew = 0;
-        for (; pnext != result.end(); pprev = pnext++) {
+        for (; pnext != p_end; pprev = pnext++) {
             if ((pnext->Y <= p->Y && p->Y < pprev->Y) || (pprev->Y < p->Y && p->Y <= pnext->Y)) {
                 ClipperLib::cInt x =
                     pnext->X + ((pprev->X - pnext->X) * (p->Y - pnext->Y)) / (pprev->Y - pnext->Y);
-                if ((x > xnew || p1 == result.end()) && x <= p->X) {
+                if ((x > xnew || p1 == p_end) && x <= p->X) {
                     xnew = x;
                     p1 = pnext;
                 }
@@ -154,35 +146,31 @@ static ClipperLib::Path link_holes(ClipperLib::PolyNode* node, ErrorCode& error_
             }
         }
 
-        if (p1 == result.end()) {
+        if (p1 == p_end) {
             fprintf(stderr, "[GDSTK] Unable to link hole in boolean operation.\n");
             error_code = ErrorCode::BooleanError;
         } else {
             ClipperLib::IntPoint pnew(xnew, p->Y);
-            if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = result.insert(p1, pnew);
-            p1 = result.insert(p1, h->begin(), p + 1);
-            p1 = result.insert(p1, p, h->end());
-            result.insert(p1, pnew);
+            if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = contour->insert(p1, pnew);
+            p1 = contour->insert(p1, h->begin(), p + 1);
+            p1 = contour->insert(p1, p, h->end());
+            contour->insert(p1, pnew);
         }
     }
-
-    return result;
 }
 
-static ClipperLib::Paths tree_to_paths(const ClipperLib::PolyTree& tree, ErrorCode& error_code) {
-    ClipperLib::Paths result;
-    result.reserve(tree.ChildCount());
+static void tree_to_polygons(const ClipperLib::PolyTree& tree, double scaling,
+                             Array<Polygon*>& polygon_array, ErrorCode& error_code) {
     ClipperLib::PolyNode* node = tree.GetFirst();
     while (node) {
         if (!node->IsHole()) {
-            if (node->ChildCount() > 0)
-                result.push_back(link_holes(node, error_code));
-            else
-                result.push_back(node->Contour);
+            if (node->ChildCount() > 0) {
+                link_holes(node, error_code);
+            }
+            polygon_array.append(path_to_polygon(node->Contour, scaling));
         }
         node = node->GetNext();
     }
-    return result;
 }
 
 static void bounding_box(ClipperLib::Path& points, ClipperLib::cInt* bb) {
@@ -226,9 +214,7 @@ ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, 
     clpr.Execute(ct_operation, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
 
     ErrorCode error_code = ErrorCode::NoError;
-    ClipperLib::Paths result_paths = tree_to_paths(solution, error_code);
-
-    paths_to_polygons(result_paths, scaling, result);
+    tree_to_polygons(solution, scaling, result, error_code);
     return error_code;
 }
 
@@ -267,9 +253,7 @@ ErrorCode offset(const Array<Polygon*>& polygons, double distance, OffsetJoin jo
     clprof.Execute(solution, distance * scaling);
 
     ErrorCode error_code = ErrorCode::NoError;
-    ClipperLib::Paths result_paths = tree_to_paths(solution, error_code);
-
-    paths_to_polygons(result_paths, scaling, result);
+    tree_to_polygons(solution, scaling, result, error_code);
     return error_code;
 }
 
@@ -308,8 +292,7 @@ ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_a
         clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftNonZero,
                      ClipperLib::pftNonZero);
 
-        ClipperLib::Paths result_paths = tree_to_paths(solution, error_code);
-        paths_to_polygons(result_paths, scaling, result[i]);
+        tree_to_polygons(solution, scaling, result[i], error_code);
     }
 
     return error_code;
