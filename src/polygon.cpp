@@ -14,12 +14,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <string.h>
 
-#include <algorithm>
-
 #include "allocator.h"
 #include "clipper_tools.h"
 #include "font.h"
 #include "repetition.h"
+#include "sort.h"
 #include "utils.h"
 #include "vec.h"
 
@@ -344,7 +343,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
             double* px = x;
             Vec2* pt = subj->point_array.items;
             for (uint64_t j = 0; j < num_points; j++) (*px++) = (pt++)->x;
-            std::sort(x, x + num_points);
+            sort(x, num_points);
             x_axis = true;
             px = cuts.items;
             for (uint64_t j = 0; j < num_cuts; j++) (*px++) = x[(uint64_t)((j + 1.0) * frac + 0.5)];
@@ -353,7 +352,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
             double* py = y;
             Vec2* pt = subj->point_array.items;
             for (uint64_t j = 0; j < num_points; j++) (*py++) = (pt++)->y;
-            std::sort(y, y + num_points);
+            sort(y, num_points);
             x_axis = false;
             py = cuts.items;
             for (uint64_t j = 0; j < num_cuts; j++) (*py++) = y[(uint64_t)((j + 1.0) * frac + 0.5)];

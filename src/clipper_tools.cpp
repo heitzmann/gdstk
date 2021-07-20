@@ -11,12 +11,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 
-#include <algorithm>
-
 #include "allocator.h"
 #include "array.h"
 #include "clipperlib/clipper.hpp"
 #include "polygon.h"
+#include "sort.h"
 #include "utils.h"
 #include "vec.h"
 
@@ -55,16 +54,6 @@ static inline ClipperLib::Paths polygons_to_paths(const Array<Polygon*>& polygon
     return paths;
 }
 
-static inline bool point_compare(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
-    return p1.X < p2.X || (p1.X == p2.X && p1.Y < p2.Y);
-}
-
-static bool path_compare(ClipperLib::Path& p1, ClipperLib::Path& p2) {
-    ClipperLib::Path::iterator pt1 = min_element(p1.begin(), p1.end(), point_compare);
-    ClipperLib::Path::iterator pt2 = min_element(p2.begin(), p2.end(), point_compare);
-    return point_compare(*pt1, *pt2);
-}
-
 static inline Polygon* path_to_polygon(const ClipperLib::Path& path, double scaling) {
     const double invscaling = 1 / scaling;
     uint64_t num = path.size();
@@ -80,6 +69,20 @@ static inline Polygon* path_to_polygon(const ClipperLib::Path& path, double scal
         q++;
     }
     return polygon;
+}
+
+struct SortingPath {
+    ClipperLib::Path* path;
+    ClipperLib::Path::iterator min_point;
+};
+
+static inline bool
+point_less(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
+    return p1.X < p2.X || (p1.X == p2.X && p1.Y < p2.Y);
+}
+
+static inline bool path_less(const SortingPath& p1, const SortingPath& p2) {
+    return point_less(*p1.min_point, *p2.min_point);
 }
 
 static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
@@ -106,24 +109,30 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
     // }
     // dbg_library.write_gds(dbg_name, 0, NULL);
 
-    ClipperLib::Paths holes;
-    holes.reserve(node->ChildCount());
+    Array<SortingPath> holes = {0};
+    holes.ensure_slots(node->ChildCount());
 
     ClipperLib::Path* contour = &node->Contour;
     uint64_t count = contour->size();
     for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child != node->Childs.end();
          child++) {
         count += (*child)->Contour.size() + 3;
-        holes.push_back((*child)->Contour);
+        SortingPath sp = {&(*child)->Contour};
+        sp.min_point = sp.path->begin();
+        for (ClipperLib::Path::iterator point = sp.min_point + 1; point != sp.path->end(); point++) {
+            if (point_less(*point, *sp.min_point)) {
+                sp.min_point = point;
+            }
+        }
+        holes.append(sp);
     }
     contour->reserve(count);
 
-    // TODO: We call min_element for each hole several times. Those results should be cached.
-    sort(holes.begin(), holes.end(), path_compare);
+    sort(holes, path_less);
 
-    for (ClipperLib::Paths::iterator h = holes.begin(); h != holes.end(); h++) {
+    for (uint64_t i = 0; i < holes.count; i++) {
         // holes are guaranteed to be oriented opposite to their parent
-        const ClipperLib::Path::iterator p = min_element(h->begin(), h->end(), point_compare);
+        const ClipperLib::Path::iterator p = holes[i].min_point;
         const ClipperLib::Path::iterator p_end = contour->end();
         ClipperLib::Path::iterator pprev = contour->end();
         ClipperLib::Path::iterator p1 = pprev--;
@@ -152,8 +161,8 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
         } else {
             ClipperLib::IntPoint pnew(xnew, p->Y);
             if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = contour->insert(p1, pnew);
-            p1 = contour->insert(p1, h->begin(), p + 1);
-            p1 = contour->insert(p1, p, h->end());
+            p1 = contour->insert(p1, holes[i].path->begin(), p + 1);
+            p1 = contour->insert(p1, p, holes[i].path->end());
             contour->insert(p1, pnew);
         }
     }

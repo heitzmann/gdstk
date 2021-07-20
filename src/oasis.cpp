@@ -13,8 +13,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <zlib.h>
 
-#include <algorithm>
-
+#include "sort.h"
 #include "utils.h"
 
 namespace gdstk {
@@ -909,7 +908,7 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 oasis_write_unsigned_integer(out, repetition.coords.count - 1);
                 double* items = (double*)allocate(sizeof(double) * repetition.coords.count);
                 memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.count);
-                std::sort(items, items + repetition.coords.count);
+                sort(items, repetition.coords.count);
                 double* c0 = items;
                 double* c1 = c0 + 1;
                 oasis_write_unsigned_integer(out, (uint64_t)llround(*c0 * scaling));
@@ -925,7 +924,7 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 oasis_write_unsigned_integer(out, repetition.coords.count - 1);
                 double* items = (double*)allocate(sizeof(double) * repetition.coords.count);
                 memcpy(items, repetition.coords.items, sizeof(double) * repetition.coords.count);
-                std::sort(items, items + repetition.coords.count);
+                sort(items, repetition.coords.count);
                 double* c0 = items;
                 double* c1 = c0 + 1;
                 oasis_write_unsigned_integer(out, (uint64_t)llround(*c0 * scaling));

@@ -18,8 +18,7 @@ to better match their specification documents.
 
 The library uses only a minimal set of C++ features, namely, limited use of
 templates and overloading, no constructors or destructors, no virtual functions
-or inheritance, limited private members, and no use of the STL (with a single
-exception for ``std::sort``, which performs much faster than C's ``qsort``).
+or inheritance, limited private members, and no use of the STL.
 
 *****************
 Memory Management

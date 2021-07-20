@@ -21,7 +21,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wshadow -Wformat -Wno-missing-field-initializers -Wno-missing-braces")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 endif()
 
 find_package(LAPACK REQUIRED)
@@ -77,7 +77,7 @@ target_link_libraries(gdstk ${LAPACK_LIBRARIES} ${ZLIB_LIBRARIES})
 set_target_properties(gdstk PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     PUBLIC_HEADER "src/gdstk.h"
-    PRIVATE_HEADER "src/allocator.h;src/array.h;src/cell.h;src/clipper_tools.h;src/curve.h;src/flexpath.h;src/font.h;src/gdsii.h;src/gdswriter.h;src/label.h;src/library.h;src/map.h;src/oasis.h;src/pathcommon.h;src/polygon.h;src/property.h;src/rawcell.h;src/reference.h;src/repetition.h;src/robustpath.h;src/style.h;src/utils.h;src/vec.h")
+    PRIVATE_HEADER "src/allocator.h;src/array.h;src/cell.h;src/clipper_tools.h;src/curve.h;src/flexpath.h;src/font.h;src/gdsii.h;src/gdswriter.h;src/label.h;src/library.h;src/map.h;src/oasis.h;src/pathcommon.h;src/polygon.h;src/property.h;src/rawcell.h;src/reference.h;src/repetition.h;src/robustpath.h;src/sort.h;src/style.h;src/utils.h;src/vec.h")
 
 include(GNUInstallDirs)
 

@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "allocator.h"
 #include "cell.h"
 #include "rawcell.h"
+#include "sort.h"
 #include "utils.h"
 #include "vec.h"
 
@@ -599,7 +600,7 @@ ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double pr
 }
 
 ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char* attributes,
-                       PolygonComparisonFunction comp) const {
+                       PolygonComparisonFunction comparison) const {
     ErrorCode error_code = ErrorCode::NoError;
     char* buffer = (char*)allocate(strlen(name) + 1);
     // NOTE: Here be dragons if name is not ASCII.  The GDSII specification imposes ASCII-only
@@ -614,7 +615,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char
         fprintf(out, "<g id=\"%s\">\n", buffer);
     }
 
-    if (comp == NULL) {
+    if (comparison == NULL) {
         Polygon** polygon = polygon_array.items;
         for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
             ErrorCode err = (*polygon)->to_svg(out, scaling, precision);
@@ -636,7 +637,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char
         Array<Polygon*> all_polygons = {0};
         get_polygons(false, true, -1, all_polygons);
 
-        std::sort(all_polygons.items, all_polygons.items + all_polygons.count, comp);
+        sort(all_polygons, comparison);
 
         Polygon** polygon = all_polygons.items;
         for (uint64_t i = 0; i < all_polygons.count; i++, polygon++) {
@@ -666,7 +667,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char
 
 ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precision, StyleMap& style,
                           StyleMap& label_style, const char* background, double pad,
-                          bool pad_as_percentage, PolygonComparisonFunction comp) const {
+                          bool pad_as_percentage, PolygonComparisonFunction comparison) const {
     ErrorCode error_code = ErrorCode::NoError;
     Vec2 min, max;
     bounding_box(min, max);
@@ -774,7 +775,7 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     fputs("</style>\n", out);
 
     for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
-        ErrorCode err = item->value->to_svg(out, scaling, precision, NULL, comp);
+        ErrorCode err = item->value->to_svg(out, scaling, precision, NULL, comparison);
         if (err != ErrorCode::NoError) error_code = err;
     }
 
@@ -792,7 +793,7 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
         fputs(double_print(h, precision, double_buffer, COUNT(double_buffer)), out);
         fprintf(out, "\" fill=\"%s\" stroke=\"none\"/>\n", background);
     }
-    ErrorCode err = to_svg(out, scaling, precision, "transform=\"scale(1 -1)\"", comp);
+    ErrorCode err = to_svg(out, scaling, precision, "transform=\"scale(1 -1)\"", comparison);
     if (err != ErrorCode::NoError) error_code = err;
     fputs("</svg>", out);
     fclose(out);

@@ -15,8 +15,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <time.h>
 
-#include <algorithm>
-
 #include "array.h"
 #include "flexpath.h"
 #include "label.h"
@@ -30,7 +28,7 @@ namespace gdstk {
 
 // Must return true if the first argument is ordered before (is less than) the
 // second argument.
-typedef bool (*PolygonComparisonFunction)(Polygon*, Polygon*);
+typedef bool (*PolygonComparisonFunction)(Polygon* const &, Polygon* const &);
 
 // This structure is used for caching bounding box and convex hull results from
 // cells.  This is a snapshot of the cells at a specific point in time.  It
