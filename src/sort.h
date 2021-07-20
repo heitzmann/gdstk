@@ -39,7 +39,7 @@ void insertion_sort(T* items, int64_t count, bool (*sorted)(const T&, const T&))
 #define GDSTK_HEAP_RIGHT(n) ((n)*2 + 2)
 
 template <class T>
-inline void swap(T& a, T& b) {
+inline void swap_values(T& a, T& b) {
     T temp = a;
     a = b;
     b = temp;
@@ -74,7 +74,7 @@ void sift_down(T* items, int64_t start, int64_t end, bool (*sorted)(const T&, co
     items[j] = items[start];
     while (j > start) {
         int64_t parent = GDSTK_HEAP_PARENT(j);
-        swap(store, items[parent]);
+        swap_values(store, items[parent]);
         j = parent;
     }
 }
@@ -88,7 +88,7 @@ void heap_sort(T* items, int64_t count, bool (*sorted)(const T&, const T&)) {
     // Sort
     int64_t end = count - 1;
     while (end > 0) {
-        swap(items[0], items[end]);
+        swap_values(items[0], items[end]);
         end--;
         sift_down(items, 0, end, sorted);
     }
@@ -100,9 +100,9 @@ template <class T>
 int64_t partition(T* items, int64_t count, bool (*sorted)(const T&, const T&)) {
     const int64_t hi = count - 1;
     const int64_t mid = hi >> 2;
-    if (sorted(items[hi], items[0])) swap(items[0], items[hi]);
-    if (sorted(items[mid], items[0])) swap(items[0], items[mid]);
-    if (sorted(items[hi], items[mid])) swap(items[mid], items[hi]);
+    if (sorted(items[hi], items[0])) swap_values(items[0], items[hi]);
+    if (sorted(items[mid], items[0])) swap_values(items[0], items[mid]);
+    if (sorted(items[hi], items[mid])) swap_values(items[mid], items[hi]);
     const T pivot = items[mid];
     int64_t i = -1;
     int64_t j = count;
@@ -116,7 +116,7 @@ int64_t partition(T* items, int64_t count, bool (*sorted)(const T&, const T&)) {
         if (i >= j) {
             return j + 1;
         }
-        swap(items[i], items[j]);
+        swap_values(items[i], items[j]);
     }
 }
 
@@ -136,7 +136,7 @@ void intro_sort(T* items, int64_t count, int64_t max_depth, bool (*sorted)(const
 }
 
 template <class T>
-inline static bool default_sorted(const T& a, const T& b) {
+inline bool default_sorted(const T& a, const T& b) {
     return a < b;
 }
 
