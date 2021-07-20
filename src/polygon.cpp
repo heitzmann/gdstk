@@ -1293,7 +1293,6 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
     const ContourDirection start_from = direction_lookup[*s];
     ContourDirection from = start_from;
 
-    // TODO: Skip collinear points
     do {
         // for (int r = state_rows; r >= 0; r--) {
         //     if (r < state_rows) {
@@ -1314,7 +1313,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0 + 1 + state_cols + 1;
-            while (*fa >= level && col < state_cols) {
+            while (col < state_cols && *fa >= level) {
                 fa++;
                 col++;
             }
@@ -1339,7 +1338,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0 + state_cols + 1;
-            while (*fa >= level && row < state_rows) {
+            while (row < state_rows && *fa >= level) {
                 fa += state_cols + 1;
                 row++;
             }
@@ -1364,7 +1363,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             // DEBUG_PRINT("[%d, %d] ", col, row);
 
             const double* fa = f0;
-            while (*fa >= level && col >= 0) {
+            while (col >= 0 && *fa >= level) {
                 fa--;
                 col--;
             }
@@ -1386,10 +1385,10 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
             f0 = field + col + row * (state_cols + 1);
         } else if (col == -1 && row >= 0) {
             // W edge
-            // DEBUG_PRINT("[%d, %d] ", col, row);
+            // DEBUG_PRINT("[%ld, %ld] ", col, row);
 
             const double* fa = f0 + 1;
-            while (*fa >= level && row >= 0) {
+            while (row >= 0 && *fa >= level) {
                 fa -= state_cols + 1;
                 row--;
             }
