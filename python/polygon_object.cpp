@@ -198,6 +198,99 @@ static PyObject* polygon_object_rotate(PolygonObject* self, PyObject* args, PyOb
     return (PyObject*)self;
 }
 
+static PyObject* polygon_object_transform(PolygonObject* self, PyObject* args, PyObject* kwds) {
+    const char matrix_error[] = "Matrix must be a 2×2, 2×3, 3×2, or 3×3 array-like object.";
+    double m[] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    const char* keywords[] = {"magnification", "x_reflection", "rotation",
+                              "translation",   "matrix",       NULL};
+    PyObject* matrix_obj = Py_None;
+    PyObject* translation_obj = Py_None;
+    double magnification = 1;
+    double rotation = 0;
+    Vec2 origin = {0, 0};
+    int x_reflection = 0;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|dpdOO:transform", (char**)keywords,
+                                     &magnification, &x_reflection, &rotation, &translation_obj,
+                                     &matrix_obj))
+        return NULL;
+
+    if (translation_obj != Py_None && parse_point(translation_obj, origin, "translation") < 0)
+        return NULL;
+
+    if (origin.x != 0 || origin.y != 0 || rotation != 0 || magnification != 1 || x_reflection > 0) {
+        self->polygon->transform(magnification, x_reflection > 0, rotation, origin);
+    }
+
+    if (matrix_obj != Py_None) {
+        if (!PySequence_Check(matrix_obj)) {
+            PyErr_SetString(PyExc_TypeError, matrix_error);
+            return NULL;
+        }
+        Py_ssize_t rows = PySequence_Size(matrix_obj);
+        if (rows != 2 && rows != 3) {
+            PyErr_SetString(PyExc_TypeError, matrix_error);
+            return NULL;
+        }
+        const bool homogeneous = rows == 3;
+        for (rows--; rows >= 0; rows--) {
+            PyObject* row_obj = PySequence_ITEM(matrix_obj, rows);
+            if (!row_obj) {
+                PyErr_SetString(PyExc_RuntimeError, "Unable to get element from matrix.");
+                return NULL;
+            }
+            if (!PySequence_Check(row_obj)) {
+                Py_DECREF(row_obj);
+                PyErr_SetString(PyExc_TypeError, matrix_error);
+                return NULL;
+            }
+            Py_ssize_t cols = PySequence_Size(row_obj);
+            if (cols != 2 && cols != 3) {
+                Py_DECREF(row_obj);
+                PyErr_SetString(PyExc_TypeError, matrix_error);
+                return NULL;
+            }
+            for (cols--; cols >= 0; cols--) {
+                PyObject* elem = PySequence_ITEM(row_obj, cols);
+                if (!elem) {
+                    Py_DECREF(row_obj);
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to get element from matrix.");
+                    return NULL;
+                }
+                m[rows * 3 + cols] = PyFloat_AsDouble(elem);
+                Py_DECREF(elem);
+                if (PyErr_Occurred()) {
+                    Py_DECREF(row_obj);
+                    PyErr_SetString(PyExc_TypeError, "Unable to convert matrix element to float.");
+                    return NULL;
+                }
+            }
+            Py_DECREF(row_obj);
+        }
+
+        Array<Vec2>* point_array = &self->polygon->point_array;
+        Vec2* p = point_array->items;
+        if (homogeneous) {
+            for (uint64_t num = point_array->count; num > 0; num--, p++) {
+                double x = p->x;
+                double y = p->y;
+                double w = 1.0 / (m[6] * x + m[7] * y + m[8]);
+                p->x = (m[0] * x + m[1] * y + m[2]) * w;
+                p->y = (m[3] * x + m[4] * y + m[5]) * w;
+            }
+        } else {
+            for (uint64_t num = point_array->count; num > 0; num--, p++) {
+                double x = p->x;
+                double y = p->y;
+                p->x = m[0] * x + m[1] * y + m[2];
+                p->y = m[3] * x + m[4] * y + m[5];
+            }
+        }
+    }
+
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"radius", "tolerance", NULL};
     bool free_items = false;
@@ -338,6 +431,8 @@ static PyMethodDef polygon_object_methods[] = {
      polygon_object_mirror_doc},
     {"rotate", (PyCFunction)polygon_object_rotate, METH_VARARGS | METH_KEYWORDS,
      polygon_object_rotate_doc},
+    {"transform", (PyCFunction)polygon_object_transform, METH_VARARGS | METH_KEYWORDS,
+     polygon_object_transform_doc},
     {"fillet", (PyCFunction)polygon_object_fillet, METH_VARARGS | METH_KEYWORDS,
      polygon_object_fillet_doc},
     {"fracture", (PyCFunction)polygon_object_fracture, METH_VARARGS | METH_KEYWORDS,

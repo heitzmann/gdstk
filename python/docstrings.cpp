@@ -478,6 +478,27 @@ Args:
     angle: Rotation angle (in radians).
     center (coordinate pair or complex): Center of the transformation.)!");
 
+PyDoc_STRVAR(polygon_object_transform_doc, R"!(transform(magnification=1, x_reflection=False, rotation=0, translation=None, matrix=None) -> self
+
+Transform the vertices of this polygon.
+
+The transformation if applied in the order of the arguments in the
+method signature, starting with a magnification.  If a transformation
+matrix is given, it is applied after the other transforms.
+
+Args:
+    magnification (number): Magnification factor.
+    x_reflection (bool): If `True`, the vertices are reflected across
+      the x axis.
+    rotation (number): Rotation angle (in radians).
+    translation (coordinate pair or complex): Translation vector.
+    matrix (matrix-like): Transformation matrix with 2 or 3 rows and 2
+      or 3 columns.
+
+Notes:
+    If the number of rows or columns of the transformation matrix is 3,
+    homogeneous coordinates are used.)!");
+
 PyDoc_STRVAR(polygon_object_fillet_doc, R"!(fillet(radius, tolerance=0.01) -> self
 
 Fillet the corners of this polygon.

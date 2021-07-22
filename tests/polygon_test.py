@@ -117,3 +117,28 @@ def test_translate():
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])
     poly.translate(-1, 2)
     assert_close(poly.points, [[-1, 2], [0, 2], [-1, 3]])
+
+def test_transform():
+    poly = gdstk.Polygon([0j, 1 + 0j, 1j])
+    poly.transform()
+    assert_close(poly.points, [[0, 0], [1, 0], [0, 1]])
+
+    poly = gdstk.Polygon([0j, 1 + 0j, 1j])
+    poly.transform(2, True, numpy.pi / 2, -1j)
+    assert_close(poly.points, [[0, -1], [0, 1], [2, -1]])
+
+    poly = gdstk.Polygon([0j, 1 + 0j, 1j])
+    poly.transform(matrix=[[1, 2], [3, 4]])
+    assert_close(poly.points, [[0, 0], [1, 3], [2, 4]])
+
+    poly = gdstk.Polygon([0j, 1 + 0j, 1j])
+    poly.transform(matrix=[[1, 2], [3, 4], [1, -0.5]])
+    assert_close(poly.points, [[0, 0], [0.5, 1.5], [4, 8]])
+
+    poly = gdstk.Polygon([0j, 1 + 0j, 1j])
+    poly.transform(matrix=[[1, 2, 3], [4, 5, 6]])
+    assert_close(poly.points, [[3, 6], [4, 10], [5, 11]])
+
+    poly = gdstk.Polygon([0j, 1 + 0j, 1j])
+    poly.transform(matrix=[[1, 2, 3], [4, 5, 6], [3, 2, -1]])
+    assert_close(poly.points, [[-3, -6], [2, 5], [5, 11]])
