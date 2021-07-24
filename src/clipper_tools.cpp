@@ -76,8 +76,7 @@ struct SortingPath {
     ClipperLib::Path::iterator min_point;
 };
 
-static inline bool
-point_less(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
+static inline bool point_less(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
     return p1.X < p2.X || (p1.X == p2.X && p1.Y < p2.Y);
 }
 
@@ -119,7 +118,8 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
         count += (*child)->Contour.size() + 3;
         SortingPath sp = {&(*child)->Contour};
         sp.min_point = sp.path->begin();
-        for (ClipperLib::Path::iterator point = sp.min_point + 1; point != sp.path->end(); point++) {
+        for (ClipperLib::Path::iterator point = sp.path->begin(); point != sp.path->end();
+             point++) {
             if (point_less(*point, *sp.min_point)) {
                 sp.min_point = point;
             }
@@ -132,38 +132,41 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
 
     for (uint64_t i = 0; i < holes.count; i++) {
         // holes are guaranteed to be oriented opposite to their parent
-        const ClipperLib::Path::iterator p = holes[i].min_point;
+        const ClipperLib::Path::iterator hole_min = holes[i].min_point;
         const ClipperLib::Path::iterator p_end = contour->end();
-        ClipperLib::Path::iterator pprev = contour->end();
-        ClipperLib::Path::iterator p1 = pprev--;
-        ClipperLib::Path::iterator pnext = contour->begin();
+        ClipperLib::Path::iterator p_closest = contour->end();
+        ClipperLib::Path::iterator p_prev = contour->end() - 1;
+        ClipperLib::Path::iterator p_next = contour->begin();
         ClipperLib::cInt xnew = 0;
-        for (; pnext != p_end; pprev = pnext++) {
-            if ((pnext->Y <= p->Y && p->Y < pprev->Y) || (pprev->Y < p->Y && p->Y <= pnext->Y)) {
+        for (; p_next != p_end; p_prev = p_next++) {
+            if ((p_next->Y <= hole_min->Y && hole_min->Y < p_prev->Y) ||
+                (p_prev->Y < hole_min->Y && hole_min->Y <= p_next->Y)) {
                 ClipperLib::cInt x =
-                    pnext->X + ((pprev->X - pnext->X) * (p->Y - pnext->Y)) / (pprev->Y - pnext->Y);
-                if ((x > xnew || p1 == p_end) && x <= p->X) {
+                    p_next->X +
+                    ((p_prev->X - p_next->X) * (hole_min->Y - p_next->Y)) / (p_prev->Y - p_next->Y);
+                if ((x > xnew || p_closest == p_end) && x <= hole_min->X) {
                     xnew = x;
-                    p1 = pnext;
+                    p_closest = p_next;
                 }
-            } else if ((pnext->Y == p->Y && pprev->Y == p->Y) &&
-                       ((pnext->X <= p->X && p->X <= pprev->X) ||
-                        (pprev->X <= p->X && p->X <= pnext->X))) {
-                xnew = p->X;
-                p1 = pnext;
+            } else if ((p_next->Y == hole_min->Y && p_prev->Y == hole_min->Y) &&
+                       ((p_next->X <= hole_min->X && hole_min->X <= p_prev->X) ||
+                        (p_prev->X <= hole_min->X && hole_min->X <= p_next->X))) {
+                xnew = hole_min->X;
+                p_closest = p_next;
                 break;
             }
         }
 
-        if (p1 == p_end) {
+        if (p_closest == p_end) {
             fprintf(stderr, "[GDSTK] Unable to link hole in boolean operation.\n");
             error_code = ErrorCode::BooleanError;
         } else {
-            ClipperLib::IntPoint pnew(xnew, p->Y);
-            if (pnew.X != p1->X || pnew.Y != p1->Y) p1 = contour->insert(p1, pnew);
-            p1 = contour->insert(p1, holes[i].path->begin(), p + 1);
-            p1 = contour->insert(p1, p, holes[i].path->end());
-            contour->insert(p1, pnew);
+            ClipperLib::IntPoint p_new(xnew, hole_min->Y);
+            if (p_new.X != p_closest->X || p_new.Y != p_closest->Y)
+                p_closest = contour->insert(p_closest, p_new);
+            p_closest = contour->insert(p_closest, holes[i].path->begin(), hole_min + 1);
+            p_closest = contour->insert(p_closest, hole_min, holes[i].path->end());
+            contour->insert(p_closest, p_new);
         }
     }
 }
