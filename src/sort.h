@@ -124,6 +124,11 @@ template <class T>
 void intro_sort(T* items, int64_t count, int64_t max_depth, bool (*sorted)(const T&, const T&)) {
     if (count <= 1) {
         return;
+    } else if (count == 2) {
+        if (sorted(items[1], items[0])) {
+            swap_values(items[0], items[1]);
+        }
+        return;
     } else if (count <= 16) {
         insertion_sort(items, count, sorted);
     } else if (max_depth == 0) {
