@@ -37,8 +37,14 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
     Polygon* polygon = self->polygon;
     polygon->layer = layer;
     polygon->datatype = datatype;
-    if (parse_point_sequence(py_points, polygon->point_array, "points") < 0) return -1;
     polygon->owner = self;
+    if (parse_point_sequence(py_points, polygon->point_array, "points") < 0) {
+        return -1;
+    }
+    if (polygon->point_array.count == 0) {
+        PyErr_SetString(PyExc_ValueError, "Cannot create a polygon without vertices.");
+        return -1;
+    }
     return 0;
 }
 

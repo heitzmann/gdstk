@@ -194,8 +194,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
                 ((ReferenceObject*)arg)->reference->polygons(true, true, -1, polygon_array);
             } else {
                 Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                polygon_array.append(polygon);
-                if (parse_point_sequence(arg, polygon->point_array, "") < 0) {
+                if (parse_point_sequence(arg, polygon->point_array, "") <= 0) {
                     PyErr_Format(PyExc_RuntimeError,
                                  "Unable to parse item %" PRIu64 " from sequence %s.", i, name);
                     for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
@@ -205,6 +204,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
                     polygon_array.clear();
                     return -1;
                 }
+                polygon_array.append(polygon);
             }
             Py_DECREF(arg);
         }
