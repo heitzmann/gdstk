@@ -72,10 +72,11 @@ static int return_error(ErrorCode error_code) {
         case ErrorCode::Overflow:
             if (PyErr_WarnEx(PyExc_RuntimeWarning, "Overflow detected.", 1) != 0) return -1;
             return 0;
-        // Errors
         case ErrorCode::UnsupportedRecord:
-            PyErr_SetString(PyExc_RuntimeError, "Unsupported record in file.");
-            return -1;
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Unsupported record in file.", 1) != 0)
+                return -1;
+            return 0;
+        // Errors
         case ErrorCode::InputFileError:
             PyErr_SetString(PyExc_OSError, "Error reading input file.");
             return -1;
