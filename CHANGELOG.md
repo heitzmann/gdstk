@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## 0.7.0 - 2021-08-02
 ### Added
 - `contour` function
 - `Polygon.transform` to apply a general transformation to the polygon vertices
@@ -12,6 +12,7 @@
 - Holes in boolean results could lead to incorrect geometry in specific cases
 - Bug in boolean operations resulting in self-intersecting polygons
 - Bug in boolean operations with clockwise-oriented polygons
+- Unsupported reccords found when loading a library generate a warning, not an error.
 ### Changed
 - `inside` has changed to use the better interfaces: grouping has been removed, scaling is not necessary, and short-circuit is implemented in `all_inside` and `any_inside`
 
