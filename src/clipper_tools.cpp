@@ -218,7 +218,9 @@ ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, 
     ClipperLib::Paths paths1 = polygons_to_paths(polys1, scaling);
     ClipperLib::Paths paths2 = polygons_to_paths(polys2, scaling);
 
-    ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
+    // NOTE: ioStrictlySimple seems to hang on complex layouts
+    // ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
+    ClipperLib::Clipper clpr;
     clpr.AddPaths(paths1, ClipperLib::ptSubject, true);
     clpr.AddPaths(paths2, ClipperLib::ptClip, true);
 
@@ -296,7 +298,9 @@ ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_a
             clip[0][2].Y = clip[0][3].Y = pos;
         }
 
-        ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
+        // NOTE: ioStrictlySimple seems to hang on complex layouts
+        // ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
+        ClipperLib::Clipper clpr;
         clpr.AddPaths(subj, ClipperLib::ptSubject, true);
         clpr.AddPaths(clip, ClipperLib::ptClip, true);
 
