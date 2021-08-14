@@ -78,7 +78,7 @@ void example_fillet(Cell& out_cell) {
 
     double r = 1.5;
     Array<Polygon*> poly_array = {0};
-    flexpath.to_polygons(poly_array);
+    flexpath.to_polygons(false, 0, 0, poly_array);
     for (int i = 0; i < poly_array.count; i++)
         poly_array[i]->fillet({.count = 1, .items = &r}, 0.01);
 

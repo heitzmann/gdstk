@@ -47,13 +47,13 @@ int main(int argc, char* argv[]) {
     hline.repetition.coords.items = hcoords;
 
     Array<Polygon*> vlines = {0};
-    vline.to_polygons(vlines);
+    vline.to_polygons(false, 0, 0, vlines);
     // Because we know there is only a single resulting polygon we dont need to
     // loop here.
     vlines[0]->apply_repetition(vlines);
 
     Array<Polygon*> hlines = {0};
-    hline.to_polygons(hlines);
+    hline.to_polygons(false, 0, 0, hlines);
     hlines[0]->apply_repetition(vlines);
 
     Array<Polygon*> result = {0};
