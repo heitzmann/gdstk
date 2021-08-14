@@ -103,7 +103,7 @@ def timing_benchmark():
                 if t < best_avg_time[key]:
                     best_avg_time[key] = t
 
-    print(f"\n\nBest average time out of {sets} sets of {repeats}.")
+    print(f"\n\nBest average time out of {sets} sets of {repeats}:\n")
     print_row(
         "Benchmark",
         "Gdspy " + gdspy.__version__,
@@ -125,7 +125,7 @@ def timing_benchmark():
 def memory_benchmark():
     proc = psutil.Process()
     total = 100000
-    print(f"\nMemory usage per object for {total} objects.")
+    print(f"\nMemory usage per object for {total} objects:\n")
 
     def print_row(*vals, hsep=False):
         columns = [20, 16, 16, 9]

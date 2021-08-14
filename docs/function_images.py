@@ -56,7 +56,7 @@ def text_image():
 
 
 def contour_image():
-    y, x = numpy.mgrid[0:1:128j, -1:1:255j]
+    y, x = numpy.mgrid[0.5:1.5:128j, -1:1:255j]
     data = numpy.sin(4 * numpy.pi * x * y) - 0.8 * numpy.sin(2 * numpy.pi * y)
     contours = gdstk.contour(data, 0, 1 / 127, 0.01 / 127)
     rect = gdstk.rectangle((0, 0), (2, 1), datatype=1)

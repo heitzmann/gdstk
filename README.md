@@ -102,27 +102,27 @@ If maximal performance is important, the library should be used directly from C+
 Timing results were obtained with Python 3.9 on an Intel Core i7-3930K with 6 cores and 16 GB of RAM at 3.2 GHz.
 They represent the best average time to run each function out of 16 sets of 8 runs each.
 
-| Benchmark        |   Gdspy 1.6.6    |   Gdstk 0.6.1    |   Gain   |
+| Benchmark        |   Gdspy 1.6.7    |   Gdstk 0.7.0    |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
-| 10k_rectangles   |      252 ms      |     8.41 ms      |   29.9   |
-| 1k_circles       |      665 ms      |      432 ms      |   1.54   |
-| boolean-offset   |      441 μs      |     77.6 μs      |   5.69   |
-| bounding_box     |      100 ms      |      248 μs      |   404    |
-| curves           |     3.66 ms      |     65.2 μs      |   56.2   |
-| flatten          |     1.18 ms      |     16.7 μs      |   70.5   |
-| flexpath         |     5.75 ms      |     29.8 μs      |   193    |
-| flexpath-param   |     6.56 ms      |     1.23 ms      |   5.34   |
-| fracture         |     1.76 ms      |     1.05 ms      |   1.68   |
-| inside           |     41.6 μs      |     12.8 μs      |   3.26   |
-| read_gds         |     7.54 ms      |      143 μs      |   52.9   |
-| read_rawcells    |      735 μs      |     71.6 μs      |   10.3   |
-| robustpath       |      461 μs      |     19.3 μs      |   23.9   |
+| 10k_rectangles   |      261 ms      |     7.61 ms      |   34.3   |
+| 1k_circles       |      681 ms      |      429 ms      |   1.59   |
+| boolean-offset   |      452 μs      |     75.9 μs      |   5.96   |
+| bounding_box     |      101 ms      |      281 μs      |   359    |
+| curves           |     3.68 ms      |     69.4 μs      |    53    |
+| flatten          |     1.21 ms      |     15.6 μs      |   77.3   |
+| flexpath         |     6.78 ms      |     32.9 μs      |   206    |
+| flexpath-param   |     7.83 ms      |     1.56 ms      |   5.02   |
+| fracture         |     1.79 ms      |     1.01 ms      |   1.77   |
+| inside           |      271 μs      |     47.7 μs      |   5.68   |
+| read_gds         |     7.74 ms      |      145 μs      |   53.4   |
+| read_rawcells    |      784 μs      |     75.5 μs      |   10.4   |
+| robustpath       |      461 μs      |     19.2 μs      |    24    |
 
-Memory usage per object for 100000 objects.
+Memory usage per object for 100000 objects:
 
-| Object               |   Gdspy 1.6.6    |   Gdstk 0.6.1    | Reduction |
+| Object               |   Gdspy 1.6.7    |   Gdstk 0.7.0    | Reduction |
 | :------------------- | :--------------: | :--------------: | :-------: |
-| Rectangle            |      615 B       |      232 B       |    62%    |
+| Rectangle            |      607 B       |      232 B       |    62%    |
 | Circle (r = 10)      |     1.69 kB      |     1.28 kB      |    24%    |
 | FlexPath segment     |      1.5 kB      |      439 B       |    71%    |
 | FlexPath arc         |     2.28 kB      |     1.49 kB      |    35%    |
@@ -131,4 +131,4 @@ Memory usage per object for 100000 objects.
 | Label                |      412 B       |      216 B       |    48%    |
 | Reference            |      157 B       |      183 B       |    -16%   |
 | Reference (array)    |      191 B       |      179 B       |     6%    |
-| Cell                 |      437 B       |      227 B       |    48%    |
+| Cell                 |      437 B       |      228 B       |    48%    |

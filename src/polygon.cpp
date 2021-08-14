@@ -1220,6 +1220,8 @@ enum ContourDirection { O = 0, S, W, N, E };
 
 #ifndef NDEBUG
 const char DEBUG_DIR[] = "OSWNE";
+const char* DEBUG_CASE[] = {" ?", " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7",
+                            " 8", " 9", "10", "11", "12", "13", "14", "15", " X"};
 #endif
 
 enum ContourState {
@@ -1296,20 +1298,20 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
         // for (int r = state_rows; r >= 0; r--) {
         //     if (r < state_rows) {
         //         for (int c = 0; c < state_cols; c++) {
-        //             DEBUG_PRINT("|%2hd", state[c + r * state_cols] - 1);
+        //             DEBUG_PRINT("  | %s", DEBUG_CASE[state[c + r * state_cols]]);
         //         }
-        //         DEBUG_PRINT("|\n");
+        //         DEBUG_PRINT("  |\n");
         //     }
         //     for (int c = 0; c <= state_cols; c++) {
-        //         if (c) DEBUG_PRINT("--");
-        //         DEBUG_PRINT("%g", field[c + r * (state_cols + 1)]);
+        //         if (c) DEBUG_PRINT("=");
+        //         DEBUG_PRINT("%+4.2f", field[c + r * (state_cols + 1)]);
         //     }
         //     DEBUG_PRINT("\n");
         // }
 
         if (row == -1 && col < state_cols) {
             // S edge
-            // DEBUG_PRINT("[%d, %d] ", col, row);
+            // DEBUG_PRINT("[%ld, %ld] ", col, row);
 
             const double* fa = f0 + 1 + state_cols + 1;
             while (col < state_cols && *fa >= level) {
@@ -1323,18 +1325,18 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 row++;
                 s = state + col + row * state_cols;
                 from = S;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {(double)state_cols, 0};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (col == state_cols && row < state_rows) {
             // E edge
-            // DEBUG_PRINT("[%d, %d] ", col, row);
+            // DEBUG_PRINT("[%ld, %ld] ", col, row);
 
             const double* fa = f0 + state_cols + 1;
             while (row < state_rows && *fa >= level) {
@@ -1348,18 +1350,18 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 col--;
                 s = state + col + row * state_cols;
                 from = E;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {(double)state_cols, (double)state_rows};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (row == state_rows && col >= 0) {
             // N edge
-            // DEBUG_PRINT("[%d, %d] ", col, row);
+            // DEBUG_PRINT("[%ld, %ld] ", col, row);
 
             const double* fa = f0;
             while (col >= 0 && *fa >= level) {
@@ -1373,13 +1375,13 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 row--;
                 s = state + col + row * state_cols;
                 from = N;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {0, (double)state_rows};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (col == -1 && row >= 0) {
@@ -1398,13 +1400,13 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 col++;
                 s = state + col + row * state_cols;
                 from = W;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {0, 0};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //     points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else {
@@ -1417,7 +1419,7 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 *s = (*f3 >= level) * 8 + (*f2 >= level) * 4 + (*f1 >= level) * 2 + (*f0 >= level) +
                      1;
             }
-            // DEBUG_PRINT("[%ld, %ld] CASE %hu from %c", col, row, *s - 1, DEBUG_DIR[from]);
+            // DEBUG_PRINT("[%ld, %ld] CASE %s from %c", col, row, DEBUG_CASE[*s], DEBUG_DIR[from]);
 
             switch (*s) {
                 // Exit N
