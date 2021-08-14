@@ -28,7 +28,7 @@ namespace gdstk {
 
 // Must return true if the first argument is ordered before (is less than) the
 // second argument.
-typedef bool (*PolygonComparisonFunction)(Polygon* const &, Polygon* const &);
+typedef bool (*PolygonComparisonFunction)(Polygon* const&, Polygon* const&);
 
 // This structure is used for caching bounding box and convex hull results from
 // cells.  This is a snapshot of the cells at a specific point in time.  It
@@ -107,9 +107,11 @@ struct Cell {
     // to depth levels, i.e., if depth == 0, no polygons from references are
     // included, depth == 1 includes polygons from referenced cells (with their
     // transformation properly applied), but not from references thereof, and
-    // so on.  Depth < 0, removes the limit in the recursion depth.
-    void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
-                      Array<Polygon*>& result) const;
+    // so on.  Depth < 0, removes the limit in the recursion depth.  If filter
+    // is true, only polygons in the indicated layer and data type are
+    // appended.
+    void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
+                      uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const;
 
     // Append (newly allocated) copies of the elements in the cell to result.
     void get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const;

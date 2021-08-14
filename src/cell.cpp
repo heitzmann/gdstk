@@ -122,7 +122,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
             // NOTE: return ErrorCode ignored here
-            (*flexpath)->to_polygons(array);
+            (*flexpath)->to_polygons(false, 0, 0, array);
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
@@ -139,7 +139,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
             // NOTE: return ErrorCode ignored here
-            (*robustpath)->to_polygons(array);
+            (*robustpath)->to_polygons(false, 0, 0, array);
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
@@ -194,7 +194,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     FlexPath** flexpath = flexpath_array.items;
     for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
         // NOTE: return ErrorCode ignored here
-        (*flexpath)->to_polygons(array);
+        (*flexpath)->to_polygons(false, 0, 0, array);
         polygon = array.items;
         for (uint64_t j = 0; j < array.count; j++, polygon++) {
             points.extend((*polygon)->point_array);
@@ -207,7 +207,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     RobustPath** robustpath = robustpath_array.items;
     for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
         // NOTE: return ErrorCode ignored here
-        (*robustpath)->to_polygons(array);
+        (*robustpath)->to_polygons(false, 0, 0, array);
         polygon = array.items;
         for (uint64_t j = 0; j < array.count; j++, polygon++) {
             points.extend((*polygon)->point_array);
@@ -292,30 +292,30 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
     }
 }
 
-void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
-                        Array<Polygon*>& result) const {
+void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
+                        uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const {
     uint64_t start = result.count;
-    result.ensure_slots(polygon_array.count);
 
-    Polygon** poly = result.items + result.count;
-    Polygon** psrc = polygon_array.items;
-    for (uint64_t i = 0; i < polygon_array.count; i++, psrc++, poly++) {
-        *poly = (Polygon*)allocate_clear(sizeof(Polygon));
-        (*poly)->copy_from(**psrc);
+    for (uint64_t i = 0; i < polygon_array.count; i++) {
+        Polygon* psrc = polygon_array[i];
+        if (filter && (psrc->layer != layer || psrc->datatype != datatype)) continue;
+
+        Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
+        poly->copy_from(*psrc);
+        result.append(poly);
     }
-    result.count += polygon_array.count;
 
     if (include_paths) {
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
             // NOTE: return ErrorCode ignored here
-            (*flexpath)->to_polygons(result);
+            (*flexpath)->to_polygons(layer, filter, datatype, result);
         }
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
             // NOTE: return ErrorCode ignored here
-            (*robustpath)->to_polygons(result);
+            (*robustpath)->to_polygons(layer, filter, datatype, result);
         }
     }
 
@@ -329,7 +329,8 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1, result);
+            (*ref)->polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1, filter,
+                             layer, datatype, result);
         }
     }
 }
@@ -423,7 +424,7 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
         if (ref->type == ReferenceType::Cell) {
             reference_array.remove_unordered(i);
             result.append(ref);
-            ref->polygons(apply_repetitions, false, -1, polygon_array);
+            ref->polygons(apply_repetitions, false, -1, false, 0, 0, polygon_array);
             ref->flexpaths(apply_repetitions, -1, flexpath_array);
             ref->robustpaths(apply_repetitions, -1, robustpath_array);
             ref->labels(apply_repetitions, -1, label_array);
@@ -517,7 +518,7 @@ ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double pr
             if (err != ErrorCode::NoError) error_code = err;
         } else {
             Array<Polygon*> fp_array = {0};
-            ErrorCode err = flexpath->to_polygons(fp_array);
+            ErrorCode err = flexpath->to_polygons(false, 0, 0, fp_array);
             if (err != ErrorCode::NoError) error_code = err;
             p_item = fp_array.items;
             for (uint64_t i = 0; i < fp_array.count; i++, p_item++) {
@@ -552,7 +553,7 @@ ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double pr
             if (err != ErrorCode::NoError) error_code = err;
         } else {
             Array<Polygon*> rp_array = {0};
-            ErrorCode err = robustpath->to_polygons(rp_array);
+            ErrorCode err = robustpath->to_polygons(false, 0, 0, rp_array);
             if (err != ErrorCode::NoError) error_code = err;
             p_item = rp_array.items;
             for (uint64_t i = 0; i < rp_array.count; i++, p_item++) {
@@ -635,7 +636,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char
         }
     } else {
         Array<Polygon*> all_polygons = {0};
-        get_polygons(false, true, -1, all_polygons);
+        get_polygons(false, true, -1, false, 0, 0, all_polygons);
 
         sort(all_polygons, comparison);
 

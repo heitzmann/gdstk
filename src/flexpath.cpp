@@ -219,16 +219,18 @@ void FlexPath::remove_overlapping_points() {
     }
 }
 
-ErrorCode FlexPath::to_polygons(Array<Polygon*>& result) {
+ErrorCode FlexPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype,
+                                Array<Polygon*>& result) {
     remove_overlapping_points();
     if (spine.point_array.count < 2) return ErrorCode::NoError;
 
     const Array<Vec2> spine_points = spine.point_array;
     uint64_t curve_size_guess = spine_points.count * 2 + 4;
 
-    result.ensure_slots(num_elements);
     FlexPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
+        if (filter && (el->layer != layer || el->datatype != datatype)) continue;
+
         const double* half_widths = (double*)el->half_width_and_offset.items;
         const double* offsets = half_widths + 1;
         const JoinType join_type = el->join_type;
@@ -625,7 +627,7 @@ ErrorCode FlexPath::to_polygons(Array<Polygon*>& result) {
         result_polygon->point_array = right_curve.point_array;
         result_polygon->repetition.copy_from(repetition);
         result_polygon->properties = properties_copy(properties);
-        result.append_unsafe(result_polygon);
+        result.append(result_polygon);
     }
     return ErrorCode::NoError;
 }
@@ -939,7 +941,7 @@ ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
 
 ErrorCode FlexPath::to_svg(FILE* out, double scaling, uint32_t precision) {
     Array<Polygon*> array = {0};
-    ErrorCode error_code = to_polygons(array);
+    ErrorCode error_code = to_polygons(false, 0, 0, array);
     for (uint64_t i = 0; i < array.count; i++) {
         ErrorCode err = array[i]->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;

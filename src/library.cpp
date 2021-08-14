@@ -311,7 +311,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                     }
                 } else {
                     Array<Polygon*> array = {0};
-                    ErrorCode err = path->to_polygons(array);
+                    ErrorCode err = path->to_polygons(false, 0, 0, array);
                     if (err != ErrorCode::NoError) error_code = err;
                     poly_p = array.items;
                     for (uint64_t k = array.count; k > 0; k--) {
@@ -343,7 +343,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                     }
                 } else {
                     Array<Polygon*> array = {0};
-                    ErrorCode err = path->to_polygons(array);
+                    ErrorCode err = path->to_polygons(false, 0, 0, array);
                     if (err != ErrorCode::NoError) error_code = err;
                     poly_p = array.items;
                     for (uint64_t k = array.count; k > 0; k--) {
@@ -439,7 +439,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 if (err != ErrorCode::NoError) error_code = err;
             } else {
                 Array<Polygon*> array = {0};
-                err = path->to_polygons(array);
+                err = path->to_polygons(false, 0, 0, array);
                 if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
@@ -461,7 +461,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 if (err != ErrorCode::NoError) error_code = err;
             } else {
                 Array<Polygon*> array = {0};
-                err = path->to_polygons(array);
+                err = path->to_polygons(false, 0, 0, array);
                 if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {

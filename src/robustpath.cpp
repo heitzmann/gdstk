@@ -1150,14 +1150,16 @@ ErrorCode RobustPath::spine(Array<Vec2> &result) const {
     return error_code;
 }
 
-ErrorCode RobustPath::to_polygons(Array<Polygon *> &result) const {
+ErrorCode RobustPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype,
+                                  Array<Polygon *> &result) const {
     ErrorCode error_code = ErrorCode::NoError;
     if (num_elements == 0 || subpath_array.count == 0) return error_code;
 
     const double tolerance_sq = tolerance * tolerance;
-    result.ensure_slots(num_elements);
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
+        if (filter && (el->layer != layer || el->datatype != datatype)) continue;
+
         Array<Vec2> left_side = {0};
         Array<Vec2> right_side = {0};
         left_side.ensure_slots(subpath_array.count);
@@ -1347,7 +1349,7 @@ ErrorCode RobustPath::to_polygons(Array<Polygon *> &result) const {
         result_polygon->point_array = right_side;
         result_polygon->repetition.copy_from(repetition);
         result_polygon->properties = properties_copy(properties);
-        result.append_unsafe(result_polygon);
+        result.append(result_polygon);
     }
     return error_code;
 }
@@ -1562,7 +1564,7 @@ ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
 
 ErrorCode RobustPath::to_svg(FILE *out, double scaling, uint32_t precision) const {
     Array<Polygon *> array = {0};
-    ErrorCode error_code = to_polygons(array);
+    ErrorCode error_code = to_polygons(false, 0, 0, array);
     for (uint64_t i = 0; i < array.count; i++) {
         ErrorCode err = array[i]->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;

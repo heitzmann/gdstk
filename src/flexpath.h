@@ -145,8 +145,11 @@ struct FlexPath {
                     const double* offset, bool relative);
     uint64_t commands(const CurveInstruction* items, uint64_t count);
 
-    // Append the polygonal representation of this path to result
-    ErrorCode to_polygons(Array<Polygon*>& result);
+    // Append the polygonal representation of this path to result.  If filter
+    // is true, only elements in the indicated layer and datatype are
+    // processed.  Overlapping points are removed from the path before any
+    // processing is executed.
+    ErrorCode to_polygons(bool filter, uint32_t layer, uint32_t datatype, Array<Polygon*>& result);
 
     // Calculate the center of an element of this path and append the resulting
     // curve to result.

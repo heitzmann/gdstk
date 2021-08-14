@@ -84,9 +84,11 @@ struct Reference {
     // reference to the result array.  Argument depth controls how many levels
     // of references should be included (references of references); if it is
     // negative, all levels are included.  If include_paths is true, the
-    // polygonal representation of paths are also included in polygons.
+    // polygonal representation of paths are also included in polygons.  If
+    // filter is true, only polygons in the indicated layer and data type are
+    // created.
     void polygons(bool apply_repetitions, bool include_paths, int64_t depth,
-                  Array<Polygon*>& result) const;
+                  bool filter, uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const;
     void flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const;
     void robustpaths(bool apply_repetitions, int64_t depth, Array<RobustPath*>& result) const;
     void labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const;

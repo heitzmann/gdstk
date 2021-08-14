@@ -205,3 +205,28 @@ def test_bb(tree):
     p1 = gdstk.Polygon(((0, 3), (0, 2), (1, 3)), 3, 3)
     c1.add(p1)
     assert_close(c3.bounding_box(), ((-1, 0), (8, 6)))
+
+
+def test_get_polygons_depth(tree):
+    c3, c2, c1 = tree
+    polys = c3.get_polygons()
+    assert len(polys) == 12
+    polys = c3.get_polygons(depth=0)
+    assert len(polys) == 0
+    polys = c3.get_polygons(depth=1)
+    assert len(polys) == 6
+
+def test_get_polygons_filter(tree):
+    c3, c2, c1 = tree
+    polys = c3.get_polygons(layer=3)
+    assert len(polys) == 12
+    polys = c3.get_polygons(datatype=3)
+    assert len(polys) == 12
+    polys = c3.get_polygons(layer=0, datatype=0)
+    assert len(polys) == 6
+    polys = c3.get_polygons(layer=1, datatype=1)
+    assert len(polys) == 6
+    polys = c3.get_polygons(layer=0, datatype=1)
+    assert len(polys) == 0
+    polys = c3.get_polygons(layer=1, datatype=0)
+    assert len(polys) == 0

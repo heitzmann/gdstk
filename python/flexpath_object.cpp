@@ -701,7 +701,7 @@ static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject*) {
 
 static PyObject* flexpath_object_to_polygons(FlexPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
-    if (return_error(self->flexpath->to_polygons(array))) {
+    if (return_error(self->flexpath->to_polygons(false, 0, 0, array))) {
         for (uint64_t i = 0; i < array.count; i++) {
             array[i]->clear();
             free_allocation(array[i]);

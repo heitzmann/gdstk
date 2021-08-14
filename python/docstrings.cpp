@@ -2242,6 +2242,28 @@ Notes:
     This operation can be slow because all paths and references are
     included in the computation.)!");
 
+PyDoc_STRVAR(cell_object_get_polygons_doc, R"!(get_polygons(apply_repetitions=True, include_paths=True, depth=None, layer=None, datatype=None) -> list
+
+Return a copy of all polygons in the cell.
+
+Args:
+    apply_repetitions: Define whether repetitions should be applied in
+      the created polygons.
+    include_paths: If ``True``, polygonal representation of paths are
+      also included in the result.
+    depth: If non negative, indicates the number of reference levels
+      processed recursively.  A value of 0 will result in no references
+      being visited.
+    layer: If set, only polygons in the defined layer and data type are
+      returned.
+    datatype: If set, only polygons in the defined layer and data type
+      are returned.
+
+Notes:
+    Arguments ``layer`` and ``datatype`` must both be set to integers
+    for the filtering to be executed.  If either one is ``None`` they
+    are both ignored.)!");
+
 PyDoc_STRVAR(cell_object_flatten_doc, R"!(flatten(apply_repetitions=True) -> self
 
 Transform all references into polygons, paths and labels.

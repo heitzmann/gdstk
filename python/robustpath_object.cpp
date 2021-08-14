@@ -569,7 +569,7 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
 
 static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
-    if (return_error(self->robustpath->to_polygons(array))) {
+    if (return_error(self->robustpath->to_polygons(false, 0, 0, array))) {
         for (uint64_t i = 0; i < array.count; i++) {
             array[i]->clear();
             free_allocation(array[i]);

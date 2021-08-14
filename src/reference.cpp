@@ -214,12 +214,12 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
-void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t depth,
-                         Array<Polygon*>& result) const {
+void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
+                         uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Polygon*> array = {0};
-    cell->get_polygons(apply_repetitions, include_paths, depth, array);
+    cell->get_polygons(apply_repetitions, include_paths, depth, filter, layer, datatype, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};

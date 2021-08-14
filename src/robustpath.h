@@ -246,8 +246,12 @@ struct RobustPath {
     // curve to result.
     ErrorCode element_center(const RobustPathElement* el, Array<Vec2>& result) const;
 
-    // Append the polygonal representation of this path to result
-    ErrorCode to_polygons(Array<Polygon*>& result) const;
+    // Append the polygonal representation of this path to result.  If filter
+    // is true, only elements in the indicated layer and datatype are
+    // processed.  Overlapping points are removed from the path before any
+    // processing is executed.
+    ErrorCode to_polygons(bool filter, uint32_t layer, uint32_t datatype,
+                          Array<Polygon*>& result) const;
 
     // These functions output the polygon in the GDSII, OASIS and SVG formats.
     // They are not supposed to be called by the user.  Because fracturing
