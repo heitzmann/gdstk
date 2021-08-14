@@ -150,7 +150,7 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
                 break;
             case 0x06:  // STRNAME
                 if (rawcell) {
-                    uint32_t data_length = record_length - 4;
+                    uint32_t data_length = (uint32_t)(record_length - 4);
                     if (str[data_length - 1] == 0) data_length--;
                     rawcell->name = (char*)allocate(data_length + 1);
                     memcpy(rawcell->name, str, data_length);
@@ -167,7 +167,7 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
                 break;
             case 0x12:  // SNAME
                 if (rawcell) {
-                    uint32_t data_length = record_length - 4;
+                    uint32_t data_length = (uint32_t)(record_length - 4);
                     if (str[data_length - 1] == 0) data_length--;
                     char* name = (char*)allocate(data_length + 1);
                     memcpy(name, str, data_length);

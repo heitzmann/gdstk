@@ -363,7 +363,7 @@ void Reference::labels(bool apply_repetitions, int64_t depth, bool filter, uint3
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-#define REFERENCE_REPETITION_TOLERANCE 1e-12
+#define GDSTK_REFERENCE_REPETITION_TOLERANCE 1e-12
 ErrorCode Reference::to_gds(FILE* out, double scaling) const {
     ErrorCode error_code = ErrorCode::NoError;
     bool array = false;
@@ -393,10 +393,10 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
             if (x_reflection) u2 = -u2;
             double sa = sin(rotation);
             double ca = cos(rotation);
-            if (fabs(u1.x - ca) < REFERENCE_REPETITION_TOLERANCE &&
-                fabs(u1.y - sa) < REFERENCE_REPETITION_TOLERANCE &&
-                fabs(u2.x + sa) < REFERENCE_REPETITION_TOLERANCE &&
-                fabs(u2.y - ca) < REFERENCE_REPETITION_TOLERANCE) {
+            if (fabs(u1.x - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
+                fabs(u1.y - sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
+                fabs(u2.x + sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
+                fabs(u2.y - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE) {
                 array = true;
                 x2 = origin.x + repetition.columns * repetition.v1.x;
                 y2 = origin.y + repetition.columns * repetition.v1.y;

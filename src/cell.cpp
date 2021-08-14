@@ -353,7 +353,7 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uin
             FlexPath* path = NULL;
             for (uint64_t j = 0; j < psrc->num_elements; j++) {
                 FlexPathElement* esrc = psrc->elements + j;
-                if (esrc->layer != layer or esrc->datatype != datatype) continue;
+                if (esrc->layer != layer || esrc->datatype != datatype) continue;
                 if (!path) {
                     path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                     path->spine.copy_from(psrc->spine);
@@ -418,7 +418,7 @@ void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, u
             RobustPath* path = NULL;
             for (uint64_t j = 0; j < psrc->num_elements; j++) {
                 RobustPathElement* esrc = psrc->elements + j;
-                if (esrc->layer != layer or esrc->datatype != datatype) continue;
+                if (esrc->layer != layer || esrc->datatype != datatype) continue;
                 if (!path) {
                     path = (RobustPath*)allocate_clear(sizeof(RobustPath));
                     path->properties = properties_copy(psrc->properties);
