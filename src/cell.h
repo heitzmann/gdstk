@@ -114,9 +114,14 @@ struct Cell {
                       uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const;
 
     // Append (newly allocated) copies of the elements in the cell to result.
-    void get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const;
-    void get_robustpaths(bool apply_repetitions, int64_t depth, Array<RobustPath*>& result) const;
-    void get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const;
+    // If filter is true, only polygons in the indicated layer and data/text
+    // type are appended.
+    void get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                       uint32_t datatype, Array<FlexPath*>& result) const;
+    void get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                         uint32_t datatype, Array<RobustPath*>& result) const;
+    void get_labels(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                    uint32_t texttype, Array<Label*>& result) const;
 
     // Insert all dependencies in result.  Dependencies are cells that appear
     // in this cell's references. If recursive, include the whole dependency

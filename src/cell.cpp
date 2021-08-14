@@ -296,13 +296,21 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
                         uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const {
     uint64_t start = result.count;
 
-    for (uint64_t i = 0; i < polygon_array.count; i++) {
-        Polygon* psrc = polygon_array[i];
-        if (filter && (psrc->layer != layer || psrc->datatype != datatype)) continue;
-
-        Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-        poly->copy_from(*psrc);
-        result.append(poly);
+    if (filter) {
+        for (uint64_t i = 0; i < polygon_array.count; i++) {
+            Polygon* psrc = polygon_array[i];
+            if (psrc->layer != layer || psrc->datatype != datatype) continue;
+            Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
+            poly->copy_from(*psrc);
+            result.append(poly);
+        }
+    } else {
+        result.ensure_slots(polygon_array.count);
+        for (uint64_t i = 0; i < polygon_array.count; i++) {
+            Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
+            poly->copy_from(*polygon_array[i]);
+            result.append_unsafe(poly);
+        }
     }
 
     if (include_paths) {
@@ -335,17 +343,54 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
     }
 }
 
-void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const {
+void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                         uint32_t datatype, Array<FlexPath*>& result) const {
     uint64_t start = result.count;
-    result.ensure_slots(flexpath_array.count);
 
-    FlexPath** dst = result.items + result.count;
-    FlexPath** src = flexpath_array.items;
-    for (uint64_t i = 0; i < flexpath_array.count; i++, src++, dst++) {
-        *dst = (FlexPath*)allocate_clear(sizeof(FlexPath));
-        (*dst)->copy_from(**src);
+    if (filter) {
+        for (uint64_t i = 0; i < flexpath_array.count; i++) {
+            FlexPath* psrc = flexpath_array[i];
+            FlexPath* path = NULL;
+            for (uint64_t j = 0; j < psrc->num_elements; j++) {
+                FlexPathElement* esrc = psrc->elements + j;
+                if (esrc->layer != layer or esrc->datatype != datatype) continue;
+                if (!path) {
+                    path = (FlexPath*)allocate_clear(sizeof(FlexPath));
+                    path->spine.copy_from(psrc->spine);
+                    path->properties = properties_copy(psrc->properties);
+                    path->repetition.copy_from(psrc->repetition);
+                    path->scale_width = psrc->scale_width;
+                    path->simple_path = psrc->simple_path;
+                }
+                path->num_elements++;
+                path->elements = (FlexPathElement*)reallocate(
+                    path->elements, path->num_elements * sizeof(FlexPathElement));
+                FlexPathElement* el = path->elements + (path->num_elements - 1);
+                el->half_width_and_offset.copy_from(esrc->half_width_and_offset);
+                el->layer = esrc->layer;
+                el->datatype = esrc->datatype;
+                el->join_type = esrc->join_type;
+                el->join_function = esrc->join_function;
+                el->join_function_data = esrc->join_function_data;
+                el->end_type = esrc->end_type;
+                el->end_extensions = esrc->end_extensions;
+                el->end_function = esrc->end_function;
+                el->end_function_data = esrc->end_function_data;
+                el->bend_type = esrc->bend_type;
+                el->bend_radius = esrc->bend_radius;
+                el->bend_function = esrc->bend_function;
+                el->bend_function_data = esrc->bend_function_data;
+            }
+            if (path) result.append(path);
+        }
+    } else {
+        result.ensure_slots(flexpath_array.count);
+        for (uint64_t i = 0; i < flexpath_array.count; i++) {
+            FlexPath* path = (FlexPath*)allocate_clear(sizeof(FlexPath));
+            path->copy_from(*flexpath_array[i]);
+            result.append_unsafe(path);
+        }
     }
-    result.count += flexpath_array.count;
 
     if (apply_repetitions) {
         uint64_t finish = result.count;
@@ -357,23 +402,62 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
+            (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, layer,
+                              datatype, result);
         }
     }
 }
 
-void Cell::get_robustpaths(bool apply_repetitions, int64_t depth,
-                           Array<RobustPath*>& result) const {
+void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                           uint32_t datatype, Array<RobustPath*>& result) const {
     uint64_t start = result.count;
-    result.ensure_slots(robustpath_array.count);
 
-    RobustPath** dst = result.items + result.count;
-    RobustPath** src = robustpath_array.items;
-    for (uint64_t i = 0; i < robustpath_array.count; i++, src++, dst++) {
-        *dst = (RobustPath*)allocate_clear(sizeof(RobustPath));
-        (*dst)->copy_from(**src);
+    if (filter) {
+        for (uint64_t i = 0; i < robustpath_array.count; i++) {
+            RobustPath* psrc = robustpath_array[i];
+            RobustPath* path = NULL;
+            for (uint64_t j = 0; j < psrc->num_elements; j++) {
+                RobustPathElement* esrc = psrc->elements + j;
+                if (esrc->layer != layer or esrc->datatype != datatype) continue;
+                if (!path) {
+                    path = (RobustPath*)allocate_clear(sizeof(RobustPath));
+                    path->properties = properties_copy(psrc->properties);
+                    path->repetition.copy_from(psrc->repetition);
+                    path->end_point = psrc->end_point;
+                    path->subpath_array.copy_from(psrc->subpath_array);
+                    path->tolerance = psrc->tolerance;
+                    path->max_evals = psrc->max_evals;
+                    path->width_scale = psrc->width_scale;
+                    path->offset_scale = psrc->offset_scale;
+                    memcpy(path->trafo, psrc->trafo, 6 * sizeof(double));
+                    path->scale_width = psrc->scale_width;
+                    path->simple_path = psrc->simple_path;
+                }
+                path->num_elements++;
+                path->elements = (RobustPathElement*)reallocate(
+                    path->elements, path->num_elements * sizeof(RobustPathElement));
+                RobustPathElement* el = path->elements + (path->num_elements - 1);
+                el->layer = esrc->layer;
+                el->datatype = esrc->datatype;
+                el->end_width = esrc->end_width;
+                el->end_offset = esrc->end_offset;
+                el->end_type = esrc->end_type;
+                el->end_extensions = esrc->end_extensions;
+                el->end_function = esrc->end_function;
+                el->end_function_data = esrc->end_function_data;
+                el->width_array.copy_from(esrc->width_array);
+                el->offset_array.copy_from(esrc->offset_array);
+            }
+            if (path) result.append(path);
+        }
+    } else {
+        result.ensure_slots(robustpath_array.count);
+        for (uint64_t i = 0; i < robustpath_array.count; i++) {
+            RobustPath* path = (RobustPath*)allocate_clear(sizeof(RobustPath));
+            path->copy_from(*robustpath_array[i]);
+            result.append_unsafe(path);
+        }
     }
-    result.count += robustpath_array.count;
 
     if (apply_repetitions) {
         uint64_t finish = result.count;
@@ -385,22 +469,32 @@ void Cell::get_robustpaths(bool apply_repetitions, int64_t depth,
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
+            (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, layer,
+                                datatype, result);
         }
     }
 }
 
-void Cell::get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const {
+void Cell::get_labels(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                      uint32_t texttype, Array<Label*>& result) const {
     uint64_t start = result.count;
-    result.ensure_slots(label_array.count);
 
-    Label** dst = result.items + result.count;
-    Label** src = label_array.items;
-    for (uint64_t i = 0; i < label_array.count; i++, src++, dst++) {
-        *dst = (Label*)allocate_clear(sizeof(Label));
-        (*dst)->copy_from(**src);
+    if (filter) {
+        for (uint64_t i = 0; i < label_array.count; i++) {
+            Label* lsrc = label_array[i];
+            if (lsrc->layer != layer || lsrc->texttype != texttype) continue;
+            Label* label = (Label*)allocate_clear(sizeof(Label));
+            label->copy_from(*lsrc);
+            result.append(label);
+        }
+    } else {
+        result.ensure_slots(label_array.count);
+        for (uint64_t i = 0; i < label_array.count; i++) {
+            Label* label = (Label*)allocate_clear(sizeof(Label));
+            label->copy_from(*label_array[i]);
+            result.append_unsafe(label);
+        }
     }
-    result.count += label_array.count;
 
     if (apply_repetitions) {
         uint64_t finish = result.count;
@@ -412,7 +506,8 @@ void Cell::get_labels(bool apply_repetitions, int64_t depth, Array<Label*>& resu
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, result);
+            (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, layer, texttype,
+                           result);
         }
     }
 }
@@ -425,9 +520,9 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
             reference_array.remove_unordered(i);
             result.append(ref);
             ref->polygons(apply_repetitions, false, -1, false, 0, 0, polygon_array);
-            ref->flexpaths(apply_repetitions, -1, flexpath_array);
-            ref->robustpaths(apply_repetitions, -1, robustpath_array);
-            ref->labels(apply_repetitions, -1, label_array);
+            ref->flexpaths(apply_repetitions, -1, false, 0, 0, flexpath_array);
+            ref->robustpaths(apply_repetitions, -1, false, 0, 0, robustpath_array);
+            ref->labels(apply_repetitions, -1, false, 0, 0, label_array);
         } else {
             ++i;
         }

@@ -216,6 +216,7 @@ def test_get_polygons_depth(tree):
     polys = c3.get_polygons(depth=1)
     assert len(polys) == 6
 
+
 def test_get_polygons_filter(tree):
     c3, c2, c1 = tree
     polys = c3.get_polygons(layer=3)
@@ -230,3 +231,30 @@ def test_get_polygons_filter(tree):
     assert len(polys) == 0
     polys = c3.get_polygons(layer=1, datatype=0)
     assert len(polys) == 0
+
+
+def test_get_paths(tree):
+    c3, c2, c1 = tree
+    c1.add(gdstk.FlexPath([(0, 0), (1, 1)], [0.1, 0.1], layer=[0, 1], datatype=[2, 3]))
+    c2.add(gdstk.RobustPath((0, 0), [0.1, 0.1], layer=[0, 1], datatype=[2, 3]))
+    paths = c3.get_paths()
+    assert len(paths) == 12
+    assert paths[0].num_paths == 2
+    paths = c3.get_paths(depth=1)
+    assert len(paths) == 6
+    assert paths[0].num_paths == 2
+    paths = c3.get_paths(depth=1, layer=1, datatype=3)
+    assert len(paths) == 6
+    assert paths[0].num_paths == 1
+
+
+def test_get_labels(tree):
+    c3, c2, c1 = tree
+    labels = c3.get_labels()
+    assert len(labels) == 12
+    labels = c3.get_labels(depth=1)
+    assert len(labels) == 6
+    labels = c3.get_labels(depth=1, layer=11, texttype=0)
+    assert len(labels) == 0
+    labels = c3.get_labels(depth=2, layer=11, texttype=0)
+    assert len(labels) == 6

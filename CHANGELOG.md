@@ -2,7 +2,7 @@
 
 ## Unreleased
 ### Added
-- `Cell.get_polygons` return a copy of a cell’s polygons including references, with the possibility of filtering by layer and datatype
+- `Cell.get_polygons`, `Cell.get_paths`, and `Cell.get_labels` return a copy of a cell’s polygons, paths or labels, including references, with the possibility of filtering by layer and type
 
 ## 0.7.0 - 2021-08-02
 ### Added

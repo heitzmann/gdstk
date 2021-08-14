@@ -252,11 +252,12 @@ void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t dep
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*>& result) const {
+void Reference::flexpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                          uint32_t datatype, Array<FlexPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<FlexPath*> array = {0};
-    cell->get_flexpaths(apply_repetitions, depth, array);
+    cell->get_flexpaths(apply_repetitions, depth, filter, layer, datatype, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -288,12 +289,12 @@ void Reference::flexpaths(bool apply_repetitions, int64_t depth, Array<FlexPath*
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::robustpaths(bool apply_repetitions, int64_t depth,
-                            Array<RobustPath*>& result) const {
+void Reference::robustpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                            uint32_t datatype, Array<RobustPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<RobustPath*> array = {0};
-    cell->get_robustpaths(apply_repetitions, depth, array);
+    cell->get_robustpaths(apply_repetitions, depth, filter, layer, datatype, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -325,11 +326,12 @@ void Reference::robustpaths(bool apply_repetitions, int64_t depth,
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::labels(bool apply_repetitions, int64_t depth, Array<Label*>& result) const {
+void Reference::labels(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
+                       uint32_t texttype, Array<Label*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Label*> array = {0};
-    cell->get_labels(apply_repetitions, depth, array);
+    cell->get_labels(apply_repetitions, depth, filter, layer, texttype, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
