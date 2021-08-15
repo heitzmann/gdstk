@@ -317,13 +317,13 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
             // NOTE: return ErrorCode ignored here
-            (*flexpath)->to_polygons(layer, filter, datatype, result);
+            (*flexpath)->to_polygons(filter, layer, datatype, result);
         }
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
             // NOTE: return ErrorCode ignored here
-            (*robustpath)->to_polygons(layer, filter, datatype, result);
+            (*robustpath)->to_polygons(filter, layer, datatype, result);
         }
     }
 
