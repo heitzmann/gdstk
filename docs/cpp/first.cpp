@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     Cell cell = {.name = cell_name};
     lib.cell_array.append(&cell);
 
-    Polygon rect = rectangle(Vec2{0, 0}, Vec2{2, 1}, 0, 0);
+    Polygon rect = rectangle(Vec2{0, 0}, Vec2{2, 1}, make_tag(0, 0));
     cell.polygon_array.append(&rect);
 
     lib.write_gds("first.gds", 0, NULL);

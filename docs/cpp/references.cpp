@@ -12,12 +12,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    int16_t layer_full_etch = 1;
-    int16_t dt_full_etch = 3;
-    int16_t layer_partial_etch = 2;
-    int16_t dt_partial_etch = 3;
-    int16_t layer_lift_off = 0;
-    int16_t dt_lift_off = 7;
+    Tag t_full_etch = make_tag(1, 3);
+    Tag t_partial_etch = make_tag(2, 3);
+    Tag t_lift_off = make_tag(0, 7);
 
     char lib_name[] = "library";
     Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
@@ -29,10 +26,10 @@ int main(int argc, char* argv[]) {
     lib.cell_array.append(&contact_cell);
 
     Polygon contact_poly[4];
-    contact_poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, layer_full_etch, dt_full_etch);
-    contact_poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, layer_partial_etch, dt_partial_etch);
-    contact_poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, layer_partial_etch, dt_partial_etch);
-    contact_poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, layer_lift_off, dt_lift_off);
+    contact_poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, t_full_etch);
+    contact_poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, t_partial_etch);
+    contact_poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, t_partial_etch);
+    contact_poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, t_lift_off);
 
     Polygon* p[] = {contact_poly, contact_poly + 1, contact_poly + 2, contact_poly + 3};
     contact_cell.polygon_array.extend({.count = 4, .items = p});

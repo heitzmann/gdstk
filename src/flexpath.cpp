@@ -66,7 +66,7 @@ void FlexPath::print(bool all) const {
         for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
             printf("Element %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
                    ", join %d, end %d (%lg, %lg), bend %d (%lg)\n",
-                   ne, el->layer, el->datatype, (int)el->join_type, (int)el->end_type,
+                   ne, get_layer(el->tag), get_type(el->tag), (int)el->join_type, (int)el->end_type,
                    el->end_extensions.u, el->end_extensions.v, (int)el->bend_type, el->bend_radius);
         }
         printf("Spine: ");
@@ -100,8 +100,7 @@ void FlexPath::copy_from(const FlexPath& path) {
     FlexPathElement* dst = elements;
     for (uint64_t ne = 0; ne < path.num_elements; ne++, src++, dst++) {
         dst->half_width_and_offset.copy_from(src->half_width_and_offset);
-        dst->layer = src->layer;
-        dst->datatype = src->datatype;
+        dst->tag = src->tag;
         dst->join_type = src->join_type;
         dst->join_function = src->join_function;
         dst->join_function_data = src->join_function_data;
@@ -219,8 +218,7 @@ void FlexPath::remove_overlapping_points() {
     }
 }
 
-ErrorCode FlexPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype,
-                                Array<Polygon*>& result) {
+ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
     remove_overlapping_points();
     if (spine.point_array.count < 2) return ErrorCode::NoError;
 
@@ -229,7 +227,7 @@ ErrorCode FlexPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype,
 
     FlexPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-        if (filter && (el->layer != layer || el->datatype != datatype)) continue;
+        if (filter && el->tag != tag) continue;
 
         const double* half_widths = (double*)el->half_width_and_offset.items;
         const double* offsets = half_widths + 1;
@@ -622,8 +620,7 @@ ErrorCode FlexPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype,
         curve_size_guess = right_curve.point_array.count * 6 / 5;
 
         Polygon* result_polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-        result_polygon->layer = el->layer;
-        result_polygon->datatype = el->datatype;
+        result_polygon->tag = el->tag;
         result_polygon->point_array = right_curve.point_array;
         result_polygon->repetition.copy_from(repetition);
         result_polygon->properties = properties_copy(properties);
@@ -796,9 +793,19 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                 end_type = 0;
         }
 
-        uint16_t buffer_start[] = {
-            4,      0x0900,   6, 0x0D02, (uint16_t)el->layer, 6, 0x0E02, (uint16_t)el->datatype, 6,
-            0x2102, end_type, 8, 0x0F03};
+        uint16_t buffer_start[] = {4,
+                                   0x0900,
+                                   6,
+                                   0x0D02,
+                                   (uint16_t)get_layer(el->tag),
+                                   6,
+                                   0x0E02,
+                                   (uint16_t)get_type(el->tag),
+                                   6,
+                                   0x2102,
+                                   end_type,
+                                   8,
+                                   0x0F03};
         int32_t width =
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
         big_endian_swap16(buffer_start, COUNT(buffer_start));
@@ -887,8 +894,8 @@ ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
 
         oasis_putc((int)OasisRecord::PATH, out);
         oasis_putc(info, out);
-        oasis_write_unsigned_integer(out, el->layer);
-        oasis_write_unsigned_integer(out, el->datatype);
+        oasis_write_unsigned_integer(out, get_layer(el->tag));
+        oasis_write_unsigned_integer(out, get_type(el->tag));
         uint64_t half_width = (uint64_t)llround(el->half_width_and_offset[0].u * state.scaling);
         oasis_write_unsigned_integer(out, half_width);
 
@@ -941,7 +948,7 @@ ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
 
 ErrorCode FlexPath::to_svg(FILE* out, double scaling, uint32_t precision) {
     Array<Polygon*> array = {0};
-    ErrorCode error_code = to_polygons(false, 0, 0, array);
+    ErrorCode error_code = to_polygons(false, 0, array);
     for (uint64_t i = 0; i < array.count; i++) {
         ErrorCode err = array[i]->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;

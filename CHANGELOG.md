@@ -3,6 +3,8 @@
 ## Unreleased
 ### Added
 - `Cell.get_polygons`, `Cell.get_paths`, and `Cell.get_labels` return a copy of a cell’s polygons, paths or labels, including references, with the possibility of filtering by layer and type
+### Changed
+- The implementation of layer and data/text type for shapes and labels use the type `Tag` in the C++ API
 
 ## 0.7.0 - 2021-08-02
 ### Added
@@ -16,7 +18,7 @@
 - Holes in boolean results could lead to incorrect geometry in specific cases
 - Bug in boolean operations resulting in self-intersecting polygons
 - Bug in boolean operations with clockwise-oriented polygons
-- Unsupported records found when loading a library generate a warning, not an error.
+- Unsupported records found when loading a library generate a warning, not an error
 ### Changed
 - `inside` has changed to use the better interfaces: grouping has been removed, scaling is not necessary, and short-circuit is implemented in `all_inside` and `any_inside`
 

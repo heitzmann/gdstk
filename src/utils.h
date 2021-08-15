@@ -83,6 +83,18 @@ enum struct ErrorCode {
     ZlibError,
 };
 
+// Tag encapsulates layer and data (text) type.  The implementation details
+// might change in the future.  The only guarantee is that a zeroed Tag
+// indicates layer 0 and type 0.
+typedef uint64_t Tag;
+inline Tag make_tag(uint32_t layer, uint32_t type) {
+    return ((uint64_t)type << 32) | (uint64_t)layer;
+};
+inline uint32_t get_layer(Tag tag) { return (uint32_t)tag; };
+inline uint32_t get_type(Tag tag) { return (uint32_t)(tag >> 32); };
+inline void set_layer(Tag& tag, uint32_t layer) { tag = make_tag(layer, get_type(tag)); };
+inline void set_type(Tag& tag, uint32_t type) { tag = make_tag(get_layer(tag), type); };
+
 // Argument between 0 and 1, plus user data
 typedef double (*ParametricDouble)(double, void*);
 

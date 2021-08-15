@@ -8,7 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 static PyObject* label_object_str(LabelObject* self) {
     char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer), "Label '%s' at layer %" PRIu32 ", texttype %" PRIu32 "",
-             self->label->text, self->label->layer, self->label->texttype);
+             self->label->text, get_layer(self->label->tag), get_type(self->label->tag));
     return PyUnicode_FromString(buffer);
 }
 
@@ -42,8 +42,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
         self->label = (Label*)allocate_clear(sizeof(Label));
 
     Label* label = self->label;
-    label->layer = layer;
-    label->texttype = texttype;
+    label->tag = make_tag(layer, texttype);
     if (parse_point(py_origin, label->origin, "origin") != 0) return -1;
     if (py_anchor == NULL) {
         label->anchor = Anchor::O;
@@ -392,11 +391,11 @@ int label_object_set_x_reflection(LabelObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* label_object_get_layer(LabelObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->label->layer);
+    return PyLong_FromUnsignedLongLong(get_layer(self->label->tag));
 }
 
 static int label_object_set_layer(LabelObject* self, PyObject* arg, void*) {
-    self->label->layer = (uint32_t)PyLong_AsUnsignedLongLong(arg);
+    set_layer(self->label->tag, (uint32_t)PyLong_AsUnsignedLongLong(arg));
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert layer to int.");
         return -1;
@@ -405,11 +404,11 @@ static int label_object_set_layer(LabelObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* label_object_get_texttype(LabelObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->label->texttype);
+    return PyLong_FromUnsignedLongLong(get_type(self->label->tag));
 }
 
 static int label_object_set_texttype(LabelObject* self, PyObject* arg, void*) {
-    self->label->texttype = (uint32_t)PyLong_AsUnsignedLongLong(arg);
+    set_type(self->label->tag, (uint32_t)PyLong_AsUnsignedLongLong(arg));
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert texttype to int.");
         return -1;

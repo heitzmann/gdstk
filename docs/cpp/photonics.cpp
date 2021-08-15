@@ -21,7 +21,7 @@ void alignment_mark(Library& lib) {
     lib.cell_array.append(cell);
 
     Polygon* cross_ = (Polygon*)allocate(sizeof(Polygon));
-    *cross_ = cross(Vec2{0, 0}, 50, 3, 1, 0);
+    *cross_ = cross(Vec2{0, 0}, 50, 3, make_tag(1, 0));
     cell->polygon_array.append(cross_);
 }
 
@@ -41,10 +41,10 @@ void directional_coupler(Library& lib) {
     path->simple_path = true;
 
     path->elements = (RobustPathElement*)allocate_clear(2 * sizeof(RobustPathElement));
-    path->elements[0].layer = 1;
+    path->elements[0].tag = make_tag(1, 0);
     path->elements[0].end_width = 0.5;
     path->elements[0].end_offset = -1;
-    path->elements[1].layer = 1;
+    path->elements[1].tag = make_tag(1, 0);
     path->elements[1].end_width = 0.5;
     path->elements[1].end_offset = 1;
 
@@ -91,7 +91,7 @@ void mach_zenhder_interferometer(Library& lib) {
     FlexPath* path = (FlexPath*)allocate_clear(4 * sizeof(FlexPath));
     FlexPathElement* element = (FlexPathElement*)allocate_clear(4 * sizeof(FlexPathElement));
     for (int64_t i = 0; i < 4; i++) {
-        element[i].layer = i < 2 ? 1 : 10;
+        element[i].tag = make_tag(i < 2 ? 1 : 10, 0);
         element[i].bend_type = BendType::Circular;
         element[i].bend_radius = 15;
         path[i].num_elements = 1;

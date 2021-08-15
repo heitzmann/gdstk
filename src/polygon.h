@@ -24,8 +24,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 struct Polygon {
-    uint32_t layer;
-    uint32_t datatype;
+    Tag tag;
     Array<Vec2> point_array;
     Repetition repetition;
     Property* properties;
@@ -91,24 +90,23 @@ struct Polygon {
     ErrorCode to_svg(FILE* out, double scaling, uint32_t precision) const;
 };
 
-Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype);
+Polygon rectangle(const Vec2 corner1, const Vec2 corner2, Tag tag);
 
-Polygon cross(const Vec2 center, double full_size, double arm_width, uint32_t layer,
-              uint32_t datatype);
+Polygon cross(const Vec2 center, double full_size, double arm_width, Tag tag);
 
 // The polygon is created with a horizontal lower edge when rotation is 0.
 Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, double rotation,
-                        uint32_t layer, uint32_t datatype);
+                        Tag tag);
 
 // Create circles, ellipses, rings, or sections of those.  The number of points
 // used to approximate the arcs is such that the approximation error is less
 // than tolerance.
 Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inner_radius_x,
                 double inner_radius_y, double initial_angle, double final_angle, double tolerance,
-                uint32_t layer, uint32_t datatype);
+                Tag tag);
 
 Polygon racetrack(const Vec2 center, double straight_length, double radius, double inner_radius,
-                  bool vertical, double tolerance, uint32_t layer, uint32_t datatype);
+                  bool vertical, double tolerance, Tag tag);
 
 // Create a polygonal text form NULL-terminated string s.  Argument size
 // defines the full height of the glyphs.  Polygons are appended to result.
@@ -116,8 +114,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
 // characters and between lines are 9/16 and 5/4 times the full height size,
 // respectively.  For vertical text, characters and columns are respectively
 // spaced by 9/8 and 1 times size.
-void text(const char* s, double size, const Vec2 position, bool vertical, uint32_t layer,
-          uint32_t datatype, Array<Polygon*>& result);
+void text(const char* s, double size, const Vec2 position, bool vertical, Tag tag,
+          Array<Polygon*>& result);
 
 // Create polyogns based on the 2-d array data (in row-major orderr, with rows
 // * cols elements) by drawing the isolines at level.  Scaling is used in the

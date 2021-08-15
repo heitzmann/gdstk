@@ -108,20 +108,17 @@ struct Cell {
     // included, depth == 1 includes polygons from referenced cells (with their
     // transformation properly applied), but not from references thereof, and
     // so on.  Depth < 0, removes the limit in the recursion depth.  If filter
-    // is true, only polygons in the indicated layer and data type are
-    // appended.
+    // is true, only polygons with the indicated tag are appended.
     void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
-                      uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const;
+                      Tag tag, Array<Polygon*>& result) const;
 
-    // Append (newly allocated) copies of the elements in the cell to result.
-    // If filter is true, only polygons in the indicated layer and data/text
-    // type are appended.
-    void get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                       uint32_t datatype, Array<FlexPath*>& result) const;
-    void get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                         uint32_t datatype, Array<RobustPath*>& result) const;
-    void get_labels(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                    uint32_t texttype, Array<Label*>& result) const;
+    // Similar to get_polygons, but for paths and labels.
+    void get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                       Array<FlexPath*>& result) const;
+    void get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                         Array<RobustPath*>& result) const;
+    void get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                    Array<Label*>& result) const;
 
     // Insert all dependencies in result.  Dependencies are cells that appear
     // in this cell's references. If recursive, include the whole dependency
@@ -147,13 +144,13 @@ struct Cell {
     // the default units (px), but can be scaled freely.  Argument precision
     // defines the maximum desired precision for floating point representation
     // in the SVG file.  Arguments style and label_style can de used to
-    // customize the SVG style of elements by layer and data/text type.  If
-    // background is not NULL, it should be a valid SVG color for the image
-    // background.  Argument pad defines the margin (in px) added around the
-    // cell bounding box, unless pad_as_percentage == true, in which case it is
-    // interpreted as a percentage of the largest bounding box dimension.
-    // Argument comp in to_svg can be used to sort the polygons in the SVG
-    // output, which affects their draw order.
+    // customize the SVG style of elements by tag.  If background is not NULL,
+    // it should be a valid SVG color for the image background.  Argument pad
+    // defines the margin (in px) added around the cell bounding box, unless
+    // pad_as_percentage == true, in which case it is interpreted as a
+    // percentage of the largest bounding box dimension.  Argument comp in
+    // to_svg can be used to sort the polygons in the SVG output, which affects
+    // their draw order.
     ErrorCode write_svg(const char* filename, double scaling, uint32_t precision, StyleMap& style,
                         StyleMap& label_style, const char* background, double pad,
                         bool pad_as_percentage, PolygonComparisonFunction comp) const;

@@ -767,7 +767,7 @@ static PyObject* rectangle_function(PyObject* mod, PyObject* args, PyObject* kwd
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-    *result->polygon = rectangle(corner1, corner2, layer, datatype);
+    *result->polygon = rectangle(corner1, corner2, make_tag(layer, datatype));
     result->polygon->owner = result;
     return (PyObject*)result;
 }
@@ -787,7 +787,7 @@ static PyObject* cross_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-    *result->polygon = cross(center, full_size, arm_width, layer, datatype);
+    *result->polygon = cross(center, full_size, arm_width, make_tag(layer, datatype));
     result->polygon->owner = result;
     return (PyObject*)result;
 }
@@ -818,7 +818,8 @@ static PyObject* regular_polygon_function(PyObject* mod, PyObject* args, PyObjec
     PolygonObject* result = PyObject_New(PolygonObject, &polygon_object_type);
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-    *result->polygon = regular_polygon(center, side_length, sides, rotation, layer, datatype);
+    *result->polygon =
+        regular_polygon(center, side_length, sides, rotation, make_tag(layer, datatype));
     result->polygon->owner = result;
     return (PyObject*)result;
 }
@@ -872,7 +873,7 @@ static PyObject* ellipse_function(PyObject* mod, PyObject* args, PyObject* kwds)
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     *result->polygon = ellipse(center, radius.x, radius.y, inner_radius.x, inner_radius.y,
-                               initial_angle, final_angle, tolerance, layer, datatype);
+                               initial_angle, final_angle, tolerance, make_tag(layer, datatype));
     result->polygon->owner = result;
     return (PyObject*)result;
 }
@@ -911,7 +912,7 @@ static PyObject* racetrack_function(PyObject* mod, PyObject* args, PyObject* kwd
     result = (PolygonObject*)PyObject_Init((PyObject*)result, &polygon_object_type);
     result->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     *result->polygon = racetrack(center, straight_length, radius, inner_radius, vertical > 0,
-                                 tolerance, layer, datatype);
+                                 tolerance, make_tag(layer, datatype));
     result->polygon->owner = result;
     return (PyObject*)result;
 }
@@ -930,7 +931,7 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
         return NULL;
     if (parse_point(py_position, position, "position") != 0) return NULL;
     Array<Polygon*> array = {0};
-    text(s, size, position, vertical > 0, layer, datatype, array);
+    text(s, size, position, vertical > 0, make_tag(layer, datatype), array);
 
     PyObject* result = PyList_New(array.count);
     for (uint64_t i = 0; i < array.count; i++) {
@@ -986,6 +987,7 @@ static PyObject* contour_function(PyObject* mod, PyObject* args, PyObject* kwds)
         return NULL;
     }
 
+    Tag tag = make_tag(layer, datatype);
     const Vec2 scale = {length_scale, length_scale};
     const Vec2 center = {0, 0};
     PyObject* result = PyList_New(result_array.count);
@@ -995,8 +997,7 @@ static PyObject* contour_function(PyObject* mod, PyObject* args, PyObject* kwds)
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = poly;
-        poly->layer = layer;
-        poly->datatype = datatype;
+        poly->tag = tag;
         poly->owner = obj;
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
@@ -1067,14 +1068,14 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         return NULL;
     }
 
+    Tag tag = make_tag(layer, datatype);
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
         Polygon* poly = result_array[i];
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = poly;
-        poly->layer = layer;
-        poly->datatype = datatype;
+        poly->tag = tag;
         poly->owner = obj;
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
@@ -1157,14 +1158,14 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
         return NULL;
     }
 
+    Tag tag = make_tag(layer, datatype);
     PyObject* result = PyList_New(result_array.count);
     for (uint64_t i = 0; i < result_array.count; i++) {
         Polygon* poly = result_array[i];
         PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
         obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
         obj->polygon = poly;
-        poly->layer = layer;
-        poly->datatype = datatype;
+        poly->tag = tag;
         poly->owner = obj;
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
@@ -1244,8 +1245,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     }
 
     for (uint64_t i = 0; i < polygon_array.count; i++) {
-        uint32_t layer = polygon_array[i]->layer;
-        uint32_t datatype = polygon_array[i]->datatype;
+        Tag tag = polygon_array[i]->tag;
         Array<Polygon*>* slices =
             (Array<Polygon*>*)allocate_clear((positions.count + 1) * sizeof(Array<Polygon*>));
         // NOTE: slice should never result in an error
@@ -1256,8 +1256,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
                 PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
                 obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
                 obj->polygon = slice_array->items[j];
-                obj->polygon->layer = layer;
-                obj->polygon->datatype = datatype;
+                obj->polygon->tag = tag;
                 obj->polygon->owner = obj;
                 if (PyList_Append(parts[s], (PyObject*)obj) < 0) {
                     Py_DECREF(obj);

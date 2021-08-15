@@ -113,8 +113,7 @@ struct SubPath {
 };
 
 struct RobustPathElement {
-    uint32_t layer;
-    uint32_t datatype;
+    Tag tag;
 
     // These arrays should have the same count as subpath_array
     Array<Interpolation> width_array;
@@ -247,11 +246,10 @@ struct RobustPath {
     ErrorCode element_center(const RobustPathElement* el, Array<Vec2>& result) const;
 
     // Append the polygonal representation of this path to result.  If filter
-    // is true, only elements in the indicated layer and datatype are
-    // processed.  Overlapping points are removed from the path before any
-    // processing is executed.
-    ErrorCode to_polygons(bool filter, uint32_t layer, uint32_t datatype,
-                          Array<Polygon*>& result) const;
+    // is true, only elements with the indicated tag are processed.
+    // Overlapping points are removed from the path before any processing is
+    // executed.
+    ErrorCode to_polygons(bool filter, Tag tag, Array<Polygon*>& result) const;
 
     // These functions output the polygon in the GDSII, OASIS and SVG formats.
     // They are not supposed to be called by the user.  Because fracturing

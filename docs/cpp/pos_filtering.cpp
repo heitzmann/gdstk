@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     char unit_cell_name[] = "Unit";
     Cell unit_cell = {.name = unit_cell_name};
 
-    Polygon cross_ = cross(Vec2{0, 0}, 1, 0.2, 0, 0);
+    Polygon cross_ = cross(Vec2{0, 0}, 1, 0.2, 0);
     unit_cell.polygon_array.append(&cross_);
 
     char main_cell_name[] = "Main";
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     removed_references.clear();
 
     Array<Polygon*> txt = {0};
-    text("PY", 8 * d, Vec2{0.5 * d, 0}, false, 1, 0, txt);
+    text("PY", 8 * d, Vec2{0.5 * d, 0}, false, make_tag(1, 0), txt);
     for (int64_t i = 0; i < main_cell.polygon_array.count; i++) {
         if (any_inside(main_cell.polygon_array[i]->point_array, txt))
             main_cell.polygon_array.remove(i--);

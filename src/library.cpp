@@ -311,7 +311,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                     }
                 } else {
                     Array<Polygon*> array = {0};
-                    ErrorCode err = path->to_polygons(false, 0, 0, array);
+                    ErrorCode err = path->to_polygons(false, 0, array);
                     if (err != ErrorCode::NoError) error_code = err;
                     poly_p = array.items;
                     for (uint64_t k = array.count; k > 0; k--) {
@@ -343,7 +343,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                     }
                 } else {
                     Array<Polygon*> array = {0};
-                    ErrorCode err = path->to_polygons(false, 0, 0, array);
+                    ErrorCode err = path->to_polygons(false, 0, array);
                     if (err != ErrorCode::NoError) error_code = err;
                     poly_p = array.items;
                     for (uint64_t k = array.count; k > 0; k--) {
@@ -439,7 +439,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 if (err != ErrorCode::NoError) error_code = err;
             } else {
                 Array<Polygon*> array = {0};
-                err = path->to_polygons(false, 0, 0, array);
+                err = path->to_polygons(false, 0, array);
                 if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
@@ -461,7 +461,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 if (err != ErrorCode::NoError) error_code = err;
             } else {
                 Array<Polygon*> array = {0};
-                err = path->to_polygons(false, 0, 0, array);
+                err = path->to_polygons(false, 0, array);
                 if (err != ErrorCode::NoError) error_code = err;
                 poly_p = array.items;
                 for (uint64_t k = array.count; k > 0; k--) {
@@ -537,8 +537,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 text_string_map.set(label->text, index);
             }
             oasis_write_unsigned_integer(out, index);
-            oasis_write_unsigned_integer(out, label->layer);
-            oasis_write_unsigned_integer(out, label->texttype);
+            oasis_write_unsigned_integer(out, get_layer(label->tag));
+            oasis_write_unsigned_integer(out, get_type(label->tag));
             oasis_write_integer(out, (int64_t)llround(label->origin.x * state.scaling));
             oasis_write_integer(out, (int64_t)llround(label->origin.y * state.scaling));
             if (has_repetition) oasis_write_repetition(out, label->repetition, state.scaling);
@@ -862,18 +862,18 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                 break;
             case GdsiiRecord::LAYER:
                 if (polygon)
-                    polygon->layer = data16[0];
+                    set_layer(polygon->tag, data16[0]);
                 else if (path)
-                    path->elements[0].layer = data16[0];
+                    set_layer(path->elements[0].tag, data16[0]);
                 else if (label)
-                    label->layer = data16[0];
+                    set_layer(label->tag, data16[0]);
                 break;
             case GdsiiRecord::DATATYPE:
             case GdsiiRecord::BOXTYPE:
                 if (polygon)
-                    polygon->datatype = data16[0];
+                    set_type(polygon->tag, data16[0]);
                 else if (path)
-                    path->elements[0].datatype = data16[0];
+                    set_type(path->elements[0].tag, data16[0]);
                 break;
             case GdsiiRecord::WIDTH:
                 if (data32[0] < 0) {
@@ -964,7 +964,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                 }
                 break;
             case GdsiiRecord::TEXTTYPE:
-                if (label) label->texttype = data16[0];
+                if (label) set_type(label->tag, data16[0]);
                 break;
             case GdsiiRecord::PRESENTATION:
                 if (label) label->anchor = (Anchor)(data16[0] & 0x000F);
@@ -1527,11 +1527,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x01) {
                     modal_textlayer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                label->layer = modal_textlayer;
+                set_layer(label->tag, modal_textlayer);
                 if (info & 0x02) {
                     modal_texttype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                label->texttype = modal_texttype;
+                set_type(label->tag, modal_texttype);
                 if (info & 0x10) {
                     double x = factor * oasis_read_integer(in);
                     if (modal_absolute_pos) {
@@ -1591,7 +1591,8 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 Vec2 corner2 = {
                     modal_geom_pos.x + modal_geom_dim.x,
                     modal_geom_pos.y + ((info & 0x80) ? modal_geom_dim.x : modal_geom_dim.y)};
-                *polygon = rectangle(modal_geom_pos, corner2, modal_layer, modal_datatype);
+                *polygon =
+                    rectangle(modal_geom_pos, corner2, make_tag(modal_layer, modal_datatype));
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
                     polygon->repetition.copy_from(modal_repetition);
@@ -1606,11 +1607,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                polygon->layer = modal_layer;
+                set_layer(polygon->tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                polygon->datatype = modal_datatype;
+                set_type(polygon->tag, modal_datatype);
                 if (info & 0x20) {
                     modal_polygon_points.count = 0;
                     oasis_read_point_list(in, factor, true, modal_polygon_points);
@@ -1659,11 +1660,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                element->layer = modal_layer;
+                set_layer(element->tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                element->datatype = modal_datatype;
+                set_type(element->tag, modal_datatype);
                 if (info & 0x40) {
                     modal_path_halfwidth = factor * oasis_read_unsigned_integer(in);
                 }
@@ -1739,11 +1740,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                polygon->layer = modal_layer;
+                set_layer(polygon->tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                polygon->datatype = modal_datatype;
+                set_type(polygon->tag, modal_datatype);
                 if (info & 0x40) {
                     modal_geom_dim.x = factor * oasis_read_unsigned_integer(in);
                 }
@@ -1833,11 +1834,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                polygon->layer = modal_layer;
+                set_layer(polygon->tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                polygon->datatype = modal_datatype;
+                set_type(polygon->tag, modal_datatype);
                 if (info & 0x80) {
                     oasis_read(&modal_ctrapezoid_type, 1, 1, in);
                 }
@@ -2016,7 +2017,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     }
                 }
                 *polygon = ellipse(modal_geom_pos, modal_circle_radius, modal_circle_radius, 0, 0,
-                                   0, 0, tolerance, modal_layer, modal_datatype);
+                                   0, 0, tolerance, make_tag(modal_layer, modal_datatype));
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
                     polygon->repetition.copy_from(modal_repetition);

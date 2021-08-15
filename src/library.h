@@ -83,6 +83,10 @@ struct Library {
     // source.  Otherwise, the same cell pointers are used.
     void copy_from(const Library& library, bool deep_copy);
 
+    // TODO: Gather information about this library
+    // void get_geometry_tags(Array<Tag>& info) const;
+    // void get_label_tags(Array<Tag>& info) const;
+
     // Append the top level cells (and raw cells) to the respective arrays.
     // Top level cells are those that do not appear as dependencies of other
     // cells in the library.
@@ -109,6 +113,8 @@ struct Library {
                         uint16_t config_flags);
 };
 
+// TODO: filter by layer and datatype when reading?
+
 // Read the contents of a GDSII file into a new library.  If unit is not zero,
 // the units in the file are converted (all elements are properly scaled to the
 // desired unit).  The value of tolerance is used as the initial tolerance for
@@ -132,6 +138,10 @@ ErrorCode gds_units(const char* filename, double& unit, double& precision);
 // is returned.
 tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error_code);
 
+// TODO: Gather information about file
+// ErrorCode gds_info(const char* filename, Array<char*>& cell_names,
+//                    Array<Tag>& geometry_tags, Array<Tag>& label_tags);
+
 // Read the precision of an OASIS file (unit is always 1e-6) and return in the
 // precision argument.
 ErrorCode oas_precision(const char* filename, double& precision);
@@ -142,6 +152,10 @@ ErrorCode oas_precision(const char* filename, double& precision);
 // has no checksum data, signature will be set to zero and error_code to
 // ErrorCode::ChecksumError if they are not NULL.
 bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_code);
+
+// TODO: Gather information about file
+// ErrorCode oas_info(const char* filename, Array<char*>& cell_names,
+//                    Array<Tag>& geometry_tags, Array<Tag>& label_tags);
 
 }  // namespace gdstk
 

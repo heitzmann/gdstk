@@ -9,7 +9,8 @@ static PyObject* polygon_object_str(PolygonObject* self) {
     char buffer[GDSTK_PRINT_BUFFER_COUNT];
     snprintf(buffer, COUNT(buffer),
              "Polygon at layer %" PRIu32 ", datatype %" PRIu32 ", with %" PRIu64 " points",
-             self->polygon->layer, self->polygon->datatype, self->polygon->point_array.count);
+             get_layer(self->polygon->tag), get_type(self->polygon->tag),
+             self->polygon->point_array.count);
     return PyUnicode_FromString(buffer);
 }
 
@@ -35,8 +36,7 @@ static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kw
     else
         self->polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     Polygon* polygon = self->polygon;
-    polygon->layer = layer;
-    polygon->datatype = datatype;
+    polygon->tag = make_tag(layer, datatype);
     polygon->owner = self;
     if (parse_point_sequence(py_points, polygon->point_array, "points") < 0) {
         return -1;
@@ -473,11 +473,11 @@ static PyObject* polygon_object_get_points(PolygonObject* self, void*) {
 }
 
 static PyObject* polygon_object_get_layer(PolygonObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->polygon->layer);
+    return PyLong_FromUnsignedLongLong(get_layer(self->polygon->tag));
 }
 
 static int polygon_object_set_layer(PolygonObject* self, PyObject* arg, void*) {
-    self->polygon->layer = (uint32_t)PyLong_AsUnsignedLongLong(arg);
+    set_layer(self->polygon->tag, (uint32_t)PyLong_AsUnsignedLongLong(arg));
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert layer to int.");
         return -1;
@@ -486,11 +486,11 @@ static int polygon_object_set_layer(PolygonObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* polygon_object_get_datatype(PolygonObject* self, void*) {
-    return PyLong_FromUnsignedLongLong(self->polygon->datatype);
+    return PyLong_FromUnsignedLongLong(get_type(self->polygon->tag));
 }
 
 static int polygon_object_set_datatype(PolygonObject* self, PyObject* arg, void*) {
-    self->polygon->datatype = (uint32_t)PyLong_AsUnsignedLongLong(arg);
+    set_type(self->polygon->tag, (uint32_t)PyLong_AsUnsignedLongLong(arg));
     if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "Unable to convert datatype to int.");
         return -1;

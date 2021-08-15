@@ -19,8 +19,8 @@ namespace gdstk {
 void Label::print() {
     printf("Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg, reflection %d, layer %" PRIu32
            ", texttype %" PRIu32 ", properties <%p>, owner <%p>\n",
-           this, text, origin.x, origin.y, rotation, magnification, x_reflection, layer, texttype,
-           properties, owner);
+           this, text, origin.x, origin.y, rotation, magnification, x_reflection, get_layer(tag),
+           get_type(tag), properties, owner);
     properties_print(properties);
     repetition.print();
 }
@@ -36,8 +36,7 @@ void Label::clear() {
 
 void Label::copy_from(const Label& label) {
     uint64_t len;
-    layer = label.layer;
-    texttype = label.texttype;
+    tag = label.tag;
     text = copy_string(label.text, len);
     origin = label.origin;
     anchor = label.anchor;
@@ -85,9 +84,17 @@ void Label::apply_repetition(Array<Label*>& result) {
 
 ErrorCode Label::to_gds(FILE* out, double scaling) const {
     ErrorCode error_code = ErrorCode::NoError;
-    uint16_t buffer_start[] = {
-        4,      0x0C00,          6, 0x0D02, (uint16_t)layer, 6, 0x1602, (uint16_t)texttype, 6,
-        0x1701, (uint16_t)anchor};
+    uint16_t buffer_start[] = {4,
+                               0x0C00,
+                               6,
+                               0x0D02,
+                               (uint16_t)get_layer(tag),
+                               6,
+                               0x1602,
+                               (uint16_t)get_type(tag),
+                               6,
+                               0x1701,
+                               (uint16_t)anchor};
     big_endian_swap16(buffer_start, COUNT(buffer_start));
 
     uint16_t buffer_end[] = {4, 0x1100};
@@ -169,7 +176,8 @@ ErrorCode Label::to_gds(FILE* out, double scaling) const {
 }
 
 ErrorCode Label::to_svg(FILE* out, double scaling, uint32_t precision) const {
-    fprintf(out, "<text id=\"%p\" class=\"l%" PRIu32 "t%" PRIu32 "\"", this, layer, texttype);
+    fprintf(out, "<text id=\"%p\" class=\"l%" PRIu32 "t%" PRIu32 "\"", this, get_layer(tag),
+            get_type(tag));
     switch (anchor) {
         case Anchor::NW:
         case Anchor::W:

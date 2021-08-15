@@ -27,10 +27,10 @@ Vec2 parametric7(double u, void*) { return Vec2{4 * sin(6 * M_PI * u), 45 * u}; 
 
 int main(int argc, char* argv[]) {
     RobustPathElement rpe[] = {
-        {.layer = 1, .end_width = 2, .end_offset = 0, .end_type = EndType::HalfWidth},
-        {.layer = 0, .end_width = 0.5, .end_offset = 0, .end_type = EndType::Round},
-        {.layer = 2, .end_width = 1, .end_offset = -1, .end_type = EndType::Flush},
-        {.layer = 2, .end_width = 1, .end_offset = 1, .end_type = EndType::Flush},
+        {.tag = make_tag(1, 0), .end_width = 2, .end_offset = 0, .end_type = EndType::HalfWidth},
+        {.tag = make_tag(0, 0), .end_width = 0.5, .end_offset = 0, .end_type = EndType::Round},
+        {.tag = make_tag(2, 0), .end_width = 1, .end_offset = -1, .end_type = EndType::Flush},
+        {.tag = make_tag(2, 0), .end_width = 1, .end_offset = 1, .end_type = EndType::Flush},
     };
     RobustPath rp = {
         .end_point = Vec2{0, 50},

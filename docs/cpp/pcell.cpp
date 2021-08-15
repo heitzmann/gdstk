@@ -11,8 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 using namespace gdstk;
 
-Cell grating(double period, double fill_frac, double length, double width, int16_t layer,
-             int16_t datatype, char* name) {
+Cell grating(double period, double fill_frac, double length, double width, Tag tag, char* name) {
     double x = width / 2;
     double w = period * fill_frac;
     int64_t num = (int64_t)(length / period);
@@ -22,7 +21,7 @@ Cell grating(double period, double fill_frac, double length, double width, int16
     Polygon* rect = (Polygon*)allocate(num * sizeof(Polygon));
     for (int64_t i = 0; i < num; i++) {
         double y = i * period;
-        *rect = rectangle(Vec2{-x, y}, Vec2{x, y + w}, layer, datatype);
+        *rect = rectangle(Vec2{-x, y}, Vec2{x, y + w}, tag);
         result.polygon_array.append(rect++);
     }
 
@@ -36,18 +35,18 @@ int main(int argc, char* argv[]) {
     double length = 20;
 
     char grat1_name[] = "Grating 1";
-    Cell grat1 = grating(3.5, 0.5, length, 25, 1, 0, grat1_name);
+    Cell grat1 = grating(3.5, 0.5, length, 25, make_tag(1, 0), grat1_name);
     lib.cell_array.append(&grat1);
 
     char grat2_name[] = "Grating 2";
-    Cell grat2 = grating(3.0, 0.5, length, 25, 1, 0, grat2_name);
+    Cell grat2 = grating(3.0, 0.5, length, 25, make_tag(1, 0), grat2_name);
     lib.cell_array.append(&grat2);
 
     char main_name[] = "Main";
     Cell main = {.name = main_name};
     lib.cell_array.append(&main);
 
-    Polygon rect = rectangle(Vec2{0, -10}, Vec2{150, 10}, 0, 0);
+    Polygon rect = rectangle(Vec2{0, -10}, Vec2{150, 10}, 0);
     main.polygon_array.append(&rect);
 
     Reference ref1 = {

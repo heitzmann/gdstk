@@ -215,11 +215,11 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
 void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
-                         uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const {
+                         Tag tag, Array<Polygon*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Polygon*> array = {0};
-    cell->get_polygons(apply_repetitions, include_paths, depth, filter, layer, datatype, array);
+    cell->get_polygons(apply_repetitions, include_paths, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -252,12 +252,12 @@ void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t dep
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::flexpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                          uint32_t datatype, Array<FlexPath*>& result) const {
+void Reference::flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                          Array<FlexPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<FlexPath*> array = {0};
-    cell->get_flexpaths(apply_repetitions, depth, filter, layer, datatype, array);
+    cell->get_flexpaths(apply_repetitions, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -289,12 +289,12 @@ void Reference::flexpaths(bool apply_repetitions, int64_t depth, bool filter, ui
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::robustpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                            uint32_t datatype, Array<RobustPath*>& result) const {
+void Reference::robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                            Array<RobustPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<RobustPath*> array = {0};
-    cell->get_robustpaths(apply_repetitions, depth, filter, layer, datatype, array);
+    cell->get_robustpaths(apply_repetitions, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};
@@ -326,12 +326,12 @@ void Reference::robustpaths(bool apply_repetitions, int64_t depth, bool filter, 
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::labels(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                       uint32_t texttype, Array<Label*>& result) const {
+void Reference::labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                       Array<Label*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Label*> array = {0};
-    cell->get_labels(apply_repetitions, depth, filter, layer, texttype, array);
+    cell->get_labels(apply_repetitions, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
     Array<Vec2> offsets = {0};

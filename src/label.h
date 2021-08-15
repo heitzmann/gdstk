@@ -27,8 +27,7 @@ namespace gdstk {
 enum struct Anchor { NW = 0, N = 1, NE = 2, W = 4, O = 5, E = 6, SW = 8, S = 9, SE = 10 };
 
 struct Label {
-    uint32_t layer;
-    uint32_t texttype;
+    Tag tag;
     char* text;  // NULL-terminated text string
     Vec2 origin;
     Anchor anchor;    // Text anchor (not supported by OASIS)

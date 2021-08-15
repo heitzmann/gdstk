@@ -19,15 +19,15 @@ int main(int argc, char* argv[]) {
     Cell main_cell = {.name = main_cell_name};
     lib.cell_array.append(&main_cell);
 
-    Polygon square = regular_polygon(Vec2{0, 0}, 0.2, 4, 0, 0, 0);
+    Polygon square = regular_polygon(Vec2{0, 0}, 0.2, 4, 0, 0);
     square.repetition = {RepetitionType::Rectangular, 3, 2, Vec2{1, 1}};
     main_cell.polygon_array.append(&square);
 
-    Polygon triangle = regular_polygon(Vec2{0, 2.5}, 0.2, 3, 0, 0, 0);
+    Polygon triangle = regular_polygon(Vec2{0, 2.5}, 0.2, 3, 0, 0);
     triangle.repetition = {RepetitionType::Regular, 3, 5, Vec2{0.4, -0.3}, Vec2{0.4, 0.2}};
     main_cell.polygon_array.append(&triangle);
 
-    Polygon circle = ellipse(Vec2{3.5, 0}, 0.1, 0.1, 0, 0, 0, 0, 0.01, 0, 0);
+    Polygon circle = ellipse(Vec2{3.5, 0}, 0.1, 0.1, 0, 0, 0, 0, 0.01, 0);
     Vec2 offsets[] = {{0.5, 1}, {2, 0}, {1.5, 0.5}};
     circle.repetition.type = RepetitionType::Explicit;
     circle.repetition.offsets.count = COUNT(offsets);

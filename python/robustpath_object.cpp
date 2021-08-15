@@ -270,7 +270,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                  "Unable to get item %" PRIu64 " from layer list.", i);
                     return -1;
                 }
-                el->layer = (uint32_t)PyLong_AsUnsignedLongLong(item);
+                set_layer(el->tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRIu64 "] to int.",
@@ -286,7 +286,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (uint64_t i = 0; i < num_elements; i++) (el++)->layer = layer;
+            for (uint64_t i = 0; i < num_elements; i++) set_layer((el++)->tag, layer);
         }
     }
 
@@ -307,7 +307,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                                  "Unable to get item %" PRIu64 " from datatype list.", i);
                     return -1;
                 }
-                el->datatype = (uint32_t)PyLong_AsUnsignedLongLong(item);
+                set_type(el->tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
                 if (PyErr_Occurred()) {
                     robustpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
@@ -323,7 +323,7 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                 return -1;
             }
             RobustPathElement* el = robustpath->elements;
-            for (uint64_t i = 0; i < num_elements; i++) (el++)->datatype = datatype;
+            for (uint64_t i = 0; i < num_elements; i++) set_type((el++)->tag, datatype);
         }
     }
 
@@ -569,7 +569,7 @@ static PyObject* robustpath_object_gradient(RobustPathObject* self, PyObject* ar
 
 static PyObject* robustpath_object_to_polygons(RobustPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
-    if (return_error(self->robustpath->to_polygons(false, 0, 0, array))) {
+    if (return_error(self->robustpath->to_polygons(false, 0, array))) {
         for (uint64_t i = 0; i < array.count; i++) {
             array[i]->clear();
             free_allocation(array[i]);
@@ -616,7 +616,7 @@ static PyObject* robustpath_object_set_layers(RobustPathObject* self, PyObject* 
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
             return NULL;
         }
-        robustpath->elements[i].layer = (uint32_t)PyLong_AsUnsignedLongLong(item);
+        set_layer(robustpath->elements[i].tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRIu64 " to int.",
@@ -646,7 +646,7 @@ static PyObject* robustpath_object_set_datatypes(RobustPathObject* self, PyObjec
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
             return NULL;
         }
-        robustpath->elements[i].datatype = (uint32_t)PyLong_AsUnsignedLongLong(item);
+        set_type(robustpath->elements[i].tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRIu64 " to int.", i);
@@ -1862,7 +1862,7 @@ static PyObject* robustpath_object_get_layers(RobustPathObject* self, void*) {
         return NULL;
     }
     for (uint64_t i = 0; i < robustpath->num_elements; i++) {
-        PyObject* item = PyLong_FromUnsignedLongLong(robustpath->elements[i].layer);
+        PyObject* item = PyLong_FromUnsignedLongLong(get_layer(robustpath->elements[i].tag));
         if (item == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create int from layer");
             Py_DECREF(result);
@@ -1881,7 +1881,7 @@ static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) 
         return NULL;
     }
     for (uint64_t i = 0; i < robustpath->num_elements; i++) {
-        PyObject* item = PyLong_FromUnsignedLongLong(robustpath->elements[i].datatype);
+        PyObject* item = PyLong_FromUnsignedLongLong(get_type(robustpath->elements[i].tag));
         if (item == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create int from datatype");
             Py_DECREF(result);

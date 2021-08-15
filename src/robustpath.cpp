@@ -393,8 +393,8 @@ void RobustPath::print(bool all) const {
         for (uint64_t ne = 0; ne < num_elements; ne++, el++)
             printf("Element %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
                    ", end %d (%lg, %lg)\n",
-                   ne, el->layer, el->datatype, (int)el->end_type, el->end_extensions.u,
-                   el->end_extensions.v);
+                   ne, get_layer(el->tag), get_type(el->tag), (int)el->end_type,
+                   el->end_extensions.u, el->end_extensions.v);
     }
     properties_print(properties);
     repetition.print();
@@ -432,8 +432,7 @@ void RobustPath::copy_from(const RobustPath &path) {
     RobustPathElement *src = path.elements;
     RobustPathElement *dst = elements;
     for (uint64_t ne = 0; ne < path.num_elements; ne++, src++, dst++) {
-        dst->layer = src->layer;
-        dst->datatype = src->datatype;
+        dst->tag = src->tag;
         dst->end_width = src->end_width;
         dst->end_offset = src->end_offset;
         dst->end_type = src->end_type;
@@ -1150,15 +1149,14 @@ ErrorCode RobustPath::spine(Array<Vec2> &result) const {
     return error_code;
 }
 
-ErrorCode RobustPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype,
-                                  Array<Polygon *> &result) const {
+ErrorCode RobustPath::to_polygons(bool filter, Tag tag, Array<Polygon *> &result) const {
     ErrorCode error_code = ErrorCode::NoError;
     if (num_elements == 0 || subpath_array.count == 0) return error_code;
 
     const double tolerance_sq = tolerance * tolerance;
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-        if (filter && (el->layer != layer || el->datatype != datatype)) continue;
+        if (filter && el->tag != tag) continue;
 
         Array<Vec2> left_side = {0};
         Array<Vec2> right_side = {0};
@@ -1344,8 +1342,7 @@ ErrorCode RobustPath::to_polygons(bool filter, uint32_t layer, uint32_t datatype
         right_side.count += num;
 
         Polygon *result_polygon = (Polygon *)allocate_clear(sizeof(Polygon));
-        result_polygon->layer = el->layer;
-        result_polygon->datatype = el->datatype;
+        result_polygon->tag = el->tag;
         result_polygon->point_array = right_side;
         result_polygon->repetition.copy_from(repetition);
         result_polygon->properties = properties_copy(properties);
@@ -1419,9 +1416,19 @@ ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
                 end_type = 0;
         }
 
-        uint16_t buffer_start[] = {
-            4,      0x0900,   6, 0x0D02, (uint16_t)el->layer, 6, 0x0E02, (uint16_t)el->datatype, 6,
-            0x2102, end_type, 8, 0x0F03};
+        uint16_t buffer_start[] = {4,
+                                   0x0900,
+                                   6,
+                                   0x0D02,
+                                   (uint16_t)get_layer(el->tag),
+                                   6,
+                                   0x0E02,
+                                   (uint16_t)get_type(el->tag),
+                                   6,
+                                   0x2102,
+                                   end_type,
+                                   8,
+                                   0x0F03};
         int32_t width = (scale_width ? 1 : -1) *
                         (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
         big_endian_swap16(buffer_start, COUNT(buffer_start));
@@ -1508,8 +1515,8 @@ ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
 
         oasis_putc((int)OasisRecord::PATH, out);
         oasis_putc(info, out);
-        oasis_write_unsigned_integer(out, el->layer);
-        oasis_write_unsigned_integer(out, el->datatype);
+        oasis_write_unsigned_integer(out, get_layer(el->tag));
+        oasis_write_unsigned_integer(out, get_type(el->tag));
         uint64_t half_width =
             (uint64_t)llround(interp(el->width_array[0], 0) * width_scale * state.scaling);
         oasis_write_unsigned_integer(out, half_width);
@@ -1564,7 +1571,7 @@ ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
 
 ErrorCode RobustPath::to_svg(FILE *out, double scaling, uint32_t precision) const {
     Array<Polygon *> array = {0};
-    ErrorCode error_code = to_polygons(false, 0, 0, array);
+    ErrorCode error_code = to_polygons(false, 0, array);
     for (uint64_t i = 0; i < array.count; i++) {
         ErrorCode err = array[i]->to_svg(out, scaling, precision);
         if (err != ErrorCode::NoError) error_code = err;

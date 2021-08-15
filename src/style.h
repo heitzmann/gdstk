@@ -13,19 +13,20 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <stdint.h>
 
+#include "utils.h"
+
 namespace gdstk {
 
 // NULL-terminated linked-list of styles used in SVG output. Value is the SVG
-// style to be applyed to elements with the given layer and data/text type,
-// e.g., "stroke: #D04030; fill: #D89080;"
+// style to be applyed to elements with the given tag, e.g., "stroke: #D04030;
+// fill: #D89080;"
 struct Style {
-    uint32_t layer;
-    uint32_t type;
+    Tag tag;
     char* value;
     Style* next;
 };
 
-// Hash map of styles indexed by layer and type
+// Hash map of styles indexed by tag
 struct StyleMap {
     uint64_t capacity;  // allocated capacity
     uint64_t count;     // number of items in the map
@@ -40,9 +41,9 @@ struct StyleMap {
     void resize(uint64_t new_capacity);
 
     // Value is internally allocated and copied
-    void set(uint32_t layer, uint32_t type, const char* value);
-    const char* get(uint32_t layer, uint32_t type) const;
-    void del(uint32_t layer, uint32_t type);
+    void set(Tag tag, const char* value);
+    const char* get(Tag tag) const;
+    void del(Tag tag);
 
     // Function to iterate over all values in the map:
     // for (Style* style = style_map.next(NULL); style;

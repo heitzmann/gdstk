@@ -25,7 +25,7 @@ Cell grating(double period, double fill_frac, double length, double width, int16
     Polygon* rect = (Polygon*)allocate(num * sizeof(Polygon));
     for (int64_t i = 0; i < num; i++) {
         double y = i * period;
-        *rect = rectangle(Vec2{-x, y}, Vec2{x, y + w}, layer, datatype);
+        *rect = rectangle(Vec2{-x, y}, Vec2{x, y + w}, make_tag(layer, datatype));
         result.polygon_array.append(rect++);
     }
 
@@ -82,7 +82,8 @@ int main(int argc, char* argv[]) {
     };
     dev_cell.reference_array.append(&grating_ref2);
 
-    FlexPathElement element = {.layer = 1, .bend_type = BendType::Circular, .bend_radius = 15};
+    FlexPathElement element = {
+        .tag = make_tag(1, 0), .bend_type = BendType::Circular, .bend_radius = 15};
     FlexPath waveguide = {.elements = &element, .num_elements = 1};
     waveguide.init(Vec2{-220, -150}, 20, 0, 0.01);
 

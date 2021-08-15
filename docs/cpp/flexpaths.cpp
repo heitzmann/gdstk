@@ -57,7 +57,7 @@ void example_flexpath2(Cell& out_cell) {
 
     flexpath[0].elements[0].bend_type = BendType::Circular;
     flexpath[0].elements[0].bend_radius = 5;
-    flexpath[1].elements[0].layer = 1;
+    flexpath[1].elements[0].tag = make_tag(1, 0);
 }
 
 void example_flexpath3(Cell& out_cell) {

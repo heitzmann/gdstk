@@ -32,15 +32,15 @@ void example_holes(Cell& out_cell) {
 
 void example_circles(Cell& out_cell) {
     Polygon* circle = (Polygon*)allocate_clear(sizeof(Polygon));
-    *circle = ellipse(Vec2{0, 0}, 2, 2, 0, 0, 0, 0, 0.01, 0, 0);
+    *circle = ellipse(Vec2{0, 0}, 2, 2, 0, 0, 0, 0, 0.01, 0);
     out_cell.polygon_array.append(circle);
 
     Polygon* ellipse_ = (Polygon*)allocate_clear(sizeof(Polygon));
-    *ellipse_ = ellipse(Vec2{4, 0}, 1, 2, 0, 0, 0, 0, 1e-4, 0, 0);
+    *ellipse_ = ellipse(Vec2{4, 0}, 1, 2, 0, 0, 0, 0, 1e-4, 0);
     out_cell.polygon_array.append(ellipse_);
 
     Polygon* arc = (Polygon*)allocate_clear(sizeof(Polygon));
-    *arc = ellipse(Vec2{2, 4}, 2, 2, 1, 1, -0.2 * M_PI, 1.2 * M_PI, 0.01, 0, 0);
+    *arc = ellipse(Vec2{2, 4}, 2, 2, 1, 1, -0.2 * M_PI, 1.2 * M_PI, 0.01, 0);
     out_cell.polygon_array.append(arc);
 }
 
@@ -116,25 +116,22 @@ void example_curves3(Cell& out_cell) {
 
 void example_transformations(Cell& out_cell) {
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    *poly = rectangle(Vec2{-2, -2}, Vec2{2, 2}, 0, 0);
+    *poly = rectangle(Vec2{-2, -2}, Vec2{2, 2}, 0);
     poly->rotate(M_PI / 4, Vec2{0, 0});
     poly->scale(Vec2{1, 0.5}, Vec2{0, 0});
     out_cell.polygon_array.append(poly);
 }
 
 void example_layerdatatype(Cell& out_cell) {
-    int16_t layer_full_etch = 1;
-    int16_t dt_full_etch = 3;
-    int16_t layer_partial_etch = 2;
-    int16_t dt_partial_etch = 3;
-    int16_t layer_lift_off = 0;
-    int16_t dt_lift_off = 7;
+    Tag t_full_etch = make_tag(1, 3);
+    Tag t_partial_etch = make_tag(2, 3);
+    Tag t_lift_off = make_tag(0, 7);
 
     Polygon* poly = (Polygon*)allocate_clear(4 * sizeof(Polygon));
-    poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, layer_full_etch, dt_full_etch);
-    poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, layer_partial_etch, dt_partial_etch);
-    poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, layer_partial_etch, dt_partial_etch);
-    poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, layer_lift_off, dt_lift_off);
+    poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, t_full_etch);
+    poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, t_partial_etch);
+    poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, t_partial_etch);
+    poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, t_lift_off);
 
     Polygon* p[] = {poly, poly + 1, poly + 2, poly + 3};
     out_cell.polygon_array.extend({.count = 4, .items = p});

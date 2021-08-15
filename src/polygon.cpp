@@ -27,7 +27,7 @@ namespace gdstk {
 void Polygon::print(bool all) const {
     printf("Polygon <%p>, count %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
            ", properties <%p>, owner <%p>\n",
-           this, point_array.count, layer, datatype, properties, owner);
+           this, point_array.count, get_layer(tag), get_type(tag), properties, owner);
     if (all) {
         printf("Points: ");
         point_array.print(true);
@@ -43,8 +43,7 @@ void Polygon::clear() {
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
-    layer = polygon.layer;
-    datatype = polygon.datatype;
+    tag = polygon.tag;
     point_array.copy_from(polygon.point_array);
     repetition.copy_from(polygon.repetition);
     properties = properties_copy(polygon.properties);
@@ -382,8 +381,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
 
     for (uint64_t i = 0; i < result.count; i++) {
         poly = result[i];
-        poly->layer = layer;
-        poly->datatype = datatype;
+        poly->tag = tag;
         poly->repetition.copy_from(repetition);
         poly->properties = properties_copy(properties);
     }
@@ -415,7 +413,7 @@ ErrorCode Polygon::to_gds(FILE* out, double scaling) const {
     if (point_array.count < 3) return error_code;
 
     uint16_t buffer_start[] = {
-        4, 0x0800, 6, 0x0D02, (uint16_t)layer, 6, 0x0E02, (uint16_t)datatype};
+        4, 0x0800, 6, 0x0D02, (uint16_t)get_layer(tag), 6, 0x0E02, (uint16_t)get_type(tag)};
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_start, COUNT(buffer_start));
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -836,8 +834,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
         if (has_repetition) info |= 0x04;
         oasis_putc((int)OasisRecord::RECTANGLE, out);
         oasis_putc(info, out);
-        oasis_write_unsigned_integer(out, layer);
-        oasis_write_unsigned_integer(out, datatype);
+        oasis_write_unsigned_integer(out, get_layer(tag));
+        oasis_write_unsigned_integer(out, get_type(tag));
         oasis_write_unsigned_integer(out, size.x);
         if (!is_square) oasis_write_unsigned_integer(out, size.y);
         oasis_write_integer(out, corner.x);
@@ -860,8 +858,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
                 oasis_putc((int)OasisRecord::TRAPEZOID_AB, out);
             }
             oasis_putc(info, out);
-            oasis_write_unsigned_integer(out, layer);
-            oasis_write_unsigned_integer(out, datatype);
+            oasis_write_unsigned_integer(out, get_layer(tag));
+            oasis_write_unsigned_integer(out, get_type(tag));
             oasis_write_unsigned_integer(out, size.x);
             oasis_write_unsigned_integer(out, size.y);
             if (delta_a == 0) {
@@ -890,8 +888,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
             if (has_repetition) info |= 0x04;
             oasis_putc((int)OasisRecord::CTRAPEZOID, out);
             oasis_putc(info, out);
-            oasis_write_unsigned_integer(out, layer);
-            oasis_write_unsigned_integer(out, datatype);
+            oasis_write_unsigned_integer(out, get_layer(tag));
+            oasis_write_unsigned_integer(out, get_type(tag));
             oasis_putc(type, out);
             if (use_w) oasis_write_unsigned_integer(out, size.x);
             if (use_h) oasis_write_unsigned_integer(out, size.y);
@@ -914,8 +912,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
         if (has_repetition) info |= 0x04;
         oasis_putc((int)OasisRecord::CIRCLE, out);
         oasis_putc(info, out);
-        oasis_write_unsigned_integer(out, layer);
-        oasis_write_unsigned_integer(out, datatype);
+        oasis_write_unsigned_integer(out, get_layer(tag));
+        oasis_write_unsigned_integer(out, get_type(tag));
         oasis_write_unsigned_integer(out, (uint64_t)llround(radius * state.scaling));
         oasis_write_integer(out, (int64_t)llround(center.x * state.scaling));
         oasis_write_integer(out, (int64_t)llround(center.y * state.scaling));
@@ -925,8 +923,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
         if (has_repetition) info |= 0x04;
         oasis_putc((int)OasisRecord::POLYGON, out);
         oasis_putc(info, out);
-        oasis_write_unsigned_integer(out, layer);
-        oasis_write_unsigned_integer(out, datatype);
+        oasis_write_unsigned_integer(out, get_layer(tag));
+        oasis_write_unsigned_integer(out, get_type(tag));
         oasis_write_point_list(out, points, true);
         oasis_write_integer(out, points[0].x);
         oasis_write_integer(out, points[0].y);
@@ -943,8 +941,8 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
 ErrorCode Polygon::to_svg(FILE* out, double scaling, uint32_t precision) const {
     if (point_array.count < 3) return ErrorCode::NoError;
     char double_buffer[GDSTK_DOUBLE_BUFFER_COUNT];
-    fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this, layer,
-            datatype);
+    fprintf(out, "<polygon id=\"%p\" class=\"l%" PRIu32 "d%" PRIu32 "\" points=\"", this,
+            get_layer(tag), get_type(tag));
     Vec2* p = point_array.items;
     for (uint64_t j = 0; j < point_array.count - 1; j++) {
         fputs(double_print(p->x * scaling, precision, double_buffer, COUNT(double_buffer)), out);
@@ -977,10 +975,9 @@ ErrorCode Polygon::to_svg(FILE* out, double scaling, uint32_t precision) const {
     return ErrorCode::NoError;
 }
 
-Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32_t datatype) {
+Polygon rectangle(const Vec2 corner1, const Vec2 corner2, Tag tag) {
     Polygon result = {0};
-    result.layer = layer;
-    result.datatype = datatype;
+    result.tag = tag;
     result.point_array.ensure_slots(4);
     result.point_array.count = 4;
     result.point_array[0] = corner1;
@@ -990,13 +987,11 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, uint32_t layer, uint32
     return result;
 };
 
-Polygon cross(const Vec2 center, double full_size, double arm_width, uint32_t layer,
-              uint32_t datatype) {
+Polygon cross(const Vec2 center, double full_size, double arm_width, Tag tag) {
     const double len = full_size / 2;
     const double half_width = arm_width / 2;
     Polygon result = {0};
-    result.layer = layer;
-    result.datatype = datatype;
+    result.tag = tag;
     result.point_array.ensure_slots(12);
     result.point_array.count = 12;
     result.point_array[0] = center + Vec2{len, half_width};
@@ -1015,10 +1010,9 @@ Polygon cross(const Vec2 center, double full_size, double arm_width, uint32_t la
 };
 
 Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, double rotation,
-                        uint32_t layer, uint32_t datatype) {
+                        Tag tag) {
     Polygon result = {0};
-    result.layer = layer;
-    result.datatype = datatype;
+    result.tag = tag;
     result.point_array.ensure_slots(sides);
     result.point_array.count = sides;
     rotation += M_PI / sides - 0.5 * M_PI;
@@ -1033,10 +1027,9 @@ Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, d
 
 Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inner_radius_x,
                 double inner_radius_y, double initial_angle, double final_angle, double tolerance,
-                uint32_t layer, uint32_t datatype) {
+                Tag tag) {
     Polygon result = {0};
-    result.layer = layer;
-    result.datatype = datatype;
+    result.tag = tag;
     const double full_angle =
         (final_angle == initial_angle) ? 2 * M_PI : fabs(final_angle - initial_angle);
     if (inner_radius_x > 0 && inner_radius_y > 0) {
@@ -1116,10 +1109,9 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
 }
 
 Polygon racetrack(const Vec2 center, double straight_length, double radius, double inner_radius,
-                  bool vertical, double tolerance, uint32_t layer, uint32_t datatype) {
+                  bool vertical, double tolerance, Tag tag) {
     Polygon result = {0};
-    result.layer = layer;
-    result.datatype = datatype;
+    result.tag = tag;
 
     double initial_angle;
     Vec2 direction = {0};
@@ -1164,8 +1156,8 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     return result;
 }
 
-void text(const char* s, double size, const Vec2 position, bool vertical, uint32_t layer,
-          uint32_t datatype, Array<Polygon*>& result) {
+void text(const char* s, double size, const Vec2 position, bool vertical, Tag tag,
+          Array<Polygon*>& result) {
     size /= 16;
     Vec2 cursor = position;
     for (; *s != 0; s++) {
@@ -1197,8 +1189,7 @@ void text(const char* s, double size, const Vec2 position, bool vertical, uint32
                     uint16_t p_idx = _first_poly[index];
                     for (uint16_t i = _num_polys[index]; i > 0; i--, p_idx++) {
                         Polygon* p = (Polygon*)allocate_clear(sizeof(Polygon));
-                        p->layer = layer;
-                        p->datatype = datatype;
+                        p->tag = tag;
                         p->point_array.ensure_slots(_num_coords[p_idx]);
                         uint16_t c_idx = _first_coord[p_idx];
                         for (uint16_t j = _num_coords[p_idx]; j > 0; j--, c_idx++) {
@@ -1577,7 +1568,7 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
          island_areas[island_areas.count - 1] <= hole_areas[0])) {
         // The whole data edge is above level
         Polygon* poly = (Polygon*)allocate(sizeof(Polygon));
-        *poly = rectangle(Vec2{0, 0}, Vec2{(double)state_cols, (double)state_rows}, 0, 0);
+        *poly = rectangle(Vec2{0, 0}, Vec2{(double)state_cols, (double)state_rows}, 0);
         islands.append(poly);
         island_areas.append((double)state_cols * (double)state_rows);
         // DEBUG_PRINT("Appending full rectangle: island[%" PRIu64 "], area = %g\n",

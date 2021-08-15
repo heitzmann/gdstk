@@ -32,8 +32,7 @@ namespace gdstk {
 // spine.  Both width and offset can change along the spine.
 
 struct FlexPathElement {
-    uint32_t layer;
-    uint32_t datatype;
+    Tag tag;
 
     // Array of widths and offsets for this path element.  The array count must
     // match the spine count.  Each Vec2 v holds the width of the path divided
@@ -146,10 +145,10 @@ struct FlexPath {
     uint64_t commands(const CurveInstruction* items, uint64_t count);
 
     // Append the polygonal representation of this path to result.  If filter
-    // is true, only elements in the indicated layer and datatype are
-    // processed.  Overlapping points are removed from the path before any
-    // processing is executed.
-    ErrorCode to_polygons(bool filter, uint32_t layer, uint32_t datatype, Array<Polygon*>& result);
+    // is true, only elements with the indicated tag are processed.
+    // Overlapping points are removed from the path before any processing is
+    // executed.
+    ErrorCode to_polygons(bool filter, Tag tag, Array<Polygon*>& result);
 
     // Calculate the center of an element of this path and append the resulting
     // curve to result.

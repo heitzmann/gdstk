@@ -19,13 +19,13 @@ void make_first_lib(const char* filename) {
     Cell main_cell = {.name = main_cell_name};
     lib.cell_array.append(&main_cell);
 
-    text("First library", 10, Vec2{0, 0}, false, 0, 0, main_cell.polygon_array);
+    text("First library", 10, Vec2{0, 0}, false, 0, main_cell.polygon_array);
 
     char square_cell_name[] = "Square";
     Cell square_cell = {.name = square_cell_name};
     lib.cell_array.append(&square_cell);
 
-    Polygon square = rectangle(Vec2{-15, 0}, Vec2{-5, 10}, 0, 0);
+    Polygon square = rectangle(Vec2{-15, 0}, Vec2{-5, 10}, 0);
     square_cell.polygon_array.append(&square);
 
     Reference square_referece = {
@@ -39,7 +39,7 @@ void make_first_lib(const char* filename) {
     Cell circle_cell = {.name = circle_cell_name};
     lib.cell_array.append(&circle_cell);
 
-    Polygon circle = ellipse(Vec2{0, 0}, 4, 4, 0, 0, 0, 0, 0.01, 0, 0);
+    Polygon circle = ellipse(Vec2{0, 0}, 4, 4, 0, 0, 0, 0, 0.01, 0);
     circle_cell.polygon_array.append(&circle);
 
     Reference circle_referece = {
@@ -61,13 +61,13 @@ void make_second_lib(const char* filename) {
     Cell main_cell = {.name = main_cell_name};
     lib.cell_array.append(&main_cell);
 
-    text("Second library", 10, Vec2{0, 0}, false, 0, 0, main_cell.polygon_array);
+    text("Second library", 10, Vec2{0, 0}, false, 0, main_cell.polygon_array);
 
     char circle_cell_name[] = "Circle";
     Cell circle_cell = {.name = circle_cell_name};
     lib.cell_array.append(&circle_cell);
 
-    Polygon circle = ellipse(Vec2{-10, 5}, 5, 5, 0, 0, 0, 0, 0.01, 0, 0);
+    Polygon circle = ellipse(Vec2{-10, 5}, 5, 5, 0, 0, 0, 0, 0.01, 0);
     circle_cell.polygon_array.append(&circle);
 
     Reference circle_referece = {

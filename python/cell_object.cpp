@@ -122,7 +122,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
     int by_spec = 0;
     if (!PyArg_ParseTuple(args, "|p:area", &by_spec)) return NULL;
     Array<Polygon*> array = {0};
-    self->cell->get_polygons(true, true, -1, false, 0, 0, array);
+    self->cell->get_polygons(true, true, -1, false, 0, array);
     if (by_spec) {
         result = PyDict_New();
         if (!result) {
@@ -139,7 +139,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                 array.clear();
                 return NULL;
             }
-            PyObject* key = Py_BuildValue("(hh)", poly->layer, poly->datatype);
+            PyObject* key = Py_BuildValue("(hh)", get_layer(poly->tag), get_type(poly->tag));
             if (!key) {
                 PyErr_SetString(PyExc_RuntimeError, "Unable to build key.");
                 Py_DECREF(area);
@@ -254,8 +254,8 @@ static PyObject* cell_object_get_polygons(CellObject* self, PyObject* args, PyOb
     }
 
     Array<Polygon*> array = {0};
-    self->cell->get_polygons(apply_repetitions > 0, include_paths > 0, depth, filter, layer,
-                             datatype, array);
+    self->cell->get_polygons(apply_repetitions > 0, include_paths > 0, depth, filter,
+                             make_tag(layer, datatype), array);
 
     PyObject* result = PyList_New(array.count);
     if (!result) {
@@ -315,10 +315,12 @@ static PyObject* cell_object_get_paths(CellObject* self, PyObject* args, PyObjec
     }
 
     Array<FlexPath*> fp_array = {0};
-    self->cell->get_flexpaths(apply_repetitions > 0, depth, filter, layer, datatype, fp_array);
+    self->cell->get_flexpaths(apply_repetitions > 0, depth, filter, make_tag(layer, datatype),
+                              fp_array);
 
     Array<RobustPath*> rp_array = {0};
-    self->cell->get_robustpaths(apply_repetitions > 0, depth, filter, layer, datatype, rp_array);
+    self->cell->get_robustpaths(apply_repetitions > 0, depth, filter, make_tag(layer, datatype),
+                                rp_array);
 
     PyObject* result = PyList_New(fp_array.count + rp_array.count);
     if (!result) {
@@ -391,7 +393,7 @@ static PyObject* cell_object_get_labels(CellObject* self, PyObject* args, PyObje
     }
 
     Array<Label*> array = {0};
-    self->cell->get_labels(apply_repetitions > 0, depth, filter, layer, texttype, array);
+    self->cell->get_labels(apply_repetitions > 0, depth, filter, make_tag(layer, texttype), array);
 
     PyObject* result = PyList_New(array.count);
     if (!result) {
@@ -817,7 +819,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         uint64_t i = 0;
         while (i < cell->polygon_array.count) {
             Polygon* poly = cell->polygon_array[i];
-            if (filter_check(op, layers.contains(poly->layer), types.contains(poly->datatype))) {
+            if (filter_check(op, layers.contains(get_layer(poly->tag)),
+                             types.contains(get_type(poly->tag)))) {
                 cell->polygon_array.remove_unordered(i);
                 Py_DECREF(poly->owner);
             } else {
@@ -834,7 +837,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
             uint64_t j = 0;
             while (j < path->num_elements) {
                 FlexPathElement* el = path->elements + j++;
-                if (filter_check(op, layers.contains(el->layer), types.contains(el->datatype)))
+                if (filter_check(op, layers.contains(get_layer(el->tag)),
+                                 types.contains(get_type(el->tag))))
                     remove++;
             }
             if (remove == path->num_elements) {
@@ -845,8 +849,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
                     j = 0;
                     while (j < path->num_elements) {
                         FlexPathElement* el = path->elements + j;
-                        if (filter_check(op, layers.contains(el->layer),
-                                         types.contains(el->datatype))) {
+                        if (filter_check(op, layers.contains(get_layer(el->tag)),
+                                         types.contains(get_type(el->tag)))) {
                             el->half_width_and_offset.clear();
                             path->elements[j] = path->elements[--path->num_elements];
                         } else {
@@ -865,7 +869,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
             uint64_t j = 0;
             while (j < path->num_elements) {
                 RobustPathElement* el = path->elements + j++;
-                if (filter_check(op, layers.contains(el->layer), types.contains(el->datatype)))
+                if (filter_check(op, layers.contains(get_layer(el->tag)),
+                                 types.contains(get_type(el->tag))))
                     remove++;
             }
             if (remove == path->num_elements) {
@@ -876,8 +881,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
                     j = 0;
                     while (j < path->num_elements) {
                         RobustPathElement* el = path->elements + j;
-                        if (filter_check(op, layers.contains(el->layer),
-                                         types.contains(el->datatype))) {
+                        if (filter_check(op, layers.contains(get_layer(el->tag)),
+                                         types.contains(get_type(el->tag)))) {
                             el->width_array.clear();
                             el->offset_array.clear();
                             path->elements[j] = path->elements[--path->num_elements];
@@ -895,7 +900,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         uint64_t i = 0;
         while (i < cell->label_array.count) {
             Label* label = cell->label_array[i];
-            if (filter_check(op, layers.contains(label->layer), types.contains(label->texttype))) {
+            if (filter_check(op, layers.contains(get_layer(label->tag)),
+                             types.contains(get_type(label->tag)))) {
                 cell->label_array.remove_unordered(i);
                 Py_DECREF(label->owner);
             } else {

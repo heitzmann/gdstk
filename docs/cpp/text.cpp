@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
     char label_text[] = "Sample label";
     Label label = {
-        .texttype = 2,
+        .tag = make_tag(0, 2),
         .text = label_text,
         .origin = Vec2{5, 3},
         .magnification = 1,
@@ -29,11 +29,11 @@ int main(int argc, char* argv[]) {
     text_cell.label_array.append(&label);
 
     Array<Polygon*> all_text = {0};
-    text("12345", 2.25, Vec2{0.25, 6}, false, 0, 0, all_text);
-    text("ABC", 1.5, Vec2{10.5, 4}, true, 0, 0, all_text);
+    text("12345", 2.25, Vec2{0.25, 6}, false, 0, all_text);
+    text("ABC", 1.5, Vec2{10.5, 4}, true, 0, all_text);
     text_cell.polygon_array.extend(all_text);
 
-    Polygon rect = rectangle(Vec2{0, 0}, Vec2{10, 6}, 10, 0);
+    Polygon rect = rectangle(Vec2{0, 0}, Vec2{10, 6}, make_tag(10, 0));
     text_cell.polygon_array.append(&rect);
 
     lib.write_gds("text.gds", 0, NULL);

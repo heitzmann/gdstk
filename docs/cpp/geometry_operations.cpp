@@ -13,9 +13,9 @@ using namespace gdstk;
 
 void example_boolean(Cell& out_cell) {
     Array<Polygon*> txt = {0};
-    text("GDSTK", 4, Vec2{0, 0}, false, 0, 0, txt);
+    text("GDSTK", 4, Vec2{0, 0}, false, 0, txt);
 
-    Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0, 0);
+    Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0);
     Polygon* rectp = &rect;
 
     boolean({.count = 1, .items = &rectp}, txt, Operation::Not, 1000, out_cell.polygon_array);
@@ -29,9 +29,9 @@ void example_boolean(Cell& out_cell) {
 
 void example_slice(Cell& out_cell) {
     Polygon ring[3];
-    ring[0] = ellipse(Vec2{-6, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0, 0);
-    ring[1] = ellipse(Vec2{0, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0, 0);
-    ring[2] = ellipse(Vec2{6, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0, 0);
+    ring[0] = ellipse(Vec2{-6, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0);
+    ring[1] = ellipse(Vec2{0, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0);
+    ring[2] = ellipse(Vec2{6, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0);
 
     double x[] = {-3, 3};
     Array<double> cuts = {.count = 1, .items = x};
@@ -58,15 +58,15 @@ void example_slice(Cell& out_cell) {
 
 void example_offset(Cell& out_cell) {
     Polygon* rect = (Polygon*)allocate_clear(2 * sizeof(Polygon));
-    rect[0] = rectangle(Vec2{-4, -4}, Vec2{1, 1}, 0, 0);
-    rect[1] = rectangle(Vec2{-1, -1}, Vec2{4, 4}, 0, 0);
+    rect[0] = rectangle(Vec2{-4, -4}, Vec2{1, 1}, 0);
+    rect[1] = rectangle(Vec2{-1, -1}, Vec2{4, 4}, 0);
     Polygon* rect_p[] = {rect, rect + 1};
     const Array<Polygon*> rect_array = {.count = 2, .items = rect_p};
     out_cell.polygon_array.extend(rect_array);
     uint64_t start = out_cell.polygon_array.count;
     offset(rect_array, -0.5, OffsetJoin::Miter, 2, 1000, true, out_cell.polygon_array);
     for (uint64_t i = start; i < out_cell.polygon_array.count; i++) {
-        out_cell.polygon_array[i]->layer = 1;
+        out_cell.polygon_array[i]->tag = make_tag(1, 0);
     }
 }
 
@@ -78,7 +78,7 @@ void example_fillet(Cell& out_cell) {
 
     double r = 1.5;
     Array<Polygon*> poly_array = {0};
-    flexpath.to_polygons(false, 0, 0, poly_array);
+    flexpath.to_polygons(false, 0, poly_array);
     for (int i = 0; i < poly_array.count; i++)
         poly_array[i]->fillet({.count = 1, .items = &r}, 0.01);
 

@@ -122,7 +122,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
             // NOTE: return ErrorCode ignored here
-            (*flexpath)->to_polygons(false, 0, 0, array);
+            (*flexpath)->to_polygons(false, 0, array);
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
@@ -139,7 +139,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
             // NOTE: return ErrorCode ignored here
-            (*robustpath)->to_polygons(false, 0, 0, array);
+            (*robustpath)->to_polygons(false, 0, array);
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
@@ -194,7 +194,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     FlexPath** flexpath = flexpath_array.items;
     for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
         // NOTE: return ErrorCode ignored here
-        (*flexpath)->to_polygons(false, 0, 0, array);
+        (*flexpath)->to_polygons(false, 0, array);
         polygon = array.items;
         for (uint64_t j = 0; j < array.count; j++, polygon++) {
             points.extend((*polygon)->point_array);
@@ -207,7 +207,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     RobustPath** robustpath = robustpath_array.items;
     for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
         // NOTE: return ErrorCode ignored here
-        (*robustpath)->to_polygons(false, 0, 0, array);
+        (*robustpath)->to_polygons(false, 0, array);
         polygon = array.items;
         for (uint64_t j = 0; j < array.count; j++, polygon++) {
             points.extend((*polygon)->point_array);
@@ -293,13 +293,13 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
 }
 
 void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
-                        uint32_t layer, uint32_t datatype, Array<Polygon*>& result) const {
+                        Tag tag, Array<Polygon*>& result) const {
     uint64_t start = result.count;
 
     if (filter) {
         for (uint64_t i = 0; i < polygon_array.count; i++) {
             Polygon* psrc = polygon_array[i];
-            if (psrc->layer != layer || psrc->datatype != datatype) continue;
+            if (psrc->tag != tag) continue;
             Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
             poly->copy_from(*psrc);
             result.append(poly);
@@ -317,13 +317,13 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
             // NOTE: return ErrorCode ignored here
-            (*flexpath)->to_polygons(filter, layer, datatype, result);
+            (*flexpath)->to_polygons(filter, tag, result);
         }
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
             // NOTE: return ErrorCode ignored here
-            (*robustpath)->to_polygons(filter, layer, datatype, result);
+            (*robustpath)->to_polygons(filter, tag, result);
         }
     }
 
@@ -338,13 +338,13 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
             (*ref)->polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1, filter,
-                             layer, datatype, result);
+                             tag, result);
         }
     }
 }
 
-void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                         uint32_t datatype, Array<FlexPath*>& result) const {
+void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                         Array<FlexPath*>& result) const {
     uint64_t start = result.count;
 
     if (filter) {
@@ -353,7 +353,7 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uin
             FlexPath* path = NULL;
             for (uint64_t j = 0; j < psrc->num_elements; j++) {
                 FlexPathElement* esrc = psrc->elements + j;
-                if (esrc->layer != layer || esrc->datatype != datatype) continue;
+                if (esrc->tag != tag) continue;
                 if (!path) {
                     path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                     path->spine.copy_from(psrc->spine);
@@ -367,8 +367,7 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uin
                     path->elements, path->num_elements * sizeof(FlexPathElement));
                 FlexPathElement* el = path->elements + (path->num_elements - 1);
                 el->half_width_and_offset.copy_from(esrc->half_width_and_offset);
-                el->layer = esrc->layer;
-                el->datatype = esrc->datatype;
+                el->tag = esrc->tag;
                 el->join_type = esrc->join_type;
                 el->join_function = esrc->join_function;
                 el->join_function_data = esrc->join_function_data;
@@ -402,14 +401,13 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, uin
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, layer,
-                              datatype, result);
+            (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
         }
     }
 }
 
-void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                           uint32_t datatype, Array<RobustPath*>& result) const {
+void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                           Array<RobustPath*>& result) const {
     uint64_t start = result.count;
 
     if (filter) {
@@ -418,7 +416,7 @@ void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, u
             RobustPath* path = NULL;
             for (uint64_t j = 0; j < psrc->num_elements; j++) {
                 RobustPathElement* esrc = psrc->elements + j;
-                if (esrc->layer != layer || esrc->datatype != datatype) continue;
+                if (esrc->tag != tag) continue;
                 if (!path) {
                     path = (RobustPath*)allocate_clear(sizeof(RobustPath));
                     path->properties = properties_copy(psrc->properties);
@@ -437,8 +435,7 @@ void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, u
                 path->elements = (RobustPathElement*)reallocate(
                     path->elements, path->num_elements * sizeof(RobustPathElement));
                 RobustPathElement* el = path->elements + (path->num_elements - 1);
-                el->layer = esrc->layer;
-                el->datatype = esrc->datatype;
+                el->tag = esrc->tag;
                 el->end_width = esrc->end_width;
                 el->end_offset = esrc->end_offset;
                 el->end_type = esrc->end_type;
@@ -469,20 +466,19 @@ void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, u
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, layer,
-                                datatype, result);
+            (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
         }
     }
 }
 
-void Cell::get_labels(bool apply_repetitions, int64_t depth, bool filter, uint32_t layer,
-                      uint32_t texttype, Array<Label*>& result) const {
+void Cell::get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                      Array<Label*>& result) const {
     uint64_t start = result.count;
 
     if (filter) {
         for (uint64_t i = 0; i < label_array.count; i++) {
             Label* lsrc = label_array[i];
-            if (lsrc->layer != layer || lsrc->texttype != texttype) continue;
+            if (lsrc->tag != tag) continue;
             Label* label = (Label*)allocate_clear(sizeof(Label));
             label->copy_from(*lsrc);
             result.append(label);
@@ -506,8 +502,7 @@ void Cell::get_labels(bool apply_repetitions, int64_t depth, bool filter, uint32
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, layer, texttype,
-                           result);
+            (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
         }
     }
 }
@@ -519,10 +514,10 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
         if (ref->type == ReferenceType::Cell) {
             reference_array.remove_unordered(i);
             result.append(ref);
-            ref->polygons(apply_repetitions, false, -1, false, 0, 0, polygon_array);
-            ref->flexpaths(apply_repetitions, -1, false, 0, 0, flexpath_array);
-            ref->robustpaths(apply_repetitions, -1, false, 0, 0, robustpath_array);
-            ref->labels(apply_repetitions, -1, false, 0, 0, label_array);
+            ref->polygons(apply_repetitions, false, -1, false, 0, polygon_array);
+            ref->flexpaths(apply_repetitions, -1, false, 0, flexpath_array);
+            ref->robustpaths(apply_repetitions, -1, false, 0, robustpath_array);
+            ref->labels(apply_repetitions, -1, false, 0, label_array);
         } else {
             ++i;
         }
@@ -613,7 +608,7 @@ ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double pr
             if (err != ErrorCode::NoError) error_code = err;
         } else {
             Array<Polygon*> fp_array = {0};
-            ErrorCode err = flexpath->to_polygons(false, 0, 0, fp_array);
+            ErrorCode err = flexpath->to_polygons(false, 0, fp_array);
             if (err != ErrorCode::NoError) error_code = err;
             p_item = fp_array.items;
             for (uint64_t i = 0; i < fp_array.count; i++, p_item++) {
@@ -648,7 +643,7 @@ ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double pr
             if (err != ErrorCode::NoError) error_code = err;
         } else {
             Array<Polygon*> rp_array = {0};
-            ErrorCode err = robustpath->to_polygons(false, 0, 0, rp_array);
+            ErrorCode err = robustpath->to_polygons(false, 0, rp_array);
             if (err != ErrorCode::NoError) error_code = err;
             p_item = rp_array.items;
             for (uint64_t i = 0; i < rp_array.count; i++, p_item++) {
@@ -731,7 +726,7 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char
         }
     } else {
         Array<Polygon*> all_polygons = {0};
-        get_polygons(false, true, -1, false, 0, 0, all_polygons);
+        get_polygons(false, true, -1, false, 0, all_polygons);
 
         sort(all_polygons, comparison);
 
@@ -811,25 +806,25 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     fputs("\">\n<defs>\n<style type=\"text/css\">\n", out);
 
     for (uint64_t i = 0; i < polygon_array.count; i++) {
-        style.set(polygon_array[i]->layer, polygon_array[i]->datatype, NULL);
+        style.set(polygon_array[i]->tag, NULL);
     }
 
     for (uint64_t i = 0; i < flexpath_array.count; i++) {
         const FlexPath* flexpath = flexpath_array[i];
         for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
-            style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
+            style.set(flexpath->elements[ne].tag, NULL);
         }
     }
 
     for (uint64_t i = 0; i < robustpath_array.count; i++) {
         const RobustPath* robustpath = robustpath_array[i];
         for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
-            style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
+            style.set(robustpath->elements[ne].tag, NULL);
         }
     }
 
     for (uint64_t i = 0; i < label_array.count; i++) {
-        style.set(label_array[i]->layer, label_array[i]->texttype, NULL);
+        style.set(label_array[i]->tag, NULL);
     }
 
     Map<Cell*> cell_map = {0};
@@ -837,14 +832,14 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
         const Array<Polygon*>* polygons = &item->value->polygon_array;
         for (uint64_t i = 0; i < polygons->count; i++) {
-            style.set((*polygons)[i]->layer, (*polygons)[i]->datatype, NULL);
+            style.set((*polygons)[i]->tag, NULL);
         }
 
         const Array<FlexPath*>* flexpaths = &item->value->flexpath_array;
         for (uint64_t i = 0; i < flexpaths->count; i++) {
             const FlexPath* flexpath = flexpaths->items[i];
             for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
-                style.set(flexpath->elements[ne].layer, flexpath->elements[ne].datatype, NULL);
+                style.set(flexpath->elements[ne].tag, NULL);
             }
         }
 
@@ -852,21 +847,23 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
         for (uint64_t i = 0; i < robustpaths->count; i++) {
             const RobustPath* robustpath = robustpaths->items[i];
             for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
-                style.set(robustpath->elements[ne].layer, robustpath->elements[ne].datatype, NULL);
+                style.set(robustpath->elements[ne].tag, NULL);
             }
         }
 
         const Array<Label*>* labels = &item->value->label_array;
         for (uint64_t i = 0; i < labels->count; i++) {
-            style.set((*labels)[i]->layer, (*labels)[i]->texttype, NULL);
+            style.set((*labels)[i]->tag, NULL);
         }
     }
 
     for (Style* s = style.next(NULL); s; s = style.next(s))
-        fprintf(out, ".l%" PRIu32 "d%" PRIu32 " {%s}\n", s->layer, s->type, s->value);
+        fprintf(out, ".l%" PRIu32 "d%" PRIu32 " {%s}\n", get_layer(s->tag), get_type(s->tag),
+                s->value);
 
     for (Style* s = label_style.next(NULL); s; s = label_style.next(s))
-        fprintf(out, ".l%" PRIu32 "t%" PRIu32 " {%s}\n", s->layer, s->type, s->value);
+        fprintf(out, ".l%" PRIu32 "t%" PRIu32 " {%s}\n", get_layer(s->tag), get_type(s->tag),
+                s->value);
 
     fputs("</style>\n", out);
 

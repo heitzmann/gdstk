@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
     path.segment(Vec2{3, -3}, NULL, NULL, true);
     main_cell.robustpath_array.append(&path);
 
-    Polygon major = regular_polygon(Vec2{0, 0}, 0.5, 6, 0, 1, 0);
-    Polygon minor = rectangle(Vec2{-0.1, -0.5}, Vec2{0.1, 0.5}, 1, 0);
+    Polygon major = regular_polygon(Vec2{0, 0}, 0.5, 6, 0, make_tag(1, 0));
+    Polygon minor = rectangle(Vec2{-0.1, -0.5}, Vec2{0.1, 0.5}, make_tag(1, 0));
 
     int64_t count = path.subpath_array.count;
 

@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     Cell unit_cell = {.name = unit_cell_name};
     lib.cell_array.append(&unit_cell);
 
-    Polygon circle = ellipse(Vec2{0, 0}, r, r, 0, 0, 0, 0, 1e-3, 0, 0);
+    Polygon circle = ellipse(Vec2{0, 0}, r, r, 0, 0, 0, 0, 1e-3, 0);
     unit_cell.polygon_array.append(&circle);
 
     char resonator_cell_name[] = "Resonator";
@@ -66,11 +66,11 @@ int main(int argc, char* argv[]) {
     Reference* unit_refs_p[] = {unit_refs, unit_refs + 1, unit_refs + 2, unit_refs + 3};
     resonator_cell.reference_array.extend({.count = 4, .items = unit_refs_p});
 
-    Polygon rect = rectangle(Vec2{-r / 2, -r / 2}, Vec2{r / 2, r / 2}, 0, 0);
+    Polygon rect = rectangle(Vec2{-r / 2, -r / 2}, Vec2{r / 2, r / 2}, 0);
     resonator_cell.polygon_array.append(&rect);
 
     FlexPathElement element = {
-        .layer = 1,
+        .tag = make_tag(1, 0),
         .end_type = EndType::Extended,
         .end_extensions = Vec2{r, r},
     };
@@ -132,10 +132,9 @@ int main(int argc, char* argv[]) {
     main_cell.reference_array.extend({.count = 3, .items = resonator_refs_p});
 
     Array<Polygon*> all_text = {0};
-    text("Original", d, Vec2{(n + 1) * d, -d / 2}, false, 0, 0, all_text);
-    text("Reference\nscaling", d, Vec2{s * (n + 1) * d, (1 + s) * (n + 1) * d}, false, 0, 0,
-         all_text);
-    text("Cell copy\nscaling", d, Vec2{s * (n + 1) * d, (1 + 3 * s) * (n + 1) * d}, false, 0, 0,
+    text("Original", d, Vec2{(n + 1) * d, -d / 2}, false, 0, all_text);
+    text("Reference\nscaling", d, Vec2{s * (n + 1) * d, (1 + s) * (n + 1) * d}, false, 0, all_text);
+    text("Cell copy\nscaling", d, Vec2{s * (n + 1) * d, (1 + 3 * s) * (n + 1) * d}, false, 0,
          all_text);
     main_cell.polygon_array.extend(all_text);
 

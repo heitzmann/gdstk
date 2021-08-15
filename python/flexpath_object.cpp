@@ -276,7 +276,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                  "Unable to get item %" PRIu64 " from layer list.", i);
                     return -1;
                 }
-                el->layer = (uint32_t)PyLong_AsUnsignedLongLong(item);
+                set_layer(el->tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError, "Unable to convert layer[%" PRIu64 "] to int.",
@@ -292,7 +292,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 return -1;
             }
             FlexPathElement* el = flexpath->elements;
-            for (uint64_t i = 0; i < num_elements; i++) (el++)->layer = layer;
+            for (uint64_t i = 0; i < num_elements; i++) set_layer((el++)->tag, layer);
         }
     }
 
@@ -313,7 +313,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                                  "Unable to get item %" PRIu64 " from datatype list.", i);
                     return -1;
                 }
-                el->datatype = (uint32_t)PyLong_AsUnsignedLongLong(item);
+                set_type(el->tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
                 if (PyErr_Occurred()) {
                     flexpath_cleanup(self);
                     PyErr_Format(PyExc_RuntimeError,
@@ -329,7 +329,7 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                 return -1;
             }
             FlexPathElement* el = flexpath->elements;
-            for (uint64_t i = 0; i < num_elements; i++) (el++)->datatype = datatype;
+            for (uint64_t i = 0; i < num_elements; i++) set_type((el++)->tag, datatype);
         }
     }
 
@@ -701,7 +701,7 @@ static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject*) {
 
 static PyObject* flexpath_object_to_polygons(FlexPathObject* self, PyObject*) {
     Array<Polygon*> array = {0};
-    if (return_error(self->flexpath->to_polygons(false, 0, 0, array))) {
+    if (return_error(self->flexpath->to_polygons(false, 0, array))) {
         for (uint64_t i = 0; i < array.count; i++) {
             array[i]->clear();
             free_allocation(array[i]);
@@ -748,7 +748,7 @@ static PyObject* flexpath_object_set_layers(FlexPathObject* self, PyObject* arg)
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
             return NULL;
         }
-        flexpath->elements[i].layer = (uint32_t)PyLong_AsUnsignedLongLong(item);
+        set_layer(flexpath->elements[i].tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError, "Unable to convert sequence item %" PRIu64 " to int.",
@@ -778,7 +778,7 @@ static PyObject* flexpath_object_set_datatypes(FlexPathObject* self, PyObject* a
             PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
             return NULL;
         }
-        flexpath->elements[i].datatype = (uint32_t)PyLong_AsUnsignedLongLong(item);
+        set_type(flexpath->elements[i].tag, (uint32_t)PyLong_AsUnsignedLongLong(item));
         Py_DECREF(item);
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRIu64 " to int.", i);
@@ -1836,7 +1836,7 @@ static PyObject* flexpath_object_get_layers(FlexPathObject* self, void*) {
         return NULL;
     }
     for (uint64_t i = 0; i < flexpath->num_elements; i++) {
-        PyObject* item = PyLong_FromUnsignedLongLong(flexpath->elements[i].layer);
+        PyObject* item = PyLong_FromUnsignedLongLong(get_layer(flexpath->elements[i].tag));
         if (item == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create int from layer");
             Py_DECREF(result);
@@ -1855,7 +1855,7 @@ static PyObject* flexpath_object_get_datatypes(FlexPathObject* self, void*) {
         return NULL;
     }
     for (uint64_t i = 0; i < flexpath->num_elements; i++) {
-        PyObject* item = PyLong_FromUnsignedLongLong(flexpath->elements[i].datatype);
+        PyObject* item = PyLong_FromUnsignedLongLong(get_type(flexpath->elements[i].tag));
         if (item == NULL) {
             PyErr_SetString(PyExc_RuntimeError, "Unable to create int from datatype");
             Py_DECREF(result);

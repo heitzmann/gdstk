@@ -21,14 +21,14 @@ int main(int argc, char* argv[]) {
         for (int64_t j = 0; j < cell->polygon_array.count; j++) {
             Polygon* poly = cell->polygon_array[j];
             // Decrement j so that we don't skip over the next polygon.
-            if (poly->layer == 2) cell->polygon_array.remove(j--);
+            if (get_layer(poly->tag) == 2) cell->polygon_array.remove(j--);
         }
         // Loaded libraries have no RobustPath elements
         for (int64_t j = 0; j < cell->flexpath_array.count; j++) {
             FlexPath* fp = cell->flexpath_array[j];
             // All paths in loaded libraries have only 1 element.
             // Decrement j so that we don't skip over the next path.
-            if (fp->elements[0].layer == 10) cell->flexpath_array.remove(j--);
+            if (get_layer(fp->elements[0].tag) == 10) cell->flexpath_array.remove(j--);
         }
     }
 
