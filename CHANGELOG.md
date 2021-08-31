@@ -3,6 +3,9 @@
 ## Unreleased
 ### Added
 - `Cell.get_polygons`, `Cell.get_paths`, and `Cell.get_labels` return a copy of a cell’s polygons, paths or labels, including references, with the possibility of filtering by layer and type
+### Fixed
+- Label transforms in SVG output
+- Label styling in SVG output
 ### Changed
 - The implementation of layer and data/text type for shapes and labels use the type `Tag` in the C++ API
 

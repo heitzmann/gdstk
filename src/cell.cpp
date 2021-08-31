@@ -824,7 +824,7 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     }
 
     for (uint64_t i = 0; i < label_array.count; i++) {
-        style.set(label_array[i]->tag, NULL);
+        label_style.set(label_array[i]->tag, NULL);
     }
 
     Map<Cell*> cell_map = {0};
@@ -853,7 +853,7 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
 
         const Array<Label*>* labels = &item->value->label_array;
         for (uint64_t i = 0; i < labels->count; i++) {
-            style.set((*labels)[i]->tag, NULL);
+            label_style.set((*labels)[i]->tag, NULL);
         }
     }
 

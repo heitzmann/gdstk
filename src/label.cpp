@@ -214,16 +214,15 @@ ErrorCode Label::to_svg(FILE* out, double scaling, uint32_t precision) const {
     }
 
     char double_buffer[GDSTK_DOUBLE_BUFFER_COUNT];
-    fputs(" transform=\"scale(1 -1) translate(", out);
+    fputs(" transform=\"translate(", out);
     fputs(double_print(scaling * origin.x, precision, double_buffer, COUNT(double_buffer)), out);
     fputc(' ', out);
     fputs(double_print(scaling * origin.y, precision, double_buffer, COUNT(double_buffer)), out);
     fputc(')', out);
 
-    // Negative sign to correct for the default coordinate system with y-down
     if (rotation != 0) {
         fputs(" rotate(", out);
-        fputs(double_print(rotation * (-180.0 / M_PI), precision, double_buffer,
+        fputs(double_print(rotation * (180.0 / M_PI), precision, double_buffer,
                            COUNT(double_buffer)),
               out);
         fputc(')', out);
@@ -239,7 +238,7 @@ ErrorCode Label::to_svg(FILE* out, double scaling, uint32_t precision) const {
 
     // NOTE: Escape “<”, “>”, and “&” inside the SVG tag.  Here be dragons if the text is not ASCII.
     // The GDSII specification imposes ASCII-only for strings, but who knows…
-    fputs("\">", out);
+    fputs(" scale(1 -1)\">", out);
     for (char* c = text; *c != 0; c++) {
         switch (*c) {
             case '<':

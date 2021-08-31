@@ -135,7 +135,8 @@ def make_proof_lib():
         gdstk.Reference(ref_cell2, (-7, 23), numpy.pi / 3, 0.5, True, 3, 2, (5, 8))
     )
 
-    lib.add(cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten())
+    cell_copy = cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten()
+    lib.add(cell_copy)
 
     gds_outfile = pathlib.Path(__file__).parent / "proof_lib.gds"
     if gds_outfile.exists():
