@@ -222,9 +222,9 @@ ErrorCode Label::to_svg(FILE* out, double scaling, uint32_t precision) const {
 
     if (rotation != 0) {
         fputs(" rotate(", out);
-        fputs(double_print(rotation * (180.0 / M_PI), precision, double_buffer,
-                           COUNT(double_buffer)),
-              out);
+        fputs(
+            double_print(rotation * (180.0 / M_PI), precision, double_buffer, COUNT(double_buffer)),
+            out);
         fputc(')', out);
     }
     if (x_reflection) {

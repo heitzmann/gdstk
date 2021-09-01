@@ -858,6 +858,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                 break;
             case GdsiiRecord::TEXT:
                 label = (Label*)allocate_clear(sizeof(Label));
+                label->magnification = 1;
                 if (cell) cell->label_array.append(label);
                 break;
             case GdsiiRecord::LAYER:

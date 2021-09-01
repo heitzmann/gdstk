@@ -101,6 +101,7 @@ docs/_build/
 # Generated images
 *.svg
 *.gds
+*.oas
 docs/geometry/
 docs/library/
 

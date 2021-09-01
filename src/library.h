@@ -113,7 +113,7 @@ struct Library {
                         uint16_t config_flags);
 };
 
-// TODO: filter by layer and datatype when reading?
+// TODO: filter by layer and datatype when reading? (#58)
 
 // Read the contents of a GDSII file into a new library.  If unit is not zero,
 // the units in the file are converted (all elements are properly scaled to the
