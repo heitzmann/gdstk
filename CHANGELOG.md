@@ -7,6 +7,7 @@
 - Label transforms in SVG output
 - Label styling in SVG output
 - Default label magnification when loading a GDSII file
+- Bugs when loading some OASIS files
 ### Changed
 - The implementation of layer and data/text type for shapes and labels use the type `Tag` in the C++ API
 

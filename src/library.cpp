@@ -1726,9 +1726,8 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     }
                 }
                 path->spine.append(modal_geom_pos);
-                const Array<Vec2> skip_first = {.capacity = 0,
-                                          .count = modal_path_points.count - 1,
-                                          .items = modal_path_points.items + 1};
+                const Array<Vec2> skip_first = {0, modal_path_points.count - 1,
+                                                modal_path_points.items + 1};
                 path->segment(skip_first, NULL, NULL, true);
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
