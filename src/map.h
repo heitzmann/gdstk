@@ -184,11 +184,11 @@ struct Map {
             item->key = NULL;
             MapItem<T>* new_item = get_slot(temp_key);
             new_item->key = temp_key;
-            if (new_item != item) {
-                // DEBUG_PRINT("MOVE %s [%" PRIu64 "] -> [%" PRIu64 "]\n", new_item->key,
-                //             item - items, new_item - items);
-                new_item->value == item->value;
-            }
+            new_item->value = item->value;
+            // if (new_item != item) {
+            //     DEBUG_PRINT("MOVE %s [%" PRIu64 "] -> [%" PRIu64 "]\n", new_item->key,
+            //                 item - items, new_item - items);
+            // }
         }
         assert(false);
         return true;
