@@ -79,6 +79,30 @@ struct Cell {
 
     void clear();
 
+    void free_all() {
+        for (uint64_t j = 0; j < polygon_array.count; j++) {
+            polygon_array[j]->clear();
+            free_allocation(polygon_array[j]);
+        }
+        for (uint64_t j = 0; j < flexpath_array.count; j++) {
+            flexpath_array[j]->clear();
+            free_allocation(flexpath_array[j]);
+        }
+        for (uint64_t j = 0; j < robustpath_array.count; j++) {
+            robustpath_array[j]->clear();
+            free_allocation(robustpath_array[j]);
+        }
+        for (uint64_t j = 0; j < reference_array.count; j++) {
+            reference_array[j]->clear();
+            free_allocation(reference_array[j]);
+        }
+        for (uint64_t j = 0; j < label_array.count; j++) {
+            label_array[j]->clear();
+            free_allocation(label_array[j]);
+        }
+        clear();
+    }
+
     // Bounding box corners are returned in min and max.  For an empty cell,
     // return min.x > max.x.  Internally, this function simply calls the
     // caching version with an empty cache.

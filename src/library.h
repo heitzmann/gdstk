@@ -54,26 +54,12 @@ struct Library {
     }
 
     // Clear and free the memory of the whole library (this should be used with
-    // caution)
+    // caution, it assumes all the memory is allocated dynamically and frees
+    // it).  It does not touch rawcells in rawcell_array, but it frees all cell
+    // contents from cell_array.
     void free_all() {
         for (uint64_t i = 0; i < cell_array.count; i++) {
-            Cell* cell = cell_array[i];
-            for (uint64_t j = 0; j < cell->polygon_array.count; j++) {
-                cell->polygon_array[j]->clear();
-            }
-            for (uint64_t j = 0; j < cell->flexpath_array.count; j++) {
-                cell->flexpath_array[j]->clear();
-            }
-            for (uint64_t j = 0; j < cell->robustpath_array.count; j++) {
-                cell->robustpath_array[j]->clear();
-            }
-            for (uint64_t j = 0; j < cell->reference_array.count; j++) {
-                cell->reference_array[j]->clear();
-            }
-            for (uint64_t j = 0; j < cell->label_array.count; j++) {
-                cell->label_array[j]->clear();
-            }
-            cell->clear();
+            cell_array[i]->free_all();
         }
         clear();
     }
