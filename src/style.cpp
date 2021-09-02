@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "style.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,20 +43,30 @@ static const char* default_style(Tag tag) {
     return buffer;
 }
 
-void StyleMap::clear() {
-    if (style) {
-        for (uint64_t i = 0; i < capacity; i++) {
-            Style* s = style[i].next;
-            while (s) {
-                Style* tmp = s->next;
-                free_allocation(s->value);
-                free_allocation(s);
-                s = tmp;
-            }
+void StyleMap::print(bool all) const {
+    printf("StyleMap <%p>, count %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, count, capacity,
+           items);
+    if (all) {
+        Style* item = items;
+        for (uint64_t i = 0; i < capacity; i++, item++) {
+            printf("(%" PRIu64 ") Item <%p>, layer %" PRIu32 "/type %" PRIu32
+                   ", value <%p> \"%s\"\n",
+                   i, item, get_layer(item->tag), get_type(item->tag), item->value,
+                   item->value ? item->value : "");
         }
-        free_allocation(style);
-        style = NULL;
     }
+}
+
+void StyleMap::clear() {
+    if (items) {
+        Style* item = items;
+        for (uint64_t i = 0; i < capacity; i++, item++) {
+            if (item->value) free_allocation(item->value);
+            item->value = NULL;
+        }
+    }
+    free_allocation(items);
+    items = NULL;
     capacity = 0;
     count = 0;
 }
@@ -63,29 +74,34 @@ void StyleMap::clear() {
 void StyleMap::copy_from(const StyleMap& map) {
     count = 0;
     capacity = map.capacity;
-    style = (Style*)allocate_clear(capacity * sizeof(Style));
+    items = (Style*)allocate_clear(capacity * sizeof(Style));
     for (Style* s = map.next(NULL); s; s = map.next(s)) set(s->tag, s->value);
 }
 
 void StyleMap::resize(uint64_t new_capacity) {
     StyleMap new_map;
+    new_map.count = 0;
     new_map.capacity = new_capacity;
-    new_map.style = (Style*)allocate_clear(new_capacity * sizeof(Style));
-    for (uint64_t i = 0; i < capacity; i++) {
-        Style* prop = style[i].next;
-        while (prop != NULL) {
-            uint64_t j = hash(prop->tag) % new_map.capacity;
-            Style* slot = new_map.style + j;
-            while (slot->next != NULL) slot = slot->next;
-            slot->next = prop;
-            slot = prop->next;
-            prop->next = NULL;
-            prop = slot;
-        }
+    new_map.items = (Style*)allocate_clear(new_capacity * sizeof(Style));
+    const Style* limit = items + capacity;
+    for (Style* it = items; it != limit; it++) {
+        if (it->value) new_map.set(it->tag, it->value);
     }
-    free_allocation(style);
-    style = new_map.style;
+    clear();
     capacity = new_map.capacity;
+    count = new_map.count;
+    items = new_map.items;
+}
+
+Style* StyleMap::get_slot(Tag tag) const {
+    assert(capacity > 0);
+    uint64_t h = hash(tag) % capacity;
+    Style* item = items + h;
+    while (item->value != NULL && item->tag != tag) {
+        item++;
+        if (item == items + capacity) item = items;
+    }
+    return item;
 }
 
 void StyleMap::set(Tag tag, const char* value) {
@@ -94,65 +110,57 @@ void StyleMap::set(Tag tag, const char* value) {
         resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
                                                 : INITIAL_MAP_CAPACITY);
 
-    uint64_t idx = hash(tag) % capacity;
-    Style* s = style + idx;
-    while (!(s->next == NULL || s->next->tag == tag)) s = s->next;
-    if (!s->next) {
-        s->next = (Style*)allocate(sizeof(Style));
-        s->next->tag = tag;
-        s->next->value = NULL;
-        s->next->next = NULL;
-        count++;
-    }
-    s = s->next;
-
-    if (s->value) {
-        if (!value) return;
-        free_allocation(s->value);
-    }
-
     uint64_t len;
+    Style* s = get_slot(tag);
+    s->tag = tag;
     if (value) {
+        if (s->value != NULL) {
+            free_allocation(s->value);
+        }
         s->value = copy_string(value, len);
-    } else {
+    } else if (s->value == NULL) {
         s->value = copy_string(default_style(tag), len);
     }
 }
 
 const char* StyleMap::get(Tag tag) const {
     if (count == 0) return default_style(tag);
-    uint64_t i = hash(tag) % capacity;
-    Style* s = style[i].next;
-    while (!(s == NULL || s->tag == tag)) s = s->next;
-
-    if (s) return s->value;
-    return default_style(tag);
+    const Style* s = get_slot(tag);
+    return s->value ? s->value : default_style(tag);
 }
 
-void StyleMap::del(Tag tag) {
-    if (count == 0) return;
+bool StyleMap::del(Tag tag) {
+    if (count == 0) return false;
 
-    uint64_t i = hash(tag) % capacity;
-    Style* s = style + i;
-    while (!(s->next == NULL || s->next->tag == tag)) s = s->next;
-    if (!s->next) return;
+    Style* item = get_slot(tag);
+    if (item->value == NULL) return false;
 
-    Style* rem = s->next;
-    s->next = rem->next;
-    if (rem->value) free_allocation(rem->value);
-    free_allocation(rem);
+    free_allocation(item->value);
+    item->value = NULL;
     count--;
+
+    // Re-insert this block to fill any undesired gaps
+    while (true) {
+        item++;
+        if (item == items + capacity) item = items;
+        if (item->value == NULL) return true;
+        char* temp_value = item->value;
+        item->value = NULL;
+        Style* new_item = get_slot(item->tag);
+        new_item->tag = item->tag;
+        new_item->value = temp_value;
+    }
+    assert(false);
+    return true;
 }
 
 Style* StyleMap::next(const Style* current) const {
-    if (!current) {
-        for (uint64_t i = 0; i < capacity; i++)
-            if (style[i].next) return style[i].next;
-        return NULL;
+    Style* next = current ? (Style*)(current + 1) : items;
+    const Style* limit = items + capacity;
+    while (next < limit) {
+        if (next->value) return next;
+        next++;
     }
-    if (current->next) return current->next;
-    for (uint64_t i = hash(current->tag) % capacity + 1; i < capacity; i++)
-        if (style[i].next) return style[i].next;
     return NULL;
 }
 
