@@ -11,6 +11,7 @@
 - Bug fix in Map::del
 ### Changed
 - The implementation of layer and data/text type for shapes and labels use the type `Tag` in the C++ API
+- Style arguments renamed in `Cell.write_svg`
 
 ## 0.7.0 - 2021-08-02
 ### Added

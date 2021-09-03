@@ -319,6 +319,8 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
 }
 
 uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Array<Vec2>& result) {
+    assert(result.count > 0);
+
     uint8_t byte;
     if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return 0;
 

@@ -615,8 +615,9 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
     PyObject* pad_obj = NULL;
     PyObject* sort_obj = Py_None;
     const char* background = "#222222";
-    const char* keywords[] = {"outfile",    "scaling", "precision",     "style", "fontstyle",
-                              "background", "pad",     "sort_function", NULL};
+    const char* keywords[] = {"outfile",     "scaling",       "precision",
+                              "shape_style", "label_style",   "background",
+                              "pad",         "sort_function", NULL};
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "O&|dIOOzOO:write_svg", (char**)keywords, PyUnicode_FSConverter, &pybytes,
             &scaling, &precision, &style_obj, &label_style_obj, &background, &pad_obj, &sort_obj))
@@ -655,12 +656,14 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         }
     }
 
-    StyleMap style = {0};
-    if (style_obj != Py_None && update_style(style_obj, style, "style") < 0) return NULL;
+    StyleMap shape_style = {0};
+    if (style_obj != Py_None && update_style(style_obj, shape_style, "shape_style") < 0)
+        return NULL;
 
     StyleMap label_style = {0};
-    if (label_style_obj != Py_None && update_style(label_style_obj, label_style, "fontstyle") < 0) {
-        style.clear();
+    if (label_style_obj != Py_None &&
+        update_style(label_style_obj, label_style, "label_style") < 0) {
+        shape_style.clear();
         return NULL;
     }
 
@@ -668,19 +671,19 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
 
     ErrorCode error_code;
     if (sort_obj == Py_None) {
-        error_code = self->cell->write_svg(filename, scaling, precision, style, label_style,
+        error_code = self->cell->write_svg(filename, scaling, precision, &shape_style, &label_style,
                                            background, pad, pad_as_percentage, NULL);
     } else {
         if (!PyCallable_Check(sort_obj)) {
             PyErr_SetString(PyExc_TypeError, "Argument sort_function must be callable.");
             Py_DECREF(pybytes);
-            style.clear();
+            shape_style.clear();
             label_style.clear();
             return NULL;
         }
         polygon_comparison_pyfunc = sort_obj;
         polygon_comparison_pylist = PyList_New(0);
-        error_code = self->cell->write_svg(filename, scaling, precision, style, label_style,
+        error_code = self->cell->write_svg(filename, scaling, precision, &shape_style, &label_style,
                                            background, pad, pad_as_percentage, polygon_comparison);
         Py_DECREF(polygon_comparison_pylist);
         polygon_comparison_pylist = NULL;
@@ -689,7 +692,7 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
 
     Py_DECREF(pybytes);
 
-    style.clear();
+    shape_style.clear();
     label_style.clear();
 
     if (return_error(error_code)) return NULL;

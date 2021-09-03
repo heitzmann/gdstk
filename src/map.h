@@ -11,33 +11,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS
 #define _USE_MATH_DEFINES
 
-#define MAP_GROWTH_FACTOR 2
-#define INITIAL_MAP_CAPACITY 8
-#define MAP_CAPACITY_THRESHOLD 5  // in tenths
-
 #include <assert.h>
-#include <inttypes.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "allocator.h"
 #include "utils.h"
 
 namespace gdstk {
-
-// FNV-1a hash function (64 bits)
-#define MAP_FNV_PRIME 0x00000100000001b3
-#define MAP_FNV_OFFSET 0xcbf29ce484222325
-static inline uint64_t hash(const char* key) {
-    uint64_t result = MAP_FNV_OFFSET;
-    for (const char* c = key; *c; c++) {
-        result ^= (uint64_t)(*c);
-        result *= MAP_FNV_PRIME;
-    }
-    return result;
-}
 
 template <class T>
 struct MapItem {
@@ -139,9 +118,9 @@ struct Map {
     // Key is internally allocated and copied; value is simply assigned
     void set(const char* key, T value) {
         // Equallity is important for capacity == 0
-        if (count * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
-            resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
-                                                    : INITIAL_MAP_CAPACITY);
+        if (count * 10 >= capacity * GDSTK_MAP_CAPACITY_THRESHOLD)
+            resize(capacity >= GDSTK_INITIAL_MAP_CAPACITY ? capacity * GDSTK_MAP_GROWTH_FACTOR
+                                                          : GDSTK_INITIAL_MAP_CAPACITY);
         MapItem<T>* item = get_slot(key);
         if (item->key == NULL) {
             uint64_t len;

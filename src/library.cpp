@@ -400,9 +400,9 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     bool write_cell_offsets = state.config_flags & OASIS_CONFIG_PROPERTY_CELL_OFFSET;
 
     // Build cell name map. Other maps are built as the file is written.
-    cell_name_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+    cell_name_map.resize((uint64_t)(2.0 + 10.0 / GDSTK_MAP_CAPACITY_THRESHOLD * c_size));
     if (write_cell_offsets) {
-        cell_offset_map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+        cell_offset_map.resize((uint64_t)(2.0 + 10.0 / GDSTK_MAP_CAPACITY_THRESHOLD * c_size));
     }
     Cell** cell_p = cell_array.items;
     for (uint64_t i = 0; i < c_size; i++) {
@@ -699,6 +699,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     return error_code;
 }
 
+// TODO: rewrite with smaller functions (read_gds_polygon, read_gds_path, etc.)
 Library read_gds(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
@@ -801,7 +802,7 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
             case GdsiiRecord::ENDLIB: {
                 Map<Cell*> map = {0};
                 uint64_t c_size = library.cell_array.count;
-                map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+                map.resize((uint64_t)(2.0 + 10.0 / GDSTK_MAP_CAPACITY_THRESHOLD * c_size));
                 Cell** c_item = library.cell_array.items;
                 for (uint64_t i = c_size; i > 0; i--, c_item++) map.set((*c_item)->name, *c_item);
                 c_item = library.cell_array.items;
@@ -1079,14 +1080,13 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
         }
     }
 
-    // TODO: Make sure this is valid.  Can we leave the loop in an invalid
-    // state for free_all (for example, with aliasing or invalid pointers)?
     library.free_all();
     fclose(in);
     return Library{0};
 }
 
 // TODO: https://github.com/heitzmann/gdstk/issues/29
+// TODO: verify modal variables are correctly updated
 Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {0};
 
@@ -1238,7 +1238,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
 
                 uint64_t c_size = library.cell_array.count;
                 Map<Cell*> map = {0};
-                map.resize((uint64_t)(2.0 + 10.0 / MAP_CAPACITY_THRESHOLD * c_size));
+                map.resize((uint64_t)(2.0 + 10.0 / GDSTK_MAP_CAPACITY_THRESHOLD * c_size));
 
                 Cell** cell_p = library.cell_array.items;
                 for (uint64_t i = c_size; i > 0; i--) {

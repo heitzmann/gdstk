@@ -44,6 +44,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "gdstk/reference.h"
 #include "gdstk/repetition.h"
 #include "gdstk/robustpath.h"
+#include "gdstk/set.h"
 #include "gdstk/sort.h"
 #include "gdstk/style.h"
 #include "gdstk/utils.h"

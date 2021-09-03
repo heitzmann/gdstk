@@ -22,6 +22,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "polygon.h"
 #include "reference.h"
 #include "robustpath.h"
+#include "set.h"
 #include "style.h"
 
 namespace gdstk {
@@ -150,6 +151,11 @@ struct Cell {
     void get_dependencies(bool recursive, Map<Cell*>& result) const;
     void get_raw_dependencies(bool recursive, Map<RawCell*>& result) const;
 
+    // Append all tags found in polygons and paths/labels to result.
+    // References are not included in the result.
+    void get_shape_tags(Set<Tag>& result) const;
+    void get_label_tags(Set<Tag>& result) const;
+
     // Transform a cell hierarchy into a flat cell, with no dependencies, by
     // inserting the elements from this cell's references directly into the
     // cell (with the corresponding transformations).  Removed references are
@@ -167,17 +173,17 @@ struct Cell {
     // Output this cell to filename in SVG format.  The geometry is drawn in
     // the default units (px), but can be scaled freely.  Argument precision
     // defines the maximum desired precision for floating point representation
-    // in the SVG file.  Arguments style and label_style can de used to
-    // customize the SVG style of elements by tag.  If background is not NULL,
-    // it should be a valid SVG color for the image background.  Argument pad
-    // defines the margin (in px) added around the cell bounding box, unless
-    // pad_as_percentage == true, in which case it is interpreted as a
-    // percentage of the largest bounding box dimension.  Argument comp in
-    // to_svg can be used to sort the polygons in the SVG output, which affects
-    // their draw order.
-    ErrorCode write_svg(const char* filename, double scaling, uint32_t precision, StyleMap& style,
-                        StyleMap& label_style, const char* background, double pad,
-                        bool pad_as_percentage, PolygonComparisonFunction comp) const;
+    // in the SVG file.  Arguments shape_style and label_style, if not NULL,
+    // can de used to customize the SVG style of elements by tag.  If
+    // background is not NULL, it should be a valid SVG color for the image
+    // background.  Argument pad defines the margin (in px) added around the
+    // cell bounding box, unless pad_as_percentage == true, in which case it is
+    // interpreted as a percentage of the largest bounding box dimension.
+    // Argument comp in to_svg can be used to sort the polygons in the SVG
+    // output, which affects their draw order.
+    ErrorCode write_svg(const char* filename, double scaling, uint32_t precision,
+                        StyleMap* shape_style, StyleMap* label_style, const char* background,
+                        double pad, bool pad_as_percentage, PolygonComparisonFunction comp) const;
 };
 
 }  // namespace gdstk

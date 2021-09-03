@@ -18,6 +18,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define GDSTK_PARALLEL_EPS 1e-8
 
+#define GDSTK_MAP_GROWTH_FACTOR 2
+#define GDSTK_INITIAL_MAP_CAPACITY 8
+#define GDSTK_MAP_CAPACITY_THRESHOLD 5  // in tenths
+
 #define COUNT(a) (sizeof(a) / sizeof(0 [a]))
 
 // Linear interpoaltion
@@ -192,8 +196,37 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result);
 // with a maximal precision set.  This function is meant for internal use only.
 char* double_print(double value, uint32_t precision, char* buffer, size_t buffer_size);
 
+// Returns the default SVG style for a given tag.  The return value points to a
+// statically allocated buffer that is overwritten in future calls to this
+// function.
+const char* default_svg_shape_style(Tag tag);
+const char* default_svg_label_style(Tag tag);
+
 // Thread-safe version of localtime.
 tm* get_now(tm* result);
+
+// FNV-1a hash function (64 bits)
+#define HASH_FNV_PRIME 0x00000100000001b3
+#define HASH_FNV_OFFSET 0xcbf29ce484222325
+template<class T>
+inline uint64_t hash(T key) {
+    uint64_t result = HASH_FNV_OFFSET;
+    uint8_t* byte = (uint8_t*)(&key);
+    for (unsigned i = sizeof(T); i > 0; i--) {
+        result ^= *byte++;
+        result *= HASH_FNV_PRIME;
+    }
+    return result;
+}
+
+inline uint64_t hash(const char* key) {
+    uint64_t result = HASH_FNV_OFFSET;
+    for (const char* c = key; *c; c++) {
+        result ^= (uint64_t)(*c);
+        result *= HASH_FNV_PRIME;
+    }
+    return result;
+}
 
 }  // namespace gdstk
 

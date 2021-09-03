@@ -2360,7 +2360,7 @@ Returns:
 
 PyDoc_STRVAR(
     cell_object_write_svg_doc,
-    R"!(write_svg(outfile, scaling=10, precision=6, style=None, fontstyle=None, background="#222222", pad="5%", sort_function=None) -> self
+    R"!(write_svg(outfile, scaling=10, precision=6, shape_style=None, label_style=None, background="#222222", pad="5%", sort_function=None) -> self
 
 Export this cell to an SVG image file. Colors and attributes must follow
 SVG specification.
@@ -2370,9 +2370,8 @@ Args:
     scaling: Scaling factor for the whole geometry.
     precision (positive integer): Maximum number of digits for
       coordinates after scaling.
-    style (dict): SVG attributes for each layer and data type. See the
-      example below.
-    fontstyle (dict): SVG attributes for each layer and text type.
+    shape_style (dict): SVG attributes for each layer and data type.
+    label_style (dict): SVG attributes for each layer and text type.
     background (str): Image background color.
     pad (number, str): Viewport margin around the image content. It can
       be specified as an absolute dimension or a percentage of the
@@ -2397,12 +2396,12 @@ Examples:
     >>> cell.write_svg(
     ...     "example.svg",
     ...     background="none",
-    ...     style={(0, 1): {"fill": "none",
-    ...                     "stroke": "black",
-    ...                     "stroke-dasharray": "8,8"}},
-    ...     fontstyle={(3, 2): {"fill": "none",
-    ...                         "stroke": "red",
-    ...                         "font-size": "32px"}},
+    ...     shape_style={(0, 1): {"fill": "none",
+    ...                           "stroke": "black",
+    ...                           "stroke-dasharray": "8,8"}},
+    ...     label_style={(3, 2): {"fill": "none",
+    ...                           "stroke": "red",
+    ...                           "font-size": "32px"}},
     ...     pad="5%",
     ...     sort_function=lambda p1, p2: p1.layer < p2.layer,
     ... )

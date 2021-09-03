@@ -70,8 +70,8 @@ struct Library {
     void copy_from(const Library& library, bool deep_copy);
 
     // TODO: Gather information about this library
-    // void get_geometry_tags(Array<Tag>& info) const;
-    // void get_label_tags(Array<Tag>& info) const;
+    // void get_shape_tags(Set<Tag>& info) const;
+    // void get_label_tags(Set<Tag>& info) const;
 
     // Append the top level cells (and raw cells) to the respective arrays.
     // Top level cells are those that do not appear as dependencies of other
@@ -99,7 +99,7 @@ struct Library {
                         uint16_t config_flags);
 };
 
-// TODO: filter by layer and datatype when reading? (#58)
+// TODO: filter by layer and datatype when reading? (#58) Single Tag or Set?
 
 // Read the contents of a GDSII file into a new library.  If unit is not zero,
 // the units in the file are converted (all elements are properly scaled to the

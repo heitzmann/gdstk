@@ -17,41 +17,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// FNV-1a hash function (64 bits)
-#define STYLE_FNV_PRIME 0x00000100000001b3
-#define STYLE_FNV_OFFSET 0xcbf29ce484222325
-inline static uint64_t hash(Tag tag) {
-    uint64_t result = STYLE_FNV_OFFSET;
-    uint8_t* byte = (uint8_t*)(&tag);
-    for (unsigned i = sizeof(Tag); i > 0; i--) {
-        result ^= *byte++;
-        result *= STYLE_FNV_PRIME;
-    }
-    return result;
-}
-
-// Kenneth Kelly's 22 colors of maximum contrast (minus B/W: "F2F3F4", "222222")
-const char* colors[] = {"F3C300", "875692", "F38400", "A1CAF1", "BE0032", "C2B280", "848482",
-                        "008856", "E68FAC", "0067A5", "F99379", "604E97", "F6A600", "B3446C",
-                        "DCD300", "882D17", "8DB600", "654522", "E25822", "2B3D26"};
-
-static const char* default_style(Tag tag) {
-    static char buffer[] = "stroke: #XXXXXX; fill: #XXXXXX; fill-opacity: 0.5;";
-    const char* c = colors[(2 + get_layer(tag) + get_type(tag) * 13) % COUNT(colors)];
-    memcpy(buffer + 9, c, 6);
-    memcpy(buffer + 24, c, 6);
-    return buffer;
-}
-
 void StyleMap::print(bool all) const {
     printf("StyleMap <%p>, count %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, count, capacity,
            items);
     if (all) {
         Style* item = items;
         for (uint64_t i = 0; i < capacity; i++, item++) {
-            printf("(%" PRIu64 ") Item <%p>, layer %" PRIu32 "/type %" PRIu32
-                   ", value <%p> \"%s\"\n",
-                   i, item, get_layer(item->tag), get_type(item->tag), item->value,
+            printf("Item[%" PRIu64 "]: tag %" PRIu32 "/%" PRIu32 ", value <%p> \"%s\"\n", i,
+                   get_layer(item->tag), get_type(item->tag), item->value,
                    item->value ? item->value : "");
         }
     }
@@ -105,28 +78,27 @@ Style* StyleMap::get_slot(Tag tag) const {
 }
 
 void StyleMap::set(Tag tag, const char* value) {
+    assert(value);
     // Equallity is important for capacity == 0
-    if (count * 10 >= capacity * MAP_CAPACITY_THRESHOLD)
-        resize(capacity >= INITIAL_MAP_CAPACITY ? capacity * MAP_GROWTH_FACTOR
-                                                : INITIAL_MAP_CAPACITY);
+    if (count * 10 >= capacity * GDSTK_MAP_CAPACITY_THRESHOLD)
+        resize(capacity >= GDSTK_INITIAL_MAP_CAPACITY ? capacity * GDSTK_MAP_GROWTH_FACTOR
+                                                      : GDSTK_INITIAL_MAP_CAPACITY);
 
     uint64_t len;
     Style* s = get_slot(tag);
     s->tag = tag;
-    if (value) {
-        if (s->value != NULL) {
-            free_allocation(s->value);
-        }
-        s->value = copy_string(value, len);
-    } else if (s->value == NULL) {
-        s->value = copy_string(default_style(tag), len);
+    if (s->value == NULL) {
+        count++;
+    } else {
+        free_allocation(s->value);
     }
+    s->value = copy_string(value, len);
 }
 
 const char* StyleMap::get(Tag tag) const {
-    if (count == 0) return default_style(tag);
+    if (count == 0) return NULL;
     const Style* s = get_slot(tag);
-    return s->value ? s->value : default_style(tag);
+    return s->value;
 }
 
 bool StyleMap::del(Tag tag) {

@@ -553,6 +553,32 @@ void Cell::get_raw_dependencies(bool recursive, Map<RawCell*>& result) const {
     }
 }
 
+void Cell::get_shape_tags(Set<Tag>& result) const {
+    for (uint64_t i = 0; i < polygon_array.count; i++) {
+        result.add(polygon_array[i]->tag);
+    }
+
+    for (uint64_t i = 0; i < flexpath_array.count; i++) {
+        const FlexPath* flexpath = flexpath_array[i];
+        for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
+            result.add(flexpath->elements[ne].tag);
+        }
+    }
+
+    for (uint64_t i = 0; i < robustpath_array.count; i++) {
+        const RobustPath* robustpath = robustpath_array[i];
+        for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
+            result.add(robustpath->elements[ne].tag);
+        }
+    }
+}
+
+void Cell::get_label_tags(Set<Tag>& result) const {
+    for (uint64_t i = 0; i < label_array.count; i++) {
+        result.add(label_array[i]->tag);
+    }
+}
+
 ErrorCode Cell::to_gds(FILE* out, double scaling, uint64_t max_points, double precision,
                        const tm* timestamp) const {
     ErrorCode error_code = ErrorCode::NoError;
@@ -756,9 +782,10 @@ ErrorCode Cell::to_svg(FILE* out, double scaling, uint32_t precision, const char
     return error_code;
 }
 
-ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precision, StyleMap& style,
-                          StyleMap& label_style, const char* background, double pad,
-                          bool pad_as_percentage, PolygonComparisonFunction comparison) const {
+ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precision,
+                          StyleMap* shape_style, StyleMap* label_style, const char* background,
+                          double pad, bool pad_as_percentage,
+                          PolygonComparisonFunction comparison) const {
     ErrorCode error_code = ErrorCode::NoError;
     Vec2 min, max;
     bounding_box(min, max);
@@ -805,65 +832,49 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     fputs(double_print(h, precision, double_buffer, COUNT(double_buffer)), out);
     fputs("\">\n<defs>\n<style type=\"text/css\">\n", out);
 
-    for (uint64_t i = 0; i < polygon_array.count; i++) {
-        style.set(polygon_array[i]->tag, NULL);
-    }
-
-    for (uint64_t i = 0; i < flexpath_array.count; i++) {
-        const FlexPath* flexpath = flexpath_array[i];
-        for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
-            style.set(flexpath->elements[ne].tag, NULL);
-        }
-    }
-
-    for (uint64_t i = 0; i < robustpath_array.count; i++) {
-        const RobustPath* robustpath = robustpath_array[i];
-        for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
-            style.set(robustpath->elements[ne].tag, NULL);
-        }
-    }
-
-    for (uint64_t i = 0; i < label_array.count; i++) {
-        label_style.set(label_array[i]->tag, NULL);
-    }
-
     Map<Cell*> cell_map = {0};
     get_dependencies(true, cell_map);
+
+    Set<Tag> shape_tags = {0};
+    get_shape_tags(shape_tags);
+
+    Set<Tag> label_tags = {0};
+    get_label_tags(label_tags);
+
     for (MapItem<Cell*>* item = cell_map.next(NULL); item != NULL; item = cell_map.next(item)) {
-        const Array<Polygon*>* polygons = &item->value->polygon_array;
-        for (uint64_t i = 0; i < polygons->count; i++) {
-            style.set((*polygons)[i]->tag, NULL);
-        }
+        item->value->get_shape_tags(shape_tags);
+        item->value->get_label_tags(label_tags);
+    }
 
-        const Array<FlexPath*>* flexpaths = &item->value->flexpath_array;
-        for (uint64_t i = 0; i < flexpaths->count; i++) {
-            const FlexPath* flexpath = flexpaths->items[i];
-            for (uint64_t ne = 0; ne < flexpath->num_elements; ne++) {
-                style.set(flexpath->elements[ne].tag, NULL);
-            }
+    if (shape_style) {
+        for (SetItem<Tag>* item = shape_tags.next(NULL); item; item = shape_tags.next(item)) {
+            Tag tag = item->value;
+            const char* style = shape_style->get(tag);
+            if (!style) style = default_svg_shape_style(tag);
+            fprintf(out, ".l%" PRIu32 "d%" PRIu32 " {%s}\n", get_layer(tag), get_type(tag), style);
         }
-
-        const Array<RobustPath*>* robustpaths = &item->value->robustpath_array;
-        for (uint64_t i = 0; i < robustpaths->count; i++) {
-            const RobustPath* robustpath = robustpaths->items[i];
-            for (uint64_t ne = 0; ne < robustpath->num_elements; ne++) {
-                style.set(robustpath->elements[ne].tag, NULL);
-            }
-        }
-
-        const Array<Label*>* labels = &item->value->label_array;
-        for (uint64_t i = 0; i < labels->count; i++) {
-            label_style.set((*labels)[i]->tag, NULL);
+    } else {
+        for (SetItem<Tag>* item = shape_tags.next(NULL); item; item = shape_tags.next(item)) {
+            Tag tag = item->value;
+            const char* style = default_svg_shape_style(tag);
+            fprintf(out, ".l%" PRIu32 "d%" PRIu32 " {%s}\n", get_layer(tag), get_type(tag), style);
         }
     }
 
-    for (Style* s = style.next(NULL); s; s = style.next(s))
-        fprintf(out, ".l%" PRIu32 "d%" PRIu32 " {%s}\n", get_layer(s->tag), get_type(s->tag),
-                s->value);
-
-    for (Style* s = label_style.next(NULL); s; s = label_style.next(s))
-        fprintf(out, ".l%" PRIu32 "t%" PRIu32 " {%s}\n", get_layer(s->tag), get_type(s->tag),
-                s->value);
+    if (label_style) {
+        for (SetItem<Tag>* item = label_tags.next(NULL); item; item = label_tags.next(item)) {
+            Tag tag = item->value;
+            const char* style = label_style->get(tag);
+            if (!style) style = default_svg_label_style(tag);
+            fprintf(out, ".l%" PRIu32 "t%" PRIu32 " {%s}\n", get_layer(tag), get_type(tag), style);
+        }
+    } else {
+        for (SetItem<Tag>* item = label_tags.next(NULL); item; item = label_tags.next(item)) {
+            Tag tag = item->value;
+            const char* style = default_svg_label_style(tag);
+            fprintf(out, ".l%" PRIu32 "t%" PRIu32 " {%s}\n", get_layer(tag), get_type(tag), style);
+        }
+    }
 
     fputs("</style>\n", out);
 
@@ -873,6 +884,8 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     }
 
     cell_map.clear();
+    shape_tags.clear();
+    label_tags.clear();
 
     fputs("</defs>\n", out);
     if (background) {

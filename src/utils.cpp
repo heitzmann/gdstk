@@ -568,4 +568,28 @@ tm* get_now(tm* result) {
     return result;
 }
 
+// Kenneth Kelly's 22 colors of maximum contrast (minus B/W: "F2F3F4", "222222")
+const char* colors[] = {"F3C300", "875692", "F38400", "A1CAF1", "BE0032", "C2B280", "848482",
+                        "008856", "E68FAC", "0067A5", "F99379", "604E97", "F6A600", "B3446C",
+                        "DCD300", "882D17", "8DB600", "654522", "E25822", "2B3D26"};
+
+inline static const char* default_color(Tag tag) {
+    return colors[(2 + get_layer(tag) + get_type(tag) * 13) % COUNT(colors)];
+}
+
+const char* default_svg_shape_style(Tag tag) {
+    static char buffer[] = "stroke: #XXXXXX; fill: #XXXXXX; fill-opacity: 0.5;";
+    const char* c = default_color(tag);
+    memcpy(buffer + 9, c, 6);
+    memcpy(buffer + 24, c, 6);
+    return buffer;
+}
+
+const char* default_svg_label_style(Tag tag) {
+    static char buffer[] = "stroke: none; fill: #XXXXXX;";
+    const char* c = default_color(tag);
+    memcpy(buffer + 21, c, 6);
+    return buffer;
+}
+
 }  // namespace gdstk
