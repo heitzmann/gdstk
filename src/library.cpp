@@ -75,6 +75,18 @@ void Library::copy_from(const Library& library, bool deep_copy) {
     rawcell_array.copy_from(library.rawcell_array);
 }
 
+void Library::get_shape_tags(Set<Tag>& result) const {
+    for(uint64_t i = 0; i < cell_array.count; i++) {
+        cell_array[i]->get_shape_tags(result);
+    }
+}
+
+void Library::get_label_tags(Set<Tag>& result) const {
+    for(uint64_t i = 0; i < cell_array.count; i++) {
+        cell_array[i]->get_label_tags(result);
+    }
+}
+
 void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) const {
     Map<Cell*> cell_deps = {0};
     Map<RawCell*> rawcell_deps = {0};

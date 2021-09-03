@@ -301,6 +301,70 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
     return result;
 }
 
+static PyObject* library_object_layers_and_datatypes(LibraryObject* self, PyObject*) {
+    Set<Tag> tags = {0};
+    self->library->get_shape_tags(tags);
+    PyObject* result = PySet_New(NULL);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create set object.");
+        tags.clear();
+        return NULL;
+    }
+    for (SetItem<Tag>* item = tags.next(NULL); item; item = tags.next(item)) {
+        PyObject* value = PyTuple_New(2);
+        if (!value) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create (layer, datatype) tuple.");
+            tags.clear();
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(value, 0, PyLong_FromUnsignedLong(get_layer(item->value)));
+        PyTuple_SET_ITEM(value, 1, PyLong_FromUnsignedLong(get_type(item->value)));
+        if (PySet_Add(result, value) < 0) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to add item to set.");
+            tags.clear();
+            Py_DECREF(value);
+            Py_DECREF(result);
+            return NULL;
+        }
+        Py_DECREF(value);
+    }
+    tags.clear();
+    return result;
+}
+
+static PyObject* library_object_layers_and_texttypes(LibraryObject* self, PyObject*) {
+    Set<Tag> tags = {0};
+    self->library->get_label_tags(tags);
+    PyObject* result = PySet_New(NULL);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create set object.");
+        tags.clear();
+        return NULL;
+    }
+    for (SetItem<Tag>* item = tags.next(NULL); item; item = tags.next(item)) {
+        PyObject* value = PyTuple_New(2);
+        if (!value) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create (layer, texttype) tuple.");
+            tags.clear();
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(value, 0, PyLong_FromUnsignedLong(get_layer(item->value)));
+        PyTuple_SET_ITEM(value, 1, PyLong_FromUnsignedLong(get_type(item->value)));
+        if (PySet_Add(result, value) < 0) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to add item to set.");
+            tags.clear();
+            Py_DECREF(value);
+            Py_DECREF(result);
+            return NULL;
+        }
+        Py_DECREF(value);
+    }
+    tags.clear();
+    return result;
+}
+
 static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"outfile", "max_points", "timestamp", NULL};
     PyObject* pybytes = NULL;
@@ -404,6 +468,10 @@ static PyMethodDef library_object_methods[] = {
     {"replace", (PyCFunction)library_object_replace, METH_VARARGS, library_object_replace_doc},
     {"new_cell", (PyCFunction)library_object_new_cell, METH_VARARGS, library_object_new_cell_doc},
     {"top_level", (PyCFunction)library_object_top_level, METH_NOARGS, library_object_top_level_doc},
+    {"layers_and_datatypes", (PyCFunction)library_object_layers_and_datatypes, METH_NOARGS,
+     library_object_layers_and_datatypes_doc},
+    {"layers_and_texttypes", (PyCFunction)library_object_layers_and_texttypes, METH_NOARGS,
+     library_object_layers_and_texttypes_doc},
     {"write_gds", (PyCFunction)library_object_write_gds, METH_VARARGS | METH_KEYWORDS,
      library_object_write_gds_doc},
     {"write_oas", (PyCFunction)library_object_write_oas, METH_VARARGS | METH_KEYWORDS,

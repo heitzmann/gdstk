@@ -2585,6 +2585,14 @@ Return the top-level cells in the library.
 Top-level cells are cells that do not appear as dependency of any other
 cells in the library.)!");
 
+PyDoc_STRVAR(library_object_layers_and_datatypes_doc, R"!(layers_and_datatypes() -> set
+
+Return a set of tuples with the layer and data types in the library.)!");
+
+PyDoc_STRVAR(library_object_layers_and_texttypes_doc, R"!(layers_and_texttypes() -> set
+
+Return a set of tuples with the layer and text types in the library.)!");
+
 PyDoc_STRVAR(library_object_write_gds_doc, R"!(write_gds(outfile, max_points=199, timestamp=None) -> None
 
 Save this library to a GDSII file.

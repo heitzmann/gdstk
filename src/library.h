@@ -69,9 +69,10 @@ struct Library {
     // source.  Otherwise, the same cell pointers are used.
     void copy_from(const Library& library, bool deep_copy);
 
-    // TODO: Gather information about this library
-    // void get_shape_tags(Set<Tag>& info) const;
-    // void get_label_tags(Set<Tag>& info) const;
+    // Append all polygons/paths or labels tags found in this library's cells
+    // to result (rawcells are not included).
+    void get_shape_tags(Set<Tag>& result) const;
+    void get_label_tags(Set<Tag>& result) const;
 
     // Append the top level cells (and raw cells) to the respective arrays.
     // Top level cells are those that do not appear as dependencies of other

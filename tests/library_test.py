@@ -280,3 +280,9 @@ def test_frozen_gds_with_cell_array_has_constant_hash(tmpdir):
     lib.write_gds(fn2, timestamp=frozen_date)
     hash2 = hash_file(fn2)
     assert hash1 == hash2
+
+def test_layers_and_types(sample_library):
+    ld = sample_library.layers_and_datatypes()
+    assert ld == {(2, 4), (0, 0)}
+    lt = sample_library.layers_and_texttypes()
+    assert lt == {(5, 6)}
