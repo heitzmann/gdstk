@@ -13,7 +13,7 @@ using namespace gdstk;
 
 int main(int argc, char* argv[]) {
     ErrorCode error_code = ErrorCode::NoError;
-    Library lib = read_gds("layout.gds", 0, 1e-2, &error_code);
+    Library lib = read_gds("layout.gds", 0, 1e-2, NULL, &error_code);
     if (error_code != ErrorCode::NoError) exit(EXIT_FAILURE);
 
     for (int64_t i = 0; i < lib.cell_array.count; i++) {

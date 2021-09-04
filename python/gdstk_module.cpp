@@ -1457,9 +1457,10 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
     PyObject* pybytes = NULL;
     double unit = 0;
     double tolerance = 1e-2;
-    const char* keywords[] = {"infile", "unit", "tolerance", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dd:read_gds", (char**)keywords,
-                                     PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
+    PyObject* pyfilter = Py_None;
+    const char* keywords[] = {"infile", "unit", "tolerance", "filter", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|ddO:read_gds", (char**)keywords,
+                                     PyUnicode_FSConverter, &pybytes, &unit, &tolerance, &pyfilter))
         return NULL;
 
     if (tolerance <= 0) {
@@ -1468,11 +1469,24 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
         return NULL;
     }
 
+    Set<Tag> shape_tags = {0};
+    Set<Tag>* shape_tags_ptr = NULL;
+    if (pyfilter != Py_None) {
+        if (parse_tag_sequence(pyfilter, shape_tags, "filter") < 0) {
+            shape_tags.clear();
+            Py_DECREF(pybytes);
+            return NULL;
+        }
+        shape_tags_ptr = &shape_tags;
+    }
+
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
     ErrorCode error_code = ErrorCode::NoError;
-    *library = read_gds(filename, unit, tolerance, &error_code);
+    *library = read_gds(filename, unit, tolerance, shape_tags_ptr, &error_code);
     Py_DECREF(pybytes);
+
+    shape_tags.clear();
 
     if (return_error(error_code)) {
         library->free_all();

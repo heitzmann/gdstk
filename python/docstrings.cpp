@@ -3187,7 +3187,7 @@ Args:
 Returns:
     `True` if any point is inside the polygon set, `False` otherwise.)!");
 
-PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0, tolerance=1e-2) -> gdstk.Library
+PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0, tolerance=1e-2, filter=None) -> gdstk.Library
 
 Import a library from a GDSII stream file.
 
@@ -3196,13 +3196,16 @@ Args:
     unit (number): If greater than zero, convert the imported geometry
       to the this unit.
     tolerance (number): Default tolerance for loaded paths.
+    filter (iterable of tuples): If not ``None``, only shapes with
+      layer and data type in the iterable are read.
 
 Returns:
     The imported library.
 
 Examples:
     >>> library = gdstk.read_gds("layout.gds")
-    >>> top_cells = library.top_level())!");
+    >>> top_cells = library.top_level()
+    >>> filtered_lib = gdstk.read_gds("layout.gds", filter={(0, 1)}))!");
 
 PyDoc_STRVAR(read_oas_function_doc, R"!(read_oas(infile, unit=0, tolerance=1e-2) -> gdstk.Library
 

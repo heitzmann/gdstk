@@ -84,8 +84,8 @@ int main(int argc, char* argv[]) {
     make_first_lib("lib1.gds");
     make_second_lib("lib2.gds");
 
-    Library lib1 = read_gds("lib1.gds", 0, 1e-2, NULL);
-    Library lib2 = read_gds("lib2.gds", 0, 1e-2, NULL);
+    Library lib1 = read_gds("lib1.gds", 0, 1e-2, NULL, NULL);
+    Library lib2 = read_gds("lib2.gds", 0, 1e-2, NULL, NULL);
 
     // We could use a hash table to make this more efficient, but we're aiming
     // for simplicity.

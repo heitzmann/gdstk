@@ -76,13 +76,13 @@ void Library::copy_from(const Library& library, bool deep_copy) {
 }
 
 void Library::get_shape_tags(Set<Tag>& result) const {
-    for(uint64_t i = 0; i < cell_array.count; i++) {
+    for (uint64_t i = 0; i < cell_array.count; i++) {
         cell_array[i]->get_shape_tags(result);
     }
 }
 
 void Library::get_label_tags(Set<Tag>& result) const {
-    for(uint64_t i = 0; i < cell_array.count; i++) {
+    for (uint64_t i = 0; i < cell_array.count; i++) {
         cell_array[i]->get_label_tags(result);
     }
 }
@@ -711,8 +711,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     return error_code;
 }
 
-// TODO: rewrite with smaller functions (read_gds_polygon, read_gds_path, etc.)
-Library read_gds(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
+Library read_gds(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags,
+                 ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
         "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
@@ -954,8 +954,31 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
                 if (polygon) {
                     // Polygons are closed in GDSII (first and last points are the same)
                     polygon->point_array.count--;
-                    polygon = NULL;
+                    if (shape_tags && !shape_tags->has_value(polygon->tag) && cell) {
+                        Array<Polygon*>* array = &cell->polygon_array;
+                        uint64_t index = array->count - 1;
+                        if (array->items[index] == polygon) {
+                            array->remove_unordered(index);
+                        } else {
+                            array->remove_item(polygon);
+                        }
+                        polygon->clear();
+                        free_allocation(polygon);
+                    }
+                } else if (path) {
+                    if (shape_tags && !shape_tags->has_value(path->elements[0].tag) && cell) {
+                        Array<FlexPath*>* array = &cell->flexpath_array;
+                        uint64_t index = array->count - 1;
+                        if (array->items[index] == path) {
+                            array->remove_unordered(index);
+                        } else {
+                            array->remove_item(path);
+                        }
+                        path->clear();
+                        free_allocation(path);
+                    }
                 }
+                polygon = NULL;
                 path = NULL;
                 reference = NULL;
                 label = NULL;
@@ -1099,7 +1122,8 @@ Library read_gds(const char* filename, double unit, double tolerance, ErrorCode*
 
 // TODO: https://github.com/heitzmann/gdstk/issues/29
 // TODO: verify modal variables are correctly updated
-Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
+Library read_oas(const char* filename, double unit, double tolerance, // const Set<Tag>* shape_tags,
+                 ErrorCode* error_code) {
     Library library = {0};
 
     OasisStream in = {0};

@@ -97,6 +97,10 @@ static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, co
 }
 
 static int64_t parse_uint_sequence(PyObject* sequence, Array<uint32_t>& dest, const char* name) {
+    if (!PySequence_Check(sequence)) {
+        PyErr_Format(PyExc_RuntimeError, "Argument %s must be a sequence.", name);
+        return -1;
+    }
     const int64_t len = PySequence_Length(sequence);
     if (len < 0) {
         PyErr_Format(PyExc_RuntimeError,
@@ -122,6 +126,56 @@ static int64_t parse_uint_sequence(PyObject* sequence, Array<uint32_t>& dest, co
     return len;
 }
 
+static int64_t parse_tag_sequence(PyObject* iterable, Set<Tag>& dest, const char* name) {
+    PyObject* iterator = PyObject_GetIter(iterable);
+    if (!iterator) {
+        PyErr_Format(PyExc_RuntimeError, "Unable to get an iterator from %s.", name);
+        return -1;
+    }
+    int64_t count = 0;
+    PyObject* item;
+    while ((item = PyIter_Next(iterator))) {
+        if (!PySequence_Check(item) || PySequence_Length(item) != 2) {
+            PyErr_Format(PyExc_TypeError, "Items in argument %s must be a 2-element sequences.",
+                         name);
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            return -1;
+        }
+        PyObject* value = PySequence_ITEM(item, 0);
+        if (!value) {
+            PyErr_Format(PyExc_TypeError, "Unable to retrieve layer number in item in argument %s.",
+                         name);
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            return -1;
+        }
+        uint32_t layer = (uint32_t)PyLong_AsUnsignedLong(value);
+        Py_DECREF(value);
+        value = PySequence_ITEM(item, 1);
+        if (!value) {
+            PyErr_Format(PyExc_TypeError, "Unable to retrieve type number in item in argument %s.",
+                         name);
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            return -1;
+        }
+        uint32_t type = (uint32_t)PyLong_AsUnsignedLong(value);
+        Py_DECREF(value);
+        Py_DECREF(item);
+        if (PyErr_Occurred()) {
+            PyErr_Format(PyExc_RuntimeError,
+                         "Unable to extract 2 unsigned integers from item in %s.", name);
+            Py_DECREF(iterator);
+            return -1;
+        }
+        dest.add(make_tag(layer, type));
+        count++;
+    }
+    Py_DECREF(iterator);
+    return count;
+}
+
 // polygon_array should be zero-initialized
 static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_array,
                               const char* name) {
@@ -130,7 +184,8 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
         polygon->copy_from(*((PolygonObject*)py_polygons)->polygon);
         polygon_array.append(polygon);
     } else if (FlexPathObject_Check(py_polygons)) {
-        ErrorCode error_code = ((FlexPathObject*)py_polygons)->flexpath->to_polygons(false, 0, polygon_array);
+        ErrorCode error_code =
+            ((FlexPathObject*)py_polygons)->flexpath->to_polygons(false, 0, polygon_array);
         if (return_error(error_code)) {
             for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
                 polygon_array[j]->clear();
@@ -151,7 +206,8 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
             return -1;
         }
     } else if (ReferenceObject_Check(py_polygons)) {
-        ((ReferenceObject*)py_polygons)->reference->polygons(true, true, -1, false, 0, polygon_array);
+        ((ReferenceObject*)py_polygons)
+            ->reference->polygons(true, true, -1, false, 0, polygon_array);
     } else if (PySequence_Check(py_polygons)) {
         for (int64_t i = PySequence_Length(py_polygons) - 1; i >= 0; i--) {
             PyObject* arg = PySequence_ITEM(py_polygons, i);
@@ -170,7 +226,8 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
                 polygon->copy_from(*((PolygonObject*)arg)->polygon);
                 polygon_array.append(polygon);
             } else if (FlexPathObject_Check(arg)) {
-                ErrorCode error_code = ((FlexPathObject*)arg)->flexpath->to_polygons(false, 0, polygon_array);
+                ErrorCode error_code =
+                    ((FlexPathObject*)arg)->flexpath->to_polygons(false, 0, polygon_array);
                 if (return_error(error_code)) {
                     for (int64_t j = polygon_array.count - 1; j >= 0; j--) {
                         polygon_array[j]->clear();
@@ -191,7 +248,8 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
                     return -1;
                 }
             } else if (ReferenceObject_Check(arg)) {
-                ((ReferenceObject*)arg)->reference->polygons(true, true, -1, false, 0, polygon_array);
+                ((ReferenceObject*)arg)
+                    ->reference->polygons(true, true, -1, false, 0, polygon_array);
             } else {
                 Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (parse_point_sequence(arg, polygon->point_array, "") <= 0) {

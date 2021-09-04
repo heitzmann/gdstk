@@ -36,10 +36,7 @@ struct Set {
         if (all) {
             SetItem<T>* item = items;
             for (uint64_t i = 0; i < capacity; i++, item++) {
-                if (item->valid)
-                    printf("Item[%" PRIu64 "] = <%p>\n", i, item->value);
-                else
-                    printf("Item[%" PRIu64 "] invalid\n", i);
+                printf("Item[%" PRIu64 "] %s\n", i, item->valid ? "valid" : "invalid");
             }
         }
     }
