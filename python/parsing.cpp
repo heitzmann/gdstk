@@ -613,3 +613,29 @@ static bool parse_property(Property*& properties, PyObject* args) {
     }
     return true;
 }
+
+static PyObject* build_tag_set(const Set<Tag>& tags) {
+    PyObject* result = PySet_New(NULL);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create set object.");
+        return NULL;
+    }
+    for (SetItem<Tag>* item = tags.next(NULL); item; item = tags.next(item)) {
+        PyObject* value = PyTuple_New(2);
+        if (!value) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create (layer, datatype) tuple.");
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(value, 0, PyLong_FromUnsignedLong(get_layer(item->value)));
+        PyTuple_SET_ITEM(value, 1, PyLong_FromUnsignedLong(get_type(item->value)));
+        if (PySet_Add(result, value) < 0) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to add item to set.");
+            Py_DECREF(value);
+            Py_DECREF(result);
+            return NULL;
+        }
+        Py_DECREF(value);
+    }
+    return result;
+}

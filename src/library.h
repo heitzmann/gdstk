@@ -100,6 +100,36 @@ struct Library {
                         uint16_t config_flags);
 };
 
+// Struct used to get information from a library file without loading the
+// complete library.
+struct LibraryInfo {
+    Array<char*> cell_names;
+    Set<Tag> shape_tags;
+    Set<Tag> label_tags;
+    uint64_t num_polygons;
+    uint64_t num_paths;
+    uint64_t num_references;
+    uint64_t num_labels;
+    double unit;
+    double precision;
+
+    void clear() {
+        for (uint64_t i = 0; i < cell_names.count; i++) {
+            free_allocation(cell_names[i]);
+            cell_names[i] = NULL;
+        }
+        cell_names.clear();
+        shape_tags.clear();
+        label_tags.clear();
+        num_polygons = 0;
+        num_paths = 0;
+        num_references = 0;
+        num_labels = 0;
+        unit = 0;
+        precision = 0;
+    }
+};
+
 // Read the contents of a GDSII file into a new library.  If unit is not zero,
 // the units in the file are converted (all elements are properly scaled to the
 // desired unit).  The value of tolerance is used as the default tolerance for
@@ -115,7 +145,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
 // paths in the library and for the creation of circles.  If shape_tags is not
 // empty, only shapes in those tags will be imported.  If not NULL, any errors
 // will be reported through error_code.
-Library read_oas(const char* filename, double unit, double tolerance, // TODO: const Set<Tag>* shape_tags,
+Library read_oas(const char* filename, double unit,
+                 double tolerance,  // TODO: const Set<Tag>* shape_tags,
                  ErrorCode* error_code);
 
 // Read the unit and precision of a GDSII file and return in the respective
@@ -127,9 +158,8 @@ ErrorCode gds_units(const char* filename, double& unit, double& precision);
 // is returned.
 tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error_code);
 
-// TODO: Gather information about file
-// ErrorCode gds_info(const char* filename, Array<char*>& cell_names,
-//                    Array<Tag>& geometry_tags, Array<Tag>& label_tags);
+// Gather information about file
+ErrorCode gds_info(const char* filename, LibraryInfo& info);
 
 // Read the precision of an OASIS file (unit is always 1e-6) and return in the
 // precision argument.
@@ -143,8 +173,7 @@ ErrorCode oas_precision(const char* filename, double& precision);
 bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_code);
 
 // TODO: Gather information about file
-// ErrorCode oas_info(const char* filename, Array<char*>& cell_names,
-//                    Array<Tag>& geometry_tags, Array<Tag>& label_tags);
+// ErrorCode oas_info(const char* filename, LibraryInfo& info);
 
 }  // namespace gdstk
 

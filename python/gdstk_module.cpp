@@ -1611,6 +1611,174 @@ static PyObject* gds_timestamp_function(PyObject* mod, PyObject* args, PyObject*
                                       lib_tm.tm_hour, lib_tm.tm_min, lib_tm.tm_sec, 0);
 }
 
+static PyObject* gds_info_function(PyObject* mod, PyObject* args) {
+    PyObject* pybytes = NULL;
+    if (!PyArg_ParseTuple(args, "O&:gds_info", PyUnicode_FSConverter, &pybytes)) return NULL;
+
+    LibraryInfo info = {0};
+    const char* filename = PyBytes_AS_STRING(pybytes);
+    ErrorCode error_code = gds_info(filename, info);
+    Py_DECREF(pybytes);
+    if (return_error(error_code)) {
+        info.clear();
+        return NULL;
+    }
+
+    PyObject* result = PyDict_New();
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return object.");
+        info.clear();
+        return NULL;
+    }
+
+    PyObject* item = PyList_New(info.cell_names.count);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create list cell_names.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    for (uint64_t i = 0; i < info.cell_names.count; i++) {
+        PyObject* name = PyUnicode_FromString(info.cell_names[i]);
+        if (!name) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create cell name.");
+            Py_DECREF(result);
+            Py_DECREF(item);
+            info.clear();
+            return NULL;
+        }
+        PyList_SET_ITEM(item, i, name);
+    }
+    if (PyDict_SetItemString(result, "cell_names", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add cell_names to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = build_tag_set(info.shape_tags);
+    if (!item) {
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "layers_and_datatypes", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add layers_and_datatypes to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = build_tag_set(info.label_tags);
+    if (!item) {
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "layers_and_texttypes", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add layers_and_texttypes to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = PyLong_FromUnsignedLongLong(info.num_polygons);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create integer.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "num_polygons", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add num_polygons to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = PyLong_FromUnsignedLongLong(info.num_paths);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create integer.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "num_paths", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add num_paths to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = PyLong_FromUnsignedLongLong(info.num_references);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create integer.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "num_references", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add num_references to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = PyLong_FromUnsignedLongLong(info.num_labels);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create integer.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "num_labels", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add num_labels to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = PyFloat_FromDouble(info.unit);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create float.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "unit", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add unit to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    item = PyFloat_FromDouble(info.precision);
+    if (!item) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create float.");
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+    if (PyDict_SetItemString(result, "precision", item) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to add precision to return dictionary.");
+        Py_DECREF(item);
+        Py_DECREF(result);
+        info.clear();
+        return NULL;
+    }
+
+    info.clear();
+    return result;
+}
+
 static PyObject* oas_precision_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:oas_precision", PyUnicode_FSConverter, &pybytes)) return NULL;
@@ -1672,6 +1840,7 @@ static PyMethodDef gdstk_methods[] = {
     {"gds_units", (PyCFunction)gds_units_function, METH_VARARGS, gds_units_function_doc},
     {"gds_timestamp", (PyCFunction)gds_timestamp_function, METH_VARARGS | METH_KEYWORDS,
      gds_timestamp_function_doc},
+    {"gds_info", (PyCFunction)gds_info_function, METH_VARARGS, gds_info_function_doc},
     {"oas_precision", (PyCFunction)oas_precision_function, METH_VARARGS,
      oas_precision_function_doc},
     {"oas_validate", (PyCFunction)oas_validate_function, METH_VARARGS, oas_validate_function_doc},

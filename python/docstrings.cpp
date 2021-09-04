@@ -3281,6 +3281,38 @@ Args:
 Returns:
     Tuple with the unit and precision of the library in the file.)!");
 
+PyDoc_STRVAR(gds_info_function_doc, R"!(gds_info(infile) -> dict
+
+Gather information from a GDSII file without loading the geometry.
+
+Args:
+    infile (str or pathlib.Path): Name of the input file.
+
+Returns:
+    Dictionary with library info.
+
+    The following keys are available in the return dictionary:
+
+    ``cell_names``: list with all cell names
+
+    ``layers_and_datatypes``: set of 2-tuples with layers and data
+    types
+
+    ``layers_and_texttypes``: set of 2-tuples with layers and text
+    types
+
+    ``num_polygons``: number of polygons in the library
+
+    ``num_paths``: number of paths in the library
+
+    ``num_references``: number of references in the library
+
+    ``num_labels``: number of labels in the library
+
+    ``unit``: library unit
+
+    ``precision`` library precision)!");
+
 PyDoc_STRVAR(oas_precision_function_doc, R"!(oas_precision(infile) -> float
 
 Read the precision of an OASIS file.

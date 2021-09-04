@@ -1122,8 +1122,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
 
 // TODO: https://github.com/heitzmann/gdstk/issues/29
 // TODO: verify modal variables are correctly updated
-Library read_oas(const char* filename, double unit, double tolerance, // const Set<Tag>* shape_tags,
-                 ErrorCode* error_code) {
+Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {0};
 
     OasisStream in = {0};
@@ -2409,6 +2408,139 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
     }
     fclose(inout);
     return result;
+}
+
+ErrorCode gds_info(const char* filename, LibraryInfo& info) {
+    // One extra char in case we need a 0-terminated string with max count (should never happen, but
+    // it doesn't hurt to be prepared).
+    uint8_t buffer[65537];
+    int16_t* data16 = (int16_t*)(buffer + 4);
+    uint64_t* data64 = (uint64_t*)(buffer + 4);
+    char* str = (char*)(buffer + 4);
+
+    FILE* in = fopen(filename, "rb");
+    if (in == NULL) {
+        fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
+        return ErrorCode::InputFileOpenError;
+    }
+
+    ErrorCode error = ErrorCode::NoError;
+    uint32_t layer;
+    Set<Tag>* next_set = NULL;
+    while (true) {
+        uint64_t record_length = COUNT(buffer);
+        ErrorCode err = gdsii_read_record(in, buffer, record_length);
+        if (err != ErrorCode::NoError) {
+            fclose(in);
+            return err;
+        }
+
+        uint64_t data_length;
+        switch ((GdsiiRecord)(buffer[2])) {
+            case GdsiiRecord::ENDLIB:
+                fclose(in);
+                return error;
+                break;
+            case GdsiiRecord::STRNAME: {
+                data_length = record_length - 4;
+                if (str[data_length - 1] == 0) data_length--;
+                char* name = (char*)allocate(data_length + 1);
+                memcpy(name, str, data_length);
+                name[data_length] = 0;
+                info.cell_names.append(name);
+            } break;
+            case GdsiiRecord::UNITS:
+                data_length = (record_length - 4) / 8;
+                big_endian_swap64(data64, data_length);
+                info.precision = gdsii_real_to_double(data64[1]);
+                info.unit = info.precision / gdsii_real_to_double(data64[0]);
+                break;
+            case GdsiiRecord::BOUNDARY:
+            case GdsiiRecord::BOX:
+                info.num_polygons++;
+                next_set = &info.shape_tags;
+                break;
+            case GdsiiRecord::PATH:
+                info.num_paths++;
+                next_set = &info.shape_tags;
+                break;
+            case GdsiiRecord::SREF:
+            case GdsiiRecord::AREF:
+                info.num_references++;
+                next_set = NULL;
+                break;
+            case GdsiiRecord::TEXT:
+                info.num_labels++;
+                next_set = &info.label_tags;
+                break;
+            case GdsiiRecord::LAYER:
+                big_endian_swap16((uint16_t*)data16, 1);
+                layer = data16[0];
+                break;
+            case GdsiiRecord::DATATYPE:
+            case GdsiiRecord::BOXTYPE:
+            case GdsiiRecord::TEXTTYPE:
+                big_endian_swap16((uint16_t*)data16, 1);
+                if (next_set) {
+                    next_set->add(make_tag(layer, data16[0]));
+                    next_set = NULL;
+                } else {
+                    fputs("[GDSTK] Inconsistency detected in GDSII file.\n", stderr);
+                    error = ErrorCode::InvalidFile;
+                }
+                break;
+            // case GdsiiRecord::HEADER:
+            // case GdsiiRecord::BGNLIB:
+            // case GdsiiRecord::ENDSTR:
+            // case GdsiiRecord::LIBNAME:
+            // case GdsiiRecord::BGNSTR:
+            // case GdsiiRecord::WIDTH:
+            // case GdsiiRecord::XY:
+            // case GdsiiRecord::ENDEL:
+            // case GdsiiRecord::SNAME:
+            // case GdsiiRecord::COLROW:
+            // case GdsiiRecord::PRESENTATION:
+            // case GdsiiRecord::STRING:
+            // case GdsiiRecord::STRANS:
+            // case GdsiiRecord::MAG:
+            // case GdsiiRecord::ANGLE:
+            // case GdsiiRecord::PATHTYPE:
+            // case GdsiiRecord::PROPATTR:
+            // case GdsiiRecord::PROPVALUE:
+            // case GdsiiRecord::BGNEXTN:
+            // case GdsiiRecord::ENDEXTN:
+            // case GdsiiRecord::TEXTNODE:
+            // case GdsiiRecord::NODE:
+            // case GdsiiRecord::SPACING:
+            // case GdsiiRecord::UINTEGER:
+            // case GdsiiRecord::USTRING:
+            // case GdsiiRecord::REFLIBS:
+            // case GdsiiRecord::FONTS:
+            // case GdsiiRecord::GENERATIONS:
+            // case GdsiiRecord::ATTRTABLE:
+            // case GdsiiRecord::STYPTABLE:
+            // case GdsiiRecord::STRTYPE:
+            // case GdsiiRecord::ELFLAGS:
+            // case GdsiiRecord::ELKEY:
+            // case GdsiiRecord::LINKTYPE:
+            // case GdsiiRecord::LINKKEYS:
+            // case GdsiiRecord::NODETYPE:
+            // case GdsiiRecord::PLEX:
+            // case GdsiiRecord::TAPENUM:
+            // case GdsiiRecord::TAPECODE:
+            // case GdsiiRecord::STRCLASS:
+            // case GdsiiRecord::RESERVED:
+            // case GdsiiRecord::FORMAT:
+            // case GdsiiRecord::MASK:
+            // case GdsiiRecord::ENDMASKS:
+            // case GdsiiRecord::LIBDIRSIZE:
+            // case GdsiiRecord::SRFNAME:
+            // case GdsiiRecord::LIBSECUR:
+            default:
+                break;
+        }
+    }
+    return ErrorCode::InvalidFile;
 }
 
 ErrorCode oas_precision(const char* filename, double& precision) {

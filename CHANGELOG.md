@@ -4,6 +4,7 @@
 ### Added
 - `Cell.get_polygons`, `Cell.get_paths`, and `Cell.get_labels` return a copy of a cell’s polygons, paths or labels, including references, with the possibility of filtering by layer and type
 - `Library.layers_and_datatypes` and `Library.layers_and_texttypes` return tuples with the layer and data/text types found in the library.
+- `gdstk.gds_info` provide information about a GDSII file without fully loading it
 ### Fixed
 - Label transforms in SVG output
 - Label styling in SVG output

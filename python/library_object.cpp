@@ -304,31 +304,7 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
 static PyObject* library_object_layers_and_datatypes(LibraryObject* self, PyObject*) {
     Set<Tag> tags = {0};
     self->library->get_shape_tags(tags);
-    PyObject* result = PySet_New(NULL);
-    if (!result) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create set object.");
-        tags.clear();
-        return NULL;
-    }
-    for (SetItem<Tag>* item = tags.next(NULL); item; item = tags.next(item)) {
-        PyObject* value = PyTuple_New(2);
-        if (!value) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to create (layer, datatype) tuple.");
-            tags.clear();
-            Py_DECREF(result);
-            return NULL;
-        }
-        PyTuple_SET_ITEM(value, 0, PyLong_FromUnsignedLong(get_layer(item->value)));
-        PyTuple_SET_ITEM(value, 1, PyLong_FromUnsignedLong(get_type(item->value)));
-        if (PySet_Add(result, value) < 0) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to add item to set.");
-            tags.clear();
-            Py_DECREF(value);
-            Py_DECREF(result);
-            return NULL;
-        }
-        Py_DECREF(value);
-    }
+    PyObject* result = build_tag_set(tags);
     tags.clear();
     return result;
 }
@@ -336,31 +312,7 @@ static PyObject* library_object_layers_and_datatypes(LibraryObject* self, PyObje
 static PyObject* library_object_layers_and_texttypes(LibraryObject* self, PyObject*) {
     Set<Tag> tags = {0};
     self->library->get_label_tags(tags);
-    PyObject* result = PySet_New(NULL);
-    if (!result) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create set object.");
-        tags.clear();
-        return NULL;
-    }
-    for (SetItem<Tag>* item = tags.next(NULL); item; item = tags.next(item)) {
-        PyObject* value = PyTuple_New(2);
-        if (!value) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to create (layer, texttype) tuple.");
-            tags.clear();
-            Py_DECREF(result);
-            return NULL;
-        }
-        PyTuple_SET_ITEM(value, 0, PyLong_FromUnsignedLong(get_layer(item->value)));
-        PyTuple_SET_ITEM(value, 1, PyLong_FromUnsignedLong(get_type(item->value)));
-        if (PySet_Add(result, value) < 0) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to add item to set.");
-            tags.clear();
-            Py_DECREF(value);
-            Py_DECREF(result);
-            return NULL;
-        }
-        Py_DECREF(value);
-    }
+    PyObject* result = build_tag_set(tags);
     tags.clear();
     return result;
 }
