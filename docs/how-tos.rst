@@ -267,6 +267,12 @@ overlap a particular shape using :func:`gdstk.inside` to test.
 .. image:: how-tos/pos_filtering.*
    :align: center
 
+Finally, :func:`gdstk.read_gds` provides a way to only load specific layers and
+data types from a GDSII file, and methods :meth:`gdstk.Cell.get_polygons`,
+:meth:`gdstk.Cell.get_paths`, :meth:`gdstk.Cell.get_labels` can also be used to
+gather elements only from specific layers and types.
+
+
 *******************
 Points Along a Path
 *******************
