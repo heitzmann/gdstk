@@ -19,10 +19,29 @@ def test_init():
     assert path.datatypes == (0,)
     assert path.num_paths == 1
     assert path.size == 1
+    assert path.tolerance == 1e-2
+    assert path.simple_path == False
+    assert path.scale_width == True
+    assert path.joins == ("natural",)
+    assert path.ends == ("flush",)
+    assert path.bend_radius == (0,)
+    assert path.bend_function == (None,)
     path.set_layers(1)
     path.set_datatypes(2)
+    path.tolerance = 1e-3
+    path.simple_path = True
+    path.set_joins("round")
+    path.set_ends((1, 2))
+    path.set_bend_radius(0.1)
+    path.set_bend_function(None)
     assert path.layers == (1,)
     assert path.datatypes == (2,)
+    assert path.tolerance == 1e-3
+    assert path.simple_path == True
+    assert path.joins == ("round",)
+    assert path.ends == ((1, 2),)
+    assert path.bend_radius == (0.1,)
+    assert path.bend_function == (None,)
 
     path = gdstk.FlexPath(0j, [2, 2], layer=3, datatype=[4, 5])
     assert path.layers == (3, 3)
@@ -43,6 +62,10 @@ def test_init():
     assert path.layers == (3, 3)
     assert path.datatypes == (4, 5)
     assert path.num_paths == 2
+    assert path.bend_function == (None, None)
+    dummy = lambda *args: (0j,)
+    path.set_bend_function(dummy, None)
+    assert path.bend_function == (dummy, None)
 
 
 def test_transforms(proof_cells):

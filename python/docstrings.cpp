@@ -875,17 +875,59 @@ Returns:
 
 PyDoc_STRVAR(flexpath_object_set_layers_doc, R"!(set_layers(*layers) -> self
 
-Sets the layers for all paths.
+Set the layers for all paths.
 
 Args:
     layers: layer numbers for all paths.)!");
 
 PyDoc_STRVAR(flexpath_object_set_datatypes_doc, R"!(set_datatypes(*datatypes) -> self
 
-Sets the datatypes for all paths.
+Set the datatypes for all paths.
 
 Args:
     datatypes: data type numbers for all paths.)!");
+
+PyDoc_STRVAR(flexpath_object_set_joins_doc, R"!(set_joins(*joins) -> self
+
+Set the end types for all paths.
+
+Args:
+    joins: Sequence of "natural", "miter", "bevel", "round", "smooth",
+      or a callable.
+
+See also:
+    :class:`gdstk.FlexPath`)!");
+
+PyDoc_STRVAR(flexpath_object_set_ends_doc, R"!(set_ends(*ends) -> self
+
+Set the end types for all paths.
+
+Args:
+    ends: Sequence of "flush", "extended", "round", "smooth", a 2-tuple,
+      or a callable.
+
+See also:
+    :class:`gdstk.FlexPath`)!");
+
+PyDoc_STRVAR(flexpath_object_set_bend_radius_doc, R"!(set_bend_radius(*radii) -> self
+
+Set the bend radius for all paths.
+
+Args:
+    radii: Sequence of floats.
+
+See also:
+    :class:`gdstk.FlexPath`)!");
+
+PyDoc_STRVAR(flexpath_object_set_bend_function_doc, R"!(set_bend_function(*functions) -> self
+
+Set the bend function for all paths.
+
+Args:
+    functions: Sequence of callable or ``None``.
+
+See also:
+    :class:`gdstk.FlexPath`)!");
 
 PyDoc_STRVAR(flexpath_object_horizontal_doc,
              R"!(horizontal(x, width=None, offset=None, relative=False) -> self
@@ -1347,12 +1389,18 @@ Returns:
 PyDoc_STRVAR(flexpath_object_layers_doc, R"!(FlexPath layer.
 
 Notes:
-    This attribute is read-only.)!");
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.FlexPath.set_layers`)!");
 
 PyDoc_STRVAR(flexpath_object_datatypes_doc, R"!(FlexPath data type.
 
 Notes:
-    This attribute is read-only.)!");
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.FlexPath.set_datatypes`)!");
 
 PyDoc_STRVAR(flexpath_object_num_paths_doc, R"!(Number of paths.
 
@@ -1363,6 +1411,44 @@ PyDoc_STRVAR(flexpath_object_size_doc, R"!(Number of points in the path spine.
 
 Notes:
     This attribute is read-only.)!");
+
+PyDoc_STRVAR(flexpath_object_joins_doc, R"!(Join types for each path.
+
+Notes:
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.FlexPath.set_joins`)!");
+
+PyDoc_STRVAR(flexpath_object_ends_doc, R"!(End types for each path.
+
+Notes:
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.FlexPath.set_ends`)!");
+
+PyDoc_STRVAR(flexpath_object_bend_radius_doc, R"!(Bend radius for each path.
+
+Notes:
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.FlexPath.set_bend_radius`)!");
+
+PyDoc_STRVAR(flexpath_object_bend_function_doc, R"!(Bend function for each path.
+
+Notes:
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.FlexPath.set_bend_function`)!");
+
+PyDoc_STRVAR(path_object_tolerance_doc, R"!(Path tolerance.)!");
+
+PyDoc_STRVAR(path_object_simple_path_doc, R"!(Simple path flag.)!");
+
+PyDoc_STRVAR(path_object_scale_width_doc, R"!(Scale width flag.)!");
 
 // RobustPath
 
@@ -1518,17 +1604,28 @@ Returns:
 
 PyDoc_STRVAR(robustpath_object_set_layers_doc, R"!(set_layers(*layers) -> self
 
-Sets the layers for all paths.
+Set the layers for all paths.
 
 Args:
     layers: layer numbers for all paths.)!");
 
 PyDoc_STRVAR(robustpath_object_set_datatypes_doc, R"!(set_datatypes(*datatypes) -> self
 
-Sets the datatypes for all paths.
+Set the datatypes for all paths.
 
 Args:
     datatypes: data type numbers for all paths.)!");
+
+PyDoc_STRVAR(robustpath_object_set_ends_doc, R"!(set_ends(*ends) -> self
+
+Set the end types for all paths.
+
+Args:
+    ends: Sequence of "flush", "extended", "round", "smooth", a 2-tuple,
+      or a callable.
+
+See also:
+    :class:`gdstk.RobustPath`)!");
 
 PyDoc_STRVAR(robustpath_object_horizontal_doc,
              R"!(horizontal(x, width=None, offset=None, relative=False) -> self
@@ -2049,12 +2146,18 @@ Returns:
 PyDoc_STRVAR(robustpath_object_layers_doc, R"!(RobustPath layer.
 
 Notes:
-    This attribute is read-only.)!");
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.RobustPath.set_layers`)!");
 
 PyDoc_STRVAR(robustpath_object_datatypes_doc, R"!(RobustPath data type.
 
 Notes:
-    This attribute is read-only.)!");
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.RobustPath.set_datatypes`)!");
 
 PyDoc_STRVAR(robustpath_object_num_paths_doc, R"!(Number of paths.
 
@@ -2065,6 +2168,16 @@ PyDoc_STRVAR(robustpath_object_size_doc, R"!(Number of sections in this path.
 
 Notes:
     This attribute is read-only.)!");
+
+PyDoc_STRVAR(robustpath_object_ends_doc, R"!(End types for each path.
+
+Notes:
+    This attribute is read-only.
+
+See also:
+    :meth:`gdstk.RobustPath.set_ends`)!");
+
+PyDoc_STRVAR(robustpath_object_max_evals_doc, R"!(Maximal number of path evaluations per section.)!");
 
 // Label
 

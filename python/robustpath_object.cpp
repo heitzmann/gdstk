@@ -354,11 +354,11 @@ static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObje
                     if (PyUnicode_Check(item)) {
                         if (PyUnicode_CompareWithASCIIString(item, "extended") == 0) {
                             et = EndType::HalfWidth;
-                        } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0)
+                        } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0) {
                             et = EndType::Round;
-                        else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0)
+                        } else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0) {
                             et = EndType::Smooth;
-                        else if (PyUnicode_CompareWithASCIIString(item, "flush") != 0) {
+                        } else if (PyUnicode_CompareWithASCIIString(item, "flush") != 0) {
                             robustpath_cleanup(self);
                             PyErr_SetString(
                                 PyExc_RuntimeError,
@@ -651,6 +651,69 @@ static PyObject* robustpath_object_set_datatypes(RobustPathObject* self, PyObjec
         if (PyErr_Occurred()) {
             PyErr_Format(PyExc_TypeError, "Unable to convert sequence item %" PRIu64 " to int.", i);
             return NULL;
+        }
+    }
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* robustpath_object_set_ends(RobustPathObject* self, PyObject* arg) {
+    if (!PySequence_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a sequence of end types.");
+        return NULL;
+    }
+    uint64_t len = PySequence_Length(arg);
+    RobustPath* robustpath = self->robustpath;
+    if (len != robustpath->num_elements) {
+        PyErr_SetString(PyExc_RuntimeError, "Length of sequence must match the number of paths.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < len; i++) {
+        RobustPathElement* el = robustpath->elements + i;
+        if (el->end_type == EndType::Function) {
+            el->end_type = EndType::Flush;
+            el->end_function = NULL;
+            Py_DECREF(el->end_function_data);
+            el->end_function_data = NULL;
+        }
+        PyObject* item = PySequence_ITEM(arg, i);
+        if (item == NULL) {
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
+            return NULL;
+        }
+        if (PyCallable_Check(item)) {
+            el->end_type = EndType::Function;
+            el->end_function = (EndFunction)custom_end_function;
+            el->end_function_data = (void*)item;
+        } else {
+            EndType et = EndType::Flush;
+            if (PyUnicode_Check(item)) {
+                if (PyUnicode_CompareWithASCIIString(item, "extended") == 0) {
+                    et = EndType::HalfWidth;
+                } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0) {
+                    et = EndType::Round;
+                } else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0) {
+                    et = EndType::Smooth;
+                } else if (PyUnicode_CompareWithASCIIString(item, "flush") != 0) {
+                    Py_DECREF(item);
+                    PyErr_SetString(
+                        PyExc_RuntimeError,
+                        "Ends must be one of 'flush', 'extended', 'round', 'smooth', a 2-tuple, or a callable.");
+                    return NULL;
+                }
+            } else {
+                et = EndType::Extended;
+                if (!PyTuple_Check(item) || PyArg_ParseTuple(item, "dd", &el->end_extensions.u,
+                                                             &el->end_extensions.v) < 0) {
+                    Py_DECREF(item);
+                    PyErr_SetString(
+                        PyExc_RuntimeError,
+                        "Ends must be one of 'flush', 'extended', 'round', 'smooth', a 2-tuple, or a callable.");
+                    return NULL;
+                }
+            }
+            el->end_type = et;
+            Py_DECREF(item);
         }
     }
     Py_INCREF(self);
@@ -1804,6 +1867,8 @@ static PyMethodDef robustpath_object_methods[] = {
      robustpath_object_set_layers_doc},
     {"set_datatypes", (PyCFunction)robustpath_object_set_datatypes, METH_VARARGS,
      robustpath_object_set_datatypes_doc},
+    {"set_ends", (PyCFunction)robustpath_object_set_ends, METH_VARARGS,
+     robustpath_object_set_ends_doc},
     {"horizontal", (PyCFunction)robustpath_object_horizontal, METH_VARARGS | METH_KEYWORDS,
      robustpath_object_horizontal_doc},
     {"vertical", (PyCFunction)robustpath_object_vertical, METH_VARARGS | METH_KEYWORDS,
@@ -1858,7 +1923,7 @@ static PyObject* robustpath_object_get_layers(RobustPathObject* self, void*) {
     RobustPath* robustpath = self->robustpath;
     PyObject* result = PyTuple_New(robustpath->num_elements);
     if (result == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
         return NULL;
     }
     for (uint64_t i = 0; i < robustpath->num_elements; i++) {
@@ -1877,7 +1942,7 @@ static PyObject* robustpath_object_get_datatypes(RobustPathObject* self, void*) 
     RobustPath* robustpath = self->robustpath;
     PyObject* result = PyTuple_New(robustpath->num_elements);
     if (result == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
         return NULL;
     }
     for (uint64_t i = 0; i < robustpath->num_elements; i++) {
@@ -1898,6 +1963,126 @@ static PyObject* robustpath_object_get_num_paths(RobustPathObject* self, void*) 
 
 static PyObject* robustpath_object_get_size(RobustPathObject* self, void*) {
     return PyLong_FromUnsignedLongLong(self->robustpath->subpath_array.count);
+}
+
+static PyObject* robustpath_object_get_ends(RobustPathObject* self, void*) {
+    RobustPath* robustpath = self->robustpath;
+    PyObject* result = PyTuple_New(robustpath->num_elements);
+    if (result == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < robustpath->num_elements; i++) {
+        RobustPathElement* element = robustpath->elements + i;
+        PyObject* item = NULL;
+        switch (element->end_type) {
+            case EndType::Flush:
+                item = PyUnicode_FromString("flush");
+                break;
+            case EndType::Round:
+                item = PyUnicode_FromString("round");
+                break;
+            case EndType::HalfWidth:
+                item = PyUnicode_FromString("extendend");
+                break;
+            case EndType::Smooth:
+                item = PyUnicode_FromString("smooth");
+                break;
+            case EndType::Extended: {
+                item = PyTuple_New(2);
+                if (item == NULL) {
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+                    Py_DECREF(result);
+                    return NULL;
+                }
+                PyObject* value = PyFloat_FromDouble(element->end_extensions.u);
+                if (PyErr_Occurred()) {
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+                    Py_DECREF(item);
+                    Py_DECREF(result);
+                    return NULL;
+                }
+                PyTuple_SET_ITEM(item, 0, value);
+                value = PyFloat_FromDouble(element->end_extensions.v);
+                if (PyErr_Occurred()) {
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+                    Py_DECREF(item);
+                    Py_DECREF(result);
+                    return NULL;
+                }
+                PyTuple_SET_ITEM(item, 1, value);
+            } break;
+            case EndType::Function:
+                item = (PyObject*)element->end_function_data;
+                Py_INCREF(item);
+                break;
+        }
+        if (item == NULL) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(result, i, item);
+    }
+    return result;
+}
+
+static PyObject* robustpath_object_get_tolerance(RobustPathObject* self, void*) {
+    return PyFloat_FromDouble(self->robustpath->tolerance);
+}
+
+int robustpath_object_set_tolerance(RobustPathObject* self, PyObject* arg, void*) {
+    double tolerance = PyFloat_AsDouble(arg);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "Unable to convert value to float.");
+        return -1;
+    }
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return -1;
+    }
+    self->robustpath->tolerance = tolerance;
+    return 0;
+}
+
+static PyObject* robustpath_object_get_max_evals(RobustPathObject* self, void*) {
+    return PyLong_FromUnsignedLongLong(self->robustpath->max_evals);
+}
+
+int robustpath_object_set_max_evals(RobustPathObject* self, PyObject* arg, void*) {
+    double max_evals = PyLong_AsUnsignedLongLong(arg);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "Unable to convert value to integer.");
+        return -1;
+    }
+    if (max_evals < 1) {
+        PyErr_SetString(PyExc_ValueError, "Value must be greater than 0.");
+        return -1;
+    }
+    self->robustpath->max_evals = max_evals;
+    return 0;
+}
+
+static PyObject* robustpath_object_get_simple_path(RobustPathObject* self, void*) {
+    PyObject* result = self->robustpath->simple_path ? Py_True : Py_False;
+    Py_INCREF(result);
+    return result;
+}
+
+int robustpath_object_set_simple_path(RobustPathObject* self, PyObject* arg, void*) {
+    self->robustpath->simple_path = PyObject_IsTrue(arg) > 0;
+    return 0;
+}
+
+static PyObject* robustpath_object_get_scale_width(RobustPathObject* self, void*) {
+    PyObject* result = self->robustpath->scale_width ? Py_True : Py_False;
+    Py_INCREF(result);
+    return result;
+}
+
+int robustpath_object_set_scale_width(RobustPathObject* self, PyObject* arg, void*) {
+    self->robustpath->scale_width = PyObject_IsTrue(arg) > 0;
+    return 0;
 }
 
 static PyObject* robustpath_object_get_properties(RobustPathObject* self, void*) {
@@ -1936,6 +2121,15 @@ static PyGetSetDef robustpath_object_getset[] = {
     {"num_paths", (getter)robustpath_object_get_num_paths, NULL, robustpath_object_num_paths_doc,
      NULL},
     {"size", (getter)robustpath_object_get_size, NULL, robustpath_object_size_doc, NULL},
+    {"ends", (getter)robustpath_object_get_ends, NULL, robustpath_object_ends_doc, NULL},
+    {"tolerance", (getter)robustpath_object_get_tolerance, (setter)robustpath_object_set_tolerance,
+     path_object_tolerance_doc, NULL},
+    {"max_evals", (getter)robustpath_object_get_max_evals, (setter)robustpath_object_set_max_evals,
+     robustpath_object_max_evals_doc, NULL},
+    {"simple_path", (getter)robustpath_object_get_simple_path,
+     (setter)robustpath_object_set_simple_path, path_object_simple_path_doc, NULL},
+    {"scale_width", (getter)robustpath_object_get_scale_width,
+     (setter)robustpath_object_set_scale_width, path_object_scale_width_doc, NULL},
     {"properties", (getter)robustpath_object_get_properties,
      (setter)robustpath_object_set_properties, object_properties_doc, NULL},
     {"repetition", (getter)robustpath_object_get_repetition,

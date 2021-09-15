@@ -17,12 +17,24 @@ def test_init():
     path = gdstk.RobustPath(0j, 2)
     assert path.layers == (0,)
     assert path.datatypes == (0,)
+    assert path.tolerance == 1e-2
+    assert path.max_evals == 1000
+    assert path.simple_path == False
+    assert path.ends == ("flush",)
     assert path.num_paths == 1
     assert path.size == 0
     path.set_layers(1)
     path.set_datatypes(2)
+    path.tolerance = 1e-3
+    path.max_evals = 10
+    path.simple_path = True
+    path.set_ends((1, 2))
     assert path.layers == (1,)
     assert path.datatypes == (2,)
+    assert path.tolerance == 1e-3
+    assert path.max_evals == 10
+    assert path.simple_path == True
+    assert path.ends == ((1, 2),)
 
     path = gdstk.RobustPath(0j, [2, 2], layer=3, datatype=[4, 5])
     assert path.layers == (3, 3)

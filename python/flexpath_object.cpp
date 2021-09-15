@@ -364,15 +364,15 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                         return -1;
                     }
                     JoinType jt = JoinType::Natural;
-                    if (PyUnicode_CompareWithASCIIString(item, "miter") == 0)
+                    if (PyUnicode_CompareWithASCIIString(item, "miter") == 0) {
                         jt = JoinType::Miter;
-                    else if (PyUnicode_CompareWithASCIIString(item, "bevel") == 0)
+                    } else if (PyUnicode_CompareWithASCIIString(item, "bevel") == 0) {
                         jt = JoinType::Bevel;
-                    else if (PyUnicode_CompareWithASCIIString(item, "round") == 0)
+                    } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0) {
                         jt = JoinType::Round;
-                    else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0)
+                    } else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0) {
                         jt = JoinType::Smooth;
-                    else if (PyUnicode_CompareWithASCIIString(item, "natural") != 0) {
+                    } else if (PyUnicode_CompareWithASCIIString(item, "natural") != 0) {
                         flexpath_cleanup(self);
                         PyErr_SetString(
                             PyExc_RuntimeError,
@@ -446,11 +446,11 @@ static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* 
                     if (PyUnicode_Check(item)) {
                         if (PyUnicode_CompareWithASCIIString(item, "extended") == 0) {
                             et = EndType::HalfWidth;
-                        } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0)
+                        } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0) {
                             et = EndType::Round;
-                        else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0)
+                        } else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0) {
                             et = EndType::Smooth;
-                        else if (PyUnicode_CompareWithASCIIString(item, "flush") != 0) {
+                        } else if (PyUnicode_CompareWithASCIIString(item, "flush") != 0) {
                             flexpath_cleanup(self);
                             PyErr_SetString(
                                 PyExc_RuntimeError,
@@ -789,6 +789,240 @@ static PyObject* flexpath_object_set_datatypes(FlexPathObject* self, PyObject* a
     return (PyObject*)self;
 }
 
+static PyObject* flexpath_object_set_joins(FlexPathObject* self, PyObject* arg) {
+    if (!PySequence_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a sequence of join types.");
+        return NULL;
+    }
+    uint64_t len = PySequence_Length(arg);
+    FlexPath* flexpath = self->flexpath;
+    if (len != flexpath->num_elements) {
+        PyErr_SetString(PyExc_RuntimeError, "Length of sequence must match the number of paths.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < len; i++) {
+        FlexPathElement* el = flexpath->elements + i;
+        if (el->join_type == JoinType::Function) {
+            el->join_type = JoinType::Natural;
+            el->join_function = NULL;
+            Py_DECREF(el->join_function_data);
+            el->join_function_data = NULL;
+        }
+        PyObject* item = PySequence_ITEM(arg, i);
+        if (item == NULL) {
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
+            return NULL;
+        }
+        if (PyCallable_Check(item)) {
+            el->join_type = JoinType::Function;
+            el->join_function = (JoinFunction)custom_join_function;
+            el->join_function_data = (void*)item;
+        } else {
+            if (!PyUnicode_Check(item)) {
+                Py_DECREF(item);
+                PyErr_SetString(
+                    PyExc_TypeError,
+                    "Joins must be one of 'natural', 'miter', 'bevel', 'round', 'smooth', or a callable.");
+                return NULL;
+            }
+            JoinType jt = JoinType::Natural;
+            if (PyUnicode_CompareWithASCIIString(item, "miter") == 0) {
+                jt = JoinType::Miter;
+            } else if (PyUnicode_CompareWithASCIIString(item, "bevel") == 0) {
+                jt = JoinType::Bevel;
+            } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0) {
+                jt = JoinType::Round;
+            } else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0) {
+                jt = JoinType::Smooth;
+            } else if (PyUnicode_CompareWithASCIIString(item, "natural") != 0) {
+                flexpath_cleanup(self);
+                PyErr_SetString(
+                    PyExc_RuntimeError,
+                    "Joins must be one of 'natural', 'miter', 'bevel', 'round', 'smooth', a callable, or a list of those.");
+                return NULL;
+            }
+            el->join_type = jt;
+            Py_DECREF(item);
+        }
+    }
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* flexpath_object_set_ends(FlexPathObject* self, PyObject* arg) {
+    if (!PySequence_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a sequence of end types.");
+        return NULL;
+    }
+    uint64_t len = PySequence_Length(arg);
+    FlexPath* flexpath = self->flexpath;
+    if (len != flexpath->num_elements) {
+        PyErr_SetString(PyExc_RuntimeError, "Length of sequence must match the number of paths.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < len; i++) {
+        FlexPathElement* el = flexpath->elements + i;
+        if (el->end_type == EndType::Function) {
+            el->end_type = EndType::Flush;
+            el->end_function = NULL;
+            Py_DECREF(el->end_function_data);
+            el->end_function_data = NULL;
+        }
+        PyObject* item = PySequence_ITEM(arg, i);
+        if (item == NULL) {
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
+            return NULL;
+        }
+        if (PyCallable_Check(item)) {
+            el->end_type = EndType::Function;
+            el->end_function = (EndFunction)custom_end_function;
+            el->end_function_data = (void*)item;
+        } else {
+            EndType et = EndType::Flush;
+            if (PyUnicode_Check(item)) {
+                if (PyUnicode_CompareWithASCIIString(item, "extended") == 0) {
+                    et = EndType::HalfWidth;
+                } else if (PyUnicode_CompareWithASCIIString(item, "round") == 0) {
+                    et = EndType::Round;
+                } else if (PyUnicode_CompareWithASCIIString(item, "smooth") == 0) {
+                    et = EndType::Smooth;
+                } else if (PyUnicode_CompareWithASCIIString(item, "flush") != 0) {
+                    Py_DECREF(item);
+                    PyErr_SetString(
+                        PyExc_RuntimeError,
+                        "Ends must be one of 'flush', 'extended', 'round', 'smooth', a 2-tuple, or a callable.");
+                    return NULL;
+                }
+            } else {
+                et = EndType::Extended;
+                if (!PyTuple_Check(item) || PyArg_ParseTuple(item, "dd", &el->end_extensions.u,
+                                                             &el->end_extensions.v) < 0) {
+                    Py_DECREF(item);
+                    PyErr_SetString(
+                        PyExc_RuntimeError,
+                        "Ends must be one of 'flush', 'extended', 'round', 'smooth', a 2-tuple, or a callable.");
+                    return NULL;
+                }
+            }
+            el->end_type = et;
+            Py_DECREF(item);
+        }
+    }
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* flexpath_object_set_bend_radius(FlexPathObject* self, PyObject* arg) {
+    if (!PySequence_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a sequence of radii.");
+        return NULL;
+    }
+    uint64_t len = PySequence_Length(arg);
+    FlexPath* flexpath = self->flexpath;
+    if (len != flexpath->num_elements) {
+        PyErr_SetString(PyExc_RuntimeError, "Length of sequence must match the number of paths.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < len; i++) {
+        FlexPathElement* el = flexpath->elements + i;
+        PyObject* item = PySequence_ITEM(arg, i);
+        if (item == NULL) {
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
+            return NULL;
+        }
+        const double bend_radius = item == Py_None ? 0 : PyFloat_AsDouble(item);
+        Py_DECREF(item);
+        if (PyErr_Occurred()) {
+            PyErr_Format(PyExc_RuntimeError,
+                         "Unable to convert item %" PRIu64 " to a callable or float.", i);
+            return NULL;
+        }
+        if (bend_radius > 0) {
+            if (el->bend_type == BendType::None) {
+                el->bend_type = BendType::Circular;
+            }
+            el->bend_radius = bend_radius;
+        } else if (el->bend_type == BendType::Circular) {
+            el->bend_type = BendType::None;
+            el->bend_radius = 0;
+        }
+    }
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+static PyObject* flexpath_object_set_bend_function(FlexPathObject* self, PyObject* arg) {
+    if (!PySequence_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Argument must be a sequence of callables or None.");
+        return NULL;
+    }
+    uint64_t len = PySequence_Length(arg);
+    FlexPath* flexpath = self->flexpath;
+    if (len != flexpath->num_elements) {
+        PyErr_SetString(PyExc_RuntimeError, "Length of sequence must match the number of paths.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < len; i++) {
+        FlexPathElement* el = flexpath->elements + i;
+        if (el->bend_type == BendType::Function) {
+            el->bend_type = el->bend_radius > 0 ? BendType::Circular : BendType::None;
+            el->bend_function = NULL;
+            Py_DECREF(el->bend_function_data);
+            el->bend_function_data = NULL;
+        }
+        PyObject* item = PySequence_ITEM(arg, i);
+        if (item == NULL) {
+            PyErr_Format(PyExc_RuntimeError, "Unable to get item %" PRIu64 " from sequence.", i);
+            return NULL;
+        }
+        if (PyCallable_Check(item)) {
+            el->bend_type = BendType::Function;
+            el->bend_function = (BendFunction)custom_bend_function;
+            el->bend_function_data = (void*)item;
+        } else {
+            Py_DECREF(item);
+        }
+    }
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
+// If offset is a single number, it's the new distance between paths (analogous to what is used in
+// init).
+static int parse_flexpath_offset(const FlexPath flexpath, PyObject* py_offset, double* offset) {
+    if (PySequence_Check(py_offset)) {
+        if ((uint64_t)PySequence_Length(py_offset) < flexpath.num_elements) {
+            PyErr_SetString(PyExc_RuntimeError, "Sequence offset doesn't have enough elements.");
+            return -1;
+        }
+        for (uint64_t i = 0; i < flexpath.num_elements; i++) {
+            PyObject* item = PySequence_ITEM(py_offset, i);
+            if (item == NULL) {
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to get item %" PRIu64 " from sequence offset.", i);
+                return -1;
+            }
+            *offset++ = PyFloat_AsDouble(item);
+            Py_DECREF(item);
+            if (PyErr_Occurred()) {
+                PyErr_Format(PyExc_RuntimeError,
+                             "Unable to convert item %" PRIu64 " from sequence offset to float.",
+                             i);
+                return -1;
+            }
+        }
+    } else {
+        const double value = PyFloat_AsDouble(py_offset);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert offset to float.");
+            return -1;
+        }
+        for (uint64_t i = 0; i < flexpath.num_elements; i++)
+            *offset++ = (i - 0.5 * (flexpath.num_elements - 1)) * value;
+    }
+    return 0;
+}
+
 static int parse_flexpath_width(const FlexPath flexpath, PyObject* py_width, double* width) {
     if (PySequence_Check(py_width)) {
         if ((uint64_t)PySequence_Length(py_width) < flexpath.num_elements) {
@@ -827,42 +1061,6 @@ static int parse_flexpath_width(const FlexPath flexpath, PyObject* py_width, dou
             return -1;
         }
         for (uint64_t i = 0; i < flexpath.num_elements; i++) *width++ = value;
-    }
-    return 0;
-}
-
-// If offset is a single number, it's the new distance between paths (analogous to what is used in
-// init).
-static int parse_flexpath_offset(const FlexPath flexpath, PyObject* py_offset, double* offset) {
-    if (PySequence_Check(py_offset)) {
-        if ((uint64_t)PySequence_Length(py_offset) < flexpath.num_elements) {
-            PyErr_SetString(PyExc_RuntimeError, "Sequence offset doesn't have enough elements.");
-            return -1;
-        }
-        for (uint64_t i = 0; i < flexpath.num_elements; i++) {
-            PyObject* item = PySequence_ITEM(py_offset, i);
-            if (item == NULL) {
-                PyErr_Format(PyExc_RuntimeError,
-                             "Unable to get item %" PRIu64 " from sequence offset.", i);
-                return -1;
-            }
-            *offset++ = PyFloat_AsDouble(item);
-            Py_DECREF(item);
-            if (PyErr_Occurred()) {
-                PyErr_Format(PyExc_RuntimeError,
-                             "Unable to convert item %" PRIu64 " from sequence offset to float.",
-                             i);
-                return -1;
-            }
-        }
-    } else {
-        const double value = PyFloat_AsDouble(py_offset);
-        if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_RuntimeError, "Unable to convert offset to float.");
-            return -1;
-        }
-        for (uint64_t i = 0; i < flexpath.num_elements; i++)
-            *offset++ = (i - 0.5 * (flexpath.num_elements - 1)) * value;
     }
     return 0;
 }
@@ -1779,6 +1977,13 @@ static PyMethodDef flexpath_object_methods[] = {
      flexpath_object_set_layers_doc},
     {"set_datatypes", (PyCFunction)flexpath_object_set_datatypes, METH_VARARGS,
      flexpath_object_set_datatypes_doc},
+    {"set_joins", (PyCFunction)flexpath_object_set_joins, METH_VARARGS,
+     flexpath_object_set_joins_doc},
+    {"set_ends", (PyCFunction)flexpath_object_set_ends, METH_VARARGS, flexpath_object_set_ends_doc},
+    {"set_bend_radius", (PyCFunction)flexpath_object_set_bend_radius, METH_VARARGS,
+     flexpath_object_set_bend_radius_doc},
+    {"set_bend_function", (PyCFunction)flexpath_object_set_bend_function, METH_VARARGS,
+     flexpath_object_set_bend_function_doc},
     {"horizontal", (PyCFunction)flexpath_object_horizontal, METH_VARARGS | METH_KEYWORDS,
      flexpath_object_horizontal_doc},
     {"vertical", (PyCFunction)flexpath_object_vertical, METH_VARARGS | METH_KEYWORDS,
@@ -1832,7 +2037,7 @@ static PyObject* flexpath_object_get_layers(FlexPathObject* self, void*) {
     FlexPath* flexpath = self->flexpath;
     PyObject* result = PyTuple_New(flexpath->num_elements);
     if (result == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
         return NULL;
     }
     for (uint64_t i = 0; i < flexpath->num_elements; i++) {
@@ -1851,7 +2056,7 @@ static PyObject* flexpath_object_get_datatypes(FlexPathObject* self, void*) {
     FlexPath* flexpath = self->flexpath;
     PyObject* result = PyTuple_New(flexpath->num_elements);
     if (result == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
         return NULL;
     }
     for (uint64_t i = 0; i < flexpath->num_elements; i++) {
@@ -1872,6 +2077,186 @@ static PyObject* flexpath_object_get_num_paths(FlexPathObject* self, void*) {
 
 static PyObject* flexpath_object_get_size(FlexPathObject* self, void*) {
     return PyLong_FromUnsignedLongLong(self->flexpath->spine.point_array.count);
+}
+
+static PyObject* flexpath_object_get_joins(FlexPathObject* self, void*) {
+    FlexPath* flexpath = self->flexpath;
+    PyObject* result = PyTuple_New(flexpath->num_elements);
+    if (result == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < flexpath->num_elements; i++) {
+        FlexPathElement* element = flexpath->elements + i;
+        PyObject* item = NULL;
+        switch (element->join_type) {
+            case JoinType::Natural:
+                item = PyUnicode_FromString("natural");
+                break;
+            case JoinType::Miter:
+                item = PyUnicode_FromString("miter");
+                break;
+            case JoinType::Bevel:
+                item = PyUnicode_FromString("bevel");
+                break;
+            case JoinType::Round:
+                item = PyUnicode_FromString("round");
+                break;
+            case JoinType::Smooth:
+                item = PyUnicode_FromString("smooth");
+                break;
+            case JoinType::Function:
+                item = (PyObject*)element->join_function_data;
+                Py_INCREF(item);
+                break;
+        }
+        if (item == NULL) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(result, i, item);
+    }
+    return result;
+}
+
+static PyObject* flexpath_object_get_ends(FlexPathObject* self, void*) {
+    FlexPath* flexpath = self->flexpath;
+    PyObject* result = PyTuple_New(flexpath->num_elements);
+    if (result == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < flexpath->num_elements; i++) {
+        FlexPathElement* element = flexpath->elements + i;
+        PyObject* item = NULL;
+        switch (element->end_type) {
+            case EndType::Flush:
+                item = PyUnicode_FromString("flush");
+                break;
+            case EndType::Round:
+                item = PyUnicode_FromString("round");
+                break;
+            case EndType::HalfWidth:
+                item = PyUnicode_FromString("extendend");
+                break;
+            case EndType::Smooth:
+                item = PyUnicode_FromString("smooth");
+                break;
+            case EndType::Extended: {
+                item = PyTuple_New(2);
+                if (item == NULL) {
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+                    Py_DECREF(result);
+                    return NULL;
+                }
+                PyObject* value = PyFloat_FromDouble(element->end_extensions.u);
+                if (PyErr_Occurred()) {
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+                    Py_DECREF(item);
+                    Py_DECREF(result);
+                    return NULL;
+                }
+                PyTuple_SET_ITEM(item, 0, value);
+                value = PyFloat_FromDouble(element->end_extensions.v);
+                if (PyErr_Occurred()) {
+                    PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+                    Py_DECREF(item);
+                    Py_DECREF(result);
+                    return NULL;
+                }
+                PyTuple_SET_ITEM(item, 1, value);
+            } break;
+            case EndType::Function:
+                item = (PyObject*)element->end_function_data;
+                Py_INCREF(item);
+                break;
+        }
+        if (item == NULL) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(result, i, item);
+    }
+    return result;
+}
+
+static PyObject* flexpath_object_get_bend_radius(FlexPathObject* self, void*) {
+    FlexPath* flexpath = self->flexpath;
+    PyObject* result = PyTuple_New(flexpath->num_elements);
+    if (result == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < flexpath->num_elements; i++) {
+        PyObject* item = PyFloat_FromDouble(flexpath->elements[i].bend_radius);
+        if (item == NULL) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create return object item.");
+            Py_DECREF(result);
+            return NULL;
+        }
+        PyTuple_SET_ITEM(result, i, item);
+    }
+    return result;
+}
+
+static PyObject* flexpath_object_get_bend_function(FlexPathObject* self, void*) {
+    FlexPath* flexpath = self->flexpath;
+    PyObject* result = PyTuple_New(flexpath->num_elements);
+    if (result == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return tuple.");
+        return NULL;
+    }
+    for (uint64_t i = 0; i < flexpath->num_elements; i++) {
+        FlexPathElement* element = flexpath->elements + i;
+        PyObject* item = element->bend_type == BendType::Function
+                             ? (PyObject*)element->bend_function_data
+                             : Py_None;
+        Py_INCREF(item);
+        PyTuple_SET_ITEM(result, i, item);
+    }
+    return result;
+}
+
+static PyObject* flexpath_object_get_tolerance(FlexPathObject* self, void*) {
+    return PyFloat_FromDouble(self->flexpath->spine.tolerance);
+}
+
+int flexpath_object_set_tolerance(FlexPathObject* self, PyObject* arg, void*) {
+    double tolerance = PyFloat_AsDouble(arg);
+    if (PyErr_Occurred()) {
+        PyErr_SetString(PyExc_TypeError, "Unable to convert value to float.");
+        return -1;
+    }
+    if (tolerance <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
+        return -1;
+    }
+    self->flexpath->spine.tolerance = tolerance;
+    return 0;
+}
+
+static PyObject* flexpath_object_get_simple_path(FlexPathObject* self, void*) {
+    PyObject* result = self->flexpath->simple_path ? Py_True : Py_False;
+    Py_INCREF(result);
+    return result;
+}
+
+int flexpath_object_set_simple_path(FlexPathObject* self, PyObject* arg, void*) {
+    self->flexpath->simple_path = PyObject_IsTrue(arg) > 0;
+    return 0;
+}
+
+static PyObject* flexpath_object_get_scale_width(FlexPathObject* self, void*) {
+    PyObject* result = self->flexpath->scale_width ? Py_True : Py_False;
+    Py_INCREF(result);
+    return result;
+}
+
+int flexpath_object_set_scale_width(FlexPathObject* self, PyObject* arg, void*) {
+    self->flexpath->scale_width = PyObject_IsTrue(arg) > 0;
+    return 0;
 }
 
 static PyObject* flexpath_object_get_properties(FlexPathObject* self, void*) {
@@ -1908,6 +2293,18 @@ static PyGetSetDef flexpath_object_getset[] = {
     {"datatypes", (getter)flexpath_object_get_datatypes, NULL, flexpath_object_datatypes_doc, NULL},
     {"num_paths", (getter)flexpath_object_get_num_paths, NULL, flexpath_object_num_paths_doc, NULL},
     {"size", (getter)flexpath_object_get_size, NULL, flexpath_object_size_doc, NULL},
+    {"joins", (getter)flexpath_object_get_joins, NULL, flexpath_object_joins_doc, NULL},
+    {"ends", (getter)flexpath_object_get_ends, NULL, flexpath_object_ends_doc, NULL},
+    {"bend_radius", (getter)flexpath_object_get_bend_radius, NULL, flexpath_object_bend_radius_doc,
+     NULL},
+    {"bend_function", (getter)flexpath_object_get_bend_function, NULL,
+     flexpath_object_bend_function_doc, NULL},
+    {"tolerance", (getter)flexpath_object_get_tolerance, (setter)flexpath_object_set_tolerance,
+     path_object_tolerance_doc, NULL},
+    {"simple_path", (getter)flexpath_object_get_simple_path,
+     (setter)flexpath_object_set_simple_path, path_object_simple_path_doc, NULL},
+    {"scale_width", (getter)flexpath_object_get_scale_width,
+     (setter)flexpath_object_set_scale_width, path_object_scale_width_doc, NULL},
     {"properties", (getter)flexpath_object_get_properties, (setter)flexpath_object_set_properties,
      object_properties_doc, NULL},
     {"repetition", (getter)flexpath_object_get_repetition, (setter)flexpath_object_set_repetition,
