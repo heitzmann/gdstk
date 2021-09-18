@@ -50,8 +50,7 @@ void Reference::clear() {
 void Reference::copy_from(const Reference& reference) {
     type = reference.type;
     if (reference.type == ReferenceType::Name) {
-        uint64_t len;
-        name = copy_string(reference.name, len);
+        name = copy_string(reference.name, NULL);
     } else {
         cell = reference.cell;
     }

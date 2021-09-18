@@ -570,8 +570,7 @@ static bool parse_property(Property*& properties, PyObject* args) {
     PyObject* py_value;
     if (!PyArg_ParseTuple(args, "sO:set_property", &name, &py_value)) return false;
     Property* property = (Property*)allocate(sizeof(Property));
-    uint64_t name_len;
-    property->name = copy_string(name, name_len);
+    property->name = copy_string(name, NULL);
     property->next = properties;
     properties = property;
     property->value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));

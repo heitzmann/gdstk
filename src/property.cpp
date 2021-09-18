@@ -140,8 +140,7 @@ Property* properties_copy(const Property* properties) {
             dst->next = (Property*)allocate(sizeof(Property));
             dst = dst->next;
         }
-        uint64_t len;
-        dst->name = copy_string(properties->name, len);
+        dst->name = copy_string(properties->name, NULL);
         dst->value = property_values_copy(properties->value);
         dst->next = NULL;
     }
@@ -164,8 +163,7 @@ static PropertyValue* get_or_add_property(Property*& properties, const char* nam
     property->next = properties;
     properties = property;
 
-    uint64_t len;
-    property->name = copy_string(name, len);
+    property->name = copy_string(name, NULL);
     properties->value = (PropertyValue*)allocate_clear(sizeof(PropertyValue));
     return properties->value;
 }
@@ -225,7 +223,7 @@ void set_gds_property(Property*& properties, uint16_t attribute, const char* val
     gds_attribute->unsigned_integer = attribute;
     gds_attribute->next = gds_value;
     gds_value->type = PropertyType::String;
-    gds_value->bytes = (uint8_t*)copy_string(value, gds_value->count);
+    gds_value->bytes = (uint8_t*)copy_string(value, &gds_value->count);
     gds_value->next = NULL;
     property = (Property*)allocate(sizeof(Property));
     property->name = (char*)allocate(COUNT(s_gds_property_name));

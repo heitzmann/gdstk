@@ -227,8 +227,7 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
 }
 
 void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
-    uint64_t len;
-    name = copy_string(new_name ? new_name : cell.name, len);
+    name = copy_string(new_name ? new_name : cell.name, NULL);
     properties = properties_copy(cell.properties);
 
     if (deep_copy) {

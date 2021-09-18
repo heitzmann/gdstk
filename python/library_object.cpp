@@ -59,8 +59,7 @@ static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kw
     }
 
     if (!name) name = (char*)default_name;
-    uint64_t len;
-    library->name = copy_string(name, len);
+    library->name = copy_string(name, NULL);
 
     library->unit = unit;
     library->precision = precision;
@@ -116,8 +115,7 @@ static PyObject* library_object_new_cell(LibraryObject* self, PyObject* args) {
     result->cell = (Cell*)allocate_clear(sizeof(Cell));
     Cell* cell = result->cell;
     cell->owner = result;
-    uint64_t len;
-    cell->name = copy_string(name, len);
+    cell->name = copy_string(name, NULL);
     self->library->cell_array.append(cell);
     Py_INCREF(result);
     return (PyObject*)result;

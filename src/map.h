@@ -123,8 +123,7 @@ struct Map {
                                                           : GDSTK_INITIAL_MAP_CAPACITY);
         MapItem<T>* item = get_slot(key);
         if (item->key == NULL) {
-            uint64_t len;
-            item->key = copy_string(key, len);
+            item->key = copy_string(key, NULL);
             count++;
         }
         item->value = value;

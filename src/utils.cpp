@@ -29,10 +29,11 @@ extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int
 
 namespace gdstk {
 
-char* copy_string(const char* str, uint64_t& len) {
-    len = 1 + strlen(str);
-    char* result = (char*)allocate(len);
-    memcpy(result, str, len);
+char* copy_string(const char* str, uint64_t* len) {
+    uint64_t size = 1 + strlen(str);
+    char* result = (char*)allocate(size);
+    memcpy(result, str, size);
+    if (len) *len = size;
     return result;
 }
 

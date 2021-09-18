@@ -57,7 +57,7 @@ static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {
         cell = self->cell;
     }
     uint64_t len;
-    cell->name = copy_string(name, len);
+    cell->name = copy_string(name, &len);
     cell->owner = self;
     if (len <= 1) {
         PyErr_SetString(PyExc_ValueError, "Empty cell name.");

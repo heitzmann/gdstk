@@ -34,7 +34,7 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
         rawcell = self->rawcell;
     }
     uint64_t len;
-    rawcell->name = copy_string(name, len);
+    rawcell->name = copy_string(name, &len);
     rawcell->owner = self;
     if (len <= 1) {
         PyErr_SetString(PyExc_ValueError, "Empty cell name.");

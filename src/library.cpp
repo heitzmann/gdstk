@@ -54,8 +54,7 @@ void Library::print(bool all) const {
 }
 
 void Library::copy_from(const Library& library, bool deep_copy) {
-    uint64_t len;
-    name = copy_string(library.name, len);
+    name = copy_string(library.name, NULL);
     unit = library.unit;
     precision = library.precision;
     if (deep_copy) {
@@ -1281,7 +1280,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     if (cell->name == NULL) {
                         ByteArray* cell_name = cell_name_table.items + (uint64_t)cell->owner;
                         cell->owner = NULL;
-                        cell->name = copy_string((char*)cell_name->bytes, len);
+                        cell->name = copy_string((char*)cell_name->bytes, NULL);
                         if (cell_name->properties) {
                             Property* last = cell_name->properties;
                             while (last->next) last = last->next;
@@ -1298,7 +1297,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         if (label->text == NULL) {
                             ByteArray* label_text = label_text_table.items + (uint64_t)label->owner;
                             label->owner = NULL;
-                            label->text = copy_string((char*)label_text->bytes, len);
+                            label->text = copy_string((char*)label_text->bytes, NULL);
                             if (label_text->properties) {
                                 Property* copy = properties_copy(label_text->properties);
                                 Property* last = copy;
@@ -1346,7 +1345,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 for (uint64_t i = unfinished_property_name.count; i > 0; i--) {
                     Property* property = *prop_p++;
                     ByteArray* prop_name = property_name_table.items + (uint64_t)property->name;
-                    property->name = copy_string((char*)prop_name->bytes, len);
+                    property->name = copy_string((char*)prop_name->bytes, NULL);
                 }
                 PropertyValue** prop_value_p = unfinished_property_value.items;
                 for (uint64_t i = unfinished_property_value.count; i > 0; i--) {
@@ -1492,7 +1491,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         reference->cell = modal_placement_cell->cell;
                     } else {
                         reference->type = ReferenceType::Name;
-                        reference->name = copy_string(modal_placement_cell->name, len);
+                        reference->name = copy_string(modal_placement_cell->name, NULL);
                     }
                 }
                 if (record == OasisRecord::PLACEMENT) {
@@ -1562,7 +1561,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     if (modal_text_string->text == NULL) {
                         label->owner = modal_text_string->owner;
                     } else {
-                        label->text = copy_string(modal_text_string->text, len);
+                        label->text = copy_string(modal_text_string->text, NULL);
                     }
                 }
                 if (info & 0x01) {
@@ -2092,7 +2091,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         property->name = modal_property->name;
                         unfinished_property_name.append(property);
                     } else {
-                        property->name = copy_string(modal_property->name, len);
+                        property->name = copy_string(modal_property->name, NULL);
                     }
                 }
                 if (info & 0x08) {
@@ -2425,7 +2424,7 @@ ErrorCode gds_info(const char* filename, LibraryInfo& info) {
     }
 
     ErrorCode error = ErrorCode::NoError;
-    uint32_t layer;
+    uint32_t layer = 0;
     Set<Tag>* next_set = NULL;
     while (true) {
         uint64_t record_length = COUNT(buffer);

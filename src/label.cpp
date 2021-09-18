@@ -35,9 +35,8 @@ void Label::clear() {
 }
 
 void Label::copy_from(const Label& label) {
-    uint64_t len;
     tag = label.tag;
-    text = copy_string(label.text, len);
+    text = copy_string(label.text, NULL);
     origin = label.origin;
     anchor = label.anchor;
     rotation = label.rotation;

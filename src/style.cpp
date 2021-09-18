@@ -84,7 +84,6 @@ void StyleMap::set(Tag tag, const char* value) {
         resize(capacity >= GDSTK_INITIAL_MAP_CAPACITY ? capacity * GDSTK_MAP_GROWTH_FACTOR
                                                       : GDSTK_INITIAL_MAP_CAPACITY);
 
-    uint64_t len;
     Style* s = get_slot(tag);
     s->tag = tag;
     if (s->value == NULL) {
@@ -92,7 +91,7 @@ void StyleMap::set(Tag tag, const char* value) {
     } else {
         free_allocation(s->value);
     }
-    s->value = copy_string(value, len);
+    s->value = copy_string(value, NULL);
 }
 
 const char* StyleMap::get(Tag tag) const {

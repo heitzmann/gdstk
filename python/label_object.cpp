@@ -109,8 +109,7 @@ static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) 
     label->rotation = rotation;
     label->magnification = magnification;
     label->x_reflection = x_reflection > 0;
-    uint64_t len;
-    label->text = copy_string(text, len);
+    label->text = copy_string(text, NULL);
     label->owner = self;
     return 0;
 
