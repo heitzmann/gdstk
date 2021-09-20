@@ -127,61 +127,63 @@ void example_layerdatatype(Cell& out_cell) {
     Tag t_partial_etch = make_tag(2, 3);
     Tag t_lift_off = make_tag(0, 7);
 
-    Polygon* poly = (Polygon*)allocate_clear(4 * sizeof(Polygon));
-    poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, t_full_etch);
-    poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, t_partial_etch);
-    poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, t_partial_etch);
-    poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, t_lift_off);
+    Polygon* poly[4];
+    for (uint64_t i = 0; i < COUNT(poly); i++) poly[i] = (Polygon*)allocate_clear(sizeof(Polygon));
 
-    Polygon* p[] = {poly, poly + 1, poly + 2, poly + 3};
-    out_cell.polygon_array.extend({.count = 4, .items = p});
+    *poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, t_full_etch);
+    *poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, t_partial_etch);
+    *poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, t_partial_etch);
+    *poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, t_lift_off);
+
+    out_cell.polygon_array.extend({.count = COUNT(poly), .items = poly});
 }
 
 int main(int argc, char* argv[]) {
-    char lib_name[] = "Getting started";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+    Library lib = {.unit = 1e-6, .precision = 1e-9};
+    lib.name = copy_string("Getting started", NULL);
 
-    char polygons_cell_name[] = "Polygons";
-    Cell polygons_cell = {.name = polygons_cell_name};
-    example_polygons(polygons_cell);
-    lib.cell_array.append(&polygons_cell);
+    Cell* polygons_cell = (Cell*)allocate_clear(sizeof(Cell));
+    polygons_cell->name = copy_string("Polygons", NULL);
+    example_polygons(*polygons_cell);
+    lib.cell_array.append(polygons_cell);
 
-    char holes_cell_name[] = "Holes";
-    Cell holes_cell = {.name = holes_cell_name};
-    example_holes(holes_cell);
-    lib.cell_array.append(&holes_cell);
+    Cell* holes_cell = (Cell*)allocate_clear(sizeof(Cell));
+    holes_cell->name = copy_string("Holes", NULL);
+    example_holes(*holes_cell);
+    lib.cell_array.append(holes_cell);
 
-    char circles_cell_name[] = "Circles";
-    Cell circles_cell = {.name = circles_cell_name};
-    example_circles(circles_cell);
-    lib.cell_array.append(&circles_cell);
+    Cell* circles_cell = (Cell*)allocate_clear(sizeof(Cell));
+    circles_cell->name = copy_string("Circles", NULL);
+    example_circles(*circles_cell);
+    lib.cell_array.append(circles_cell);
 
-    char curves1_cell_name[] = "Curves 1";
-    Cell curves1_cell = {.name = curves1_cell_name};
-    example_curves1(curves1_cell);
-    lib.cell_array.append(&curves1_cell);
+    Cell* curves1_cell = (Cell*)allocate_clear(sizeof(Cell));
+    curves1_cell->name = copy_string("Curves 1", NULL);
+    example_curves1(*curves1_cell);
+    lib.cell_array.append(curves1_cell);
 
-    char curves2_cell_name[] = "Curves 2";
-    Cell curves2_cell = {.name = curves2_cell_name};
-    example_curves2(curves2_cell);
-    lib.cell_array.append(&curves2_cell);
+    Cell* curves2_cell = (Cell*)allocate_clear(sizeof(Cell));
+    curves2_cell->name = copy_string("Curves 2", NULL);
+    example_curves2(*curves2_cell);
+    lib.cell_array.append(curves2_cell);
 
-    char curves3_cell_name[] = "Curves 3";
-    Cell curves3_cell = {.name = curves3_cell_name};
-    example_curves3(curves3_cell);
-    lib.cell_array.append(&curves3_cell);
+    Cell* curves3_cell = (Cell*)allocate_clear(sizeof(Cell));
+    curves3_cell->name = copy_string("Curves 3", NULL);
+    example_curves3(*curves3_cell);
+    lib.cell_array.append(curves3_cell);
 
-    char transformations_cell_name[] = "Transformations";
-    Cell transformations_cell = {.name = transformations_cell_name};
-    example_transformations(transformations_cell);
-    lib.cell_array.append(&transformations_cell);
+    Cell* transformations_cell = (Cell*)allocate_clear(sizeof(Cell));
+    transformations_cell->name = copy_string("Transformations", NULL);
+    example_transformations(*transformations_cell);
+    lib.cell_array.append(transformations_cell);
 
-    char layerdatatype_cell_name[] = "Layer and datatype";
-    Cell layerdatatype_cell = {.name = layerdatatype_cell_name};
-    example_layerdatatype(layerdatatype_cell);
-    lib.cell_array.append(&layerdatatype_cell);
+    Cell* layerdatatype_cell = (Cell*)allocate_clear(sizeof(Cell));
+    layerdatatype_cell->name = copy_string("Layer and datatype", NULL);
+    example_layerdatatype(*layerdatatype_cell);
+    lib.cell_array.append(layerdatatype_cell);
 
     lib.write_gds("polygons.gds", 0, NULL);
 
+    lib.free_all();
     return 0;
 }

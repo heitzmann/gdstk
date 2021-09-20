@@ -50,13 +50,28 @@ int main(int argc, char* argv[]) {
 
     Array<Polygon*> txt = {0};
     text("PY", 8 * d, Vec2{0.5 * d, 0}, false, make_tag(1, 0), txt);
-    for (int64_t i = 0; i < main_cell.polygon_array.count; i++) {
-        if (any_inside(main_cell.polygon_array[i]->point_array, txt))
+    for (uint64_t i = 0; i < main_cell.polygon_array.count; i++) {
+        Polygon* poly = main_cell.polygon_array[i];
+        if (any_inside(poly->point_array, txt)) {
+            poly->clear();
+            free_allocation(poly);
             main_cell.polygon_array.remove(i--);
+        }
     }
 
     main_cell.polygon_array.extend(txt);
+    txt.clear();
 
     lib.write_gds("pos_filtering.gds", 0, NULL);
+
+    cross_.clear();
+    for (uint64_t i = 0; i < main_cell.polygon_array.count; i++) {
+        main_cell.polygon_array[i]->clear();
+        free_allocation(main_cell.polygon_array[i]);
+    }
+    main_cell.reference_array.clear();
+    main_cell.polygon_array.clear();
+    unit_cell.polygon_array.clear();
+    lib.cell_array.clear();
     return 0;
 }

@@ -19,7 +19,9 @@ void make_first_lib(const char* filename) {
     Cell main_cell = {.name = main_cell_name};
     lib.cell_array.append(&main_cell);
 
-    text("First library", 10, Vec2{0, 0}, false, 0, main_cell.polygon_array);
+    Array<Polygon*> allocated_polygons = {0};
+    text("First library", 10, Vec2{0, 0}, false, 0, allocated_polygons);
+    main_cell.polygon_array.extend(allocated_polygons);
 
     char square_cell_name[] = "Square";
     Cell square_cell = {.name = square_cell_name};
@@ -51,6 +53,20 @@ void make_first_lib(const char* filename) {
     square_cell.reference_array.append(&circle_referece);
 
     lib.write_gds(filename, 0, NULL);
+
+    lib.cell_array.clear();
+    main_cell.polygon_array.clear();
+    main_cell.reference_array.clear();
+    square_cell.polygon_array.clear();
+    square_cell.reference_array.clear();
+    circle_cell.polygon_array.clear();
+    square.clear();
+    circle.clear();
+    for (uint64_t i = 0; i < allocated_polygons.count; i++) {
+        allocated_polygons[i]->clear();
+        free_allocation(allocated_polygons[i]);
+    }
+    allocated_polygons.clear();
 }
 
 void make_second_lib(const char* filename) {
@@ -61,7 +77,9 @@ void make_second_lib(const char* filename) {
     Cell main_cell = {.name = main_cell_name};
     lib.cell_array.append(&main_cell);
 
-    text("Second library", 10, Vec2{0, 0}, false, 0, main_cell.polygon_array);
+    Array<Polygon*> allocated_polygons = {0};
+    text("Second library", 10, Vec2{0, 0}, false, 0, allocated_polygons);
+    main_cell.polygon_array.extend(allocated_polygons);
 
     char circle_cell_name[] = "Circle";
     Cell circle_cell = {.name = circle_cell_name};
@@ -78,6 +96,17 @@ void make_second_lib(const char* filename) {
     main_cell.reference_array.append(&circle_referece);
 
     lib.write_gds(filename, 0, NULL);
+
+    lib.cell_array.clear();
+    main_cell.polygon_array.clear();
+    main_cell.reference_array.clear();
+    circle_cell.polygon_array.clear();
+    circle.clear();
+    for (uint64_t i = 0; i < allocated_polygons.count; i++) {
+        allocated_polygons[i]->clear();
+        free_allocation(allocated_polygons[i]);
+    }
+    allocated_polygons.clear();
 }
 
 int main(int argc, char* argv[]) {
@@ -94,7 +123,7 @@ int main(int argc, char* argv[]) {
         for (uint64_t j = 0; j < lib1.cell_array.count; j++) {
             if (strcmp(cell->name, lib1.cell_array[j]->name) == 0) {
                 uint64_t len = strlen(cell->name);
-                cell->name = (char*)reallocate(cell->name, len + 5);
+                cell->name = (char*)reallocate(cell->name, len + 6);
                 strcpy(cell->name + len, "-lib2");
                 // We should make sure the new name is also unique, but we are
                 // skiping that.
@@ -105,6 +134,11 @@ int main(int argc, char* argv[]) {
     }
 
     lib1.write_gds("merging.gds", 0, NULL);
+
+    // Avoid double-freeing cells from lib2
+    lib2.cell_array.clear();
+    lib2.free_all();
+    lib1.free_all();
 
     return 0;
 }

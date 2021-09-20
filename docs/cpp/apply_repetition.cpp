@@ -12,26 +12,30 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    char lib_name[] = "library";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+    Library lib = {.unit = 1e-6, .precision = 1e-9};
+    lib.name = copy_string("library", NULL);
 
-    char main_cell_name[] = "Main";
-    Cell main_cell = {.name = main_cell_name};
+    Cell main_cell = {0};
+    main_cell.name = copy_string("Main", NULL);
     lib.cell_array.append(&main_cell);
 
-    FlexPathElement velement = {};
-    FlexPath vline = {.elements = &velement, .num_elements = 1, .simple_path = true};
-    vline.init(Vec2{3, 2}, 0.1, 0, 0.01);
+    FlexPath vline = {.simple_path = true};
+    vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01);
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
-    vline.repetition.coords.count = COUNT(vcoords);
-    vline.repetition.coords.items = vcoords;
+    vline.repetition.coords.extend({.count = COUNT(vcoords), .items = vcoords});
 
-    RobustPathElement helement = {.end_width = 0.05};
+    Array<Polygon*> vlines = {0};
+    vline.to_polygons(false, 0, vlines);
+    vline.clear();
+
+    // Because we know there is only a single resulting polygon we dont need to
+    // loop here.
+    vlines[0]->apply_repetition(vlines);
+
     RobustPath hline = {
         .end_point = {3, 2},
-        .elements = &helement,
         .num_elements = 1,
         .tolerance = 0.01,
         .max_evals = 1000,
@@ -40,30 +44,40 @@ int main(int argc, char* argv[]) {
         .trafo = {1, 0, 0, 0, 1, 0},
         .simple_path = true,
     };
+    hline.elements =
+        (RobustPathElement*)allocate_clear(sizeof(RobustPathElement) * hline.num_elements);
+    hline.elements[0].end_width = 0.05;
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;
-    hline.repetition.coords.count = COUNT(hcoords);
-    hline.repetition.coords.items = hcoords;
-
-    Array<Polygon*> vlines = {0};
-    vline.to_polygons(false, 0, vlines);
-    // Because we know there is only a single resulting polygon we dont need to
-    // loop here.
-    vlines[0]->apply_repetition(vlines);
+    hline.repetition.coords.extend({.count = COUNT(hcoords), .items = hcoords});
 
     Array<Polygon*> hlines = {0};
     hline.to_polygons(false, 0, hlines);
+    hline.clear();
+
+    // Once again, no loop needed.
     hlines[0]->apply_repetition(vlines);
 
     Array<Polygon*> result = {0};
     boolean(vlines, hlines, Operation::Or, 1000, result);
-    main_cell.polygon_array.extend(result);
-
+    for (uint64_t i = 0; i < vlines.count; i++) {
+        vlines[i]->clear();
+        free_allocation(vlines[i]);
+    }
     vlines.clear();
+    for (uint64_t i = 0; i < hlines.count; i++) {
+        hlines[i]->clear();
+        free_allocation(hlines[i]);
+    }
     hlines.clear();
+
+    main_cell.polygon_array.extend(result);
     result.clear();
 
     lib.write_gds("apply_repetition.gds", 0, NULL);
+
+    lib.clear();
+    main_cell.free_all();
     return 0;
 }

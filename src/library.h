@@ -60,6 +60,7 @@ struct Library {
     void free_all() {
         for (uint64_t i = 0; i < cell_array.count; i++) {
             cell_array[i]->free_all();
+            free_allocation(cell_array[i]);
         }
         clear();
     }

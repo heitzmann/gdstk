@@ -11,23 +11,31 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 using namespace gdstk;
 
-void example_boolean(Cell& out_cell) {
+Cell* example_boolean(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
     Array<Polygon*> txt = {0};
     text("GDSTK", 4, Vec2{0, 0}, false, 0, txt);
 
     Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0);
-    Polygon* rectp = &rect;
 
-    boolean({.count = 1, .items = &rectp}, txt, Operation::Not, 1000, out_cell.polygon_array);
+    boolean(rect, txt, Operation::Not, 1000, out_cell->polygon_array);
 
     for (int i = 0; i < txt.count; i++) {
         txt[i]->clear();
         free_allocation(txt[i]);
     }
     txt.clear();
+    rect.clear();
+
+    return out_cell;
 }
 
-void example_slice(Cell& out_cell) {
+Cell* example_slice(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
     Polygon ring[3];
     ring[0] = ellipse(Vec2{-6, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0);
     ring[1] = ellipse(Vec2{0, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0);
@@ -37,13 +45,25 @@ void example_slice(Cell& out_cell) {
     Array<double> cuts = {.count = 1, .items = x};
     Array<Polygon*> result[3] = {0};
     slice(ring[0], cuts, true, 1000, result);
-    out_cell.polygon_array.extend(result[0]);
+    out_cell->polygon_array.extend(result[0]);
+    for (uint64_t i = 0; i < result[1].count; i++) {
+        result[1][i]->clear();
+        free_allocation(result[1][i]);
+    }
     result[0].clear();
     result[1].clear();
 
     cuts.count = 2;
     slice(ring[1], cuts, true, 1000, result);
-    out_cell.polygon_array.extend(result[1]);
+    out_cell->polygon_array.extend(result[1]);
+    for (uint64_t i = 0; i < result[0].count; i++) {
+        result[0][i]->clear();
+        free_allocation(result[0][i]);
+    }
+    for (uint64_t i = 0; i < result[2].count; i++) {
+        result[2][i]->clear();
+        free_allocation(result[2][i]);
+    }
     result[0].clear();
     result[1].clear();
     result[2].clear();
@@ -51,67 +71,84 @@ void example_slice(Cell& out_cell) {
     cuts.count = 1;
     cuts.items = x + 1;
     slice(ring[2], cuts, true, 1000, result);
-    out_cell.polygon_array.extend(result[1]);
+    out_cell->polygon_array.extend(result[1]);
+    for (uint64_t i = 0; i < result[0].count; i++) {
+        result[0][i]->clear();
+        free_allocation(result[0][i]);
+    }
     result[0].clear();
     result[1].clear();
+
+    ring[0].clear();
+    ring[1].clear();
+    ring[2].clear();
+
+    return out_cell;
 }
 
-void example_offset(Cell& out_cell) {
-    Polygon* rect = (Polygon*)allocate_clear(2 * sizeof(Polygon));
-    rect[0] = rectangle(Vec2{-4, -4}, Vec2{1, 1}, 0);
-    rect[1] = rectangle(Vec2{-1, -1}, Vec2{4, 4}, 0);
-    Polygon* rect_p[] = {rect, rect + 1};
-    const Array<Polygon*> rect_array = {.count = 2, .items = rect_p};
-    out_cell.polygon_array.extend(rect_array);
-    uint64_t start = out_cell.polygon_array.count;
-    offset(rect_array, -0.5, OffsetJoin::Miter, 2, 1000, true, out_cell.polygon_array);
-    for (uint64_t i = start; i < out_cell.polygon_array.count; i++) {
-        out_cell.polygon_array[i]->tag = make_tag(1, 0);
+Cell* example_offset(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
+    Polygon* rect = (Polygon*)allocate(sizeof(Polygon));
+    *rect = rectangle(Vec2{-4, -4}, Vec2{1, 1}, 0);
+    out_cell->polygon_array.append(rect);
+
+    rect = (Polygon*)allocate(sizeof(Polygon));
+    *rect = rectangle(Vec2{-1, -1}, Vec2{4, 4}, 0);
+    out_cell->polygon_array.append(rect);
+
+    uint64_t start = out_cell->polygon_array.count;
+    offset(out_cell->polygon_array, -0.5, OffsetJoin::Miter, 2, 1000, true,
+           out_cell->polygon_array);
+    for (uint64_t i = start; i < out_cell->polygon_array.count; i++) {
+        out_cell->polygon_array[i]->tag = make_tag(1, 0);
     }
+
+    return out_cell;
 }
 
-void example_fillet(Cell& out_cell) {
+Cell* example_fillet(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
     FlexPath flexpath = {0};
     flexpath.init(Vec2{-8, -4}, 1, 4, 0, 0.01);
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
     flexpath.segment({.count = COUNT(points), .items = points}, NULL, NULL, false);
 
-    double r = 1.5;
     Array<Polygon*> poly_array = {0};
     flexpath.to_polygons(false, 0, poly_array);
+    flexpath.clear();
+
+    double r = 1.5;
     for (int i = 0; i < poly_array.count; i++)
         poly_array[i]->fillet({.count = 1, .items = &r}, 0.01);
 
-    out_cell.polygon_array.extend(poly_array);
-    flexpath.clear();
+    out_cell->polygon_array.extend(poly_array);
     poly_array.clear();
+
+    return out_cell;
 }
 
 int main(int argc, char* argv[]) {
-    char lib_name[] = "library";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+    Library lib = {.unit = 1e-6, .precision = 1e-9};
+    lib.name = copy_string("library", NULL);
 
-    char boolean_cell_name[] = "Boolean";
-    Cell boolean_cell = {.name = boolean_cell_name};
-    example_boolean(boolean_cell);
-    lib.cell_array.append(&boolean_cell);
+    Cell* boolean_cell = example_boolean("Boolean");
+    lib.cell_array.append(boolean_cell);
 
-    char slice_cell_name[] = "Slice";
-    Cell slice_cell = {.name = slice_cell_name};
-    example_slice(slice_cell);
-    lib.cell_array.append(&slice_cell);
+    Cell* slice_cell = example_slice("Slice");
+    lib.cell_array.append(slice_cell);
 
-    char offset_cell_name[] = "Offset";
-    Cell offset_cell = {.name = offset_cell_name};
-    example_offset(offset_cell);
-    lib.cell_array.append(&offset_cell);
+    Cell* offset_cell = example_offset("Offset");
+    lib.cell_array.append(offset_cell);
 
-    char fillet_cell_name[] = "Fillet";
-    Cell fillet_cell = {.name = fillet_cell_name};
-    example_fillet(fillet_cell);
-    lib.cell_array.append(&fillet_cell);
+    Cell* fillet_cell = example_fillet("Fillet");
+    lib.cell_array.append(fillet_cell);
 
     lib.write_gds("geometry_operations.gds", 0, NULL);
 
+    lib.free_all();
     return 0;
 }

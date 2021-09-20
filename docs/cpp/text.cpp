@@ -38,5 +38,14 @@ int main(int argc, char* argv[]) {
 
     lib.write_gds("text.gds", 0, NULL);
 
+    for (uint64_t i = 0; i < all_text.count; i++) {
+        all_text[i]->clear();
+        free_allocation(all_text[i]);
+    }
+    all_text.clear();
+    rect.clear();
+    text_cell.label_array.clear();
+    text_cell.polygon_array.clear();
+    lib.cell_array.clear();
     return 0;
 }

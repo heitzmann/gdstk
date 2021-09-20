@@ -11,56 +11,70 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 using namespace gdstk;
 
-void example_flexpath1(Cell& out_cell) {
-    FlexPath* fp = (FlexPath*)allocate_clear(2 * sizeof(FlexPath));
-    fp[0].simple_path = true;
-    fp[0].init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
+Cell* example_flexpath1(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
+    FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
+    fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
+    fp->simple_path = true;
 
     Vec2 points1[] = {{3, 0}, {3, 2}, {5, 3}, {3, 4}, {0, 4}};
-    fp[0].segment({.count = COUNT(points1), .items = points1}, NULL, NULL, false);
+    fp->segment({.count = COUNT(points1), .items = points1}, NULL, NULL, false);
 
-    out_cell.flexpath_array.append(fp);
+    out_cell->flexpath_array.append(fp);
 
+    fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
     const double widths[] = {0.3, 0.2, 0.4};
     const double offsets[] = {-0.5, 0, 0.5};
-    fp[1].init(Vec2{12, 0}, 3, widths, offsets, 0.01);
+    fp->init(Vec2{12, 0}, 3, widths, offsets, 0.01);
 
-    fp[1].elements[0].end_type = EndType::HalfWidth;
-    fp[1].elements[0].join_type = JoinType::Bevel;
+    fp->elements[0].end_type = EndType::HalfWidth;
+    fp->elements[0].join_type = JoinType::Bevel;
 
-    fp[1].elements[1].end_type = EndType::Flush;
-    fp[1].elements[1].join_type = JoinType::Miter;
+    fp->elements[1].end_type = EndType::Flush;
+    fp->elements[1].join_type = JoinType::Miter;
 
-    fp[1].elements[2].end_type = EndType::Round;
-    fp[1].elements[2].join_type = JoinType::Round;
+    fp->elements[2].end_type = EndType::Round;
+    fp->elements[2].join_type = JoinType::Round;
 
     Vec2 points2[] = {{8, 0}, {8, 3}, {10, 2}};
-    fp[1].segment({.count = COUNT(points2), .items = points2}, NULL, NULL, false);
+    fp->segment({.count = COUNT(points2), .items = points2}, NULL, NULL, false);
 
-    fp[1].arc(2, 2, -M_PI / 2, M_PI / 2, 0, NULL, NULL);
-    fp[1].arc(1, 1, M_PI / 2, 1.5 * M_PI, 0, NULL, NULL);
+    fp->arc(2, 2, -M_PI / 2, M_PI / 2, 0, NULL, NULL);
+    fp->arc(1, 1, M_PI / 2, 1.5 * M_PI, 0, NULL, NULL);
 
-    out_cell.flexpath_array.append(fp + 1);
+    out_cell->flexpath_array.append(fp);
+    return out_cell;
 }
 
-void example_flexpath2(Cell& out_cell) {
+Cell* example_flexpath2(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
     Vec2 points[] = {{0, 10}, {20, 0}, {18, 15}, {8, 15}};
 
-    FlexPath* flexpath = (FlexPath*)allocate_clear(2 * sizeof(FlexPath));
-
-    for (FlexPath* fp = flexpath; fp < flexpath + 2; fp++) {
-        fp->simple_path = true;
+    for (uint64_t i = 0; i < 2; i++) {
+        FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
         fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
+        fp->simple_path = true;
+        if (i == 0) {
+            fp->elements[0].bend_type = BendType::Circular;
+            fp->elements[0].bend_radius = 5;
+        } else {
+            fp->elements[0].tag = make_tag(1, 0);
+        }
         fp->segment({.count = COUNT(points), .items = points}, NULL, NULL, false);
-        out_cell.flexpath_array.append(fp);
+        out_cell->flexpath_array.append(fp);
     }
 
-    flexpath[0].elements[0].bend_type = BendType::Circular;
-    flexpath[0].elements[0].bend_radius = 5;
-    flexpath[1].elements[0].tag = make_tag(1, 0);
+    return out_cell;
 }
 
-void example_flexpath3(Cell& out_cell) {
+Cell* example_flexpath3(const char* name) {
+    Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
+    out_cell->name = copy_string(name, NULL);
+
     double widths[] = {0.5, 0.5};
     double offsets[] = {-0.5, 0.5};
     FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
@@ -76,29 +90,26 @@ void example_flexpath3(Cell& out_cell) {
 
     fp->horizontal(6, NULL, NULL, false);
 
-    out_cell.flexpath_array.append(fp);
+    out_cell->flexpath_array.append(fp);
+
+    return out_cell;
 }
 
 int main(int argc, char* argv[]) {
-    char lib_name[] = "Paths";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+    Library lib = {.unit = 1e-6, .precision = 1e-9};
+    lib.name = copy_string("Paths", NULL);
 
-    char flexpath1_cell_name[] = "FlexPath 1";
-    Cell flexpath1_cell = {.name = flexpath1_cell_name};
-    example_flexpath1(flexpath1_cell);
-    lib.cell_array.append(&flexpath1_cell);
+    Cell* flexpath1_cell = example_flexpath1("FlexPath 1");
+    lib.cell_array.append(flexpath1_cell);
 
-    char flexpath2_cell_name[] = "FlexPath 2";
-    Cell flexpath2_cell = {.name = flexpath2_cell_name};
-    example_flexpath2(flexpath2_cell);
-    lib.cell_array.append(&flexpath2_cell);
+    Cell* flexpath2_cell = example_flexpath2("FlexPath 2");
+    lib.cell_array.append(flexpath2_cell);
 
-    char flexpath3_cell_name[] = "FlexPath 3";
-    Cell flexpath3_cell = {.name = flexpath3_cell_name};
-    example_flexpath3(flexpath3_cell);
-    lib.cell_array.append(&flexpath3_cell);
+    Cell* flexpath3_cell = example_flexpath3("FlexPath 3");
+    lib.cell_array.append(flexpath3_cell);
 
     lib.write_gds("flexpaths.gds", 0, NULL);
 
+    lib.free_all();
     return 0;
 }

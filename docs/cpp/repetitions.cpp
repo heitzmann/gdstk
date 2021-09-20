@@ -30,24 +30,19 @@ int main(int argc, char* argv[]) {
     Polygon circle = ellipse(Vec2{3.5, 0}, 0.1, 0.1, 0, 0, 0, 0, 0.01, 0);
     Vec2 offsets[] = {{0.5, 1}, {2, 0}, {1.5, 0.5}};
     circle.repetition.type = RepetitionType::Explicit;
-    circle.repetition.offsets.count = COUNT(offsets);
-    circle.repetition.offsets.items = offsets;
+    circle.repetition.offsets.extend({.count = COUNT(offsets), .items = offsets});
     main_cell.polygon_array.append(&circle);
 
-    FlexPathElement velement = {};
-    FlexPath vline = {.elements = &velement, .num_elements = 1, .simple_path = true};
-    vline.init(Vec2{3, 2}, 0.1, 0, 0.01);
+    FlexPath vline = {.simple_path = true};
+    vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01);
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
-    vline.repetition.coords.count = COUNT(vcoords);
-    vline.repetition.coords.items = vcoords;
+    vline.repetition.coords.extend({.count = COUNT(vcoords), .items = vcoords});
     main_cell.flexpath_array.append(&vline);
 
-    RobustPathElement helement = {.end_width = 0.05};
     RobustPath hline = {
         .end_point = {3, 2},
-        .elements = &helement,
         .num_elements = 1,
         .tolerance = 0.01,
         .max_evals = 1000,
@@ -56,13 +51,25 @@ int main(int argc, char* argv[]) {
         .trafo = {1, 0, 0, 0, 1, 0},
         .simple_path = true,
     };
+    hline.elements =
+        (RobustPathElement*)allocate_clear(hline.num_elements * sizeof(RobustPathElement));
+    hline.elements[0].end_width = 0.05;
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;
-    hline.repetition.coords.count = COUNT(hcoords);
-    hline.repetition.coords.items = hcoords;
+    hline.repetition.coords.extend({.count = COUNT(hcoords), .items = hcoords});
     main_cell.robustpath_array.append(&hline);
 
     lib.write_gds("repetitions.gds", 0, NULL);
+
+    square.clear();
+    triangle.clear();
+    circle.clear();
+    vline.clear();
+    hline.clear();
+    main_cell.polygon_array.clear();
+    main_cell.flexpath_array.clear();
+    main_cell.robustpath_array.clear();
+    lib.cell_array.clear();
     return 0;
 }

@@ -11,36 +11,32 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 using namespace gdstk;
 
-char alignment_mark_cell_name[] = "Alignment Mark";
-char directional_coupler_cell_name[] = "Directional Coupler";
-char mach_zehnder_interferometer_cell_name[] = "MZI";
-
-void alignment_mark(Library& lib) {
+Cell* alignment_mark() {
     Cell* cell = (Cell*)allocate_clear(sizeof(Cell));
-    cell->name = alignment_mark_cell_name;
-    lib.cell_array.append(cell);
+    cell->name = copy_string("Alignment Mark", NULL);
 
     Polygon* cross_ = (Polygon*)allocate(sizeof(Polygon));
     *cross_ = cross(Vec2{0, 0}, 50, 3, make_tag(1, 0));
     cell->polygon_array.append(cross_);
+
+    return cell;
 }
 
-void directional_coupler(Library& lib) {
+Cell* directional_coupler() {
     Cell* cell = (Cell*)allocate_clear(sizeof(Cell));
-    cell->name = directional_coupler_cell_name;
-    lib.cell_array.append(cell);
+    cell->name = copy_string("Directional Coupler", NULL);
 
     RobustPath* path = (RobustPath*)allocate_clear(sizeof(RobustPath));
-    path->num_elements = 2;
     path->tolerance = 0.01;
     path->max_evals = 1000;
     path->width_scale = 1;
     path->offset_scale = 1;
-    path->trafo[0] = 1;
-    path->trafo[4] = 1;
+    path->trafo[0] = path->trafo[4] = 1;
     path->simple_path = true;
 
-    path->elements = (RobustPathElement*)allocate_clear(2 * sizeof(RobustPathElement));
+    path->num_elements = 2;
+    path->elements =
+        (RobustPathElement*)allocate_clear(path->num_elements * sizeof(RobustPathElement));
     path->elements[0].tag = make_tag(1, 0);
     path->elements[0].end_width = 0.5;
     path->elements[0].end_offset = -1;
@@ -48,7 +44,7 @@ void directional_coupler(Library& lib) {
     path->elements[1].end_width = 0.5;
     path->elements[1].end_offset = 1;
 
-    Interpolation* offset = (Interpolation*)allocate_clear(4 * sizeof(Interpolation));
+    Interpolation offset[4];
     offset[0].type = InterpolationType::Smooth;
     offset[0].initial_value = -1;
     offset[0].final_value = -0.3;
@@ -67,61 +63,64 @@ void directional_coupler(Library& lib) {
     path->segment(Vec2{0.4, 0}, NULL, NULL, true);
     path->segment(Vec2{2.2, 0}, NULL, offset + 2, true);
     path->segment(Vec2{0.1, 0}, NULL, NULL, true);
-
     cell->robustpath_array.append(path);
+
+    return cell;
 }
 
-void mach_zenhder_interferometer(Library& lib) {
+Cell* mach_zenhder_interferometer(Cell* directional_coupler_cell) {
     Cell* cell = (Cell*)allocate_clear(sizeof(Cell));
-    cell->name = mach_zehnder_interferometer_cell_name;
-    lib.cell_array.append(cell);
+    cell->name = copy_string("MZI", NULL);
 
-    Reference* ref = (Reference*)allocate_clear(2 * sizeof(Reference));
-    ref[0].type = ReferenceType::Name;
-    ref[0].name = directional_coupler_cell_name;
-    ref[0].magnification = 1;
-    ref[1].type = ReferenceType::Name;
-    ref[1].name = directional_coupler_cell_name;
-    ref[1].origin.x = 75;
-    ref[1].magnification = 1;
+    Reference* ref = (Reference*)allocate_clear(sizeof(Reference));
+    ref->type = ReferenceType::Cell;
+    ref->cell = directional_coupler_cell;
+    ref->magnification = 1;
     cell->reference_array.append(ref);
-    cell->reference_array.append(ref + 1);
+
+    ref = (Reference*)allocate_clear(sizeof(Reference));
+    ref->type = ReferenceType::Cell;
+    ref->cell = directional_coupler_cell;
+    ref->origin.x = 75;
+    ref->magnification = 1;
+    cell->reference_array.append(ref);
 
     const Vec2 starting_points[] = {{5, 1}, {5, -1}, {25, 20}, {25, -20}};
-    FlexPath* path = (FlexPath*)allocate_clear(4 * sizeof(FlexPath));
-    FlexPathElement* element = (FlexPathElement*)allocate_clear(4 * sizeof(FlexPathElement));
-    for (int64_t i = 0; i < 4; i++) {
-        element[i].tag = make_tag(i < 2 ? 1 : 10, 0);
-        element[i].bend_type = BendType::Circular;
-        element[i].bend_radius = 15;
-        path[i].num_elements = 1;
-        path[i].elements = element + i;
-        path[i].simple_path = true;
-        path[i].init(starting_points[i], i < 2 ? 0.25 : 1, 0, 0.01);
+    FlexPath* path[4];
+    for (int64_t i = 0; i < COUNT(path); i++) {
+        path[i] = (FlexPath*)allocate_clear(sizeof(FlexPath));
+        path[i]->simple_path = true;
+        path[i]->init(starting_points[i], 1, i < 2 ? 0.25 : 1, 0, 0.01);
+        path[i]->elements[0].tag = make_tag(i < 2 ? 1 : 10, 0);
+        path[i]->elements[0].bend_type = BendType::Circular;
+        path[i]->elements[0].bend_radius = 15;
     }
 
     Vec2 arm_points[] = {{25, 1}, {25, 40}, {55, 40}, {55, 1}, {75, 1}};
-    path[0].segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
+    path[0]->segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
 
     for (int64_t i = 0; i < COUNT(arm_points); i++) arm_points[i].y = -arm_points[i].y;
-    path[1].segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
+    path[1]->segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
 
     Vec2 heater_points[] = {{25, 40}, {55, 40}, {55, 20}};
-    path[2].segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
+    path[2]->segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
 
     for (int64_t i = 0; i < COUNT(heater_points); i++) heater_points[i].y = -heater_points[i].y;
-    path[3].segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
+    path[3]->segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
 
-    FlexPath* path_p[] = {path, path + 1, path + 2, path + 3};
-    cell->flexpath_array.extend({.count = 4, .items = path_p});
+    cell->flexpath_array.extend({.count = COUNT(path), .items = path});
+
+    return cell;
 }
 
 int main(int argc, char* argv[]) {
-    char lib_name[] = "Photonics";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
-    alignment_mark(lib);
-    directional_coupler(lib);
-    mach_zenhder_interferometer(lib);
+    Library lib = {.unit = 1e-6, .precision = 1e-9};
+    lib.name = copy_string("Photonics", NULL);
+    lib.cell_array.append(alignment_mark());
+    Cell* directional_coupler_cell = directional_coupler();
+    lib.cell_array.append(directional_coupler_cell);
+    lib.cell_array.append(mach_zenhder_interferometer(directional_coupler_cell));
     lib.write_gds("photonics.gds", 0, NULL);
+    lib.free_all();
     return 0;
 }

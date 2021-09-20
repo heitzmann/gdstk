@@ -93,7 +93,7 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
     // dbg_library.cell_array.append(&dbg_cell);
     // Polygon* dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
     // dbg_cell.polygon_array.append(dbg_poly);
-    // dbg_poly->layer = 1;
+    // dbg_poly->tag = make_tag(1, 0);
     // ClipperLib::Path dbg_path = node->Contour;
     // for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
     //     dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
@@ -169,6 +169,7 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
             contour->insert(p_closest, p_new);
         }
     }
+    holes.clear();
 }
 
 static void tree_to_polygons(const ClipperLib::PolyTree& tree, double scaling,

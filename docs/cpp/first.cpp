@@ -12,11 +12,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    char lib_name[] = "library";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+    Library lib = {.unit = 1e-6, .precision = 1e-9};
+    lib.name = copy_string("library", NULL);
 
-    char cell_name[] = "FIRST";
-    Cell cell = {.name = cell_name};
+    Cell cell = {0};
+    cell.name = copy_string("FIRST", NULL);
     lib.cell_array.append(&cell);
 
     Polygon rect = rectangle(Vec2{0, 0}, Vec2{2, 1}, make_tag(0, 0));
@@ -24,8 +24,10 @@ int main(int argc, char* argv[]) {
 
     lib.write_gds("first.gds", 0, NULL);
     lib.write_oas("first.oas", 0, 6, OASIS_CONFIG_DETECT_ALL);
-
     cell.write_svg("first.svg", 10, 6, NULL, NULL, "#222222", 5, true, NULL);
 
+    rect.clear();
+    cell.clear();
+    lib.clear();
     return 0;
 }

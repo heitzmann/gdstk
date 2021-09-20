@@ -69,18 +69,14 @@ int main(int argc, char* argv[]) {
     Polygon rect = rectangle(Vec2{-r / 2, -r / 2}, Vec2{r / 2, r / 2}, 0);
     resonator_cell.polygon_array.append(&rect);
 
-    FlexPathElement element = {
-        .tag = make_tag(1, 0),
-        .end_type = EndType::Extended,
-        .end_extensions = Vec2{r, r},
-    };
     FlexPath path = {
-        .elements = &element,
-        .num_elements = 1,
         .simple_path = true,
         .scale_width = false,
     };
-    path.init(Vec2{-n * d, 0}, r, 0, 0.01);
+    path.init(Vec2{-n * d, 0}, 1, r, 0, 0.01);
+    path.elements[0].tag = make_tag(1, 0);
+    path.elements[0].end_type = EndType::Extended;
+    path.elements[0].end_extensions = Vec2{r, r};
     path.segment(Vec2{n * d, 0}, NULL, NULL, false);
     resonator_cell.flexpath_array.append(&path);
 
@@ -139,5 +135,22 @@ int main(int argc, char* argv[]) {
     main_cell.polygon_array.extend(all_text);
 
     lib.write_gds("transforms.gds", 0, NULL);
+
+    for (uint16_t i = 0; i < all_text.count; i++) {
+        all_text[i]->clear();
+        free_allocation(all_text[i]);
+    }
+    all_text.clear();
+    circle.clear();
+    rect.clear();
+    path.clear();
+    unit_cell.polygon_array.clear();
+    resonator_cell.reference_array.clear();
+    resonator_cell.polygon_array.clear();
+    resonator_cell.flexpath_array.clear();
+    resonator_cell_copy.free_all();
+    main_cell.reference_array.clear();
+    main_cell.polygon_array.clear();
+    lib.cell_array.clear();
     return 0;
 }

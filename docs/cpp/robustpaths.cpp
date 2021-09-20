@@ -26,15 +26,8 @@ double parametric6(double u, void*) { return 0.25 * cos(24 * M_PI * u); }
 Vec2 parametric7(double u, void*) { return Vec2{4 * sin(6 * M_PI * u), 45 * u}; }
 
 int main(int argc, char* argv[]) {
-    RobustPathElement rpe[] = {
-        {.tag = make_tag(1, 0), .end_width = 2, .end_offset = 0, .end_type = EndType::HalfWidth},
-        {.tag = make_tag(0, 0), .end_width = 0.5, .end_offset = 0, .end_type = EndType::Round},
-        {.tag = make_tag(2, 0), .end_width = 1, .end_offset = -1, .end_type = EndType::Flush},
-        {.tag = make_tag(2, 0), .end_width = 1, .end_offset = 1, .end_type = EndType::Flush},
-    };
     RobustPath rp = {
         .end_point = Vec2{0, 50},
-        .elements = rpe,
         .num_elements = 4,
         .tolerance = 0.01,
         .max_evals = 1000,
@@ -43,6 +36,23 @@ int main(int argc, char* argv[]) {
         .trafo = {1, 0, 0, 0, 1, 0},
         .scale_width = true,
     };
+    rp.elements = (RobustPathElement*)allocate_clear(rp.num_elements * sizeof(RobustPathElement));
+    rp.elements[0].tag = make_tag(1, 0);
+    rp.elements[0].end_width = 2;
+    rp.elements[0].end_offset = 0;
+    rp.elements[0].end_type = EndType::HalfWidth;
+    rp.elements[1].tag = make_tag(0, 0);
+    rp.elements[1].end_width = 0.5;
+    rp.elements[1].end_offset = 0;
+    rp.elements[1].end_type = EndType::Round;
+    rp.elements[2].tag = make_tag(2, 0);
+    rp.elements[2].end_width = 1;
+    rp.elements[2].end_offset = -1;
+    rp.elements[2].end_type = EndType::Flush;
+    rp.elements[3].tag = make_tag(2, 0);
+    rp.elements[3].end_width = 1;
+    rp.elements[3].end_offset = 1;
+    rp.elements[3].end_type = EndType::Flush;
 
     rp.segment(Vec2{0, 45}, NULL, NULL, false);
 
@@ -120,5 +130,8 @@ int main(int argc, char* argv[]) {
 
     lib.write_gds("robustpaths.gds", 0, NULL);
 
+    rp.clear();
+    robustpath_cell.robustpath_array.clear();
+    lib.cell_array.clear();
     return 0;
 }
