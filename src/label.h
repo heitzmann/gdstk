@@ -47,6 +47,10 @@ struct Label {
     // This label instance must be zeroed before copy_from
     void copy_from(const Label& label);
 
+    // Bounding box corners are returned in min and max.  Repetitions are taken
+    // into account for the calculation.
+    void bounding_box(Vec2& min, Vec2& max) const;
+
     // Transformations are applied in the order of arguments, starting with
     // magnification and translating by origin at the end.  This is equivalent
     // to the transformation defined by a Reference with the same arguments.

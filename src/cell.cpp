@@ -101,11 +101,12 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
 
         Label** label = label_array.items;
         for (uint64_t i = 0; i < label_array.count; i++, label++) {
-            Vec2 origin = (*label)->origin;
-            if (origin.x < min.x) min.x = origin.x;
-            if (origin.y < min.y) min.y = origin.y;
-            if (origin.x > max.x) max.x = origin.x;
-            if (origin.y > max.y) max.y = origin.y;
+            Vec2 lmin, lmax;
+            (*label)->bounding_box(lmin, lmax);
+            if (lmin.x < min.x) min.x = lmin.x;
+            if (lmin.y < min.y) min.y = lmin.y;
+            if (lmax.x > max.x) max.x = lmax.x;
+            if (lmax.y > max.y) max.y = lmax.y;
         }
 
         Reference** reference = reference_array.items;
@@ -174,20 +175,48 @@ void Cell::convex_hull(Array<Vec2>& result) const {
 
 GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     Array<Vec2> points = {0};
-
-    Polygon** polygon = polygon_array.items;
-    for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
-        points.extend((*polygon)->point_array);
-    }
-
-    Label** label = label_array.items;
-    for (uint64_t i = 0; i < label_array.count; i++, label++) {
-        points.append((*label)->origin);
-    }
+    Array<Vec2> offsets = {0};
 
     Reference** reference = reference_array.items;
     for (uint64_t i = 0; i < reference_array.count; i++, reference++) {
         (*reference)->convex_hull(points, cache);
+    }
+
+    for (uint64_t i = 0; i < polygon_array.count; i++) {
+        Polygon* polygon = polygon_array[i];
+        if (polygon->repetition.type == RepetitionType::None) {
+            points.extend(polygon->point_array);
+        } else {
+            polygon->repetition.get_offsets(offsets);
+            points.ensure_slots(polygon->point_array.count * offsets.count);
+            Vec2* dst = points.items + points.count;
+            for (uint64_t k = 0; k < offsets.count; k++) {
+                const Vec2 off = offsets[k];
+                Vec2* src = polygon->point_array.items;
+                for (uint64_t h = 0; h < polygon->point_array.count; h++) {
+                    *dst++ = *src++ + off;
+                }
+            }
+            points.count += polygon->point_array.count * offsets.count;
+            offsets.count = 0;
+        }
+    }
+
+    for (uint64_t i = 0; i < label_array.count; i++) {
+        Label* label = label_array[i];
+        if (label->repetition.type == RepetitionType::None) {
+            points.append(label->origin);
+        } else {
+            label->repetition.get_offsets(offsets);
+            points.ensure_slots(offsets.count);
+            Vec2* dst = points.items + points.count;
+            Vec2* off = offsets.items;
+            for (uint64_t k = 0; k < offsets.count; k++) {
+                *dst++ = label->origin + *off++;
+            }
+            points.count += offsets.count;
+            offsets.count = 0;
+        }
     }
 
     Array<Polygon*> array = {0};
@@ -195,11 +224,26 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
         // NOTE: return ErrorCode ignored here
         (*flexpath)->to_polygons(false, 0, array);
-        polygon = array.items;
-        for (uint64_t j = 0; j < array.count; j++, polygon++) {
-            points.extend((*polygon)->point_array);
-            (*polygon)->clear();
-            free_allocation(*polygon);
+        for (uint64_t j = 0; j < array.count; j++) {
+            Polygon* polygon = array[j];
+            if (polygon->repetition.type == RepetitionType::None) {
+                points.extend(polygon->point_array);
+            } else {
+                polygon->repetition.get_offsets(offsets);
+                points.ensure_slots(polygon->point_array.count * offsets.count);
+                Vec2* dst = points.items + points.count;
+                for (uint64_t k = 0; k < offsets.count; k++) {
+                    const Vec2 off = offsets[k];
+                    Vec2* src = polygon->point_array.items;
+                    for (uint64_t h = 0; h < polygon->point_array.count; h++) {
+                        *dst++ = *src++ + off;
+                    }
+                }
+                points.count += polygon->point_array.count * offsets.count;
+                offsets.count = 0;
+            }
+            polygon->clear();
+            free_allocation(polygon);
         }
         array.count = 0;
     }
@@ -208,15 +252,31 @@ GeometryInfo Cell::convex_hull(Map<GeometryInfo>& cache) const {
     for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
         // NOTE: return ErrorCode ignored here
         (*robustpath)->to_polygons(false, 0, array);
-        polygon = array.items;
-        for (uint64_t j = 0; j < array.count; j++, polygon++) {
-            points.extend((*polygon)->point_array);
-            (*polygon)->clear();
-            free_allocation(*polygon);
+        for (uint64_t j = 0; j < array.count; j++) {
+            Polygon* polygon = array[j];
+            if (polygon->repetition.type == RepetitionType::None) {
+                points.extend(polygon->point_array);
+            } else {
+                polygon->repetition.get_offsets(offsets);
+                points.ensure_slots(polygon->point_array.count * offsets.count);
+                Vec2* dst = points.items + points.count;
+                for (uint64_t k = 0; k < offsets.count; k++) {
+                    const Vec2 off = offsets[k];
+                    Vec2* src = polygon->point_array.items;
+                    for (uint64_t h = 0; h < polygon->point_array.count; h++) {
+                        *dst++ = *src++ + off;
+                    }
+                }
+                points.count += polygon->point_array.count * offsets.count;
+                offsets.count = 0;
+            }
+            polygon->clear();
+            free_allocation(polygon);
         }
         array.count = 0;
     }
     array.clear();
+    offsets.clear();
 
     GeometryInfo info = cache.get(name);
     info.convex_hull_valid = true;

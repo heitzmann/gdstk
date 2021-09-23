@@ -207,6 +207,80 @@ def test_bb(tree):
     assert_close(c3.bounding_box(), ((-1, 0), (8, 6)))
 
 
+def test_bb_label_repetition():
+    lbl = gdstk.Label("label", (1, 2))
+    lbl.repetition = gdstk.Repetition(x_offsets=(1, 3, -2))
+    c_lbl = gdstk.Cell("A")
+    c_lbl.add(lbl)
+    assert_close(c_lbl.bounding_box(), ((-1, 2), (4, 2)))
+    ref = gdstk.Reference(c_lbl)
+    ref.repetition = gdstk.Repetition(y_offsets=(-1, 2, -4))
+    c_ref = gdstk.Cell("B")
+    c_ref.add(ref)
+    assert_close(c_ref.bounding_box(), ((-1, -2), (4, 4)))
+    ref.rotation = numpy.pi / 4
+    a = (-1 + 2j) * numpy.exp(0.25j * numpy.pi)
+    b = (4 + 2j) * numpy.exp(0.25j * numpy.pi)
+    assert_close(c_ref.bounding_box(), ((a.real, a.imag - 4), (b.real, b.imag + 2)))
+
+
+def test_bb_polygon_repetition():
+    pol = gdstk.rectangle((0, 0), (1, 1))
+    pol.repetition = gdstk.Repetition(x_offsets=(1, 3, -2))
+    c_pol = gdstk.Cell("C")
+    c_pol.add(pol)
+    assert_close(c_pol.bounding_box(), ((-2, 0), (4, 1)))
+    ref = gdstk.Reference(c_pol)
+    ref.repetition = gdstk.Repetition(y_offsets=(-1, 2, -4))
+    c_ref = gdstk.Cell("D")
+    c_ref.add(ref)
+    assert_close(c_ref.bounding_box(), ((-2, -4), (4, 3)))
+    ref.rotation = numpy.pi / 4
+    a = (-2 + 1j) * numpy.exp(0.25j * numpy.pi)
+    b = (-2 + 0j) * numpy.exp(0.25j * numpy.pi)
+    c = (4 + 0j) * numpy.exp(0.25j * numpy.pi)
+    d = (4 + 1j) * numpy.exp(0.25j * numpy.pi)
+    assert_close(c_ref.bounding_box(), ((a.real, b.imag - 4), (c.real, d.imag + 2)))
+
+
+def test_bb_flexpath_repetition():
+    pth = gdstk.FlexPath([0.5 + 0j, 0.5 + 1j], 1)
+    pth.repetition = gdstk.Repetition(x_offsets=(1, 3, -2))
+    c_pth = gdstk.Cell("C")
+    c_pth.add(pth)
+    assert_close(c_pth.bounding_box(), ((-2, 0), (4, 1)))
+    ref = gdstk.Reference(c_pth)
+    ref.repetition = gdstk.Repetition(y_offsets=(-1, 2, -4))
+    c_ref = gdstk.Cell("D")
+    c_ref.add(ref)
+    assert_close(c_ref.bounding_box(), ((-2, -4), (4, 3)))
+    ref.rotation = numpy.pi / 4
+    a = (-2 + 1j) * numpy.exp(0.25j * numpy.pi)
+    b = (-2 + 0j) * numpy.exp(0.25j * numpy.pi)
+    c = (4 + 0j) * numpy.exp(0.25j * numpy.pi)
+    d = (4 + 1j) * numpy.exp(0.25j * numpy.pi)
+    assert_close(c_ref.bounding_box(), ((a.real, b.imag - 4), (c.real, d.imag + 2)))
+
+
+def test_bb_robustpath_repetition():
+    pth = gdstk.RobustPath(0.5j, 1).segment((1, 0.5))
+    pth.repetition = gdstk.Repetition(x_offsets=(1, 3, -2))
+    c_pth = gdstk.Cell("C")
+    c_pth.add(pth)
+    assert_close(c_pth.bounding_box(), ((-2, 0), (4, 1)))
+    ref = gdstk.Reference(c_pth)
+    ref.repetition = gdstk.Repetition(y_offsets=(-1, 2, -4))
+    c_ref = gdstk.Cell("D")
+    c_ref.add(ref)
+    assert_close(c_ref.bounding_box(), ((-2, -4), (4, 3)))
+    ref.rotation = numpy.pi / 4
+    a = (-2 + 1j) * numpy.exp(0.25j * numpy.pi)
+    b = (-2 + 0j) * numpy.exp(0.25j * numpy.pi)
+    c = (4 + 0j) * numpy.exp(0.25j * numpy.pi)
+    d = (4 + 1j) * numpy.exp(0.25j * numpy.pi)
+    assert_close(c_ref.bounding_box(), ((a.real, b.imag - 4), (c.real, d.imag + 2)))
+
+
 def test_get_polygons_depth(tree):
     c3, c2, c1 = tree
     polys = c3.get_polygons()

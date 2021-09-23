@@ -530,6 +530,24 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
             point->y = qh_vertex->point[1];
             qh_facet = qh_nextfacet2d(qh_facet, &qh_vertex);
         }
+    } else if (exitcode == qh_ERRsingular) {
+        // QHull errors for singular input (collinear points in 2D)
+        Vec2 min = {DBL_MAX, DBL_MAX};
+        Vec2 max = {-DBL_MAX, -DBL_MAX};
+        Vec2* p = points.items;
+        for (uint64_t num = points.count; num > 0; num--, p++) {
+            if (p->x < min.x) min.x = p->x;
+            if (p->x > max.x) max.x = p->x;
+            if (p->y < min.y) min.y = p->y;
+            if (p->y > max.y) max.y = p->y;
+        }
+        if (min.x < max.x) {
+            result.append(min);
+            result.append(max);
+        }
+    } else {
+        // The least we can do
+        result.extend(points);
     }
 
 #ifdef qh_NOmem

@@ -46,6 +46,25 @@ void Label::copy_from(const Label& label) {
     properties = properties_copy(label.properties);
 }
 
+void Label::bounding_box(Vec2& min, Vec2& max) const {
+    min = origin;
+    max = origin;
+    if (repetition.type != RepetitionType::None) {
+        Array<Vec2> offsets = {0};
+        repetition.get_extrema(offsets);
+        Vec2* off = offsets.items;
+        Vec2 min0 = min;
+        Vec2 max0 = max;
+        for (uint64_t i = offsets.count; i > 0; i--, off++) {
+            if (min0.x + off->x < min.x) min.x = min0.x + off->x;
+            if (max0.x + off->x > max.x) max.x = max0.x + off->x;
+            if (min0.y + off->y < min.y) min.y = min0.y + off->y;
+            if (max0.y + off->y > max.y) max.y = max0.y + off->y;
+        }
+        offsets.clear();
+    }
+}
+
 void Label::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
     const int r1 = x_refl ? -1 : 1;
     const double crot = cos(rot);
