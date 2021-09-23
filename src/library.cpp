@@ -144,7 +144,7 @@ ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* time
     }
 
     tm now = {0};
-    if (!timestamp) timestamp = get_now(&now);
+    if (!timestamp) timestamp = get_now(now);
 
     uint64_t len = strlen(name);
     if (len % 2) len++;

@@ -59,7 +59,7 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
         timestamp.tm_min = PyDateTime_DATE_GET_MINUTE(pytimestamp);
         timestamp.tm_sec = PyDateTime_DATE_GET_SECOND(pytimestamp);
     } else {
-        get_now(&timestamp);
+        get_now(timestamp);
     }
 
     if (!self->gdswriter) self->gdswriter = (GdsWriter*)allocate_clear(sizeof(GdsWriter));

@@ -203,7 +203,7 @@ const char* default_svg_shape_style(Tag tag);
 const char* default_svg_label_style(Tag tag);
 
 // Thread-safe version of localtime.
-tm* get_now(tm* result);
+tm* get_now(tm& result);
 
 // FNV-1a hash function (64 bits)
 #define HASH_FNV_PRIME 0x00000100000001b3

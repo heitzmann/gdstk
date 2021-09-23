@@ -576,15 +576,14 @@ char* double_print(double value, uint32_t precision, char* buffer, size_t buffer
     return buffer;
 }
 
-tm* get_now(tm* result) {
-    assert(result);
+tm* get_now(tm& result) {
     time_t t = time(NULL);
 #ifdef _WIN32
-    localtime_s(result, &t);
+    localtime_s(&result, &t);
 #else
-    localtime_r(&t, result);
+    localtime_r(&t, &result);
 #endif
-    return result;
+    return &result;
 }
 
 // Kenneth Kelly's 22 colors of maximum contrast (minus B/W: "F2F3F4", "222222")
