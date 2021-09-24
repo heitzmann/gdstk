@@ -12,6 +12,8 @@
 - Default label magnification when loading a GDSII file
 - Bugs when loading some OASIS files
 - Bug fix in Map::del
+- Bounding box calculations take all repetitions into account
+- Memory leaks
 ### Changed
 - The implementation of layer and data/text type for shapes and labels use the type `Tag` in the C++ API
 - Style arguments renamed in `Cell.write_svg`

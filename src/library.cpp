@@ -1119,7 +1119,6 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     return Library{0};
 }
 
-// TODO: https://github.com/heitzmann/gdstk/issues/29
 // TODO: verify modal variables are correctly updated
 Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {0};

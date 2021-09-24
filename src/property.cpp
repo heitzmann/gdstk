@@ -90,6 +90,7 @@ static void property_values_clear(PropertyValue* values) {
 void properties_clear(Property*& properties) {
     while (properties) {
         property_values_clear(properties->value);
+        free_allocation(properties->name);
         Property* next = properties->next;
         free_allocation(properties);
         properties = next;
@@ -238,6 +239,7 @@ uint64_t remove_property(Property*& properties, const char* name, bool all_occur
     if (properties == NULL) return removed;
     while (strcmp(properties->name, name) == 0) {
         property_values_clear(properties->value);
+        free_allocation(properties->name);
         Property* next = properties->next;
         free_allocation(properties);
         properties = next;
@@ -250,6 +252,7 @@ uint64_t remove_property(Property*& properties, const char* name, bool all_occur
         if (property->next) {
             Property* rem = property->next;
             property_values_clear(rem->value);
+            free_allocation(rem->name);
             property->next = rem->next;
             free_allocation(rem);
             removed++;
@@ -264,6 +267,7 @@ bool remove_gds_property(Property*& properties, uint16_t attribute) {
     if (properties == NULL) return false;
     if (is_gds_property(properties) && properties->value->unsigned_integer == attribute) {
         property_values_clear(properties->value);
+        free_allocation(properties->name);
         Property* next = properties->next;
         free_allocation(properties);
         properties = next;
@@ -276,6 +280,7 @@ bool remove_gds_property(Property*& properties, uint16_t attribute) {
     if (property->next) {
         Property* rem = property->next;
         property_values_clear(rem->value);
+        free_allocation(rem->name);
         property->next = rem->next;
         free_allocation(rem);
         return true;
