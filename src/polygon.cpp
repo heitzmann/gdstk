@@ -1592,6 +1592,7 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
             fprintf(stderr, "[GDSTK] Unable to process polygon hole in contour.\n");
             error_code = ErrorCode::BooleanError;
             hole->clear();
+            free_allocation(hole);
         }
     }
 
@@ -1605,9 +1606,14 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
         if (island_holes->count > 0) {
             ErrorCode err = boolean(*island, *island_holes, Operation::Not, scaling, result);
             if (err != ErrorCode::NoError) error_code = err;
-            for (uint64_t h = 0; h < island_holes->count; h++) island_holes->items[h]->clear();
+            for (uint64_t h = 0; h < island_holes->count; h++) {
+                Polygon* hole = island_holes->items[h];
+                hole->clear();
+                free_allocation(hole);
+            }
             island_holes->clear();
             island->clear();
+            free_allocation(island);
         } else {
             result.append(island);
         }

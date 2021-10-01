@@ -115,6 +115,9 @@ void Library::top_level(Array<Cell*>& top_cells, Array<RawCell*>& top_rawcells) 
         RawCell* rawcell = *r_item++;
         if (rawcell_deps.get(rawcell->name) != rawcell) top_rawcells.append(rawcell);
     }
+
+    cell_deps.clear();
+    rawcell_deps.clear();
 }
 
 Cell* Library::get_cell(const char* cell_name) const {
