@@ -11,6 +11,7 @@
 - Label styling in SVG output
 - Default label magnification when loading a GDSII file
 - Bugs when loading some OASIS files
+- Bug in OASIS output for some Manhattan geometry.
 - Bug fix in Map::del
 - Bounding box calculations take all repetitions into account
 - Memory leaks
