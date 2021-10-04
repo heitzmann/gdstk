@@ -2366,7 +2366,8 @@ Args:
       also included in the result.
     depth: If non negative, indicates the number of reference levels
       processed recursively.  A value of 0 will result in no references
-      being visited.
+      being visited.  A value of ``None`` (the default) or a negative int
+      will include all reference levels below the cell.
     layer: If set, only polygons in the defined layer and data type are
       returned.
     datatype: If set, only polygons in the defined layer and data type
@@ -2386,7 +2387,8 @@ Args:
       the created paths.
     depth: If non negative, indicates the number of reference levels
       processed recursively.  A value of 0 will result in no references
-      being visited.
+      being visited.  A value of ``None`` (the default) or a negative int
+      will include all reference levels below the cell.
     layer: If set, only paths in the defined layer and data type are
       returned.
     datatype: If set, only paths in the defined layer and data type are
@@ -2406,7 +2408,8 @@ Args:
       the created labels.
     depth: If non negative, indicates the number of reference levels
       processed recursively.  A value of 0 will result in no references
-      being visited.
+      being visited.  A value of ``None`` (the default) or a negative int
+      will include all reference levels below the cell.
     layer: If set, only labels in the defined layer and text type are
       returned.
     texttype: If set, only labels in the defined layer and text type
