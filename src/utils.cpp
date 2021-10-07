@@ -21,12 +21,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 // Qhull
 #include "libqhull_r/qhull_ra.h"
 
-extern "C" {
-// Fortran is column-major!
-extern void dgesv_(const int* n, const int* nrhs, double* a, const int* lda, int* ipiv, double* b,
-                   const int* ldb, int* info);
-}
-
 namespace gdstk {
 
 char* copy_string(const char* str, uint64_t* len) {
@@ -219,17 +213,83 @@ Vec2 eval_bezier(double t, const Vec2* ctrl, uint64_t count) {
     return result;
 }
 
+#ifndef NDEBUG
+
+// NOTE: m[rows * cols] is assumed to be stored in row-major order
+void print_matrix(double* m, uint64_t rows, uint64_t cols) {
+    for (uint64_t r = 0; r < rows; r++) {
+        printf("[");
+        for (uint64_t c = 0; c < cols; c++) {
+            if (c) printf("\t");
+            printf("%.3g", *m++);
+        }
+        printf("]\n");
+    }
+}
+
+#endif
+
+// NOTE: m[rows * cols] must be stored in row-major order
+// NOTE: pivots[rows] returns the pivoting order
+uint64_t gauss_jordan_elimination(double* m, uint64_t* pivots, uint64_t rows, uint64_t cols) {
+    assert(cols >= rows);
+    uint64_t result = 0;
+
+    uint64_t* p = pivots;
+    for (uint64_t i = 0; i < rows; ++i) {
+        *p++ = i;
+    }
+
+    for (uint64_t i = 0; i < rows; ++i) {
+        // Select pivot: row with largest absolute value at column i
+        double pivot_value = fabs(m[pivots[i] * cols + i]);
+        uint64_t pivot_row = i;
+        for (uint64_t j = i + 1; j < rows; ++j) {
+            double candidate = fabs(m[pivots[j] * cols + i]);
+            if (candidate > pivot_value) {
+                pivot_value = candidate;
+                pivot_row = j;
+            }
+        }
+        if (pivot_value == 0) {
+            result += 1;
+            continue;
+        }
+
+        uint64_t row = pivots[pivot_row];
+        pivots[pivot_row] = pivots[i];
+        pivots[i] = row;
+
+        // Scale row
+        double* element = m + (row * cols + i);
+        double factor = 1.0 / *element;
+        for (uint64_t j = i; j < cols; ++j) {
+            *element++ *= factor;
+        }
+
+        // Zero i-th column from other rows
+        for (uint64_t r = 0; r < rows; ++r) {
+            if (r == row) continue;
+            element = m + row * cols;
+            double* other_row = m + r * cols;
+            factor = other_row[i];
+            for (uint64_t j = 0; j < cols; ++j) {
+                *other_row++ -= factor * *element++;
+            }
+        }
+    }
+    return result;
+}
+
+// NOTE: Matrix stored in column-major order!
 void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* angle_constraints,
                          Vec2* tension, double initial_curl, double final_curl, bool cycle) {
-    const int nrhs = 1;
     const double A = sqrt(2.0);
     const double B = 1.0 / 16.0;
     const double C = 0.5 * (3.0 - sqrt(5.0));
 
-    int info = 0;
-    int* ipiv = (int*)allocate(sizeof(int) * 2 * count);
-    double* a = (double*)allocate(sizeof(double) * (4 * count * count + 2 * count));
-    double* b = a + 4 * count * count;
+    double* m = (double*)allocate(sizeof(double) * (2 * count * (2 * count + 1)));
+    uint64_t* pivots = (uint64_t*)allocate(sizeof(uint64_t) * (2 * count));
 
     Vec2* pts = points;
     Vec2* tens = tension;
@@ -242,12 +302,13 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
         while (rotate < count && !angle_constraints[rotate]) rotate++;
         if (rotate == count) {
             // No angle constraints
-            const uint64_t dim = 2 * count;
+            const uint64_t rows = 2 * count;
+            const uint64_t cols = rows + 1;
             Vec2 v = points[3] - points[0];
             Vec2 v_prev = points[0] - points[3 * (count - 1)];
             double length_v = v.length();
             double delta_prev = v_prev.angle();
-            memset(a, 0, sizeof(double) * dim * dim);
+            memset(m, 0, sizeof(double) * rows * cols);
             for (uint64_t i = 0; i < count; i++) {
                 const uint64_t i_1 = i == 0 ? count - 1 : i - 1;
                 const uint64_t i1 = i == count - 1 ? 0 : i + 1;
@@ -263,21 +324,21 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
                 while (psi <= -M_PI) psi += 2 * M_PI;
                 while (psi > M_PI) psi -= 2 * M_PI;
 
-                b[i] = -psi;
-                b[j] = 0;
+                m[i * cols + rows] = -psi;
 
-                a[i + dim * i] = 1;
-                a[i + dim * j_1] = 1;
+                m[i * cols + i] = 1;
+                m[i * cols + j_1] = 1;
+
                 // A_i
-                a[j + dim * i] = length_v_next * tension[i2].u * tension[i1].u * tension[i1].u;
+                m[j * cols + i] = length_v_next * tension[i2].u * tension[i1].u * tension[i1].u;
                 // B_{i+1}
-                a[j + dim * i1] = -length_v * tension[i].v * tension[i1].v * tension[i1].v *
-                                  (1 - 3 * tension[i2].u);
+                m[j * cols + i1] = -length_v * tension[i].v * tension[i1].v * tension[i1].v *
+                                   (1 - 3 * tension[i2].u);
                 // C_{i+1}
-                a[j + dim * j] = length_v_next * tension[i2].u * tension[i1].u * tension[i1].u *
-                                 (1 - 3 * tension[i].v);
+                m[j * cols + j] = length_v_next * tension[i2].u * tension[i1].u * tension[i1].u *
+                                  (1 - 3 * tension[i].v);
                 // D_{i+2}
-                a[j + dim * j1] = -length_v * tension[i].v * tension[i1].v * tension[i1].v;
+                m[j * cols + j1] = -length_v * tension[i].v * tension[i1].v * tension[i1].v;
 
                 v_prev = v;
                 v = v_next;
@@ -285,9 +346,14 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
                 delta_prev = delta;
             }
 
-            dgesv_((const int*)&dim, &nrhs, a, (const int*)&dim, ipiv, b, (const int*)&dim, &info);
-            double* theta = b;
-            double* phi = b + count;
+            gauss_jordan_elimination(m, pivots, rows, cols);
+            // NOTE: re-use the first row of m to temporarily hold the angles
+            double* theta = m;
+            double* phi = theta + count;
+            for (uint64_t r = 0; r < count; r++) {
+                theta[r] = m[pivots[r] * cols + rows];
+                phi[r] = m[pivots[count + r] * cols + rows];
+            }
 
             Vec2* cta = points + 1;
             Vec2* ctb = points + 2;
@@ -313,8 +379,8 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
                 v = v_next;
                 w = w_next;
             }
-            free_allocation(ipiv);
-            free_allocation(a);
+            free_allocation(m);
+            free_allocation(pivots);
             return;
         }
 
@@ -360,9 +426,9 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
 
             // Solve curve pts[i] thru pts[j]
             const uint64_t range = j - i;
-            const uint64_t dim = 2 * range;
-            memset(a, 0, sizeof(double) * dim * dim);
-            memset(b, 0, sizeof(double) * dim);
+            const uint64_t rows = 2 * range;
+            const uint64_t cols = rows + 1;
+            memset(m, 0, sizeof(double) * rows * cols);
 
             Vec2 v_prev = pts[3 * (i + 1)] - pts[3 * i];
             double delta_prev = v_prev.angle();
@@ -382,73 +448,66 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
                 double psi = delta - delta_prev;
                 while (psi <= -M_PI) psi += 2 * M_PI;
                 while (psi > M_PI) psi -= 2 * M_PI;
-                b[k1] = -psi;
+                m[k1 * cols + rows] = -psi;
 
-                a[k1 + dim * k1] = 1;
-                a[k1 + dim * l] = 1;
+                m[k1 * cols + k1] = 1;
+                m[k1 * cols + l] = 1;
+
                 // A_k
-                a[l + dim * k] = length_v * tens[i2].u * tens[i1].u * tens[i1].u;
-                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, k, a[l + dim * k]);
+                m[l * cols + k] = length_v * tens[i2].u * tens[i1].u * tens[i1].u;
                 // B_{k+1}
-                a[l + dim * k1] =
+                m[l * cols + k1] =
                     -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v * (1 - 3 * tens[i2].u);
-                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, k1, a[l + dim * k1]);
                 // C_{k+1}
-                a[l + dim * l] =
+                m[l * cols + l] =
                     length_v * tens[i2].u * tens[i1].u * tens[i1].u * (1 - 3 * tens[i0].v);
-                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, l, a[l + dim * l]);
                 // D_{k+2}
-                a[l + dim * l1] = -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v;
-                // printf("a %"PRIu64" %"PRIu64" %lg\n", l, l1, a[l + dim * l1]);
+                m[l * cols + l1] = -length_v_prev * tens[i0].v * tens[i1].v * tens[i1].v;
 
                 delta_prev = delta;
                 length_v_prev = length_v;
             }
             if (ang_c[i]) {
-                b[0] = theta[i];
+                m[0 * cols + rows] = theta[i];
                 // B_0
-                a[0] = 1;
+                m[0] = 1;
                 // D_1
-                a[dim * range] = 0;
+                // m[0 * cols + range] = 0;
             } else {
                 const double to3 = tens[0].v * tens[0].v * tens[0].v;
                 const double cti3 = initial_curl * tens[1].u * tens[1].u * tens[1].u;
                 // B_0
-                a[0] = to3 * (1 - 3 * tens[1].u) - cti3;
+                m[0] = to3 * (1 - 3 * tens[1].u) - cti3;
                 // D_1
-                a[dim * range] = to3 - cti3 * (1 - 3 * tens[0].v);
+                m[0 * cols + range] = to3 - cti3 * (1 - 3 * tens[0].v);
             }
             if (ang_c[j]) {
-                b[dim - 1] = phi[j - 1];
+                m[(rows - 1) * cols + rows] = phi[j - 1];
                 // A_{range-1}
-                a[dim - 1 + dim * (range - 1)] = 0;
+                // m[(rows - 1) * cols + (range - 1)] = 0;
                 // C_range
-                a[dim - 1 + dim * (dim - 1)] = 1;
+                m[(rows - 1) * cols + (rows - 1)] = 1;
             } else {
                 const double ti3 = tens[n].u * tens[n].u * tens[n].u;
                 const double cto3 = final_curl * tens[n - 1].v * tens[n - 1].v * tens[n - 1].v;
                 // A_{range-1}
-                a[dim - 1 + dim * (range - 1)] = ti3 - cto3 * (1 - 3 * tens[n].u);
+                m[(rows - 1) * cols + (range - 1)] = ti3 - cto3 * (1 - 3 * tens[n].u);
                 // C_range
-                a[dim - 1 + dim * (dim - 1)] = ti3 * (1 - 3 * tens[n - 1].v) - cto3;
+                m[(rows - 1) * cols + (rows - 1)] = ti3 * (1 - 3 * tens[n - 1].v) - cto3;
             }
             if (range > 1 || !ang_c[i] || !ang_c[j]) {
-                // printf("Solving range [%"PRIu64", %"PRIu64"]\n\n", i, j);
-                // for (int _l = 0; _l < dim; _l++) {
-                //     printf("%s[", _l == (dim - 1) / 2 ? "A = " : "    ");
-                //     for (int _c = 0; _c < dim; _c++) printf(" %lg ", a[_l + dim * _c]);
-                //     printf("]\n");
-                // }
-                // printf("\nb' = [");
-                // for (int _l = 0; _l < dim; _l++) printf(" %lg ", b[_l]);
-                // printf("]\n");
-                dgesv_((const int*)&dim, &nrhs, a, (const int*)&dim, ipiv, b, (const int*)&dim,
-                       &info);
-                // printf("\nx' = [");
-                // for (int _l = 0; _l < dim; _l++) printf(" %lg ", b[_l]);
-                // printf("]\n");
-                memcpy(theta + i, b, sizeof(double) * range);
-                memcpy(phi + i, b + range, sizeof(double) * range);
+                // printf("Solving range [%" PRIu64 ", %" PRIu64 "]\n\n", i, j);
+                // print_matrix(m, rows, cols);
+
+                gauss_jordan_elimination(m, pivots, rows, cols);
+                for (uint64_t r = 0; r < range; r++) {
+                    theta[i + r] = m[pivots[r] * cols + rows];
+                    phi[i + r] = m[pivots[range + r] * cols + rows];
+                }
+
+                // printf("\n");
+                // print_matrix(m, rows, cols);
+                // printf("\n");
             }
             i = j;
         }
@@ -488,8 +547,8 @@ void hobby_interpolation(uint64_t count, Vec2* points, double* angles, bool* ang
         free_allocation(theta);
         free_allocation(phi);
     }
-    free_allocation(ipiv);
-    free_allocation(a);
+    free_allocation(m);
+    free_allocation(pivots);
 }
 
 void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {

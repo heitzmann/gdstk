@@ -16,6 +16,7 @@
 - Bounding box calculations take all repetitions into account
 - Memory leaks
 ### Changed
+- Removed LAPACK dependency
 - The implementation of layer and data/text type for shapes and labels use the type `Tag` in the C++ API
 - Style arguments renamed in `Cell.write_svg`
 

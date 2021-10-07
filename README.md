@@ -37,14 +37,13 @@ cmake -S . -B build
 cmake --build build --target install
 ```
 
-The library depends on LAPACK and [zlib](https://zlib.net/).
+The library depends on [zlib](https://zlib.net/).
 
 ### Python wrapper
 
 The Python module can be installed via Conda (recommended) or compiled directly from source.
 It depends on:
 
-* LAPACK
 * [zlib](https://zlib.net/)
 * [CMake](https://cmake.org/)
 * [Python](https://www.python.org/)
@@ -79,7 +78,7 @@ conda install gdstk
 
 #### From source
 
-The module must be linked aginst LAPACK and zlib.
+The module must be linked aginst zlib.
 The included CMakeLists.txt file can be used as a guide.
 
 Installation from source should follow the usual method (there is no need to compile the static library beforehand):

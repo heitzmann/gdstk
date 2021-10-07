@@ -24,11 +24,6 @@ else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 endif()
 
-find_package(LAPACK REQUIRED)
-foreach(IT ${LAPACK_LIBRARIES})
-    set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
-endforeach()
-
 find_package(ZLIB 1.2.9 REQUIRED)
 foreach(IT ${ZLIB_LIBRARIES})
     set(PRIVATE_LIBS "${PRIVATE_LIBS} ${IT}")
@@ -72,7 +67,7 @@ add_library(gdstk STATIC
 )
 
 target_include_directories(gdstk PRIVATE ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(gdstk ${LAPACK_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(gdstk ${ZLIB_LIBRARIES})
 
 set_target_properties(gdstk PROPERTIES
     POSITION_INDEPENDENT_CODE ON
