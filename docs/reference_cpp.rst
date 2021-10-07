@@ -49,8 +49,9 @@ transformed in any way.
 Thread Safety
 *************
 
-Gdstk is *not* thread-safe.
-
+Gdstk is *not* thread-safe.  That said, the library does not use global
+variables, so it is safe to use threads as long as they do not modify the same
+data structures.
 
 ************
 Header files

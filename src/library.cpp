@@ -433,6 +433,8 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
         oasis_putc((int)OasisRecord::CELL_REF_NUM, out);
         oasis_write_unsigned_integer(out, cell_name_map.get(cell->name));
 
+        assert(cell_name_map.get(cell->name) == i);
+
         if (compression_level > 0) {
             out.cursor = out.data;
         }
