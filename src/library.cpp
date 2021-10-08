@@ -566,32 +566,35 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
             uint64_t uncompressed_size = out.cursor - out.data;
             out.cursor = NULL;
 
-            z_stream s = {0};
-            s.zalloc = zalloc;
-            s.zfree = zfree;
-            if (deflateInit2(&s, compression_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) !=
-                Z_OK) {
-                fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
-                error_code = ErrorCode::ZlibError;
-            }
-            s.avail_out = deflateBound(&s, (uLong)uncompressed_size);
-            uint8_t* buffer = (uint8_t*)allocate(s.avail_out);
-            s.next_out = buffer;
-            s.avail_in = (uInt)uncompressed_size;
-            s.next_in = out.data;
-            int ret = deflate(&s, Z_FINISH);
-            if (ret != Z_STREAM_END) {
-                fputs("[GDSTK] Unable to compress CBLOCK.\n", stderr);
-                error_code = ErrorCode::ZlibError;
-            }
+            // Skip empty cells
+            if (uncompressed_size > 0) {
+                z_stream s = {0};
+                s.zalloc = zalloc;
+                s.zfree = zfree;
+                if (deflateInit2(&s, compression_level, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY) !=
+                    Z_OK) {
+                    fputs("[GDSTK] Unable to initialize zlib.\n", stderr);
+                    error_code = ErrorCode::ZlibError;
+                }
+                s.avail_out = deflateBound(&s, (uLong)uncompressed_size);
+                uint8_t* buffer = (uint8_t*)allocate(s.avail_out);
+                s.next_out = buffer;
+                s.avail_in = (uInt)uncompressed_size;
+                s.next_in = out.data;
+                int ret = deflate(&s, Z_FINISH);
+                if (ret != Z_STREAM_END) {
+                    fputs("[GDSTK] Unable to compress CBLOCK.\n", stderr);
+                    error_code = ErrorCode::ZlibError;
+                }
 
-            oasis_putc((int)OasisRecord::CBLOCK, out);
-            oasis_putc(0, out);
-            oasis_write_unsigned_integer(out, uncompressed_size);
-            oasis_write_unsigned_integer(out, s.total_out);
-            oasis_write(buffer, 1, s.total_out, out);
-            free_allocation(buffer);
-            deflateEnd(&s);
+                oasis_putc((int)OasisRecord::CBLOCK, out);
+                oasis_putc(0, out);
+                oasis_write_unsigned_integer(out, uncompressed_size);
+                oasis_write_unsigned_integer(out, s.total_out);
+                oasis_write(buffer, 1, s.total_out, out);
+                free_allocation(buffer);
+                deflateEnd(&s);
+            }
         }
     }
 
@@ -2251,6 +2254,11 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     }
                     free_allocation(data);
                     inflateEnd(&s);
+                    // Empty CBLOCK
+                    if (in.data_size == 0) {
+                        free_allocation(in.data);
+                        in.data = NULL;
+                    }
                 }
             } break;
             default:

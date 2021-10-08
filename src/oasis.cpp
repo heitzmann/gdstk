@@ -21,18 +21,18 @@ namespace gdstk {
 ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
     if (in.data) {
         uint64_t total = size * count;
-        memcpy(buffer, in.cursor, size * count);
+        memcpy(buffer, in.cursor, total);
         in.cursor += total;
         if (in.cursor >= in.data + in.data_size) {
             if (in.cursor > in.data + in.data_size) {
-                fputs("[GDSTK] Error reading compressed data in file", stderr);
+                fputs("[GDSTK] Error reading compressed data in file.\n", stderr);
                 in.error_code = ErrorCode::InputFileError;
             }
             free_allocation(in.data);
             in.data = NULL;
         }
     } else if (fread(buffer, size, count, in.file) < count) {
-        fputs("[GDSTK] Error reading OASIS file", stderr);
+        fputs("[GDSTK] Error reading OASIS file.\n", stderr);
         in.error_code = ErrorCode::InputFileError;
     }
     return in.error_code;
@@ -44,7 +44,7 @@ static uint8_t oasis_peek(OasisStream& in) {
         byte = *in.cursor;
     } else {
         if (fread(&byte, 1, 1, in.file) < 1) {
-            fputs("[GDSTK] Error reading OASIS file", stderr);
+            fputs("[GDSTK] Error reading OASIS file.\n", stderr);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
         }
         FSEEK64(in.file, -1, SEEK_CUR);
