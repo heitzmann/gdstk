@@ -628,6 +628,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
             set_property(cell->properties, s_bounding_box_property_name, width, false);
             set_property(cell->properties, s_bounding_box_property_name, ymin, false);
             set_property(cell->properties, s_bounding_box_property_name, xmin, false);
+            set_property(cell->properties, s_bounding_box_property_name, (uint64_t)0, false);
         }
         if (write_cell_offsets) {
             remove_property(cell->properties, s_cell_offset_property_name, true);
