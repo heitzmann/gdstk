@@ -209,6 +209,25 @@ def test_rw_gds_filter(tmpdir, sample_library):
     assert c.references[0].repetition.v2 == (0.0, 8.0)
 
 
+def test_read_gds_missing_refs(tmpdir):
+    c1 = gdstk.Cell("c1")
+    c1.add(gdstk.rectangle((0, -1), (1, 2), 2, 4))
+
+    r1 = gdstk.Reference(c1, magnification=2)
+    c2 = gdstk.Cell("c2")
+    c2.add(r1)
+
+    lib = gdstk.Library()
+    lib.add(c2)
+
+    fname = str(tmpdir.join("test_missing_refs.gds"))
+    lib.write_gds(fname)
+
+    lib2 = gdstk.read_gds(fname)
+    assert len(lib.cells) == 1
+    assert lib.cells[0].name == "c2"
+
+
 # def test_rw_oas_filter(tmpdir, sample_library):
 #     fname = str(tmpdir.join("test.oas"))
 #     sample_library.write_oas(fname)
