@@ -840,6 +840,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                             if (error_code) *error_code = ErrorCode::MissingReference;
                             fprintf(stderr, "[GDSTK] Missing referenced cell %s\n",
                                     reference->name);
+                            reference->cell = NULL;
                         }
                     }
                 }
