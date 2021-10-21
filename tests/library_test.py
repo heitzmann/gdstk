@@ -223,9 +223,11 @@ def test_read_gds_missing_refs(tmpdir):
     fname = str(tmpdir.join("test_missing_refs.gds"))
     lib.write_gds(fname)
 
-    lib2 = gdstk.read_gds(fname)
-    assert len(lib.cells) == 1
-    assert lib.cells[0].name == "c2"
+    with pytest.warns(RuntimeWarning):
+        lib2 = gdstk.read_gds(fname)
+
+    assert len(lib2.cells) == 1
+    assert lib2.cells[0].name == "c2"
 
 
 # def test_rw_oas_filter(tmpdir, sample_library):
