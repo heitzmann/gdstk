@@ -1446,8 +1446,11 @@ static PyObject* create_library_objects(Library* library) {
     cell = library->cell_array.items;
     for (uint64_t i = 0; i < library->cell_array.count; i++, cell++) {
         Reference** reference = (*cell)->reference_array.items;
-        for (uint64_t j = 0; j < (*cell)->reference_array.count; j++, reference++)
+        for (uint64_t j = 0; j < (*cell)->reference_array.count; j++, reference++) {
+            // Cell reference missing (ErrorCode::MissingReference); ignore
+            if ((*reference)->type == ReferenceType::Name) continue;
             Py_INCREF((*reference)->cell->owner);
+        }
     }
 
     return (PyObject*)result;
