@@ -2238,6 +2238,20 @@ After the repetition is applyed, the original attribute is set to
 Returns:
     Newly created objects.)!");
 
+PyDoc_STRVAR(label_object_transform_doc, R"!(transform(magnification=1, x_reflection=False, rotation=0, translation=None) -> self
+
+Transform this label.
+
+The transformation if applied in the order of the arguments in the
+method signature, starting with a magnification.
+
+Args:
+    magnification (number): Magnification factor.
+    x_reflection (bool): If `True`, the vertices are reflected across
+      the x axis.
+    rotation (number): Rotation angle (in radians).
+    translation (coordinate pair or complex): Translation vector.)!");
+
 PyDoc_STRVAR(label_object_text_doc, R"!(Label text.)!");
 
 PyDoc_STRVAR(label_object_origin_doc, R"!(Label origin.)!");

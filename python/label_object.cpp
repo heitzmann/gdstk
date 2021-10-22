@@ -144,6 +144,30 @@ static PyObject* label_object_apply_repetition(LabelObject* self, PyObject*) {
     return result;
 }
 
+static PyObject* label_object_transform(LabelObject* self, PyObject* args, PyObject* kwds) {
+    const char* keywords[] = {"magnification", "x_reflection", "rotation", "translation", NULL};
+    PyObject* translation_obj = Py_None;
+    double magnification = 1;
+    double rotation = 0;
+    Vec2 origin = {0, 0};
+    int x_reflection = 0;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|dpdO:transform", (char**)keywords,
+                                     &magnification, &x_reflection, &rotation, &translation_obj)) {
+        return NULL;
+    }
+
+    if (translation_obj != Py_None && parse_point(translation_obj, origin, "translation") < 0) {
+        return NULL;
+    }
+
+    if (origin.x != 0 || origin.y != 0 || rotation != 0 || magnification != 1 || x_reflection > 0) {
+        self->label->transform(magnification, x_reflection > 0, rotation, origin);
+    }
+
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyObject* label_object_set_property(LabelObject* self, PyObject* args) {
     if (!parse_property(self->label->properties, args)) return NULL;
     Py_INCREF(self);
@@ -194,6 +218,8 @@ static PyMethodDef label_object_methods[] = {
     {"copy", (PyCFunction)label_object_copy, METH_NOARGS, label_object_copy_doc},
     {"apply_repetition", (PyCFunction)label_object_apply_repetition, METH_NOARGS,
      label_object_apply_repetition_doc},
+    {"transform", (PyCFunction)label_object_transform, METH_VARARGS | METH_KEYWORDS,
+     label_object_transform_doc},
     {"set_property", (PyCFunction)label_object_set_property, METH_VARARGS, object_set_property_doc},
     {"get_property", (PyCFunction)label_object_get_property, METH_VARARGS, object_get_property_doc},
     {"delete_property", (PyCFunction)label_object_delete_property, METH_VARARGS,
