@@ -34,9 +34,11 @@ struct Repetition {
             uint64_t rows;     // Along y or v2
             union {
                 Vec2 spacing;  // Rectangular spacing
-                Vec2 v1;       // Regular axis 1
+                struct {
+                    Vec2 v1;  // Regular axis 1
+                    Vec2 v2;  // Regular axis 2
+                };
             };
-            Vec2 v2;  // Regular axis 2
         };
         // The original element should not be explicitly included, i.e., (0, 0)
         Array<Vec2> offsets;   // Explicit
