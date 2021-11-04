@@ -18,7 +18,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Repetition::print() const {
-    const uint8_t n = 12;
     switch (type) {
         case RepetitionType::Rectangular:
             printf("Rectangular repetition <%p>, %" PRIu64 " columns, %" PRIu64
@@ -36,14 +35,9 @@ void Repetition::print() const {
             break;
         case RepetitionType::ExplicitX:
         case RepetitionType::ExplicitY:
-            printf("Explicit %c repetition <%p>:", type == RepetitionType::ExplicitX ? 'X' : 'Y',
+            printf("Explicit %c repetition <%p>: ", type == RepetitionType::ExplicitX ? 'X' : 'Y',
                    this);
-            for (uint64_t i = 0; i < coords.count; i += n) {
-                for (uint64_t j = 0; j < n && i + j < coords.count; j++) {
-                    printf(" %lg", coords[i + j]);
-                }
-                putchar('\n');
-            }
+            coords.print(true);
             break;
         case RepetitionType::None:
             return;

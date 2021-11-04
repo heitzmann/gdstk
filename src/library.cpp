@@ -41,12 +41,16 @@ void Library::print(bool all) const {
            " raw cells, owner <%p>\n",
            this, name, unit, precision, cell_array.count, rawcell_array.count, owner);
     if (all) {
+        printf("Cell array (count %" PRIu64 "/%" PRIu64 "):\n", cell_array.count,
+               cell_array.capacity);
         for (uint64_t i = 0; i < cell_array.count; i++) {
-            printf("{%" PRIu64 "} ", i);
+            printf("Cell %" PRIu64 ": ", i);
             cell_array[i]->print(true);
         }
+        printf("RawCell array (count %" PRIu64 "/%" PRIu64 "):\n", rawcell_array.count,
+               rawcell_array.capacity);
         for (uint64_t i = 0; i < rawcell_array.count; i++) {
-            printf("{%" PRIu64 "} ", i);
+            printf("RawCell %" PRIu64 ": ", i);
             rawcell_array[i]->print(true);
         }
     }

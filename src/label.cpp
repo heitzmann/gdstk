@@ -17,10 +17,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 void Label::print() {
-    printf("Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg, reflection %d, layer %" PRIu32
+    printf("Label <%p> %s, at (%lg, %lg), %lg rad, mag %lg,%s reflected, layer %" PRIu32
            ", texttype %" PRIu32 ", properties <%p>, owner <%p>\n",
-           this, text, origin.x, origin.y, rotation, magnification, x_reflection, get_layer(tag),
-           get_type(tag), properties, owner);
+           this, text, origin.x, origin.y, rotation, magnification, x_reflection ? "" : " not",
+           get_layer(tag), get_type(tag), properties, owner);
     properties_print(properties);
     repetition.print();
 }

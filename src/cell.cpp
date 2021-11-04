@@ -29,24 +29,34 @@ void Cell::print(bool all) const {
            this, name, polygon_array.count, flexpath_array.count, robustpath_array.count,
            reference_array.count, label_array.count, owner);
     if (all) {
+        printf("Polygon array (count %" PRIu64 "/%" PRIu64 ")\n", polygon_array.count,
+               polygon_array.capacity);
         for (uint64_t i = 0; i < polygon_array.count; i++) {
-            printf("[%" PRIu64 "] ", i);
+            printf("Polygon %" PRIu64 ": ", i);
             polygon_array[i]->print(true);
         }
+        printf("FlexPath array (count %" PRIu64 "/%" PRIu64 ")\n", flexpath_array.count,
+               flexpath_array.capacity);
         for (uint64_t i = 0; i < flexpath_array.count; i++) {
-            printf("[%" PRIu64 "] ", i);
+            printf("FlexPath%" PRIu64 ": ", i);
             flexpath_array[i]->print(true);
         }
+        printf("RobustPath array (count %" PRIu64 "/%" PRIu64 ")\n", robustpath_array.count,
+               robustpath_array.capacity);
         for (uint64_t i = 0; i < robustpath_array.count; i++) {
-            printf("[%" PRIu64 "] ", i);
+            printf("RobustPath %" PRIu64 ": ", i);
             robustpath_array[i]->print(true);
         }
+        printf("Reference array (count %" PRIu64 "/%" PRIu64 ")\n", reference_array.count,
+               reference_array.capacity);
         for (uint64_t i = 0; i < reference_array.count; i++) {
-            printf("[%" PRIu64 "] ", i);
+            printf("Reference %" PRIu64 ": ", i);
             reference_array[i]->print();
         }
+        printf("Label array (count %" PRIu64 "/%" PRIu64 ")\n", label_array.count,
+               label_array.capacity);
         for (uint64_t i = 0; i < label_array.count; i++) {
-            printf("[%" PRIu64 "] ", i);
+            printf("Label %" PRIu64 ": ", i);
             label_array[i]->print();
         }
     }

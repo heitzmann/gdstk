@@ -48,7 +48,7 @@ void SubPath::print() const {
                    radius_x, radius_y);
             break;
         case SubPathType::Bezier:
-            printf("Bezier <%p>:", this);
+            printf("Bezier <%p>: ", this);
             ctrl.print(true);
             break;
         case SubPathType::Bezier2:
@@ -60,8 +60,9 @@ void SubPath::print() const {
                    p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
             break;
         case SubPathType::Parametric:
-            printf("Parametric <%p>: f = %p, df = %p, reference = (%lg, %lg), data = %p %p\n", this,
-                   path_function, path_gradient, reference.x, reference.y, func_data, grad_data);
+            printf("Parametric <%p>: reference = (%lg, %lg), f <%p>, df <%p>, data <%p> and <%p>\n",
+                   this, reference.x, reference.y, path_function, path_gradient, func_data,
+                   grad_data);
             break;
     }
 }
@@ -379,22 +380,64 @@ void RobustPath::right_points(const SubPath &subpath, const Interpolation &offse
     }
 }
 
+static void interpolation_print(const Interpolation interp) {
+    switch (interp.type) {
+        case InterpolationType::Constant:
+            printf("Constant interpolation to %lg\n", interp.value);
+            break;
+        case InterpolationType::Linear:
+            printf("Linear interpolation from %lg to %lg\n", interp.initial_value,
+                   interp.final_value);
+            break;
+        case InterpolationType::Smooth:
+            printf("Smooth interpolation from %lg to %lg\n", interp.initial_value,
+                   interp.final_value);
+            break;
+        case InterpolationType::Parametric:
+            printf("Parametric interpolation (function <%p>, data <%p>)\n", interp.function,
+                   interp.data);
+            break;
+    }
+}
+
 void RobustPath::print(bool all) const {
     printf("RobustPath <%p> at (%lg, %lg), count %" PRIu64 ", %" PRIu64
-           " elements, tolerance %lg, max_evals %" PRIu64 ", properties <%p>, owner <%p>\n",
-           this, end_point.x, end_point.y, subpath_array.count, num_elements, tolerance, max_evals,
+           " elements, %s path,%s scaled widths, tolerance %lg, max_evals %" PRIu64
+           ", properties <%p>, owner <%p>\n",
+           this, end_point.x, end_point.y, subpath_array.count, num_elements,
+           simple_path ? "GDSII" : "polygonal", scale_width ? "" : " no", tolerance, max_evals,
            properties, owner);
+    printf("Transform: %lg,\t%lg,\t%lg\n           %lg,\t%lg,\t%lg\n", trafo[0], trafo[1], trafo[2],
+           trafo[3], trafo[4], trafo[5]);
     if (all) {
+        printf("Subpaths (count %" PRIu64 "/%" PRIu64 "):\n", subpath_array.count,
+               subpath_array.capacity);
         for (uint64_t ns = 0; ns < subpath_array.count; ns++) {
-            printf("(%" PRIu64 ") ", ns);
+            printf("Subpath %" PRIu64 ": ", ns);
             subpath_array[ns].print();
         }
         RobustPathElement *el = elements;
-        for (uint64_t ne = 0; ne < num_elements; ne++, el++)
+        for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
             printf("Element %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
-                   ", end %d (%lg, %lg)\n",
-                   ne, get_layer(el->tag), get_type(el->tag), (int)el->end_type,
-                   el->end_extensions.u, el->end_extensions.v);
+                   ", end %s (function <%p>, data <%p>), end extensions (%lg, %lg)\n",
+                   ne, get_layer(el->tag), get_type(el->tag), end_type_name(el->end_type),
+                   el->end_function, el->end_function_data, el->end_extensions.u,
+                   el->end_extensions.v);
+            printf("Width interpolations (count %" PRIu64 "/%" PRIu64 "):\n", el->width_array.count,
+                   el->width_array.capacity);
+            Interpolation *interp = el->width_array.items;
+            for (uint64_t ni = 0; ni < el->width_array.count; ni++, interp++) {
+                printf("Width %" PRIu64 ": ", ni);
+                interpolation_print(*interp);
+            }
+            printf("Offset interpolations (count %" PRIu64 "/%" PRIu64 "):\n", el->offset_array.count,
+                   el->offset_array.capacity);
+            interp = el->offset_array.items;
+            for (uint64_t ni = 0; ni < el->offset_array.count; ni++, interp++) {
+                printf("Offset %" PRIu64 ": ", ni);
+                interpolation_print(*interp);
+            }
+        }
     }
     properties_print(properties);
     repetition.print();

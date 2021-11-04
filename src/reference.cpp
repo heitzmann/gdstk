@@ -32,8 +32,9 @@ void Reference::print() const {
         default:
             printf("Reference <%p> to %s", this, name);
     }
-    printf(", at (%lg, %lg), %lg rad, mag %lg, reflection %d, properties <%p>, owner <%p>\n",
-           origin.x, origin.y, rotation, magnification, x_reflection, properties, owner);
+    printf(", at (%lg, %lg), %lg rad, mag %lg,%s reflected, properties <%p>, owner <%p>\n",
+           origin.x, origin.y, rotation, magnification, x_reflection ? "" : " not", properties,
+           owner);
     properties_print(properties);
     repetition.print();
 }

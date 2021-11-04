@@ -29,7 +29,7 @@ void RawCell::print(bool all) const {
         printf("Dependencies (%" PRIu64 "/%" PRIu64 "):\n", dependencies.count,
                dependencies.capacity);
         for (uint64_t i = 0; i < dependencies.count; i++) {
-            printf("(%" PRIu64 ")", i);
+            printf("Dependency %" PRIu64 "", i);
             dependencies[i]->print(false);
         }
     }

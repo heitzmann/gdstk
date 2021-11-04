@@ -37,6 +37,45 @@ enum struct BendType {
     Function,  // Use bend_function(…)
 };
 
+inline const char* end_type_name(EndType end_type) {
+    switch (end_type) {
+        case EndType::Flush: return "flush";
+        case EndType::Round: return "round";
+        case EndType::HalfWidth: return "half-width";
+        case EndType::Extended: return "extended";
+        case EndType::Smooth: return "smooth";
+        case EndType::Function: return "function";
+    }
+    return "unknown";
+}
+
+inline const char* join_type_name(JoinType join_type) {
+    switch (join_type) {
+        case JoinType::Natural:
+            return "natural";
+        case JoinType::Miter:
+            return "miter";
+        case JoinType::Bevel:
+            return "bevel";
+        case JoinType::Round:
+            return "round";
+        case JoinType::Smooth:
+            return "smooth";
+        case JoinType::Function:
+            return "function";
+    }
+    return "unknown";
+}
+
+inline const char* bend_type_name(BendType bend_type) {
+    switch (bend_type) {
+        case BendType::None: return "none";
+        case BendType::Circular: return "circular";
+        case BendType::Function: return "function";
+    }
+    return "unknown";
+}
+
 }  // namespace gdstk
 
 #endif

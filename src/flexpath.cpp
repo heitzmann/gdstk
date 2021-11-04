@@ -57,20 +57,25 @@ void FlexPath::init(const Vec2 initial_position, uint64_t num_elements_, const d
 }
 
 void FlexPath::print(bool all) const {
-    printf("FlexPath <%p>, count %" PRIu64 ", %" PRIu64
-           " elements, gdsii %d, width scaling %d, properties <%p>, owner <%p>\n",
-           this, spine.point_array.count, num_elements, simple_path, scale_width, properties,
-           owner);
+    printf("FlexPath <%p>, %" PRIu64
+           " elements, %s path,%s scaled widths, properties <%p>, owner <%p>\nSpine: ",
+           this, num_elements, simple_path ? "GDSII" : "polygonal", scale_width ? "" : " no",
+           properties, owner);
+    spine.print(all);
     if (all) {
-        FlexPathElement* el = elements;
-        for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-            printf("Element %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
-                   ", join %d, end %d (%lg, %lg), bend %d (%lg)\n",
-                   ne, get_layer(el->tag), get_type(el->tag), (int)el->join_type, (int)el->end_type,
-                   el->end_extensions.u, el->end_extensions.v, (int)el->bend_type, el->bend_radius);
-        }
         printf("Spine: ");
         spine.print(true);
+        FlexPathElement* el = elements;
+        for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
+            printf(
+                "Element %" PRIu64 ", layer %" PRIu32 ", datatype %" PRIu32
+                ", join %s (function <%p>, data <%p>), end %s (function <%p>, data <%p>), end extensions (%lg, %lg), bend %s (function <%p>, data <%p>), bend radius %lg\n",
+                ne, get_layer(el->tag), get_type(el->tag), join_type_name(el->join_type),
+                el->join_function, el->join_function_data, end_type_name(el->end_type),
+                el->end_function, el->end_function_data, el->end_extensions.u, el->end_extensions.v,
+                bend_type_name(el->bend_type), el->bend_function, el->bend_function_data,
+                el->bend_radius);
+        }
     }
     properties_print(properties);
     repetition.print();

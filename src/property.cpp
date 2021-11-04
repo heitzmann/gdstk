@@ -39,7 +39,7 @@ void properties_print(Property* properties) {
     if (!properties) return;
     puts("Properties:");
     for (; properties; properties = properties->next) {
-        printf("- %s:", properties->name);
+        printf("- <%p> %s:", properties, properties->name);
         for (PropertyValue* value = properties->value; value; value = value->next) {
             switch (value->type) {
                 case PropertyType::UnsignedInteger:
