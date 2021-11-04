@@ -84,28 +84,28 @@ struct Array {
     void append_unsafe(T item) { items[count++] = item; }
 
     // Insert item at specified index, pushing the remaining forward
-    void insert(uint64_t index, T item) {
+    void insert(uint64_t index_, T item) {
         if (count == capacity) {
             capacity = capacity >= INITIAL_ARRAY_CAPACITY ? capacity * ARRAY_GROWTH_FACTOR
                                                           : INITIAL_ARRAY_CAPACITY;
             items = (T*)reallocate(items, sizeof(T) * capacity);
         }
-        if (index >= count) {
+        if (index_ >= count) {
             append_unsafe(item);
         } else {
-            memmove(items + index + 1, items + index, sizeof(T) * (count - index));
-            items[index] = item;
+            memmove(items + index_ + 1, items + index_, sizeof(T) * (count - index_));
+            items[index_] = item;
             count++;
         }
     }
 
     // Remove the item at index by substituting it with the last item in the
     // array.
-    void remove_unordered(uint64_t index) { items[index] = items[--count]; }
+    void remove_unordered(uint64_t index_) { items[index_] = items[--count]; }
 
     // Remove the item at index and pull the remainig to fill the gap.
-    void remove(uint64_t index) {
-        memmove(items + index, items + index + 1, sizeof(T) * ((--count) - index));
+    void remove(uint64_t index_) {
+        memmove(items + index_, items + index_ + 1, sizeof(T) * ((--count) - index_));
     }
 
     // Remove (ordered) the first occurence of a specific item in the array.

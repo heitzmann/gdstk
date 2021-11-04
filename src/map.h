@@ -70,11 +70,11 @@ struct Map {
     // Function to iterate over all values in the map:
     // for (MapItem<T>* item = map.next(NULL); item; item = map.next(item)) {…}
     MapItem<T>* next(const MapItem<T>* current) const {
-        MapItem<T>* next = current ? (MapItem<T>*)(current + 1) : items;
+        MapItem<T>* next_ = current ? (MapItem<T>*)(current + 1) : items;
         const MapItem<T>* limit = items + capacity;
-        while (next < limit) {
-            if (next->key) return next;
-            next++;
+        while (next_ < limit) {
+            if (next_->key) return next_;
+            next_++;
         }
         return NULL;
     }

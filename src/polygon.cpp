@@ -184,9 +184,10 @@ void Polygon::translate(const Vec2 v) {
     for (uint64_t num = point_array.count; num > 0; num--) *p++ += v;
 }
 
-void Polygon::scale(const Vec2 scale, const Vec2 center) {
+void Polygon::scale(const Vec2 scale_factor, const Vec2 center) {
     Vec2* p = point_array.items;
-    for (uint64_t num = point_array.count; num > 0; num--, p++) *p = (*p - center) * scale + center;
+    for (uint64_t num = point_array.count; num > 0; num--, p++)
+        *p = (*p - center) * scale_factor + center;
 }
 
 void Polygon::mirror(const Vec2 p0, const Vec2 p1) {
@@ -981,9 +982,9 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, Tag tag) {
     result.point_array.ensure_slots(4);
     result.point_array.count = 4;
     result.point_array[0] = corner1;
-    result.point_array[1] = {corner2.x, corner1.y};
+    result.point_array[1] = Vec2{corner2.x, corner1.y};
     result.point_array[2] = corner2;
-    result.point_array[3] = {corner1.x, corner2.y};
+    result.point_array[3] = Vec2{corner1.x, corner2.y};
     return result;
 };
 

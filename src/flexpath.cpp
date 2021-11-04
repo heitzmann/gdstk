@@ -120,15 +120,15 @@ void FlexPath::translate(const Vec2 v) {
     for (uint64_t num = spine.point_array.count; num > 0; num--) *p++ += v;
 }
 
-void FlexPath::scale(double scale, const Vec2 center) {
+void FlexPath::scale(double scael_factor, const Vec2 center) {
     Vec2* p = spine.point_array.items;
     for (uint64_t num = spine.point_array.count; num > 0; num--, p++)
-        *p = (*p - center) * scale + center;
-    Vec2 wo_scale = {1, fabs(scale)};
+        *p = (*p - center) * scael_factor + center;
+    Vec2 wo_scale = {1, fabs(scael_factor)};
     if (scale_width) wo_scale.u = wo_scale.v;
     FlexPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-        el->end_extensions *= scale;
+        el->end_extensions *= scael_factor;
         Vec2* wo = el->half_width_and_offset.items;
         for (uint64_t num = spine.point_array.count; num > 0; num--) *wo++ *= wo_scale;
     }
@@ -335,8 +335,8 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                 if (i + 2 == spine_points.count) {
                     // Last point: no need to find an intersection
                     p_next = p1;
-                    t2 = {0, 0};
-                    n2 = {0, 0};
+                    t2 = Vec2{0, 0};
+                    n2 = Vec2{0, 0};
                 } else {
                     spine_normal = (spine_points[i + 2] - spine_points[i + 1]).ortho();
                     spine_normal.normalize();
@@ -645,8 +645,8 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
     result.append(p0);
 
     if (spine_points.count > 2) {
-        Curve arc = {0};
-        arc.tolerance = spine.tolerance;
+        Curve arc_curve = {0};
+        arc_curve.tolerance = spine.tolerance;
         spine_normal = (spine_points[2] - spine_points[1]).ortho();
         spine_normal.normalize();
         Vec2 p2 = spine_points[1] + spine_normal * path_offsets[2 * 1];
@@ -669,8 +669,8 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
             if (i + 2 == spine_points.count) {
                 // Last point: no need to find an intersection
                 p_next = p1;
-                t2 = {0, 0};
-                n2 = {0, 0};
+                t2 = Vec2{0, 0};
+                n2 = Vec2{0, 0};
             } else {
                 spine_normal = (spine_points[i + 2] - spine_points[i + 1]).ortho();
                 spine_normal.normalize();
@@ -706,10 +706,10 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
                         const Vec2 center = p - 0.5 * radius * (n0 + n1 + len_factor * (t0 - t1));
                         if (bend_type == BendType::Circular) {
                             const Vec2 arc_start = center + n0 * radius;
-                            arc.append(arc_start);
-                            arc.arc(radius, radius, initial_angle, final_angle, 0);
-                            result.extend(arc.point_array);
-                            arc.point_array.count = 0;
+                            arc_curve.append(arc_start);
+                            arc_curve.arc(radius, radius, initial_angle, final_angle, 0);
+                            result.extend(arc_curve.point_array);
+                            arc_curve.point_array.count = 0;
                         } else if (bend_type == BendType::Function) {
                             Array<Vec2> bend_array = (*el->bend_function)(
                                 radius, initial_angle, final_angle, center, el->bend_function_data);
@@ -723,10 +723,10 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
                         Vec2 center = p + 0.5 * radius * (n0 + n1 + len_factor * (t1 - t0));
                         if (bend_type == BendType::Circular) {
                             const Vec2 arc_start = center - n0 * radius;
-                            arc.append(arc_start);
-                            arc.arc(radius, radius, initial_angle, final_angle, 0);
-                            result.extend(arc.point_array);
-                            arc.point_array.count = 0;
+                            arc_curve.append(arc_start);
+                            arc_curve.arc(radius, radius, initial_angle, final_angle, 0);
+                            result.extend(arc_curve.point_array);
+                            arc_curve.point_array.count = 0;
                         } else if (bend_type == BendType::Function) {
                             Array<Vec2> bend_array = (*el->bend_function)(
                                 radius, initial_angle, final_angle, center, el->bend_function_data);
@@ -744,7 +744,7 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
             t1 = t2;
             n1 = n2;
         }
-        arc.clear();
+        arc_curve.clear();
     }
     result.append(p1);
     return ErrorCode::NoError;

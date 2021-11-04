@@ -126,11 +126,11 @@ bool StyleMap::del(Tag tag) {
 }
 
 Style* StyleMap::next(const Style* current) const {
-    Style* next = current ? (Style*)(current + 1) : items;
+    Style* next_ = current ? (Style*)(current + 1) : items;
     const Style* limit = items + capacity;
-    while (next < limit) {
-        if (next->value) return next;
-        next++;
+    while (next_ < limit) {
+        if (next_->value) return next_;
+        next_++;
     }
     return NULL;
 }

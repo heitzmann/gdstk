@@ -173,66 +173,66 @@ Vec2 RobustPath::spine_gradient(const SubPath &subpath, double u) const {
     return subpath.gradient(u, trafo);
 }
 
-Vec2 RobustPath::center_position(const SubPath &subpath, const Interpolation &offset,
+Vec2 RobustPath::center_position(const SubPath &subpath, const Interpolation &offset_,
                                  double u) const {
     const Vec2 sp_position = spine_position(subpath, u);
-    const double offset_value = interp(offset, u) * offset_scale;
+    const double offset_value = interp(offset_, u) * offset_scale;
     Vec2 spine_normal = subpath.gradient(u, trafo).ortho();
     spine_normal.normalize();
     Vec2 result = sp_position + offset_value * spine_normal;
     return result;
 }
 
-Vec2 RobustPath::center_gradient(const SubPath &subpath, const Interpolation &offset,
+Vec2 RobustPath::center_gradient(const SubPath &subpath, const Interpolation &offset_,
                                  double u) const {
     const double step = 1.0 / (10.0 * max_evals);
     const double u0 = u - step < 0 ? 0 : u - step;
     const double u1 = u + step > 1 ? 1 : u + step;
     Vec2 result =
-        (center_position(subpath, offset, u1) - center_position(subpath, offset, u0)) / (u1 - u0);
+        (center_position(subpath, offset_, u1) - center_position(subpath, offset_, u0)) / (u1 - u0);
     return result;
 }
 
-Vec2 RobustPath::left_position(const SubPath &subpath, const Interpolation &offset,
-                               const Interpolation &width, double u) const {
-    const Vec2 ct_position = center_position(subpath, offset, u);
-    const double width_value = interp(width, u) * width_scale;
-    const Vec2 ct_gradient = center_gradient(subpath, offset, u);
+Vec2 RobustPath::left_position(const SubPath &subpath, const Interpolation &offset_,
+                               const Interpolation &width_, double u) const {
+    const Vec2 ct_position = center_position(subpath, offset_, u);
+    const double width_value = interp(width_, u) * width_scale;
+    const Vec2 ct_gradient = center_gradient(subpath, offset_, u);
     Vec2 center_normal = ct_gradient.ortho();
     center_normal.normalize();
-    Vec2 position = ct_position + 0.5 * width_value * center_normal;
-    return position;
+    Vec2 pos = ct_position + 0.5 * width_value * center_normal;
+    return pos;
 }
 
-Vec2 RobustPath::left_gradient(const SubPath &subpath, const Interpolation &offset,
-                               const Interpolation &width, double u) const {
+Vec2 RobustPath::left_gradient(const SubPath &subpath, const Interpolation &offset_,
+                               const Interpolation &width_, double u) const {
     const double step = 1.0 / (10.0 * max_evals);
     const double u0 = u - step < 0 ? 0 : u - step;
     const double u1 = u + step > 1 ? 1 : u + step;
     Vec2 result =
-        (left_position(subpath, offset, width, u1) - left_position(subpath, offset, width, u0)) /
+        (left_position(subpath, offset_, width_, u1) - left_position(subpath, offset_, width_, u0)) /
         (u1 - u0);
     return result;
 }
 
-Vec2 RobustPath::right_position(const SubPath &subpath, const Interpolation &offset,
-                                const Interpolation &width, double u) const {
-    const Vec2 ct_position = center_position(subpath, offset, u);
-    const double width_value = interp(width, u) * width_scale;
-    const Vec2 ct_gradient = center_gradient(subpath, offset, u);
+Vec2 RobustPath::right_position(const SubPath &subpath, const Interpolation &offset_,
+                                const Interpolation &width_, double u) const {
+    const Vec2 ct_position = center_position(subpath, offset_, u);
+    const double width_value = interp(width_, u) * width_scale;
+    const Vec2 ct_gradient = center_gradient(subpath, offset_, u);
     Vec2 center_normal = ct_gradient.ortho();
     center_normal.normalize();
-    Vec2 position = ct_position - 0.5 * width_value * center_normal;
-    return position;
+    Vec2 pos = ct_position - 0.5 * width_value * center_normal;
+    return pos;
 }
 
-Vec2 RobustPath::right_gradient(const SubPath &subpath, const Interpolation &offset,
-                                const Interpolation &width, double u) const {
+Vec2 RobustPath::right_gradient(const SubPath &subpath, const Interpolation &offset_,
+                                const Interpolation &width_, double u) const {
     const double step = 1.0 / (10.0 * max_evals);
     const double u0 = u - step < 0 ? 0 : u - step;
     const double u1 = u + step > 1 ? 1 : u + step;
     Vec2 result =
-        (right_position(subpath, offset, width, u1) - right_position(subpath, offset, width, u0)) /
+        (right_position(subpath, offset_, width_, u1) - right_position(subpath, offset_, width_, u0)) /
         (u1 - u0);
     return result;
 }
@@ -273,30 +273,30 @@ void RobustPath::spine_points(const SubPath &subpath, double u0, double u1,
 }
 
 // NOTE: Does NOT include the point at u0.
-void RobustPath::center_points(const SubPath &subpath, const Interpolation &offset, double u0,
+void RobustPath::center_points(const SubPath &subpath, const Interpolation &offset_, double u0,
                                double u1, Array<Vec2> &result) const {
     const double tolerance_sq = tolerance * tolerance;
     double u = u0;
-    Vec2 last = center_position(subpath, offset, u0);
+    Vec2 last = center_position(subpath, offset_, u0);
     uint64_t counter = max_evals - 1;
     double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
         if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
-        Vec2 next = center_position(subpath, offset, u + du);
-        Vec2 mid = center_position(subpath, offset, u + 0.5 * du);
+        Vec2 next = center_position(subpath, offset_, u + du);
+        Vec2 mid = center_position(subpath, offset_, u + 0.5 * du);
         double err_sq = distance_to_line_sq(mid, last, next);
         if (err_sq <= tolerance_sq) {
-            const Vec2 extra = center_position(subpath, offset, u + du / 3);
+            const Vec2 extra = center_position(subpath, offset_, u + du / 3);
             err_sq = distance_to_line_sq(extra, last, next);
         }
         while (err_sq > tolerance_sq) {
             du *= 0.5;
             next = mid;
-            mid = center_position(subpath, offset, u + 0.5 * du);
+            mid = center_position(subpath, offset_, u + 0.5 * du);
             err_sq = distance_to_line_sq(mid, last, next);
             if (err_sq <= tolerance_sq) {
-                const Vec2 extra = center_position(subpath, offset, u + du / 3);
+                const Vec2 extra = center_position(subpath, offset_, u + du / 3);
                 err_sq = distance_to_line_sq(extra, last, next);
             }
         }
@@ -308,31 +308,31 @@ void RobustPath::center_points(const SubPath &subpath, const Interpolation &offs
 }
 
 // NOTE: Does NOT include the point at u0.
-void RobustPath::left_points(const SubPath &subpath, const Interpolation &offset,
-                             const Interpolation &width, double u0, double u1,
+void RobustPath::left_points(const SubPath &subpath, const Interpolation &offset_,
+                             const Interpolation &width_, double u0, double u1,
                              Array<Vec2> &result) const {
     const double tolerance_sq = tolerance * tolerance;
     double u = u0;
-    Vec2 last = left_position(subpath, offset, width, u0);
+    Vec2 last = left_position(subpath, offset_, width_, u0);
     uint64_t counter = max_evals - 1;
     double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
         if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
-        Vec2 next = left_position(subpath, offset, width, u + du);
-        Vec2 mid = left_position(subpath, offset, width, u + 0.5 * du);
+        Vec2 next = left_position(subpath, offset_, width_, u + du);
+        Vec2 mid = left_position(subpath, offset_, width_, u + 0.5 * du);
         double err_sq = distance_to_line_sq(mid, last, next);
         if (err_sq <= tolerance_sq) {
-            const Vec2 extra = left_position(subpath, offset, width, u + du / 3);
+            const Vec2 extra = left_position(subpath, offset_, width_, u + du / 3);
             err_sq = distance_to_line_sq(extra, last, next);
         }
         while (err_sq > tolerance_sq) {
             du *= 0.5;
             next = mid;
-            mid = left_position(subpath, offset, width, u + 0.5 * du);
+            mid = left_position(subpath, offset_, width_, u + 0.5 * du);
             err_sq = distance_to_line_sq(mid, last, next);
             if (err_sq <= tolerance_sq) {
-                const Vec2 extra = left_position(subpath, offset, width, u + du / 3);
+                const Vec2 extra = left_position(subpath, offset_, width_, u + du / 3);
                 err_sq = distance_to_line_sq(extra, last, next);
             }
         }
@@ -344,31 +344,31 @@ void RobustPath::left_points(const SubPath &subpath, const Interpolation &offset
 }
 
 // NOTE: Does NOT include the point at u0.
-void RobustPath::right_points(const SubPath &subpath, const Interpolation &offset,
-                              const Interpolation &width, double u0, double u1,
+void RobustPath::right_points(const SubPath &subpath, const Interpolation &offset_,
+                              const Interpolation &width_, double u0, double u1,
                               Array<Vec2> &result) const {
     const double tolerance_sq = tolerance * tolerance;
     double u = u0;
-    Vec2 last = right_position(subpath, offset, width, u0);
+    Vec2 last = right_position(subpath, offset_, width_, u0);
     uint64_t counter = max_evals - 1;
     double du = 1.0 / GDSTK_MIN_POINTS;
     while (u < u1 && counter-- > 0) {
         if (du > 1.0 / GDSTK_MIN_POINTS) du = 1.0 / GDSTK_MIN_POINTS;
         if (u + du > u1) du = u1 - u;
-        Vec2 next = right_position(subpath, offset, width, u + du);
-        Vec2 mid = right_position(subpath, offset, width, u + 0.5 * du);
+        Vec2 next = right_position(subpath, offset_, width_, u + du);
+        Vec2 mid = right_position(subpath, offset_, width_, u + 0.5 * du);
         double err_sq = distance_to_line_sq(mid, last, next);
         if (err_sq <= tolerance_sq) {
-            const Vec2 extra = right_position(subpath, offset, width, u + du / 3);
+            const Vec2 extra = right_position(subpath, offset_, width_, u + du / 3);
             err_sq = distance_to_line_sq(extra, last, next);
         }
         while (err_sq > tolerance_sq) {
             du *= 0.5;
             next = mid;
-            mid = right_position(subpath, offset, width, u + 0.5 * du);
+            mid = right_position(subpath, offset_, width_, u + 0.5 * du);
             err_sq = distance_to_line_sq(mid, last, next);
             if (err_sq <= tolerance_sq) {
-                const Vec2 extra = right_position(subpath, offset, width, u + du / 3);
+                const Vec2 extra = right_position(subpath, offset_, width_, u + du / 3);
                 err_sq = distance_to_line_sq(extra, last, next);
             }
         }
@@ -449,24 +449,24 @@ void RobustPath::translate(const Vec2 v) {
     trafo[5] += v.y;
 }
 
-void RobustPath::simple_scale(double scale) {
-    trafo[0] *= scale;
-    trafo[1] *= scale;
-    trafo[2] *= scale;
-    trafo[3] *= scale;
-    trafo[4] *= scale;
-    trafo[5] *= scale;
-    offset_scale *= fabs(scale);
-    if (scale_width) width_scale *= fabs(scale);
+void RobustPath::simple_scale(double scale_factor) {
+    trafo[0] *= scale_factor;
+    trafo[1] *= scale_factor;
+    trafo[2] *= scale_factor;
+    trafo[3] *= scale_factor;
+    trafo[4] *= scale_factor;
+    trafo[5] *= scale_factor;
+    offset_scale *= fabs(scale_factor);
+    if (scale_width) width_scale *= fabs(scale_factor);
     RobustPathElement *el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-        el->end_extensions *= scale;
+        el->end_extensions *= scale_factor;
     }
 }
 
-void RobustPath::scale(double scale, const Vec2 center) {
-    const Vec2 delta = center * (1 - scale);
-    simple_scale(scale);
+void RobustPath::scale(double scale_factor, const Vec2 center) {
+    const Vec2 delta = center * (1 - scale_factor);
+    simple_scale(scale_factor);
     translate(delta);
 }
 
@@ -552,50 +552,50 @@ void RobustPath::apply_repetition(Array<RobustPath *> &result) {
     return;
 }
 
-void RobustPath::fill_widths_and_offsets(const Interpolation *width, const Interpolation *offset) {
-    if (width == NULL) {
-        Interpolation interpolation = {InterpolationType::Constant};
+void RobustPath::fill_widths_and_offsets(const Interpolation *width_, const Interpolation *offset_) {
+    if (width_ == NULL) {
+        Interpolation interp = {InterpolationType::Constant};
         RobustPathElement *el = elements;
         for (uint64_t ne = num_elements; ne > 0; ne--, el++) {
-            interpolation.value = el->end_width;
-            el->width_array.append(interpolation);
+            interp.value = el->end_width;
+            el->width_array.append(interp);
         }
     } else {
         RobustPathElement *el = elements;
-        for (uint64_t ne = num_elements; ne > 0; ne--, el++, width++) {
-            el->width_array.append(*width);
-            el->end_width = interp(*width, 1);
+        for (uint64_t ne = num_elements; ne > 0; ne--, el++, width_++) {
+            el->width_array.append(*width_);
+            el->end_width = interp(*width_, 1);
         }
     }
-    if (offset == NULL) {
-        Interpolation interpolation = {InterpolationType::Constant};
+    if (offset_ == NULL) {
+        Interpolation interp = {InterpolationType::Constant};
         RobustPathElement *el = elements;
         for (uint64_t ne = num_elements; ne > 0; ne--, el++) {
-            interpolation.value = el->end_offset;
-            el->offset_array.append(interpolation);
+            interp.value = el->end_offset;
+            el->offset_array.append(interp);
         }
     } else {
         RobustPathElement *el = elements;
-        for (uint64_t ne = num_elements; ne > 0; ne--, el++, offset++) {
-            el->offset_array.append(*offset);
-            el->end_offset = interp(*offset, 1);
+        for (uint64_t ne = num_elements; ne > 0; ne--, el++, offset_++) {
+            el->offset_array.append(*offset_);
+            el->end_offset = interp(*offset_, 1);
         }
     }
 }
 
-void RobustPath::horizontal(double coord_x, const Interpolation *width, const Interpolation *offset,
+void RobustPath::horizontal(double coord_x, const Interpolation *width_, const Interpolation *offset_,
                             bool relative) {
     if (relative) coord_x += end_point.x;
-    segment(Vec2{coord_x, end_point.y}, width, offset, false);
+    segment(Vec2{coord_x, end_point.y}, width_, offset_, false);
 }
 
-void RobustPath::vertical(double coord_y, const Interpolation *width, const Interpolation *offset,
+void RobustPath::vertical(double coord_y, const Interpolation *width_, const Interpolation *offset_,
                           bool relative) {
     if (relative) coord_y += end_point.y;
-    segment(Vec2{end_point.x, coord_y}, width, offset, false);
+    segment(Vec2{end_point.x, coord_y}, width_, offset_, false);
 }
 
-void RobustPath::segment(const Vec2 end_pt, const Interpolation *width, const Interpolation *offset,
+void RobustPath::segment(const Vec2 end_pt, const Interpolation *width_, const Interpolation *offset_,
                          bool relative) {
     SubPath sub = {SubPathType::Segment};
     sub.begin = end_point;
@@ -603,11 +603,11 @@ void RobustPath::segment(const Vec2 end_pt, const Interpolation *width, const In
     if (relative) sub.end += end_point;
     end_point = sub.end;
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
 void RobustPath::cubic(const Vec2 point1, const Vec2 point2, const Vec2 point3,
-                       const Interpolation *width, const Interpolation *offset, bool relative) {
+                       const Interpolation *width_, const Interpolation *offset_, bool relative) {
     SubPath sub = {SubPathType::Bezier3};
     sub.p0 = end_point;
     sub.p1 = point1;
@@ -620,11 +620,11 @@ void RobustPath::cubic(const Vec2 point1, const Vec2 point2, const Vec2 point3,
     }
     end_point = sub.p3;
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
-void RobustPath::cubic_smooth(const Vec2 point2, const Vec2 point3, const Interpolation *width,
-                              const Interpolation *offset, bool relative) {
+void RobustPath::cubic_smooth(const Vec2 point2, const Vec2 point3, const Interpolation *width_,
+                              const Interpolation *offset_, bool relative) {
     SubPath sub = {SubPathType::Bezier3};
     sub.p0 = end_point;
     sub.p1 = end_point;
@@ -638,11 +638,11 @@ void RobustPath::cubic_smooth(const Vec2 point2, const Vec2 point3, const Interp
     }
     end_point = sub.p3;
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
-void RobustPath::quadratic(const Vec2 point1, const Vec2 point2, const Interpolation *width,
-                           const Interpolation *offset, bool relative) {
+void RobustPath::quadratic(const Vec2 point1, const Vec2 point2, const Interpolation *width_,
+                           const Interpolation *offset_, bool relative) {
     SubPath sub = {SubPathType::Bezier2};
     sub.p0 = end_point;
     sub.p1 = point1;
@@ -653,11 +653,11 @@ void RobustPath::quadratic(const Vec2 point1, const Vec2 point2, const Interpola
     }
     end_point = sub.p2;
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
-void RobustPath::quadratic_smooth(const Vec2 point2, const Interpolation *width,
-                                  const Interpolation *offset, bool relative) {
+void RobustPath::quadratic_smooth(const Vec2 point2, const Interpolation *width_,
+                                  const Interpolation *offset_, bool relative) {
     SubPath sub = {SubPathType::Bezier2};
     sub.p0 = end_point;
     sub.p1 = end_point;
@@ -667,11 +667,11 @@ void RobustPath::quadratic_smooth(const Vec2 point2, const Interpolation *width,
     if (relative) sub.p2 += end_point;
     end_point = sub.p2;
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
-void RobustPath::bezier(const Array<Vec2> point_array, const Interpolation *width,
-                        const Interpolation *offset, bool relative) {
+void RobustPath::bezier(const Array<Vec2> point_array, const Interpolation *width_,
+                        const Interpolation *offset_, bool relative) {
     SubPath sub = {SubPathType::Bezier};
     sub.ctrl.append(end_point);
     sub.ctrl.extend(point_array);
@@ -680,13 +680,13 @@ void RobustPath::bezier(const Array<Vec2> point_array, const Interpolation *widt
     }
     end_point = sub.ctrl[sub.ctrl.count - 1];
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
 void RobustPath::interpolation(const Array<Vec2> point_array, double *angles,
                                bool *angle_constraints, Vec2 *tension, double initial_curl,
-                               double final_curl, bool cycle, const Interpolation *width,
-                               const Interpolation *offset, bool relative) {
+                               double final_curl, bool cycle, const Interpolation *width_,
+                               const Interpolation *offset_, bool relative) {
     Array<Vec2> hobby_vec = {0};
     hobby_vec.ensure_slots(3 * (point_array.count + 1));
     hobby_vec.count = 3 * (point_array.count + 1);
@@ -703,14 +703,14 @@ void RobustPath::interpolation(const Array<Vec2> point_array, double *angles,
                         initial_curl, final_curl, cycle);
     dst = hobby_vec.items + 1;
     for (uint64_t i = 0; i < point_array.count; i++, dst += 3) {
-        cubic(*dst, *(dst + 1), *(dst + 2), width, offset, false);
+        cubic(*dst, *(dst + 1), *(dst + 2), width_, offset_, false);
     }
-    if (cycle) cubic(*dst, *(dst + 1), ref, width, offset, false);
+    if (cycle) cubic(*dst, *(dst + 1), ref, width_, offset_, false);
     hobby_vec.clear();
 }
 
 void RobustPath::arc(double radius_x, double radius_y, double initial_angle, double final_angle,
-                     double rotation, const Interpolation *width, const Interpolation *offset) {
+                     double rotation, const Interpolation *width_, const Interpolation *offset_) {
     SubPath sub = {SubPathType::Arc};
     sub.radius_x = radius_x;
     sub.radius_y = radius_y;
@@ -727,21 +727,21 @@ void RobustPath::arc(double radius_x, double radius_y, double initial_angle, dou
     end_point =
         sub.center + Vec2{x * sub.cos_rot - y * sub.sin_rot, x * sub.sin_rot + y * sub.cos_rot};
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
-void RobustPath::turn(double radius, double angle, const Interpolation *width,
-                      const Interpolation *offset) {
+void RobustPath::turn(double radius, double angle, const Interpolation *width_,
+                      const Interpolation *offset_) {
     Vec2 direction = Vec2{1, 0};
     if (subpath_array.count > 0)
         direction = subpath_array[subpath_array.count - 1].gradient(1, trafo);
     const double initial_angle = direction.angle() + (angle < 0 ? 0.5 * M_PI : -0.5 * M_PI);
-    arc(radius, radius, initial_angle, initial_angle + angle, 0, width, offset);
+    arc(radius, radius, initial_angle, initial_angle + angle, 0, width_, offset_);
 }
 
 void RobustPath::parametric(ParametricVec2 curve_function, void *func_data,
                             ParametricVec2 curve_gradient, void *grad_data,
-                            const Interpolation *width, const Interpolation *offset,
+                            const Interpolation *width_, const Interpolation *offset_,
                             bool relative) {
     SubPath sub = {SubPathType::Parametric};
     sub.path_function = curve_function;
@@ -755,7 +755,7 @@ void RobustPath::parametric(ParametricVec2 curve_function, void *func_data,
     if (relative) sub.reference = end_point;
     end_point = sub.eval(1, trafo);
     subpath_array.append(sub);
-    fill_widths_and_offsets(width, offset);
+    fill_widths_and_offsets(width_, offset_);
 }
 
 uint64_t RobustPath::commands(const CurveInstruction *items, uint64_t count) {
@@ -1429,10 +1429,10 @@ ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
                                    end_type,
                                    8,
                                    0x0F03};
-        int32_t width = (scale_width ? 1 : -1) *
+        int32_t width_ = (scale_width ? 1 : -1) *
                         (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
         big_endian_swap16(buffer_start, COUNT(buffer_start));
-        big_endian_swap32((uint32_t *)&width, 1);
+        big_endian_swap32((uint32_t *)&width_, 1);
 
         uint16_t buffer_ext1[] = {8, 0x3003};
         uint16_t buffer_ext2[] = {8, 0x3103};
@@ -1454,7 +1454,7 @@ ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
         double *offset_p = (double *)offsets.items;
         for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-            fwrite(&width, sizeof(int32_t), 1, out);
+            fwrite(&width_, sizeof(int32_t), 1, out);
             if (end_type == 4) {
                 fwrite(buffer_ext1, sizeof(uint16_t), COUNT(buffer_ext1), out);
                 fwrite(ext_size, sizeof(int32_t), 1, out);

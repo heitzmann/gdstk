@@ -76,11 +76,11 @@ struct Set {
     // Function to iterate over all values in the set:
     // for (SetItem<T>* item = set.next(NULL); item; item = set.next(item)) {…}
     SetItem<T>* next(const SetItem<T>* current) const {
-        SetItem<T>* next = current ? (SetItem<T>*)(current + 1) : items;
+        SetItem<T>* next_ = current ? (SetItem<T>*)(current + 1) : items;
         const SetItem<T>* limit = items + capacity;
-        while (next < limit) {
-            if (next->valid) return next;
-            next++;
+        while (next_ < limit) {
+            if (next_->valid) return next_;
+            next_++;
         }
         return NULL;
     }

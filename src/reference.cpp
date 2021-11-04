@@ -443,12 +443,12 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
 
-    bool transform = rotation != 0 || magnification != 1 || x_reflection;
+    bool transform_ = rotation != 0 || magnification != 1 || x_reflection;
     uint16_t buffer_flags[] = {6, 0x1A01, 0};
     uint16_t buffer_mag[] = {12, 0x1B05};
     uint16_t buffer_rot[] = {12, 0x1C05};
     uint64_t mag_real, rot_real;
-    if (transform) {
+    if (transform_) {
         if (x_reflection) {
             buffer_flags[2] |= 0x8000;
         }
@@ -472,7 +472,7 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
         fwrite(ref_name, 1, len, out);
 
-        if (transform) {
+        if (transform_) {
             fwrite(buffer_flags, sizeof(uint16_t), COUNT(buffer_flags), out);
             if (magnification != 1) {
                 fwrite(buffer_mag, sizeof(uint16_t), COUNT(buffer_mag), out);

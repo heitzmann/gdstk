@@ -1463,9 +1463,9 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     cell->name = (char*)oasis_read_string(in, true, len);
                 }
                 modal_absolute_pos = true;
-                modal_placement_pos = {0, 0};
-                modal_geom_pos = {0, 0};
-                modal_text_pos = {0, 0};
+                modal_placement_pos = Vec2{0, 0};
+                modal_geom_pos = Vec2{0, 0};
+                modal_text_pos = Vec2{0, 0};
             } break;
             case OasisRecord::XYABSOLUTE:
                 modal_absolute_pos = true;
