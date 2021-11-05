@@ -2050,9 +2050,9 @@ static PyObject* robustpath_object_get_max_evals(RobustPathObject* self, void*) 
 }
 
 int robustpath_object_set_max_evals(RobustPathObject* self, PyObject* arg, void*) {
-    double max_evals = PyLong_AsUnsignedLongLong(arg);
+    uint64_t max_evals = PyLong_AsUnsignedLongLong(arg);
     if (PyErr_Occurred()) {
-        PyErr_SetString(PyExc_TypeError, "Unable to convert value to integer.");
+        PyErr_SetString(PyExc_TypeError, "Unable to convert value to unsigned integer.");
         return -1;
     }
     if (max_evals < 1) {
