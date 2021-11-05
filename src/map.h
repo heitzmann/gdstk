@@ -37,7 +37,7 @@ struct Map {
         if (all) {
             MapItem<T>* item = items;
             for (uint64_t i = 0; i < capacity; i++, item++) {
-                printf("(%" PRIu64 ") Item <%p>, key %p (%s), value <%p>\n", i, item, item->key,
+                printf("Item %" PRIu64 " <%p>, key %p (%s), value <%p>\n", i, item, item->key,
                        item->key ? item->key : "", item->value);
             }
         }
@@ -48,8 +48,9 @@ struct Map {
         count = 0;
         capacity = map.capacity;
         items = (MapItem<T>*)allocate_clear(capacity * sizeof(MapItem<T>));
-        for (MapItem<T>* item = map.next(NULL); item; item = map.next(item))
+        for (MapItem<T>* item = map.next(NULL); item; item = map.next(item)) {
             set(item->key, item->value);
+        }
     }
 
     void resize(uint64_t new_capacity) {
@@ -105,6 +106,7 @@ struct Map {
 
     MapItem<T>* get_slot(const char* key) const {
         assert(capacity > 0);
+        assert(count < capacity);
         uint64_t h = hash(key) % capacity;
         MapItem<T>* item = items + h;
         while (item->key != NULL && strcmp(item->key, key) != 0) {
