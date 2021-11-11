@@ -159,7 +159,8 @@ ErrorCode gds_units(const char* filename, double& unit, double& precision);
 // is returned.
 tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error_code);
 
-// Gather information about file
+// Gather information about the GDSII file. Return argument info must be
+// properly initialized.
 ErrorCode gds_info(const char* filename, LibraryInfo& info);
 
 // Read the precision of an OASIS file (unit is always 1e-6) and return in the

@@ -20,6 +20,22 @@ The library uses only a minimal set of C++ features, namely, limited use of
 templates and overloading, no constructors or destructors, no virtual functions
 or inheritance, limited private members, and no use of the STL.
 
+.. important::
+   The user is responsible for the consistent initialization of variables,
+   specially struct members.  In general, zeroing the whole struct is enough,
+   with a few exceptions: ``Library.name``, ``Cell.name``, ``Property.name``,
+   ``Label.text``, ``Style.value``, and ``Reference.cell``,
+   ``Reference.rawcell``, or ``Reference.name``, depending on the reference
+   type.  ``FlexPath`` requires setting up a few variables to be in a
+   consistent state, which is taken care of by ``FlexPath.init``.
+
+   Other struct members can be zero, but probably shouldn't:
+   ``Reference.magnification``, ``Label.magnification``, ``Curve.tolerance``,
+   ``RobustPath.tolerance``, ``RobustPath.max_evals``,
+   ``RobustPath.width_scale``, ``RobustPath.offset_scale``, and
+   ``RobustPath.trafo``.
+
+
 *****************
 Memory Management
 *****************
