@@ -19,11 +19,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 // Struct used to write GDSII files incrementally, so that not all cells need
-// to be held in memory simultaneously.  The steps are:
-// - Initialize unit, precision, max_points and timestamp
-// - call write_gds to create the output file and write the GDSII header
-// - call write_cell and write_rawcell as needed
-// - call close to finalize the GDSII file
+// to be held in memory simultaneously.  It should not be created manually, but
+// through gdswriter_init.  Once created, use write_cell and write_rawcell to
+// output all layout cells as needed, then call close to finalize the GDSII
+// file.
 struct GdsWriter {
     FILE* out;
     double unit;
@@ -33,41 +32,6 @@ struct GdsWriter {
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
-
-    void write_gds(const char* name) const {
-        uint64_t len = strlen(name);
-        if (len % 2) len++;
-        uint16_t buffer_start[] = {6,
-                                   0x0002,
-                                   0x0258,
-                                   28,
-                                   0x0102,
-                                   (uint16_t)(timestamp.tm_year + 1900),
-                                   (uint16_t)(timestamp.tm_mon + 1),
-                                   (uint16_t)timestamp.tm_mday,
-                                   (uint16_t)timestamp.tm_hour,
-                                   (uint16_t)timestamp.tm_min,
-                                   (uint16_t)timestamp.tm_sec,
-                                   (uint16_t)(timestamp.tm_year + 1900),
-                                   (uint16_t)(timestamp.tm_mon + 1),
-                                   (uint16_t)timestamp.tm_mday,
-                                   (uint16_t)timestamp.tm_hour,
-                                   (uint16_t)timestamp.tm_min,
-                                   (uint16_t)timestamp.tm_sec,
-                                   (uint16_t)(4 + len),
-                                   0x0206};
-        big_endian_swap16(buffer_start, COUNT(buffer_start));
-        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
-        fwrite(name, 1, len, out);
-
-        uint16_t buffer_units[] = {20, 0x0305};
-        big_endian_swap16(buffer_units, COUNT(buffer_units));
-        fwrite(buffer_units, sizeof(uint16_t), COUNT(buffer_units), out);
-        uint64_t units[] = {gdsii_real_from_double(precision / unit),
-                            gdsii_real_from_double(precision)};
-        big_endian_swap64(units, COUNT(units));
-        fwrite(units, sizeof(uint64_t), COUNT(units), out);
-    }
 
     ErrorCode write_cell(Cell& cell) const {
         return cell.to_gds(out, unit / precision, max_points, precision, &timestamp);
@@ -82,6 +46,71 @@ struct GdsWriter {
         fclose(out);
     }
 };
+
+// Create a GDSII file with the given filename for output and write the header
+// information to the file.  If max_points > 4, polygons written from
+// write_cell will be fractured to max_points.  GDSII files include a
+// timestamp, which can be specified by the caller or left NULL, in which case
+// the current time will be used.  If not NULL, any errors will be reported
+// through error_code.
+GdsWriter gdswriter_init(const char* filename, const char* library_name, double unit,
+                         double precision, uint64_t max_points, tm* timestamp,
+                         ErrorCode* error_code) {
+    GdsWriter result = {
+        .out = NULL,
+        .unit = unit,
+        .precision = precision,
+        .max_points = max_points,
+        .timestamp = {0},
+    };
+
+    if (timestamp) {
+        result.timestamp = *timestamp;
+    } else {
+        get_now(result.timestamp);
+    }
+
+    result.out = fopen(filename, "wb");
+    if (result.out == NULL) {
+        fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);
+        if (error_code) *error_code = ErrorCode::OutputFileOpenError;
+        return result;
+    }
+
+    uint64_t len = strlen(library_name);
+    if (len % 2) len++;
+    uint16_t buffer_start[] = {6,
+                               0x0002,
+                               0x0258,
+                               28,
+                               0x0102,
+                               (uint16_t)(result.timestamp.tm_year + 1900),
+                               (uint16_t)(result.timestamp.tm_mon + 1),
+                               (uint16_t)result.timestamp.tm_mday,
+                               (uint16_t)result.timestamp.tm_hour,
+                               (uint16_t)result.timestamp.tm_min,
+                               (uint16_t)result.timestamp.tm_sec,
+                               (uint16_t)(result.timestamp.tm_year + 1900),
+                               (uint16_t)(result.timestamp.tm_mon + 1),
+                               (uint16_t)result.timestamp.tm_mday,
+                               (uint16_t)result.timestamp.tm_hour,
+                               (uint16_t)result.timestamp.tm_min,
+                               (uint16_t)result.timestamp.tm_sec,
+                               (uint16_t)(4 + len),
+                               0x0206};
+    big_endian_swap16(buffer_start, COUNT(buffer_start));
+    fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), result.out);
+    fwrite(library_name, 1, len, result.out);
+
+    uint16_t buffer_units[] = {20, 0x0305};
+    big_endian_swap16(buffer_units, COUNT(buffer_units));
+    fwrite(buffer_units, sizeof(uint16_t), COUNT(buffer_units), result.out);
+    uint64_t units[] = {gdsii_real_from_double(precision / unit),
+                        gdsii_real_from_double(precision)};
+    big_endian_swap64(units, COUNT(units));
+    fwrite(units, sizeof(uint64_t), COUNT(units), result.out);
+    return result;
+}
 
 }  // namespace gdstk
 

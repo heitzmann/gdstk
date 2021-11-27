@@ -62,25 +62,19 @@ static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject
         get_now(timestamp);
     }
 
+    if (!name) name = (char*)default_name;
+
     if (!self->gdswriter) self->gdswriter = (GdsWriter*)allocate_clear(sizeof(GdsWriter));
 
-    FILE* out = fopen(PyBytes_AS_STRING(pybytes), "wb");
+    *self->gdswriter = gdswriter_init(PyBytes_AS_STRING(pybytes), name, unit, precision, max_points,
+                                      &timestamp, NULL);
+    self->gdswriter->owner = self;
     Py_DECREF(pybytes);
-    if (!out) {
+
+    if (!self->gdswriter->out) {
         PyErr_SetString(PyExc_TypeError, "Could not open file for writing.");
         return -1;
     }
-    GdsWriter* gdswriter = self->gdswriter;
-    gdswriter->timestamp = timestamp;
-    gdswriter->out = out;
-    gdswriter->unit = unit;
-    gdswriter->precision = precision;
-    gdswriter->max_points = max_points;
-    gdswriter->owner = self;
-    if (!name)
-        gdswriter->write_gds(default_name);
-    else
-        gdswriter->write_gds(name);
     return 0;
 }
 
