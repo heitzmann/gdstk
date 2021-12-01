@@ -43,6 +43,12 @@ struct Library {
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
+    void init(const char* name_, double unit_, double precision_) {
+        name = copy_string(name_, NULL);
+        unit = unit_;
+        precision = precision_;
+    }
+
     void print(bool all) const;
 
     void clear() {
@@ -86,7 +92,7 @@ struct Library {
 
     // Output this library to a GDSII file.  All polygons are fractured to
     // max_points before saving (but the originals are kept) if max_points > 4.
-    // GDSII files include a timestamp, which can be specified bu the caller or
+    // GDSII files include a timestamp, which can be specified by the caller or
     // left NULL, in which case the current time will be used.
     ErrorCode write_gds(const char* filename, uint64_t max_points, tm* timestamp) const;
 

@@ -48,6 +48,12 @@ struct Curve {
 
     void print(bool all) const;
 
+    // Point array must be in a valid state before initialization
+    void init(const Vec2 initial_position, double tolerance_) {
+        point_array.append(initial_position);
+        tolerance = tolerance_;
+    }
+
     // This curve instance must be zeroed before copy_from
     void copy_from(const Curve& curve) {
         point_array.copy_from(curve.point_array);

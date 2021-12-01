@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     lib.cell_array.append(&main_cell);
 
     FlexPath vline = {.simple_path = true};
-    vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01);
+    vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01, 0);
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
@@ -34,19 +34,8 @@ int main(int argc, char* argv[]) {
     // loop here.
     vlines[0]->apply_repetition(vlines);
 
-    RobustPath hline = {
-        .end_point = {3, 2},
-        .num_elements = 1,
-        .tolerance = 0.01,
-        .max_evals = 1000,
-        .width_scale = 1,
-        .offset_scale = 1,
-        .trafo = {1, 0, 0, 0, 1, 0},
-        .simple_path = true,
-    };
-    hline.elements =
-        (RobustPathElement*)allocate_clear(sizeof(RobustPathElement) * hline.num_elements);
-    hline.elements[0].end_width = 0.05;
+    RobustPath hline = {.simple_path = true};
+    hline.init(Vec2{3, 2}, 1, 0.05, 0, 0.01, 1000, 0);
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;

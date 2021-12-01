@@ -48,6 +48,24 @@ struct Reference {
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
+    void init(Cell* cell_, double magnification_) {
+        type = ReferenceType::Cell;
+        cell = cell_;
+        magnification = magnification_;
+    }
+
+    void init(RawCell* rawcell_, double magnification_) {
+        type = ReferenceType::RawCell;
+        rawcell = rawcell_;
+        magnification = magnification_;
+    }
+
+    void init(const char* name_, double magnification_) {
+        type = ReferenceType::Name;
+        name = copy_string(name_, NULL);
+        magnification = magnification_;
+    }
+
     void print() const;
 
     void clear();

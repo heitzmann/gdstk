@@ -40,6 +40,11 @@ struct Label {
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
+    void init(const char* text_, double magnification_) {
+        text = copy_string(text_, NULL);
+        magnification = magnification_;
+    }
+
     void print();
 
     void clear();

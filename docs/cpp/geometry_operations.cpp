@@ -113,7 +113,7 @@ Cell* example_fillet(const char* name) {
     out_cell->name = copy_string(name, NULL);
 
     FlexPath flexpath = {0};
-    flexpath.init(Vec2{-8, -4}, 1, 4, 0, 0.01);
+    flexpath.init(Vec2{-8, -4}, 1, 4, 0, 0.01, 0);
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
     flexpath.segment({.count = COUNT(points), .items = points}, NULL, NULL, false);
 

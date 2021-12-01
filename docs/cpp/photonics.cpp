@@ -26,23 +26,11 @@ Cell* directional_coupler() {
     Cell* cell = (Cell*)allocate_clear(sizeof(Cell));
     cell->name = copy_string("Directional Coupler", NULL);
 
+    double widths[] = {0.5, 0.5};
+    double offsets[] = {-1, 1};
+    Tag tags[] = {make_tag(1, 0), make_tag(1, 0)};
     RobustPath* path = (RobustPath*)allocate_clear(sizeof(RobustPath));
-    path->tolerance = 0.01;
-    path->max_evals = 1000;
-    path->width_scale = 1;
-    path->offset_scale = 1;
-    path->trafo[0] = path->trafo[4] = 1;
-    path->simple_path = true;
-
-    path->num_elements = 2;
-    path->elements =
-        (RobustPathElement*)allocate_clear(path->num_elements * sizeof(RobustPathElement));
-    path->elements[0].tag = make_tag(1, 0);
-    path->elements[0].end_width = 0.5;
-    path->elements[0].end_offset = -1;
-    path->elements[1].tag = make_tag(1, 0);
-    path->elements[1].end_width = 0.5;
-    path->elements[1].end_offset = 1;
+    path->init(Vec2{0, 0}, 2, widths, offsets, 0.01, 1000, tags);
 
     Interpolation offset[4];
     offset[0].type = InterpolationType::Smooth;
@@ -73,16 +61,12 @@ Cell* mach_zenhder_interferometer(Cell* directional_coupler_cell) {
     cell->name = copy_string("MZI", NULL);
 
     Reference* ref = (Reference*)allocate_clear(sizeof(Reference));
-    ref->type = ReferenceType::Cell;
-    ref->cell = directional_coupler_cell;
-    ref->magnification = 1;
+    ref->init(directional_coupler_cell, 1);
     cell->reference_array.append(ref);
 
     ref = (Reference*)allocate_clear(sizeof(Reference));
-    ref->type = ReferenceType::Cell;
-    ref->cell = directional_coupler_cell;
+    ref->init(directional_coupler_cell, 1);
     ref->origin.x = 75;
-    ref->magnification = 1;
     cell->reference_array.append(ref);
 
     const Vec2 starting_points[] = {{5, 1}, {5, -1}, {25, 20}, {25, -20}};
@@ -90,8 +74,8 @@ Cell* mach_zenhder_interferometer(Cell* directional_coupler_cell) {
     for (int64_t i = 0; i < COUNT(path); i++) {
         path[i] = (FlexPath*)allocate_clear(sizeof(FlexPath));
         path[i]->simple_path = true;
-        path[i]->init(starting_points[i], 1, i < 2 ? 0.25 : 1, 0, 0.01);
-        path[i]->elements[0].tag = make_tag(i < 2 ? 1 : 10, 0);
+        path[i]->init(starting_points[i], 1, i < 2 ? 0.5 : 2, 0, 0.01,
+                      make_tag(i < 2 ? 1 : 10, 0));
         path[i]->elements[0].bend_type = BendType::Circular;
         path[i]->elements[0].bend_radius = 15;
     }

@@ -16,7 +16,7 @@ Cell* example_flexpath1(const char* name) {
     out_cell->name = copy_string(name, NULL);
 
     FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
-    fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
+    fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01, 0);
     fp->simple_path = true;
 
     Vec2 points1[] = {{3, 0}, {3, 2}, {5, 3}, {3, 4}, {0, 4}};
@@ -27,7 +27,8 @@ Cell* example_flexpath1(const char* name) {
     fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
     const double widths[] = {0.3, 0.2, 0.4};
     const double offsets[] = {-0.5, 0, 0.5};
-    fp->init(Vec2{12, 0}, 3, widths, offsets, 0.01);
+    const Tag tags[] = {0, 0, 0};
+    fp->init(Vec2{12, 0}, 3, widths, offsets, 0.01, tags);
 
     fp->elements[0].end_type = EndType::HalfWidth;
     fp->elements[0].join_type = JoinType::Bevel;
@@ -56,7 +57,7 @@ Cell* example_flexpath2(const char* name) {
 
     for (uint64_t i = 0; i < 2; i++) {
         FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
-        fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01);
+        fp->init(Vec2{0, 0}, 1, 0.5, 0, 0.01, 0);
         fp->simple_path = true;
         if (i == 0) {
             fp->elements[0].bend_type = BendType::Circular;
@@ -77,8 +78,9 @@ Cell* example_flexpath3(const char* name) {
 
     double widths[] = {0.5, 0.5};
     double offsets[] = {-0.5, 0.5};
+    Tag tags[] = {0, 0};
     FlexPath* fp = (FlexPath*)allocate_clear(sizeof(FlexPath));
-    fp->init(Vec2{0, 0}, 2, widths, offsets, 0.01);
+    fp->init(Vec2{0, 0}, 2, widths, offsets, 0.01, tags);
 
     fp->horizontal(2, NULL, NULL, false);
 

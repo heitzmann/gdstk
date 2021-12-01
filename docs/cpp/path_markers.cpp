@@ -20,16 +20,7 @@ int main(int argc, char* argv[]) {
     lib.cell_array.append(main_cell);
 
     RobustPath* path = (RobustPath*)allocate_clear(sizeof(RobustPath));
-    path->tolerance = 0.01;
-    path->max_evals = 1000;
-    path->width_scale = 1;
-    path->offset_scale = 1;
-    path->trafo[0] = path->trafo[4] = 1;
-    path->num_elements = 1;
-    path->elements =
-        (RobustPathElement*)allocate_clear(sizeof(RobustPathElement) * path->num_elements);
-    path->elements[0].end_width = 0.5;
-
+    path->init(Vec2{0, 0}, 1, 0.5, 0, 0.01, 1000, 0);
     path->segment(Vec2{8, 0}, NULL, NULL, false);
 
     Vec2 points[] = {{2, -4}, {-2, -6}, {-5, -8}, {-4, -12}};

@@ -24,7 +24,11 @@ int main(int argc, char* argv[]) {
     main_cell.polygon_array.append(&square);
 
     Polygon triangle = regular_polygon(Vec2{0, 2.5}, 0.2, 3, 0, 0);
-    triangle.repetition = {RepetitionType::Regular, 3, 5, Vec2{0.4, -0.3}, Vec2{0.4, 0.2}};
+    triangle.repetition.type = RepetitionType::Regular;
+    triangle.repetition.columns = 3;
+    triangle.repetition.rows = 5;
+    triangle.repetition.v1 = Vec2{0.4, -0.3};
+    triangle.repetition.v2 = Vec2{0.4, 0.2};
     main_cell.polygon_array.append(&triangle);
 
     Polygon circle = ellipse(Vec2{3.5, 0}, 0.1, 0.1, 0, 0, 0, 0, 0.01, 0);
@@ -34,26 +38,15 @@ int main(int argc, char* argv[]) {
     main_cell.polygon_array.append(&circle);
 
     FlexPath vline = {.simple_path = true};
-    vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01);
+    vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01, 0);
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
     vline.repetition.coords.extend({.count = COUNT(vcoords), .items = vcoords});
     main_cell.flexpath_array.append(&vline);
 
-    RobustPath hline = {
-        .end_point = {3, 2},
-        .num_elements = 1,
-        .tolerance = 0.01,
-        .max_evals = 1000,
-        .width_scale = 1,
-        .offset_scale = 1,
-        .trafo = {1, 0, 0, 0, 1, 0},
-        .simple_path = true,
-    };
-    hline.elements =
-        (RobustPathElement*)allocate_clear(hline.num_elements * sizeof(RobustPathElement));
-    hline.elements[0].end_width = 0.05;
+    RobustPath hline = { .simple_path = true };
+    hline.init(Vec2{3, 2}, 1, 0.05, 0, 0.01, 1000, 0);
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;

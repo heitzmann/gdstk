@@ -80,16 +80,16 @@ struct FlexPath {
     // flexpaths.  In versions with argument num_elements_, the elements array
     // will be dynamically allocated (and num_elements properly set).
     // Otherwise, num_elements and elements are expected to be already
-    // allocated and set.  Arguments width and offset can be single values
+    // allocated and set.  Arguments width, offset and tag can be single values
     // (which are applied to all elements) or arrays with count num_elements,
     // one value for each path element.
-    void init(const Vec2 initial_position, double width, double offset, double tolerance);
+    void init(const Vec2 initial_position, double width, double offset, double tolerance, Tag tag);
     void init(const Vec2 initial_position, const double* width, const double* offset,
-              double tolerance);
+              double tolerance, const Tag* tag);
     void init(const Vec2 initial_position, uint64_t num_elements_, double width, double offset,
-              double tolerance);
+              double tolerance, Tag tag);
     void init(const Vec2 initial_position, uint64_t num_elements_, const double* width,
-              const double* offset, double tolerance);
+              const double* offset, double tolerance, const Tag* tag);
 
     void print(bool all) const;
 

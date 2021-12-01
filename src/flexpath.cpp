@@ -19,41 +19,50 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-void FlexPath::init(const Vec2 initial_position, double width, double offset, double tolerance) {
+void FlexPath::init(const Vec2 initial_position, double width, double offset, double tolerance,
+                    Tag tag) {
     spine.tolerance = tolerance;
     spine.append(initial_position);
     width /= 2;
-    for (uint64_t i = 0; i < num_elements; i++)
+    for (uint64_t i = 0; i < num_elements; i++) {
         elements[i].half_width_and_offset.append(Vec2{width, offset});
+        elements[i].tag = tag;
+    }
 }
 
 void FlexPath::init(const Vec2 initial_position, const double* width, const double* offset,
-                    double tolerance) {
+                    double tolerance, const Tag* tag) {
     spine.tolerance = tolerance;
     spine.append(initial_position);
-    for (uint64_t i = 0; i < num_elements; i++)
+    for (uint64_t i = 0; i < num_elements; i++) {
         elements[i].half_width_and_offset.append(Vec2{0.5 * width[i], offset[i]});
+        elements[i].tag = tag[i];
+    }
 }
 
 void FlexPath::init(const Vec2 initial_position, uint64_t num_elements_, double width,
-                    double offset, double tolerance) {
+                    double offset, double tolerance, Tag tag) {
     num_elements = num_elements_;
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
     spine.tolerance = tolerance;
     spine.append(initial_position);
     width /= 2;
-    for (uint64_t i = 0; i < num_elements; i++)
+    for (uint64_t i = 0; i < num_elements; i++) {
         elements[i].half_width_and_offset.append(Vec2{width, offset});
+        elements[i].tag = tag;
+    }
 }
 
 void FlexPath::init(const Vec2 initial_position, uint64_t num_elements_, const double* width,
-                    const double* offset, double tolerance) {
+                    const double* offset, double tolerance, const Tag* tag) {
     num_elements = num_elements_;
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
     spine.tolerance = tolerance;
     spine.append(initial_position);
-    for (uint64_t i = 0; i < num_elements; i++)
+    for (uint64_t i = 0; i < num_elements; i++) {
         elements[i].half_width_and_offset.append(Vec2{0.5 * width[i], offset[i]});
+        elements[i].tag = tag[i];
+    }
 }
 
 void FlexPath::print(bool all) const {

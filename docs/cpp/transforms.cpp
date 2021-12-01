@@ -73,8 +73,7 @@ int main(int argc, char* argv[]) {
         .simple_path = true,
         .scale_width = false,
     };
-    path.init(Vec2{-n * d, 0}, 1, r, 0, 0.01);
-    path.elements[0].tag = make_tag(1, 0);
+    path.init(Vec2{-n * d, 0}, 1, r, 0, 0.01, make_tag(1, 0));
     path.elements[0].end_type = EndType::Extended;
     path.elements[0].end_extensions = Vec2{r, r};
     path.segment(Vec2{n * d, 0}, NULL, NULL, false);

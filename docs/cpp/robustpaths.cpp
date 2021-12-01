@@ -26,32 +26,14 @@ double parametric6(double u, void*) { return 0.25 * cos(24 * M_PI * u); }
 Vec2 parametric7(double u, void*) { return Vec2{4 * sin(6 * M_PI * u), 45 * u}; }
 
 int main(int argc, char* argv[]) {
-    RobustPath rp = {
-        .end_point = Vec2{0, 50},
-        .num_elements = 4,
-        .tolerance = 0.01,
-        .max_evals = 1000,
-        .width_scale = 1,
-        .offset_scale = 1,
-        .trafo = {1, 0, 0, 0, 1, 0},
-        .scale_width = true,
-    };
-    rp.elements = (RobustPathElement*)allocate_clear(rp.num_elements * sizeof(RobustPathElement));
-    rp.elements[0].tag = make_tag(1, 0);
-    rp.elements[0].end_width = 2;
-    rp.elements[0].end_offset = 0;
+    double widths[] = {2, 0.5, 1, 1};
+    double offsets[] = {0, 0, -1, 1};
+    Tag tags[] = {make_tag(1, 0), make_tag(0, 0), make_tag(2, 0), make_tag(2, 0)};
+    RobustPath rp = { .scale_width = true };
+    rp.init(Vec2{0, 50}, 4, widths, offsets, 0.01, 1000, tags);
     rp.elements[0].end_type = EndType::HalfWidth;
-    rp.elements[1].tag = make_tag(0, 0);
-    rp.elements[1].end_width = 0.5;
-    rp.elements[1].end_offset = 0;
     rp.elements[1].end_type = EndType::Round;
-    rp.elements[2].tag = make_tag(2, 0);
-    rp.elements[2].end_width = 1;
-    rp.elements[2].end_offset = -1;
     rp.elements[2].end_type = EndType::Flush;
-    rp.elements[3].tag = make_tag(2, 0);
-    rp.elements[3].end_width = 1;
-    rp.elements[3].end_offset = 1;
     rp.elements[3].end_type = EndType::Flush;
 
     rp.segment(Vec2{0, 45}, NULL, NULL, false);

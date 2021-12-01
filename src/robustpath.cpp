@@ -210,9 +210,9 @@ Vec2 RobustPath::left_gradient(const SubPath &subpath, const Interpolation &offs
     const double step = 1.0 / (10.0 * max_evals);
     const double u0 = u - step < 0 ? 0 : u - step;
     const double u1 = u + step > 1 ? 1 : u + step;
-    Vec2 result =
-        (left_position(subpath, offset_, width_, u1) - left_position(subpath, offset_, width_, u0)) /
-        (u1 - u0);
+    Vec2 result = (left_position(subpath, offset_, width_, u1) -
+                   left_position(subpath, offset_, width_, u0)) /
+                  (u1 - u0);
     return result;
 }
 
@@ -232,9 +232,9 @@ Vec2 RobustPath::right_gradient(const SubPath &subpath, const Interpolation &off
     const double step = 1.0 / (10.0 * max_evals);
     const double u0 = u - step < 0 ? 0 : u - step;
     const double u1 = u + step > 1 ? 1 : u + step;
-    Vec2 result =
-        (right_position(subpath, offset_, width_, u1) - right_position(subpath, offset_, width_, u0)) /
-        (u1 - u0);
+    Vec2 result = (right_position(subpath, offset_, width_, u1) -
+                   right_position(subpath, offset_, width_, u0)) /
+                  (u1 - u0);
     return result;
 }
 
@@ -400,6 +400,75 @@ static void interpolation_print(const Interpolation interp) {
     }
 }
 
+void RobustPath::init(const Vec2 initial_position, double width, double offset, double tolerance_,
+                      uint64_t max_evals_, Tag tag) {
+    tolerance = tolerance_;
+    max_evals = max_evals_;
+    width_scale = 1;
+    offset_scale = 1;
+    trafo[0] = 1;
+    trafo[4] = 1;
+    end_point = initial_position;
+    for (uint64_t i = 0; i < num_elements; i++) {
+        elements[i].end_width = width;
+        elements[i].end_offset = offset;
+        elements[i].tag = tag;
+    }
+}
+
+void RobustPath::init(const Vec2 initial_position, const double *width, const double *offset,
+                      double tolerance_, uint64_t max_evals_, const Tag *tag) {
+    tolerance = tolerance_;
+    max_evals = max_evals_;
+    width_scale = 1;
+    offset_scale = 1;
+    trafo[0] = 1;
+    trafo[4] = 1;
+    end_point = initial_position;
+    for (uint64_t i = 0; i < num_elements; i++) {
+        elements[i].end_width = width[i];
+        elements[i].end_offset = offset[i];
+        elements[i].tag = tag[i];
+    }
+}
+
+void RobustPath::init(const Vec2 initial_position, uint64_t num_elements_, double width,
+                      double offset, double tolerance_, uint64_t max_evals_, Tag tag) {
+    num_elements = num_elements_;
+    elements = (RobustPathElement *)allocate_clear(num_elements * sizeof(RobustPathElement));
+    tolerance = tolerance_;
+    max_evals = max_evals_;
+    width_scale = 1;
+    offset_scale = 1;
+    trafo[0] = 1;
+    trafo[4] = 1;
+    end_point = initial_position;
+    for (uint64_t i = 0; i < num_elements; i++) {
+        elements[i].end_width = width;
+        elements[i].end_offset = offset;
+        elements[i].tag = tag;
+    }
+}
+
+void RobustPath::init(const Vec2 initial_position, uint64_t num_elements_, const double *width,
+                      const double *offset, double tolerance_, uint64_t max_evals_,
+                      const Tag *tag) {
+    num_elements = num_elements_;
+    elements = (RobustPathElement *)allocate_clear(num_elements * sizeof(RobustPathElement));
+    tolerance = tolerance_;
+    max_evals = max_evals_;
+    width_scale = 1;
+    offset_scale = 1;
+    trafo[0] = 1;
+    trafo[4] = 1;
+    end_point = initial_position;
+    for (uint64_t i = 0; i < num_elements; i++) {
+        elements[i].end_width = width[i];
+        elements[i].end_offset = offset[i];
+        elements[i].tag = tag[i];
+    }
+}
+
 void RobustPath::print(bool all) const {
     printf("RobustPath <%p> at (%lg, %lg), count %" PRIu64 ", %" PRIu64
            " elements, %s path,%s scaled widths, tolerance %lg, max_evals %" PRIu64
@@ -430,8 +499,8 @@ void RobustPath::print(bool all) const {
                 printf("Width %" PRIu64 ": ", ni);
                 interpolation_print(*interp);
             }
-            printf("Offset interpolations (count %" PRIu64 "/%" PRIu64 "):\n", el->offset_array.count,
-                   el->offset_array.capacity);
+            printf("Offset interpolations (count %" PRIu64 "/%" PRIu64 "):\n",
+                   el->offset_array.count, el->offset_array.capacity);
             interp = el->offset_array.items;
             for (uint64_t ni = 0; ni < el->offset_array.count; ni++, interp++) {
                 printf("Offset %" PRIu64 ": ", ni);
@@ -595,7 +664,8 @@ void RobustPath::apply_repetition(Array<RobustPath *> &result) {
     return;
 }
 
-void RobustPath::fill_widths_and_offsets(const Interpolation *width_, const Interpolation *offset_) {
+void RobustPath::fill_widths_and_offsets(const Interpolation *width_,
+                                         const Interpolation *offset_) {
     if (width_ == NULL) {
         Interpolation interp = {InterpolationType::Constant};
         RobustPathElement *el = elements;
@@ -626,8 +696,8 @@ void RobustPath::fill_widths_and_offsets(const Interpolation *width_, const Inte
     }
 }
 
-void RobustPath::horizontal(double coord_x, const Interpolation *width_, const Interpolation *offset_,
-                            bool relative) {
+void RobustPath::horizontal(double coord_x, const Interpolation *width_,
+                            const Interpolation *offset_, bool relative) {
     if (relative) coord_x += end_point.x;
     segment(Vec2{coord_x, end_point.y}, width_, offset_, false);
 }
@@ -638,8 +708,8 @@ void RobustPath::vertical(double coord_y, const Interpolation *width_, const Int
     segment(Vec2{end_point.x, coord_y}, width_, offset_, false);
 }
 
-void RobustPath::segment(const Vec2 end_pt, const Interpolation *width_, const Interpolation *offset_,
-                         bool relative) {
+void RobustPath::segment(const Vec2 end_pt, const Interpolation *width_,
+                         const Interpolation *offset_, bool relative) {
     SubPath sub = {SubPathType::Segment};
     sub.begin = end_point;
     sub.end = end_pt;
@@ -1473,7 +1543,7 @@ ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
                                    8,
                                    0x0F03};
         int32_t width_ = (scale_width ? 1 : -1) *
-                        (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
+                         (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
         big_endian_swap16(buffer_start, COUNT(buffer_start));
         big_endian_swap32((uint32_t *)&width_, 1);
 

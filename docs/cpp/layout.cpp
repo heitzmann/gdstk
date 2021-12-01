@@ -48,10 +48,8 @@ int main(int argc, char* argv[]) {
     dev_cell->name = copy_string("Device", NULL);
 
     Reference* mzi_ref = (Reference*)allocate_clear(sizeof(Reference));
-    mzi_ref->type = ReferenceType::RawCell;
-    mzi_ref->rawcell = pdk.get("MZI");
+    mzi_ref->init(pdk.get("MZI"), 1);
     mzi_ref->origin = Vec2{-40, 0};
-    mzi_ref->magnification = 1;
     dev_cell->reference_array.append(mzi_ref);
 
     Cell* grating_cell = grating(0.62, 0.5, 20, 25, make_tag(2, 0), "Grating");
@@ -62,26 +60,30 @@ int main(int argc, char* argv[]) {
     // SREFs. If x_reflection was set to true, that would also have to be
     // applied to v2 for an AREF to be created.
     Reference* grating_ref1 = (Reference*)allocate_clear(sizeof(Reference));
-    grating_ref1->type = ReferenceType::Cell;
-    grating_ref1->cell = grating_cell;
+    grating_ref1->init(grating_cell, 1);
     grating_ref1->origin = Vec2{-200, -150};
     grating_ref1->rotation = M_PI / 2;
-    grating_ref1->magnification = 1;
-    grating_ref1->repetition = {RepetitionType::Regular, 2, 1, Vec2{0, 300}, Vec2{1, 0}};
+    grating_ref1->repetition.type = RepetitionType::Regular;
+    grating_ref1->repetition.columns = 2;
+    grating_ref1->repetition.rows = 1;
+    grating_ref1->repetition.v1 = Vec2{0, 300};
+    grating_ref1->repetition.v2 = Vec2{1, 0};
     dev_cell->reference_array.append(grating_ref1);
 
     Reference* grating_ref2 = (Reference*)allocate_clear(sizeof(Reference));
-    grating_ref2->type = ReferenceType::Cell;
-    grating_ref2->cell = grating_cell;
+    grating_ref2->init(grating_cell, 1);
     grating_ref2->origin = Vec2{200, 150};
     grating_ref2->rotation = -M_PI / 2;
-    grating_ref2->magnification = 1;
-    grating_ref2->repetition = {RepetitionType::Regular, 2, 1, Vec2{0, -300}, Vec2{1, 0}};
+    grating_ref2->repetition.type = RepetitionType::Regular;
+    grating_ref2->repetition.columns = 2;
+    grating_ref2->repetition.rows = 1;
+    grating_ref2->repetition.v1 = Vec2{0, -300};
+    grating_ref2->repetition.v2 = Vec2{1, 0};
+
     dev_cell->reference_array.append(grating_ref2);
 
     FlexPath* waveguide = (FlexPath*)allocate_clear(sizeof(FlexPath));
-    waveguide->init(Vec2{-220, -150}, 1, 20, 0, 0.01);
-    waveguide->elements[0].tag = make_tag(1, 0);
+    waveguide->init(Vec2{-220, -150}, 1, 20, 0, 0.01, make_tag(1, 0));
     waveguide->elements[0].bend_type = BendType::Circular;
     waveguide->elements[0].bend_radius = 15;
 
@@ -99,9 +101,7 @@ int main(int argc, char* argv[]) {
 
     for (uint64_t i = 0; i < 4; i++) {
         Reference* wg_ref = (Reference*)allocate_clear(sizeof(Reference));
-        wg_ref->type = ReferenceType::Cell;
-        wg_ref->cell = wg_cell;
-        wg_ref->magnification = 1;
+        wg_ref->init(wg_cell, 1);
         if (i == 1) {
             wg_ref->x_reflection = true;
         } else if (i == 2) {
@@ -118,17 +118,13 @@ int main(int argc, char* argv[]) {
 
     for (uint64_t i = 0; i < 2; i++) {
         Reference* dev_ref = (Reference*)allocate_clear(sizeof(Reference));
-        dev_ref->type = ReferenceType::Cell;
-        dev_ref->cell = dev_cell;
-        dev_ref->magnification = 1;
+        dev_ref->init(dev_cell, 1);
         dev_ref->origin = i == 0 ? Vec2{250, 250} : Vec2{250, 750};
         main_cell->reference_array.append(dev_ref);
     }
 
     Reference* align_ref = (Reference*)allocate_clear(sizeof(Reference));
-    align_ref->type = ReferenceType::RawCell;
-    align_ref->rawcell = pdk.get("Alignment Mark");
-    align_ref->magnification = 1;
+    align_ref->init(pdk.get("Alignment Mark"), 1);
     align_ref->repetition = {RepetitionType::Rectangular, 2, 3, Vec2{500, 500}};
     main_cell->reference_array.append(align_ref);
 
