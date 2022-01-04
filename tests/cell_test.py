@@ -246,12 +246,12 @@ def test_bb_polygon_repetition():
 def test_bb_flexpath_repetition():
     pth = gdstk.FlexPath([0.5 + 0j, 0.5 + 1j], 1)
     pth.repetition = gdstk.Repetition(x_offsets=(1, 3, -2))
-    c_pth = gdstk.Cell("C")
+    c_pth = gdstk.Cell("E")
     c_pth.add(pth)
     assert_close(c_pth.bounding_box(), ((-2, 0), (4, 1)))
     ref = gdstk.Reference(c_pth)
     ref.repetition = gdstk.Repetition(y_offsets=(-1, 2, -4))
-    c_ref = gdstk.Cell("D")
+    c_ref = gdstk.Cell("F")
     c_ref.add(ref)
     assert_close(c_ref.bounding_box(), ((-2, -4), (4, 3)))
     ref.rotation = numpy.pi / 4
@@ -265,12 +265,12 @@ def test_bb_flexpath_repetition():
 def test_bb_robustpath_repetition():
     pth = gdstk.RobustPath(0.5j, 1).segment((1, 0.5))
     pth.repetition = gdstk.Repetition(x_offsets=(1, 3, -2))
-    c_pth = gdstk.Cell("C")
+    c_pth = gdstk.Cell("G")
     c_pth.add(pth)
     assert_close(c_pth.bounding_box(), ((-2, 0), (4, 1)))
     ref = gdstk.Reference(c_pth)
     ref.repetition = gdstk.Repetition(y_offsets=(-1, 2, -4))
-    c_ref = gdstk.Cell("D")
+    c_ref = gdstk.Cell("H")
     c_ref.add(ref)
     assert_close(c_ref.bounding_box(), ((-2, -4), (4, 3)))
     ref.rotation = numpy.pi / 4

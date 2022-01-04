@@ -137,6 +137,8 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
+                fprintf(stdout, "FP bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
+                array[j]->print(true);
                 if (pmin.x < min.x) min.x = pmin.x;
                 if (pmin.y < min.y) min.y = pmin.y;
                 if (pmax.x > max.x) max.x = pmax.x;
