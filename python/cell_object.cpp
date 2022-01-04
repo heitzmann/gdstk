@@ -197,7 +197,6 @@ static PyObject* cell_object_bounding_box(CellObject* self, PyObject*) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    fprintf(stdout, "[O] Cell %s BB: (%g, %g) - (%g, %g)\n", self->cell->name, min.x, min.y, max.x, max.y);
     return Py_BuildValue("((dd)(dd))", min.x, min.y, max.x, max.y);
 }
 

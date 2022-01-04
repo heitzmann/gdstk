@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+### Fixed
+- Bug in bounding box when using explicit repetitions
+
 ## 0.8.0 - 2021-10-08
 ### Added
 - `Cell.get_polygons`, `Cell.get_paths`, and `Cell.get_labels` return a copy of a cell’s polygons, paths or labels, including references, with the possibility of filtering by layer and type

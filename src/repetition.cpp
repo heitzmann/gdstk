@@ -204,10 +204,9 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
             break;
         case RepetitionType::ExplicitX: {
             if (coords.count == 0) return;
+            double xmin = 0;
+            double xmax = 0;
             double* c = coords.items;
-            double xmin = *c;
-            double xmax = *c;
-            ++c;
             for (uint64_t i = coords.count; i > 0; i--, c++) {
                 if (*c < xmin) {
                     xmin = *c;
@@ -225,10 +224,9 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
         } break;
         case RepetitionType::ExplicitY: {
             if (coords.count == 0) return;
+            double ymin = 0;
+            double ymax = 0;
             double* c = coords.items;
-            double ymin = *c;
-            double ymax = *c;
-            ++c;
             for (uint64_t i = coords.count; i > 0; i--, c++) {
                 if (*c < ymin) {
                     ymin = *c;
@@ -246,11 +244,11 @@ void Repetition::get_extrema(Array<Vec2>& result) const {
         } break;
         case RepetitionType::Explicit: {
             if (offsets.count == 0) return;
+            Vec2 vxmin = {0, 0};
+            Vec2 vxmax = {0, 0};
+            Vec2 vymin = {0, 0};
+            Vec2 vymax = {0, 0};
             Vec2* v = offsets.items;
-            Vec2 vxmin = *v;
-            Vec2 vxmax = *v;
-            Vec2 vymin = *v;
-            Vec2 vymax = *v;
             for (uint64_t i = offsets.count; i > 0; i--, v++) {
                 if (v->x < vxmin.x) {
                     vxmin = *v;
