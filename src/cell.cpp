@@ -103,7 +103,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
         for (uint64_t i = 0; i < polygon_array.count; i++, polygon++) {
             Vec2 pmin, pmax;
             (*polygon)->bounding_box(pmin, pmax);
-            if (fabs(pmin.x) > 10 || fabs(pmin.y) > 10 || fabs(pmax.x) > 10 || fabs(pmax.y) > 10) {
+            if (fabs(pmin.x) > 5 || fabs(pmin.y) > 5 || fabs(pmax.x) > 5 || fabs(pmax.y) > 5) {
                 fprintf(stdout, "POL bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
                 (*polygon)->print(true);
             }
@@ -141,7 +141,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
-                if (fabs(pmin.x) > 10 || fabs(pmin.y) > 10 || fabs(pmax.x) > 10 || fabs(pmax.y) > 10) {
+                if (fabs(pmin.x) > 5 || fabs(pmin.y) > 5 || fabs(pmax.x) > 5 || fabs(pmax.y) > 5) {
                     fprintf(stdout, "FP bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
                     array[j]->print(true);
                 }
@@ -162,7 +162,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
             for (uint64_t j = 0; j < array.count; j++) {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
-                if (fabs(pmin.x) > 10 || fabs(pmin.y) > 10 || fabs(pmax.x) > 10 || fabs(pmax.y) > 10) {
+                if (fabs(pmin.x) > 5 || fabs(pmin.y) > 5 || fabs(pmax.x) > 5 || fabs(pmax.y) > 5) {
                     fprintf(stdout, "RP bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
                     array[j]->print(true);
                 }
