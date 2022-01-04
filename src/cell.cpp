@@ -104,7 +104,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
             Vec2 pmin, pmax;
             (*polygon)->bounding_box(pmin, pmax);
             fprintf(stdout, "POL bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
-            (*polygon)->print(true);
+            (*polygon)->print(false);
             if (pmin.x < min.x) min.x = pmin.x;
             if (pmin.y < min.y) min.y = pmin.y;
             if (pmax.x > max.x) max.x = pmax.x;
@@ -140,7 +140,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
                 fprintf(stdout, "FP bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
-                array[j]->print(true);
+                array[j]->print(false);
                 if (pmin.x < min.x) min.x = pmin.x;
                 if (pmin.y < min.y) min.y = pmin.y;
                 if (pmax.x > max.x) max.x = pmax.x;
@@ -159,7 +159,7 @@ GeometryInfo Cell::bounding_box(Map<GeometryInfo>& cache) const {
                 Vec2 pmin, pmax;
                 array[j]->bounding_box(pmin, pmax);
                 fprintf(stdout, "RP bb: (%g, %g) - (%g, %g) from ", pmin.x, pmin.y, pmax.x, pmax.y);
-                array[j]->print(true);
+                array[j]->print(false);
                 if (pmin.x < min.x) min.x = pmin.x;
                 if (pmin.y < min.y) min.y = pmin.y;
                 if (pmax.x > max.x) max.x = pmax.x;
