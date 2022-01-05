@@ -98,36 +98,36 @@ The _benchmarks_ directory contains a few tests to compare the performance gain 
 They are only for reference; the real improvement is heavily dependent on the type of layout and features used.
 If maximal performance is important, the library should be used directly from C++, without the Python interface.
 
-Timing results were obtained with Python 3.9 on an Intel Core i7-3820.
+Timing results were obtained with Python 3.10 on an Intel Core i7-3820.
 They represent the best average time to run each function out of 16 sets of 8 runs each.
 
-| Benchmark        |   Gdspy 1.6.9    |   Gdstk 0.8.0    |   Gain   |
+| Benchmark        |   Gdspy 1.6.10   |   Gdstk 0.8.1    |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
-| 10k_rectangles   |      212 ms      |     6.96 ms      |   30.4   |
-| 1k_circles       |      555 ms      |      355 ms      |   1.57   |
-| boolean-offset   |      361 μs      |     63.4 μs      |   5.69   |
-| bounding_box     |     77.4 ms      |      228 μs      |   339    |
-| curves           |     2.96 ms      |     54.6 μs      |   54.3   |
-| flatten          |      990 μs      |     12.7 μs      |    78    |
-| flexpath         |     5.55 ms      |     25.6 μs      |   217    |
-| flexpath-param   |     6.43 ms      |     1.26 ms      |   5.12   |
-| fracture         |     1.45 ms      |      839 μs      |   1.73   |
-| inside           |      209 μs      |     40.3 μs      |   5.19   |
-| read_gds         |     6.09 ms      |      121 μs      |   50.5   |
-| read_rawcells    |      615 μs      |     62.3 μs      |   9.88   |
-| robustpath       |      358 μs      |     15.9 μs      |   22.5   |
+| 10k_rectangles   |      200 ms      |     8.34 ms      |    24    |
+| 1k_circles       |      560 ms      |      563 ms      |  0.996   |
+| boolean-offset   |      366 μs      |      241 μs      |   1.52   |
+| bounding_box     |     79.2 ms      |      520 μs      |   152    |
+| curves           |     3.06 ms      |     76.1 μs      |   40.2   |
+| flatten          |      959 μs      |     16.9 μs      |   56.8   |
+| flexpath         |     5.72 ms      |     39.5 μs      |   145    |
+| flexpath-param   |      6.5 ms      |      1.4 ms      |   4.64   |
+| fracture         |     1.51 ms      |      4.4 ms      |  0.342   |
+| inside           |      215 μs      |     82.4 μs      |   2.61   |
+| read_gds         |     6.25 ms      |      241 μs      |   25.9   |
+| read_rawcells    |      605 μs      |     69.8 μs      |   8.67   |
+| robustpath       |      357 μs      |      19 μs       |   18.8   |
 
 Memory usage per object for 100000 objects:
 
-| Object               |   Gdspy 1.6.9    |   Gdstk 0.8.0    | Reduction |
+| Object               |   Gdspy 1.6.10   |   Gdstk 0.8.1    | Reduction |
 | :------------------- | :--------------: | :--------------: | :-------: |
-| Rectangle            |      558 B       |      234 B       |    58%    |
-| Circle (r = 10)      |     1.69 kB      |     1.27 kB      |    24%    |
-| FlexPath segment     |      1.5 kB      |      440 B       |    71%    |
-| FlexPath arc         |     2.28 kB      |     1.49 kB      |    34%    |
-| RobustPath segment   |     2.86 kB      |      919 B       |    69%    |
+| Rectangle            |      461 B       |      31.5 B      |    93%    |
+| Circle (r = 10)      |      777 B       |     1.27 kB      |    -68%   |
+| FlexPath segment     |     1.51 kB      |      439 B       |    72%    |
+| FlexPath arc         |     2.27 kB      |     1.49 kB      |    34%    |
+| RobustPath segment   |     2.87 kB      |      920 B       |    69%    |
 | RobustPath arc       |     2.63 kB      |      919 B       |    66%    |
-| Label                |      412 B       |      219 B       |    47%    |
-| Reference            |      154 B       |      184 B       |    -19%   |
-| Reference (array)    |      186 B       |      187 B       |    -0%    |
-| Cell                 |      430 B       |      231 B       |    46%    |
+| Label                |      418 B       |      216 B       |    48%    |
+| Reference            |      157 B       |      180 B       |    -15%   |
+| Reference (array)    |      191 B       |      179 B       |     6%    |
+| Cell                 |      442 B       |      228 B       |    49%    |

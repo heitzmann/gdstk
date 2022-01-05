@@ -1,8 +1,13 @@
 # Change Log
 
-## Unreleased
+## 0.8.1 - 2022-01-04
 ### Fixed
+- Missing flag in OASIS bounding box property
 - Bug in bounding box when using explicit repetitions
+- Segfault when loading GDSII files with missing cells
+### Changed
+- GdsWriter C++ API
+- Safer initializers C++ API
 
 ## 0.8.0 - 2021-10-08
 ### Added
