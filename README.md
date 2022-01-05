@@ -103,27 +103,27 @@ They represent the best average time to run each function out of 16 sets of 8 ru
 
 | Benchmark        |   Gdspy 1.6.10   |   Gdstk 0.8.1    |   Gain   |
 | :--------------- | :--------------: | :--------------: | :------: |
-| 10k_rectangles   |      200 ms      |     8.34 ms      |    24    |
-| 1k_circles       |      560 ms      |      563 ms      |  0.996   |
-| boolean-offset   |      366 μs      |      241 μs      |   1.52   |
-| bounding_box     |     79.2 ms      |      520 μs      |   152    |
-| curves           |     3.06 ms      |     76.1 μs      |   40.2   |
-| flatten          |      959 μs      |     16.9 μs      |   56.8   |
-| flexpath         |     5.72 ms      |     39.5 μs      |   145    |
-| flexpath-param   |      6.5 ms      |      1.4 ms      |   4.64   |
-| fracture         |     1.51 ms      |      4.4 ms      |  0.342   |
-| inside           |      215 μs      |     82.4 μs      |   2.61   |
-| read_gds         |     6.25 ms      |      241 μs      |   25.9   |
-| read_rawcells    |      605 μs      |     69.8 μs      |   8.67   |
-| robustpath       |      357 μs      |      19 μs       |   18.8   |
+| 10k_rectangles   |      202 ms      |      6.4 ms      |   31.5   |
+| 1k_circles       |      516 ms      |      311 ms      |   1.66   |
+| boolean-offset   |      365 μs      |     63.1 μs      |   5.79   |
+| bounding_box     |     79.3 ms      |      229 μs      |   347    |
+| curves           |     3.06 ms      |     56.3 μs      |   54.3   |
+| flatten          |      963 μs      |     13.2 μs      |   72.9   |
+| flexpath         |     5.69 ms      |     25.3 μs      |   225    |
+| flexpath-param   |     6.56 ms      |     1.33 ms      |   4.92   |
+| fracture         |     1.51 ms      |      834 μs      |   1.81   |
+| inside           |      216 μs      |     40.6 μs      |   5.31   |
+| read_gds         |     6.26 ms      |      120 μs      |   52.1   |
+| read_rawcells    |      635 μs      |     63.1 μs      |   10.1   |
+| robustpath       |      357 μs      |     16.4 μs      |   21.8   |
 
 Memory usage per object for 100000 objects:
 
 | Object               |   Gdspy 1.6.10   |   Gdstk 0.8.1    | Reduction |
 | :------------------- | :--------------: | :--------------: | :-------: |
 | Rectangle            |      461 B       |      31.5 B      |    93%    |
-| Circle (r = 10)      |      777 B       |     1.27 kB      |    -68%   |
-| FlexPath segment     |     1.51 kB      |      439 B       |    72%    |
+| Circle (r = 10)      |      775 B       |     1.27 kB      |    -68%   |
+| FlexPath segment     |      1.5 kB      |      449 B       |    71%    |
 | FlexPath arc         |     2.27 kB      |     1.49 kB      |    34%    |
 | RobustPath segment   |     2.87 kB      |      920 B       |    69%    |
 | RobustPath arc       |     2.63 kB      |      919 B       |    66%    |
