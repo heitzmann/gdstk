@@ -298,6 +298,35 @@ at a fixed distance must be calculated for each section independently.
 .. image:: how-tos/path_markers.*
    :align: center
 
+
+***************
+Connection Pads
+***************
+
+In this example, a custom end function is used to provide connection pads for
+electrical traces.  For simplicity, it assumes that the path width does not
+change in the first and last segments, which also must be long enough to
+support the pad shapes, and that the pad diameter is larger than the path
+width.  The point where the pad connects to the trace can, optionally, be
+filleted.
+
+.. tab:: Python
+
+   .. literalinclude:: pads.py
+      :language: python
+      :start-after: from tutorial_images import draw
+      :end-before: main.name
+
+.. tab:: C++
+
+   .. literalinclude:: cpp/pads.cpp
+      :language: c++
+      :start-at: #include
+
+.. image:: how-tos/pads.*
+   :align: center
+
+
 ************
 System Fonts
 ************

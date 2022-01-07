@@ -227,5 +227,6 @@ def memory_benchmark():
 
 
 if __name__ == "__main__":
+    print("Make sure the library is built in release mode!")
     timing_benchmark()
     memory_benchmark()

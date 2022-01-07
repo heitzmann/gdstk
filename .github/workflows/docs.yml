@@ -42,6 +42,7 @@ jobs:
           python docs/filtering.py
           python docs/pos_filtering.py
           python docs/path_markers.py
+          python docs/pads.py
           python docs/fonts.py
       - name: Build docs
         run: python setup.py build_sphinx
