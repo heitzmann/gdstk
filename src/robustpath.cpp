@@ -433,7 +433,7 @@ void RobustPath::init(const Vec2 initial_position, const double *width, const do
 }
 
 void RobustPath::init(const Vec2 initial_position, uint64_t num_elements_, double width,
-                      double offset, double tolerance_, uint64_t max_evals_, Tag tag) {
+                      double separation, double tolerance_, uint64_t max_evals_, Tag tag) {
     num_elements = num_elements_;
     elements = (RobustPathElement *)allocate_clear(num_elements * sizeof(RobustPathElement));
     tolerance = tolerance_;
@@ -443,9 +443,10 @@ void RobustPath::init(const Vec2 initial_position, uint64_t num_elements_, doubl
     trafo[0] = 1;
     trafo[4] = 1;
     end_point = initial_position;
+    double i0 = 0.5 * (num_elements - 1);
     for (uint64_t i = 0; i < num_elements; i++) {
         elements[i].end_width = width;
-        elements[i].end_offset = offset;
+        elements[i].end_offset = separation * (i - i0);
         elements[i].tag = tag;
     }
 }

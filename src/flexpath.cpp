@@ -41,14 +41,15 @@ void FlexPath::init(const Vec2 initial_position, const double* width, const doub
 }
 
 void FlexPath::init(const Vec2 initial_position, uint64_t num_elements_, double width,
-                    double offset, double tolerance, Tag tag) {
+                    double separation, double tolerance, Tag tag) {
     num_elements = num_elements_;
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
     spine.tolerance = tolerance;
     spine.append(initial_position);
     width /= 2;
+    double i0 = 0.5 * (num_elements - 1);
     for (uint64_t i = 0; i < num_elements; i++) {
-        elements[i].half_width_and_offset.append(Vec2{width, offset});
+        elements[i].half_width_and_offset.append(Vec2{width, separation * (i - i0)});
         elements[i].tag = tag;
     }
 }
@@ -70,7 +71,6 @@ void FlexPath::print(bool all) const {
            " elements, %s path,%s scaled widths, properties <%p>, owner <%p>\nSpine: ",
            this, num_elements, simple_path ? "GDSII" : "polygonal", scale_width ? "" : " no",
            properties, owner);
-    spine.print(all);
     if (all) {
         printf("Spine: ");
         spine.print(true);

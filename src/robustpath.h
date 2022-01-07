@@ -177,12 +177,13 @@ struct RobustPath {
     // Otherwise, num_elements and elements are expected to be already
     // allocated and set.  Arguments width, offset and tag can be single values
     // (which are applied to all elements) or arrays with count num_elements,
-    // one value for each path element.
+    // one value for each path element.  Argument separation is the desired
+    // distance between adjacent elements.
     void init(const Vec2 initial_position, double width, double offset, double tolerance_,
               uint64_t max_evals_, Tag tag);
     void init(const Vec2 initial_position, const double* width, const double* offset,
               double tolerance_, uint64_t max_evals_, const Tag* tag);
-    void init(const Vec2 initial_position, uint64_t num_elements_, double width, double offset,
+    void init(const Vec2 initial_position, uint64_t num_elements_, double width, double separation,
               double tolerance_, uint64_t max_evals_, Tag tag);
     void init(const Vec2 initial_position, uint64_t num_elements_, const double* width,
               const double* offset, double tolerance_, uint64_t max_evals_, const Tag* tag);

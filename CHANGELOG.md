@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+### Changed
+- Set separation instead of offset in FlexPath::init and RobustPath::init
+
 ## 0.8.1 - 2022-01-04
 ### Fixed
 - Missing flag in OASIS bounding box property
