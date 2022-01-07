@@ -40,12 +40,11 @@ if __name__ == "__main__":
 
     # Create a bus with 4 traces
     bus = gdstk.FlexPath(
-        [(0, 0), (50, 20), (50, 50), (100, 50)],
-        [3] * 4,
-        offset=12,
-        joins="round",
-        ends=filleted_pad(5, 3),
+        [(0, 0), (10, 5)], [3] * 4, offset=15, joins="round", ends=filleted_pad(5, 3)
     )
+    bus.segment((20, 10), offset=6)
+    bus.segment([(40, 20), (40, 50), (80, 50)])
+    bus.segment((100, 50), offset=12)
     main.add(bus)
     main.name = "pads"
     path = pathlib.Path(__file__).parent.absolute()

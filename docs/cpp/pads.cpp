@@ -38,8 +38,7 @@ Array<Vec2> filleted_pad(const Vec2 p0, const Vec2 v0, const Vec2 p1, const Vec2
     }
     curve.arc(pad_radius, pad_radius, gamma - M_PI - alpha, gamma + alpha, 0);
     if (fillet_radius > 0) {
-        curve.arc(fillet_radius, fillet_radius, gamma - M_PI + alpha,
-                  gamma - M_PI, 0);
+        curve.arc(fillet_radius, fillet_radius, gamma - M_PI + alpha, gamma - M_PI, 0);
     }
 
     return curve.point_array;
@@ -54,7 +53,7 @@ int main(int argc, char* argv[]) {
     lib.cell_array.append(main_cell);
 
     FlexPath* bus = (FlexPath*)allocate_clear(sizeof(FlexPath));
-    bus->init(Vec2{0, 0}, 4, 3, 12, 0.01, 0);
+    bus->init(Vec2{0, 0}, 4, 3, 15, 0.01, 0);
     FilletedPadData data = {5, 3, 0.01};
     for (int64_t i = 0; i < 4; i++) {
         bus->elements[i].join_type = JoinType::Round;
@@ -62,10 +61,14 @@ int main(int argc, char* argv[]) {
         bus->elements[i].end_function = filleted_pad;
         bus->elements[i].end_function_data = (void*)&data;
     }
-    bus->segment(Vec2{50, 20}, NULL, NULL, false);
-    bus->segment(Vec2{50, 50}, NULL, NULL, false);
-    bus->segment(Vec2{100, 50}, NULL, NULL, false);
-    bus->print(true);
+    bus->segment(Vec2{10, 5}, NULL, NULL, false);
+    double offsets1[] = {-9, -3, 3, 9};
+    bus->segment(Vec2{20, 10}, NULL, offsets1, false);
+    Vec2 points[] = {{40, 20}, {40, 50}, {80, 50}};
+    const Array<Vec2> point_array = {.count = 3, .items = points};
+    bus->segment(point_array, NULL, NULL, false);
+    double offsets2[] = {-18, -6, 6, 18};
+    bus->segment(Vec2{100, 50}, NULL, offsets2, false);
 
     main_cell->flexpath_array.append(bus);
 
