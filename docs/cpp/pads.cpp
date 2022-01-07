@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     double offsets1[] = {-9, -3, 3, 9};
     bus->segment(Vec2{20, 10}, NULL, offsets1, false);
     Vec2 points[] = {{40, 20}, {40, 50}, {80, 50}};
-    const Array<Vec2> point_array = {.count = 3, .items = points};
+    const Array<Vec2> point_array = {.count = COUNT(points), .items = points};
     bus->segment(point_array, NULL, NULL, false);
     double offsets2[] = {-18, -6, 6, 18};
     bus->segment(Vec2{100, 50}, NULL, offsets2, false);
