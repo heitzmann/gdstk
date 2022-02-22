@@ -136,6 +136,10 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
             if (!area) {
                 PyErr_SetString(PyExc_RuntimeError, "Could not convert area to float.");
                 Py_DECREF(result);
+                for (uint64_t i = 0; i < array.count; i++) {
+                    array[i]->clear();
+                    free_allocation(array[i]);
+                }
                 array.clear();
                 return NULL;
             }
@@ -144,6 +148,10 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                 PyErr_SetString(PyExc_RuntimeError, "Unable to build key.");
                 Py_DECREF(area);
                 Py_DECREF(result);
+                for (uint64_t i = 0; i < array.count; i++) {
+                    array[i]->clear();
+                    free_allocation(array[i]);
+                }
                 array.clear();
                 return NULL;
             }
@@ -155,6 +163,10 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                     Py_DECREF(key);
                     Py_DECREF(area);
                     Py_DECREF(result);
+                    for (uint64_t i = 0; i < array.count; i++) {
+                        array[i]->clear();
+                        free_allocation(array[i]);
+                    }
                     array.clear();
                     return NULL;
                 }
@@ -163,6 +175,10 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                     Py_DECREF(key);
                     Py_DECREF(area);
                     Py_DECREF(result);
+                    for (uint64_t i = 0; i < array.count; i++) {
+                        array[i]->clear();
+                        free_allocation(array[i]);
+                    }
                     array.clear();
                     return NULL;
                 }
@@ -173,6 +189,10 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                     Py_DECREF(key);
                     Py_DECREF(area);
                     Py_DECREF(result);
+                    for (uint64_t i = 0; i < array.count; i++) {
+                        array[i]->clear();
+                        free_allocation(array[i]);
+                    }
                     array.clear();
                     return NULL;
                 }
@@ -185,6 +205,10 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
         Polygon** poly = array.items;
         for (uint64_t i = 0; i < array.count; i++, poly++) area += (*poly)->area();
         result = PyFloat_FromDouble(area);
+    }
+    for (uint64_t i = 0; i < array.count; i++) {
+        array[i]->clear();
+        free_allocation(array[i]);
     }
     array.clear();
     return result;
