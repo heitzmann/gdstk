@@ -55,16 +55,6 @@ struct Array {
         count = 0;
     }
 
-    void clear_items() {
-        T* item_ptr = items;
-        for (uint64_t i = 0; i < count; i++, item_ptr++) {
-            (*item_ptr)->clear();
-            free_allocation(*item_ptr);
-        }
-
-        clear();
-    }
-
     bool contains(const T item) const {
         T* it = items;
         for (uint64_t j = 0; j < count; j++)
