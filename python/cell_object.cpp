@@ -354,7 +354,7 @@ static PyObject* cell_object_get_paths(CellObject* self, PyObject* args, PyObjec
         obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
         obj->robustpath = path;
         path->owner = obj;
-        PyList_SET_ITEM(result, i, (PyObject*)obj);
+        PyList_SET_ITEM(result, i + fp_array.count, (PyObject*)obj);
     }
 
     fp_array.clear();
