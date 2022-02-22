@@ -314,12 +314,15 @@ def test_get_paths(tree):
     paths = c3.get_paths()
     assert len(paths) == 12
     assert paths[0].num_paths == 2
+    assert all(p is not None for p in paths)
     paths = c3.get_paths(depth=1)
     assert len(paths) == 6
     assert paths[0].num_paths == 2
+    assert all(p is not None for p in paths)
     paths = c3.get_paths(depth=1, layer=1, datatype=3)
     assert len(paths) == 6
     assert paths[0].num_paths == 1
+    assert all(p is not None for p in paths)
 
 
 def test_get_labels(tree):
