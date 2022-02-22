@@ -136,7 +136,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
             if (!area) {
                 PyErr_SetString(PyExc_RuntimeError, "Could not convert area to float.");
                 Py_DECREF(result);
-                array.clear();
+                array.clear_items();
                 return NULL;
             }
             PyObject* key = Py_BuildValue("(hh)", get_layer(poly->tag), get_type(poly->tag));
@@ -144,7 +144,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                 PyErr_SetString(PyExc_RuntimeError, "Unable to build key.");
                 Py_DECREF(area);
                 Py_DECREF(result);
-                array.clear();
+                array.clear_items();
                 return NULL;
             }
             PyObject* current = PyDict_GetItem(result, key);
@@ -155,7 +155,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                     Py_DECREF(key);
                     Py_DECREF(area);
                     Py_DECREF(result);
-                    array.clear();
+                    array.clear_items();
                     return NULL;
                 }
                 if (PyDict_SetItem(result, key, sum) < 0) {
@@ -163,7 +163,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                     Py_DECREF(key);
                     Py_DECREF(area);
                     Py_DECREF(result);
-                    array.clear();
+                    array.clear_items();
                     return NULL;
                 }
                 Py_DECREF(sum);
@@ -173,7 +173,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
                     Py_DECREF(key);
                     Py_DECREF(area);
                     Py_DECREF(result);
-                    array.clear();
+                    array.clear_items();
                     return NULL;
                 }
             }
@@ -186,7 +186,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
         for (uint64_t i = 0; i < array.count; i++, poly++) area += (*poly)->area();
         result = PyFloat_FromDouble(area);
     }
-    array.clear();
+    array.clear_items();
     return result;
 }
 
