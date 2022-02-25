@@ -108,8 +108,10 @@ struct Vec2 {
 
     double normalize() {
         double len = length();
-        e[0] /= len;
-        e[1] /= len;
+        if (len > 0) {
+            e[0] /= len;
+            e[1] /= len;
+        }
         return len;
     }
 

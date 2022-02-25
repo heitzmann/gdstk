@@ -388,15 +388,15 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
         } else if (repetition.type == RepetitionType::Regular) {
             Vec2 u1 = repetition.v1;
             Vec2 u2 = repetition.v2;
-            u1.normalize();
-            u2.normalize();
+            double len1 = u1.normalize();
+            double len2 = u2.normalize();
             if (x_reflection) u2 = -u2;
             double sa = sin(rotation);
             double ca = cos(rotation);
-            if (fabs(u1.x - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
-                fabs(u1.y - sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
-                fabs(u2.x + sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
-                fabs(u2.y - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE) {
+            if ((len1 == 0 || (fabs(u1.x - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
+                               fabs(u1.y - sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE)) &&
+                (len2 == 0 || (fabs(u2.x + sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
+                               fabs(u2.y - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE))) {
                 array = true;
                 x2 = origin.x + repetition.columns * repetition.v1.x;
                 y2 = origin.y + repetition.columns * repetition.v1.y;
