@@ -1,6 +1,10 @@
 # Change Log
 
-## Unreleased
+## 0.8.2 - 2022-02-26
+### Fixed
+- `Cell.get_paths` not returning all FlexPaths when RobustPaths were present in the cell (thanks @jatoben)
+- Reference array is no longer transformed into multiple references when element displacement is zero
+- Memory leaks in the python wrapper (thanks @jatoben)
 ### Changed
 - Set separation instead of offset in FlexPath::init and RobustPath::init
 
