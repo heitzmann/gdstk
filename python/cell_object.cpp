@@ -776,75 +776,23 @@ static PyObject* cell_object_remove(CellObject* self, PyObject* args) {
     return (PyObject*)self;
 }
 
-static bool filter_check(int8_t operation, bool a, bool b) {
-    switch (operation) {
-        case 0:
-            return a && b;
-        case 1:
-            return a || b;
-        case 2:
-            return a != b;
-        case 3:
-            return !(a && b);
-        case 4:
-            return !(a || b);
-        case 5:
-            return a == b;
-        default:
-            return false;
-    }
-}
-
 static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* kwds) {
-    PyObject* py_layers = NULL;
-    PyObject* py_types = NULL;
-    char* operation = NULL;
+    PyObject* py_filter = NULL;
+    int remove = 1;
     int polygons = 1;
     int paths = 1;
     int labels = 1;
-    const char* keywords[] = {"layers", "types", "operation", "polygons", "paths", "labels", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "OOs|ppp:filter", (char**)keywords, &py_layers,
-                                     &py_types, &operation, &polygons, &paths, &labels))
+    const char* keywords[] = {"spec", "remove", "polygons", "paths", "labels", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|pppp:filter", (char**)keywords, &py_filter,
+                                     &remove, &polygons, &paths, &labels))
         return NULL;
 
-    if (PySequence_Check(py_layers) == 0) {
-        PyErr_SetString(PyExc_TypeError, "Argument layers must be a sequence.");
-        return NULL;
-    }
-
-    if (PySequence_Check(py_types) == 0) {
-        PyErr_SetString(PyExc_TypeError, "Argument types must be a sequence.");
-        return NULL;
-    }
-
-    Array<uint32_t> layers = {0};
-    Array<uint32_t> types = {0};
-    if (parse_uint_sequence(py_layers, layers, "layers") < 0 ||
-        parse_uint_sequence(py_types, types, "types") < 0) {
-        layers.clear();
-        types.clear();
-        return NULL;
-    }
-
-    int8_t op = -1;
-    if (strcmp(operation, "and") == 0) {
-        op = 0;
-    } else if (strcmp(operation, "or") == 0) {
-        op = 1;
-    } else if (strcmp(operation, "xor") == 0) {
-        op = 2;
-    } else if (strcmp(operation, "nand") == 0) {
-        op = 3;
-    } else if (strcmp(operation, "nor") == 0) {
-        op = 4;
-    } else if (strcmp(operation, "nxor") == 0) {
-        op = 5;
-    } else {
-        PyErr_SetString(PyExc_ValueError,
-                        "Operation must be one of 'and', 'or', 'xor', 'nand', 'or', 'nxor'.");
-        layers.clear();
-        types.clear();
-        return NULL;
+    Set<Tag> tag_set = {0};
+    if (py_filter != Py_None) {
+        if (parse_tag_sequence(py_filter, tag_set, "spec") < 0) {
+            tag_set.clear();
+            return NULL;
+        }
     }
 
     Cell* cell = self->cell;
@@ -853,8 +801,7 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         uint64_t i = 0;
         while (i < cell->polygon_array.count) {
             Polygon* poly = cell->polygon_array[i];
-            if (filter_check(op, layers.contains(get_layer(poly->tag)),
-                             types.contains(get_type(poly->tag)))) {
+            if (tag_set.has_value(poly->tag) == (remove > 0)) {
                 cell->polygon_array.remove_unordered(i);
                 Py_DECREF(poly->owner);
             } else {
@@ -867,24 +814,23 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         uint64_t i = 0;
         while (i < cell->flexpath_array.count) {
             FlexPath* path = cell->flexpath_array[i];
-            uint64_t remove = 0;
+            uint64_t remove_count = 0;
             uint64_t j = 0;
             while (j < path->num_elements) {
                 FlexPathElement* el = path->elements + j++;
-                if (filter_check(op, layers.contains(get_layer(el->tag)),
-                                 types.contains(get_type(el->tag))))
-                    remove++;
+                if (tag_set.has_value(el->tag) == (remove > 0)) {
+                    remove_count++;
+                }
             }
-            if (remove == path->num_elements) {
+            if (remove_count == path->num_elements) {
                 cell->flexpath_array.remove_unordered(i);
                 Py_DECREF(path->owner);
             } else {
-                if (remove > 0) {
+                if (remove_count > 0) {
                     j = 0;
                     while (j < path->num_elements) {
                         FlexPathElement* el = path->elements + j;
-                        if (filter_check(op, layers.contains(get_layer(el->tag)),
-                                         types.contains(get_type(el->tag)))) {
+                        if (tag_set.has_value(el->tag) == (remove > 0)) {
                             el->half_width_and_offset.clear();
                             path->elements[j] = path->elements[--path->num_elements];
                         } else {
@@ -899,24 +845,23 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         i = 0;
         while (i < cell->robustpath_array.count) {
             RobustPath* path = cell->robustpath_array[i];
-            uint64_t remove = 0;
+            uint64_t remove_count = 0;
             uint64_t j = 0;
             while (j < path->num_elements) {
                 RobustPathElement* el = path->elements + j++;
-                if (filter_check(op, layers.contains(get_layer(el->tag)),
-                                 types.contains(get_type(el->tag))))
-                    remove++;
+                if (tag_set.has_value(el->tag) == (remove > 0)) {
+                    remove_count++;
+                }
             }
-            if (remove == path->num_elements) {
+            if (remove_count == path->num_elements) {
                 cell->robustpath_array.remove_unordered(i);
                 Py_DECREF(path->owner);
             } else {
-                if (remove > 0) {
+                if (remove_count > 0) {
                     j = 0;
                     while (j < path->num_elements) {
                         RobustPathElement* el = path->elements + j;
-                        if (filter_check(op, layers.contains(get_layer(el->tag)),
-                                         types.contains(get_type(el->tag)))) {
+                        if (tag_set.has_value(el->tag) == (remove > 0)) {
                             el->width_array.clear();
                             el->offset_array.clear();
                             path->elements[j] = path->elements[--path->num_elements];
@@ -934,8 +879,7 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         uint64_t i = 0;
         while (i < cell->label_array.count) {
             Label* label = cell->label_array[i];
-            if (filter_check(op, layers.contains(get_layer(label->tag)),
-                             types.contains(get_type(label->tag)))) {
+            if (tag_set.has_value(label->tag) == (remove > 0)) {
                 cell->label_array.remove_unordered(i);
                 Py_DECREF(label->owner);
             } else {
@@ -944,8 +888,7 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
         }
     }
 
-    layers.clear();
-    types.clear();
+    tag_set.clear();
 
     Py_INCREF(self);
     return (PyObject*)self;

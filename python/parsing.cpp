@@ -96,6 +96,7 @@ static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, co
     return len;
 }
 
+/*
 static int64_t parse_uint_sequence(PyObject* sequence, Array<uint32_t>& dest, const char* name) {
     if (!PySequence_Check(sequence)) {
         PyErr_Format(PyExc_RuntimeError, "Argument %s must be a sequence.", name);
@@ -125,6 +126,7 @@ static int64_t parse_uint_sequence(PyObject* sequence, Array<uint32_t>& dest, co
     }
     return len;
 }
+*/
 
 static int64_t parse_tag_sequence(PyObject* iterable, Set<Tag>& dest, const char* name) {
     PyObject* iterator = PyObject_GetIter(iterable);

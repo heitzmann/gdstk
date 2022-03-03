@@ -2366,8 +2366,8 @@ Args:
       also included in the result.
     depth: If non negative, indicates the number of reference levels
       processed recursively.  A value of 0 will result in no references
-      being visited.  A value of ``None`` (the default) or a negative int
-      will include all reference levels below the cell.
+      being visited.  A value of ``None`` (the default) or a negative
+      integer will include all reference levels below the cell.
     layer: If set, only polygons in the defined layer and data type are
       returned.
     datatype: If set, only polygons in the defined layer and data type
@@ -2387,8 +2387,8 @@ Args:
       the created paths.
     depth: If non negative, indicates the number of reference levels
       processed recursively.  A value of 0 will result in no references
-      being visited.  A value of ``None`` (the default) or a negative int
-      will include all reference levels below the cell.
+      being visited.  A value of ``None`` (the default) or a negative
+      integer will include all reference levels below the cell.
     layer: If set, only paths in the defined layer and data type are
       returned.
     datatype: If set, only paths in the defined layer and data type are
@@ -2408,8 +2408,8 @@ Args:
       the created labels.
     depth: If non negative, indicates the number of reference levels
       processed recursively.  A value of 0 will result in no references
-      being visited.  A value of ``None`` (the default) or a negative int
-      will include all reference levels below the cell.
+      being visited.  A value of ``None`` (the default) or a negative
+      integer will include all reference levels below the cell.
     layer: If set, only labels in the defined layer and text type are
       returned.
     texttype: If set, only labels in the defined layer and text type
@@ -2540,27 +2540,25 @@ Examples:
        :align: center)!");
 
 PyDoc_STRVAR(cell_object_filter_doc,
-             R"!(filter(layers, types, operation, polygons=True, paths=True, labels=True) -> self
+             R"!(filter(spec, remove=True, polygons=True, paths=True, labels=True) -> self
 
 Remove elements from this cell based on their layer and data/text type.
 
-An element will be removed if the following check returns True:
-``(element.layer in layers) op (element.datatype in types)``
-
 Args:
-    layers: Sequence of layers.
-    types: Sequence of data/text types.
-    operation (str): Logical operation to be used in the filter check.
-      One of "and", "or", "xor", "nand", "nor", "nxor".
+    spec (iterable of tuples): tuples of (layer, data/text type) to
+      remove or to keep in the cell.
+    remove: If `True`, shapes whose layer and type specification are in
+      `spec` will be removed from the cell.  If `False`, only those
+      shapes will be kept, while others will be removed.
     polygons: Whether to filter the cell's polygons.
     paths: Whether to filter the cell's paths.
     labels: Whether to filter the cell's labels.
 
 Examples:
-    >>> # Remove all elements in layer 3 and with type 10:
-    >>> cell.filter([3], [10], "and")
-    >>> # Remove all elements except for those on layer 5:
-    >>> cell.filter([5], [], "nor"))!");
+    >>> # Remove all elements in layer 3, type 10:
+    >>> cell.filter([(3, 10)], True)
+    >>> # Remove all elements except for those on layer 5, type 2:
+    >>> cell.filter([(5, 2)], False))!");
 
 PyDoc_STRVAR(cell_object_dependencies_doc, R"!(dependencies(recursive) -> list
 

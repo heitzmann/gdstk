@@ -1,4 +1,7 @@
 # Change Log
+## Unreleased
+### Changed
+- `Cell.filter` arguments modified to match `read_gds`.
 
 ## 0.8.2 - 2022-02-26
 ### Fixed

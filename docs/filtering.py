@@ -16,9 +16,9 @@ if __name__ == "__main__":
 
     for cell in lib.cells:
         # Remove any polygons in layer 2
-        cell.filter([2], [], "or", paths=False, labels=False)
+        cell.filter([(2, 0)], paths=False, labels=False)
         # Remove any paths in layer 10
-        cell.filter([10], [], "or", polygons=False, labels=False)
+        cell.filter([(10, 0)], polygons=False, labels=False)
 
     lib.write_gds(path / "filtered-layout.gds")
 

@@ -227,9 +227,7 @@ Geometry Filtering
 Filtering the geometry of a loaded library requires only iterating over the
 desired cells and objects, testing and removing those not wanted.  In this
 example we load the layout created in :ref:`using-a-library` and remove the
-polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).  The
-method :meth:`gdstk.Cell.filter` is quite versatile in what layers and
-data/text types should be kept or removed from the cell.
+polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).
 
 .. tab:: Python
 

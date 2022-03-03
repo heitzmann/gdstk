@@ -132,36 +132,30 @@ def test_filter():
         gdstk.RobustPath(0j, [0.1, 0.1], 0.5, layer=[1, 2], datatype=t)
         for t in range(3)
     ]
-    layers = [1, 2]
-    types = [0]
-    for op, test in [
-        ("and", lambda a, b: a and b),
-        ("or", lambda a, b: a or b),
-        ("xor", lambda a, b: (a and not b) or (b and not a)),
-        ("nand", lambda a, b: not (a and b)),
-        ("nor", lambda a, b: not (a or b)),
-        ("nxor", lambda a, b: not ((a and not b) or (b and not a))),
-    ]:
-        path_results = [
-            [test(a in layers, b in types) for a, b in zip(path.layers, path.datatypes)]
-            for path in paths
-        ]
-        cell = gdstk.Cell(op)
+    spec = [(1, 0), (2, 0)]
+    for remove in (True, False):
+        cell = gdstk.Cell(str(remove))
         cell.add(*polys, *labels, *paths)
-        cell.filter(layers, types, op)
+        cell.filter(spec, remove)
 
         cell_polys = cell.polygons
         for poly in polys:
-            if test(poly.layer in layers, poly.datatype in types):
+            if ((poly.layer, poly.datatype) in spec) == remove:
                 assert poly not in cell_polys
             else:
                 assert poly in cell_polys
+
         cell_labels = cell.labels
         for label in labels:
-            if test(label.layer in layers, label.texttype in types):
+            if ((label.layer, label.texttype) in spec) == remove:
                 assert label not in cell_labels
             else:
                 assert label in cell_labels
+
+        path_results = [
+            [(tag in spec) == remove for tag in zip(path.layers, path.datatypes)]
+            for path in paths
+        ]
         cell_paths = cell.paths
         for path, results in zip(paths, path_results):
             if all(results):
@@ -170,8 +164,7 @@ def test_filter():
                 assert path in cell_paths
                 assert len(path.layers) == len(results) - sum(results)
                 assert all(
-                    not test(a in layers, b in types)
-                    for a, b in zip(path.layers, path.datatypes)
+                    (tag in spec) != remove for tag in zip(path.layers, path.datatypes)
                 )
 
 
