@@ -74,6 +74,10 @@ static int64_t parse_point_sequence(PyObject* py_polygon, Array<Vec2>& dest, con
 }
 
 static int64_t parse_double_sequence(PyObject* sequence, Array<double>& dest, const char* name) {
+    if (!PySequence_Check(sequence)) {
+        PyErr_Format(PyExc_RuntimeError, "Argument %s must be a sequence.", name);
+        return -1;
+    }
     const int64_t len = PySequence_Length(sequence);
     if (len <= 0) {
         PyErr_Format(PyExc_RuntimeError,
