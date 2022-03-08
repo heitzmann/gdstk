@@ -110,6 +110,12 @@ static PyObject* reference_object_copy(ReferenceObject* self, PyObject*) {
     result = (ReferenceObject*)PyObject_Init((PyObject*)result, &reference_object_type);
     result->reference = (Reference*)allocate_clear(sizeof(Reference));
     result->reference->copy_from(*self->reference);
+
+    if (result->reference->type == ReferenceType::Cell)
+        Py_INCREF(result->reference->cell->owner);
+    else if (result->reference->type == ReferenceType::RawCell)
+        Py_INCREF(result->reference->rawcell->owner);
+
     result->reference->owner = result;
     return (PyObject*)result;
 }
