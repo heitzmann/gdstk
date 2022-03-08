@@ -63,3 +63,29 @@ def test_label_bounding_box():
     bb = ref.bounding_box()
     assert_close(bb, ((x, y), (x, y)))
 
+
+def _create_cell_reference(raw=False):
+    if raw:
+        c = gdstk.RawCell("CELL")
+    else:
+        c = gdstk.Cell("CELL")
+    return gdstk.Reference(c)
+
+
+def _copy_and_set_properties(ref):
+    ref_copy = ref.copy()
+    ref_copy.set_gds_property(101, "test")
+    return ref_copy
+
+
+def test_copy_with_cell():
+    ref_copy = _copy_and_set_properties(_create_cell_reference(raw=False))
+
+    assert ref_copy.get_gds_property(101) == "test"
+    assert ref_copy.cell.name == "CELL"
+
+def test_copy_with_rawcell():
+    ref_copy = _copy_and_set_properties(_create_cell_reference(raw=True))
+
+    assert ref_copy.get_gds_property(101) == "test"
+    assert ref_copy.cell.name == "CELL"
