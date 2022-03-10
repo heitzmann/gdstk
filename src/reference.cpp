@@ -379,29 +379,42 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
     big_endian_swap16(buffer_single, COUNT(buffer_single));
 
     if (repetition.type != RepetitionType::None) {
-        if (repetition.type == RepetitionType::Rectangular && !x_reflection && rotation == 0) {
-            array = true;
-            x2 = origin.x + repetition.columns * repetition.spacing.x;
-            y2 = origin.y;
-            x3 = origin.x;
-            y3 = origin.y + repetition.rows * repetition.spacing.y;
-        } else if (repetition.type == RepetitionType::Regular) {
-            Vec2 u1 = repetition.v1;
-            Vec2 u2 = repetition.v2;
+        int64_t m = 0;
+        if (repetition.type == RepetitionType::Regular ||
+            (repetition.type == RepetitionType::Rectangular &&
+             is_multiple_of_pi_over_2(rotation, m))) {
+            Vec2 v1, v2;
+            if (repetition.type == RepetitionType::Rectangular) {
+                if (m % 2) {
+                    v1.x = 0;
+                    v1.y = repetition.spacing.x;
+                    v2.x = repetition.spacing.y;
+                    v2.y = 0;
+                } else {
+                    v1.x = repetition.spacing.x;
+                    v1.y = 0;
+                    v2.x = 0;
+                    v2.y = repetition.spacing.y;
+                }
+            } else {
+                v1 = repetition.v1;
+                v2 = repetition.v2;
+            }
+            Vec2 u1 = v1;
+            Vec2 u2 = v2;
             double len1 = u1.normalize();
             double len2 = u2.normalize();
-            if (x_reflection) u2 = -u2;
             double sa = sin(rotation);
             double ca = cos(rotation);
-            if ((len1 == 0 || (fabs(u1.x - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
-                               fabs(u1.y - sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE)) &&
-                (len2 == 0 || (fabs(u2.x + sa) < GDSTK_REFERENCE_REPETITION_TOLERANCE &&
-                               fabs(u2.y - ca) < GDSTK_REFERENCE_REPETITION_TOLERANCE))) {
+            double p1 = u1.inner(Vec2{ca, sa});
+            double p2 = u2.inner(Vec2{-sa, ca});
+            if ((len1 == 0 || fabs(fabs(p1) - 1.0) < GDSTK_REFERENCE_REPETITION_TOLERANCE) &&
+                (len2 == 0 || fabs(fabs(p2) - 1.0) < GDSTK_REFERENCE_REPETITION_TOLERANCE)) {
                 array = true;
-                x2 = origin.x + repetition.columns * repetition.v1.x;
-                y2 = origin.y + repetition.columns * repetition.v1.y;
-                x3 = origin.x + repetition.rows * repetition.v2.x;
-                y3 = origin.y + repetition.rows * repetition.v2.y;
+                x2 = origin.x + repetition.columns * v1.x;
+                y2 = origin.y + repetition.columns * v1.y;
+                x3 = origin.x + repetition.rows * v2.x;
+                y3 = origin.y + repetition.rows * v2.y;
             }
         }
 
