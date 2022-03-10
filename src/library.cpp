@@ -771,8 +771,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             break;
         }
 
-        // printf("%02X %s (%" PRIu32 " bytes)", buffer[2], gdsii_record_names[buffer[2]],
-        // record_length);
+        // printf("0x%02X %s (%" PRIu32 " bytes)", buffer[2], gdsii_record_names[buffer[2]],
+        //        record_length);
 
         uint64_t data_length;
         switch ((GdsiiDataType)buffer[3]) {
@@ -791,7 +791,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             case GdsiiDataType::EightByteReal:
                 data_length = (record_length - 4) / 8;
                 big_endian_swap64(data64, data_length);
-                // for (uint32_t i = 0; i < data_length; i++) printf(" %" PRIu64, data64[i]);
+                // for (uint32_t i = 0; i < data_length; i++)
+                // printf(" %" PRIu64 " (%g)", data64[i], gdsii_real_to_double(data64[i]));
                 break;
             default:
                 data_length = record_length - 4;
