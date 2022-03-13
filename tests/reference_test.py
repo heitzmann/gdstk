@@ -24,6 +24,18 @@ def test_noreference():
     assert ref.x_reflection == True
 
 
+def test_x_reflection():
+    c = gdstk.Cell("test")
+    ref = gdstk.Reference(c, x_reflection=False)
+    assert not ref.x_reflection
+
+    ref.x_reflection = True
+    assert ref.x_reflection
+
+    ref.x_reflection = False
+    assert not ref.x_reflection
+
+
 def test_empty():
     name = "ca_empty"
     c = gdstk.Cell(name)

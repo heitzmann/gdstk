@@ -349,9 +349,8 @@ int reference_object_set_x_reflection(ReferenceObject* self, PyObject* arg, void
     if (test < 0) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to determine truth value.");
         return -1;
-    } else if (test > 0) {
+    } else
         self->reference->x_reflection = test > 0;
-    }
     return 0;
 }
 
