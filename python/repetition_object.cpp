@@ -34,7 +34,12 @@ static PyObject* repetition_object_str(RepetitionObject* self) {
     return PyUnicode_FromString(buffer);
 }
 
-static void repetition_object_dealloc(RepetitionObject* self) { PyObject_Del(self); }
+static void repetition_object_dealloc(RepetitionObject* self) {
+    Repetition repetition = self->repetition;
+    repetition.clear();
+
+    PyObject_Del(self);
+}
 
 static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObject* kwds) {
     PyObject* spacing_obj = Py_None;
