@@ -2,6 +2,7 @@
 ## Unreleased
 ### Changed
 - `Cell.filter` arguments modified to match `read_gds`.
+- Changed default tolerance for `read_gds` and `read_oas` to be the library's rounding size.
 
 ## 0.8.2 - 2022-02-26
 ### Fixed

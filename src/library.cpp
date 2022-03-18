@@ -823,6 +823,9 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     library.unit = db_in_meters / db_in_user;
                 }
                 library.precision = db_in_meters;
+                if (tolerance <= 0) {
+                    tolerance = library.precision / library.unit;
+                }
             } break;
             case GdsiiRecord::ENDLIB: {
                 Map<Cell*> map = {0};
@@ -1175,6 +1178,9 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
         factor *= 1e-6 / unit;
     } else {
         library.unit = 1e-6;
+    }
+    if (tolerance <= 0) {
+        tolerance = library.precision / library.unit;
     }
 
     uint64_t offset_table_flag = oasis_read_unsigned_integer(in);

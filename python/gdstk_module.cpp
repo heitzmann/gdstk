@@ -1459,18 +1459,12 @@ static PyObject* create_library_objects(Library* library) {
 static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* pybytes = NULL;
     double unit = 0;
-    double tolerance = 1e-2;
+    double tolerance = 0;
     PyObject* pyfilter = Py_None;
     const char* keywords[] = {"infile", "unit", "tolerance", "filter", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|ddO:read_gds", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &unit, &tolerance, &pyfilter))
         return NULL;
-
-    if (tolerance <= 0) {
-        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
-        Py_DECREF(pybytes);
-        return NULL;
-    }
 
     Set<Tag> shape_tags = {0};
     Set<Tag>* shape_tags_ptr = NULL;
@@ -1503,17 +1497,11 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
 static PyObject* read_oas_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     PyObject* pybytes = NULL;
     double unit = 0;
-    double tolerance = 1e-2;
+    double tolerance = 0;
     const char* keywords[] = {"infile", "unit", "tolerance", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|dd:read_oas", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &unit, &tolerance))
         return NULL;
-
-    if (tolerance <= 0) {
-        PyErr_SetString(PyExc_ValueError, "Tolerance must be positive.");
-        Py_DECREF(pybytes);
-        return NULL;
-    }
 
     const char* filename = PyBytes_AS_STRING(pybytes);
     Library* library = (Library*)allocate_clear(sizeof(Library));
