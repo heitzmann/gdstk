@@ -16,6 +16,9 @@ static PyObject* rawcell_object_str(RawCellObject* self) {
 static void rawcell_object_dealloc(RawCellObject* self) {
     RawCell* rawcell = self->rawcell;
     if (rawcell) {
+        for (uint64_t i = 0; i < rawcell->dependencies.count; i++) {
+            Py_XDECREF(rawcell->dependencies[i]->owner);
+        }
         rawcell->clear();
         free_allocation(rawcell);
     }
@@ -60,6 +63,7 @@ static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args
         PyObject* rawcell_obj = (PyObject*)item->value->owner;
         Py_INCREF(rawcell_obj);
         PyList_SET_ITEM(result, i++, rawcell_obj);
+
     }
     rawcell_map.clear();
     return result;
