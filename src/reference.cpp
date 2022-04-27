@@ -378,6 +378,8 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
     uint16_t buffer_single[] = {12, 0x1003};
     big_endian_swap16(buffer_single, COUNT(buffer_single));
 
+    uint64_t columns = repetition.columns;
+    uint64_t rows = repetition.rows;
     if (repetition.type != RepetitionType::None) {
         int64_t m = 0;
         if (repetition.type == RepetitionType::Regular ||
@@ -385,17 +387,10 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
              is_multiple_of_pi_over_2(rotation, m))) {
             Vec2 v1, v2;
             if (repetition.type == RepetitionType::Rectangular) {
-                if (m % 2) {
-                    v1.x = 0;
-                    v1.y = repetition.spacing.x;
-                    v2.x = repetition.spacing.y;
-                    v2.y = 0;
-                } else {
-                    v1.x = repetition.spacing.x;
-                    v1.y = 0;
-                    v2.x = 0;
-                    v2.y = repetition.spacing.y;
-                }
+                v1.x = repetition.spacing.x;
+                v1.y = 0;
+                v2.x = 0;
+                v2.y = repetition.spacing.y;
             } else {
                 v1 = repetition.v1;
                 v2 = repetition.v2;
@@ -408,13 +403,24 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
             double ca = cos(rotation);
             double p1 = u1.inner(Vec2{ca, sa});
             double p2 = u2.inner(Vec2{-sa, ca});
+            double p3 = u1.inner(Vec2{-sa, ca});
+            double p4 = u2.inner(Vec2{ca, sa});
             if ((len1 == 0 || fabs(fabs(p1) - 1.0) < GDSTK_REFERENCE_REPETITION_TOLERANCE) &&
                 (len2 == 0 || fabs(fabs(p2) - 1.0) < GDSTK_REFERENCE_REPETITION_TOLERANCE)) {
                 array = true;
-                x2 = origin.x + repetition.columns * v1.x;
-                y2 = origin.y + repetition.columns * v1.y;
-                x3 = origin.x + repetition.rows * v2.x;
-                y3 = origin.y + repetition.rows * v2.y;
+                x2 = origin.x + columns * v1.x;
+                y2 = origin.y + columns * v1.y;
+                x3 = origin.x + rows * v2.x;
+                y3 = origin.y + rows * v2.y;
+            } else if ((len1 == 0 || fabs(fabs(p3) - 1.0) < GDSTK_REFERENCE_REPETITION_TOLERANCE) &&
+                       (len2 == 0 || fabs(fabs(p4) - 1.0) < GDSTK_REFERENCE_REPETITION_TOLERANCE)) {
+                array = true;
+                columns = repetition.rows;
+                rows = repetition.columns;
+                x2 = origin.x + columns * v2.x;
+                y2 = origin.y + columns * v2.y;
+                x3 = origin.x + rows * v1.x;
+                y3 = origin.y + rows * v1.y;
             }
         }
 
@@ -427,8 +433,8 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
                 buffer_array[2] = UINT16_MAX;
                 buffer_array[3] = UINT16_MAX;
             } else {
-                buffer_array[2] = (uint16_t)repetition.columns;
-                buffer_array[3] = (uint16_t)repetition.rows;
+                buffer_array[2] = (uint16_t)columns;
+                buffer_array[3] = (uint16_t)rows;
             }
             big_endian_swap16(buffer_array, COUNT(buffer_array));
             buffer_coord[0] = (int32_t)(lround(origin.x * scaling));
