@@ -55,16 +55,11 @@ struct Array {
         count = 0;
     }
 
-    bool contains(const T item) const {
-        T* it = items;
-        for (uint64_t j = 0; j < count; j++)
-            if (*(it++) == item) return true;
-        return false;
-    }
+    bool contains(const T& item) const { return index(item) < count; }
 
     // Return the index of an array item.  If the item is not found, return the
     // array count.
-    uint64_t index(const T item) const {
+    uint64_t index(const T& item) const {
         T* it = items;
         for (uint64_t j = 0; j < count; j++)
             if (*(it++) == item) return j;
@@ -110,7 +105,7 @@ struct Array {
 
     // Remove (ordered) the first occurence of a specific item in the array.
     // Return false if the item cannot be found.
-    bool remove_item(const T item) {
+    bool remove_item(const T& item) {
         uint64_t i = index(item);
         if (i == count) return false;
         remove(i);
