@@ -41,7 +41,7 @@ struct Array {
             for (uint64_t i = 0; i < count; i += n) {
                 for (uint64_t j = 0; j < n && i + j < count; j++) {
                     if (j > 0) printf(" ");
-                    printf("<%p>", items[i + j]);
+                    printf("<%p>", (void*)items[i + j]);
                 }
                 putchar('\n');
             }

@@ -30,13 +30,24 @@ struct Set {
     uint64_t count;     // number of items in the set
     SetItem<T>* items;  // array with length capacity
 
-    void print(bool all) const {
+    void print(bool all, void (*value_print)(const T&)) const {
         printf("Set <%p>, count %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, count, capacity,
                items);
         if (all) {
             SetItem<T>* item = items;
-            for (uint64_t i = 0; i < capacity; i++, item++) {
-                printf("Item[%" PRIu64 "] %s\n", i, item->valid ? "valid" : "invalid");
+            if (value_print) {
+                for (uint64_t i = 0; i < capacity; i++, item++) {
+                    if (item->valid) {
+                        printf("Item[%" PRIu64 "] ", i);
+                        value_print(item->value);
+                    } else {
+                        printf("Item[%" PRIu64 "]\n", i);
+                    }
+                }
+            } else {
+                for (uint64_t i = 0; i < capacity; i++, item++) {
+                    printf("Item[%" PRIu64 "] %s\n", i, item->valid ? "valid" : "invalid");
+                }
             }
         }
     }

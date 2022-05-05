@@ -31,14 +31,22 @@ struct Map {
     uint64_t count;     // number of items in the map
     MapItem<T>* items;  // array with length capacity
 
-    void print(bool all) const {
+    void print(bool all, void (*value_print)(const T&)) const {
         printf("Map <%p>, count %" PRIu64 "/%" PRIu64 ", items <%p>\n", this, count, capacity,
                items);
         if (all) {
             MapItem<T>* item = items;
-            for (uint64_t i = 0; i < capacity; i++, item++) {
-                printf("Item %" PRIu64 " <%p>, key %p (%s), value <%p>\n", i, item, item->key,
-                       item->key ? item->key : "", item->value);
+            if (value_print) {
+                for (uint64_t i = 0; i < capacity; i++, item++) {
+                    printf("Item %" PRIu64 " <%p>, key %p (%s): ", i, item, item->key,
+                           item->key ? item->key : "");
+                    value_print(item->value);
+                }
+            } else {
+                for (uint64_t i = 0; i < capacity; i++, item++) {
+                    printf("Item %" PRIu64 " <%p>, key %p (%s): value <%p>\n", i, item, item->key,
+                           item->key ? item->key : "", item->value);
+                }
             }
         }
     }
