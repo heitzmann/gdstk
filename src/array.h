@@ -35,16 +35,13 @@ struct Array {
     const T& operator[](uint64_t idx) const { return items[idx]; }
 
     void print(bool all) const {
-        const uint8_t n = 6;
         printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
-        if (all) {
-            for (uint64_t i = 0; i < count; i += n) {
-                for (uint64_t j = 0; j < n && i + j < count; j++) {
-                    if (j > 0) printf(" ");
-                    printf("<%p>", (void*)items[i + j]);
-                }
-                putchar('\n');
+        if (all && count > 0) {
+            printf("<%p>", (void*)items[0]);
+            for (uint64_t i = 0; i < count; ++i) {
+                printf(" <%p>", (void*)items[i]);
             }
+            putchar('\n');
         }
     }
 
@@ -142,46 +139,37 @@ struct Array {
 
 template <>
 inline void Array<Vec2>::print(bool all) const {
-    const uint8_t n = 6;
     printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
-    if (all) {
-        for (uint64_t i = 0; i < count; i += n) {
-            for (uint64_t j = 0; j < n && i + j < count; j++) {
-                if (j > 0) printf(" ");
-                printf("(%lg, %lg)", items[i + j].x, items[i + j].y);
-            }
-            putchar('\n');
+    if (all && count > 0) {
+        printf("(%lg, %lg)", items[0].x, items[0].y);
+        for (uint64_t i = 1; i < count; ++i) {
+            printf(" (%lg, %lg)", items[i].x, items[i].y);
         }
+        putchar('\n');
     }
 }
 
 template <>
 inline void Array<IntVec2>::print(bool all) const {
-    const uint8_t n = 6;
     printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
-    if (all) {
-        for (uint64_t i = 0; i < count; i += n) {
-            for (uint64_t j = 0; j < n && i + j < count; j++) {
-                if (j > 0) printf(" ");
-                printf("(%" PRId64 ", %" PRId64 ")", items[i + j].x, items[i + j].y);
-            }
-            putchar('\n');
+    if (all && count > 0) {
+        printf(" (%" PRId64 ", %" PRId64 ")", items[0].x, items[0].y);
+        for (uint64_t i = 0; i < count; ++i) {
+            printf(" (%" PRId64 ", %" PRId64 ")", items[i].x, items[i].y);
         }
+        putchar('\n');
     }
 }
 
 template <>
 inline void Array<double>::print(bool all) const {
-    const uint8_t n = 12;
     printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
-    if (all) {
-        for (uint64_t i = 0; i < count; i += n) {
-            for (uint64_t j = 0; j < n && i + j < count; j++) {
-                if (j > 0) printf(" ");
-                printf("%lg", items[i + j]);
-            }
-            putchar('\n');
+    if (all && count > 0) {
+        printf(" %lg", items[0]);
+        for (uint64_t i = 0; i < count; ++i) {
+            printf(" %lg", items[i]);
         }
+        putchar('\n');
     }
 }
 
