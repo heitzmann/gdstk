@@ -24,6 +24,18 @@ def test_noreference():
     assert ref.x_reflection == True
 
 
+def test_x_reflection():
+    c = gdstk.Cell("test")
+    ref = gdstk.Reference(c, x_reflection=False)
+    assert not ref.x_reflection
+
+    ref.x_reflection = True
+    assert ref.x_reflection
+
+    ref.x_reflection = False
+    assert not ref.x_reflection
+
+
 def test_empty():
     name = "ca_empty"
     c = gdstk.Cell(name)
@@ -49,7 +61,7 @@ def test_label_bounding_box():
     c = gdstk.Cell("CELL")
     l = gdstk.Label("Label", (2, 3))
     c.add(l)
-    bb = c.bounding_box();
+    bb = c.bounding_box()
     assert bb[0][0] == 2 and bb[0][1] == 3
     assert bb[1][0] == 2 and bb[1][1] == 3
     ref = gdstk.Reference(c, (-1, 1))
@@ -80,12 +92,64 @@ def _copy_and_set_properties(ref):
 
 def test_copy_with_cell():
     ref_copy = _copy_and_set_properties(_create_cell_reference(raw=False))
-
     assert ref_copy.get_gds_property(101) == "test"
     assert ref_copy.cell.name == "CELL"
+
 
 def test_copy_with_rawcell():
     ref_copy = _copy_and_set_properties(_create_cell_reference(raw=True))
-
     assert ref_copy.get_gds_property(101) == "test"
     assert ref_copy.cell.name == "CELL"
+
+
+def test_gds_array(tmpdir):
+    lib = gdstk.Library("Library")
+    ref_cell = lib.new_cell("Base")
+    ref_cell.add(*gdstk.text("F", 1, (0, 0)))
+
+    for rect in (True, False):
+        for cols in (1, 3):
+            for rows in (1, 3):
+                if cols * rows == 1:
+                    continue
+                for dx in (-3, 0, 3):
+                    for dy in (-4, 0, 4):
+                        if rect:
+                            rep = gdstk.Repetition(
+                                columns=cols, rows=rows, spacing=(dx, dy)
+                            )
+                        else:
+                            rep = gdstk.Repetition(
+                                columns=cols, rows=rows, v1=(dx, 0), v2=(0, dy)
+                            )
+                        for rot in range(-3, 4):
+                            for refl in (True, False):
+                                cell = lib.new_cell(
+                                    f"{'RECT' if rect else 'REGL'}"
+                                    f"_{cols}_{rows}_{dx}_{dy}"
+                                    f"_{rot}{'_X' if refl else ''}"
+                                )
+                                ref = gdstk.Reference(
+                                    ref_cell,
+                                    (-0.5, -1),
+                                    0.5 * numpy.pi * rot,
+                                    x_reflection=refl,
+                                )
+                                ref.repetition = rep
+                                cell.add(ref)
+
+    fname = str(tmpdir.join("aref_test.gds"))
+    lib.write_gds(fname)
+    lib2 = gdstk.read_gds(fname)
+
+    cell_dict = {cell.name: cell for cell in lib.cells}
+    for cell in lib2.cells:
+        if len(cell.references) == 0:
+            continue
+        assert len(cell.references) == 1
+        assert cell.references[0].repetition.size > 1
+        assert cell.name in cell_dict
+        polygons1 = cell_dict[cell.name].get_polygons()
+        polygons2 = cell.get_polygons()
+        assert len(polygons1) == len(polygons2)
+        assert_same_shape(polygons1, polygons2)

@@ -2219,7 +2219,11 @@ Examples:
        :align: center
 
     Note that this example can only be correctly displayed in browsers
-    with good support for text alignment in SVG images.)!");
+    with good support for text alignment in SVG images.
+
+Notes:
+    Label anchor and transformations (rotation, magnification and
+    reflection) are not supported by the OASIS format.)!");
 
 PyDoc_STRVAR(label_object_copy_doc, R"!(copy() -> gdstk.Label
 

@@ -99,7 +99,7 @@ void properties_clear(Property*& properties) {
 
 PropertyValue* property_values_copy(const PropertyValue* values) {
     PropertyValue* result = NULL;
-    PropertyValue* dst;
+    PropertyValue* dst = NULL;
     for (; values; values = values->next) {
         if (result == NULL) {
             result = (PropertyValue*)allocate(sizeof(PropertyValue));
@@ -132,7 +132,7 @@ PropertyValue* property_values_copy(const PropertyValue* values) {
 
 Property* properties_copy(const Property* properties) {
     Property* result = NULL;
-    Property* dst;
+    Property* dst = NULL;
     for (; properties; properties = properties->next) {
         if (result == NULL) {
             result = (Property*)allocate(sizeof(Property));

@@ -4,6 +4,12 @@
 - `Cell.filter` arguments modified to match `read_gds`.
 - Changed default tolerance for `read_gds` and `read_oas` to be the library's rounding size.
 
+## 0.8.3 - 2022-06-02
+### Fixed
+- References from raw cells are kept from garbage collection while in use
+- Allow assigning to `Reference.x_reflection` from Python
+- Errors in detection of arrays when exporting GDSII files
+
 ## 0.8.2 - 2022-02-26
 ### Fixed
 - `Cell.get_paths` not returning all FlexPaths when RobustPaths were present in the cell (thanks @jatoben)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright 2020 Lucas Heitzmann Gabrielli.
+# Copyright 2021 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>

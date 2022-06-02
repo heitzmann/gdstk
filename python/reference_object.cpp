@@ -23,10 +23,11 @@ static PyObject* reference_object_str(ReferenceObject* self) {
 static void reference_object_dealloc(ReferenceObject* self) {
     Reference* reference = self->reference;
     if (reference) {
-        if (reference->type == ReferenceType::Cell)
+        if (reference->type == ReferenceType::Cell) {
             Py_DECREF(reference->cell->owner);
-        else if (reference->type == ReferenceType::RawCell)
+        } else if (reference->type == ReferenceType::RawCell) {
             Py_DECREF(reference->rawcell->owner);
+        }
         reference->clear();
         free_allocation(reference);
     }
@@ -52,10 +53,11 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
         return -1;
     if (parse_point(origin_obj, origin, "origin") < 0) return -1;
 
-    if (self->reference)
+    if (self->reference) {
         self->reference->clear();
-    else
+    } else {
         self->reference = (Reference*)allocate_clear(sizeof(Reference));
+    }
     Reference* reference = self->reference;
 
     if (CellObject_Check(cell_obj)) {
@@ -349,9 +351,8 @@ int reference_object_set_x_reflection(ReferenceObject* self, PyObject* arg, void
     if (test < 0) {
         PyErr_SetString(PyExc_RuntimeError, "Unable to determine truth value.");
         return -1;
-    } else if (test > 0) {
+    } else
         self->reference->x_reflection = test > 0;
-    }
     return 0;
 }
 

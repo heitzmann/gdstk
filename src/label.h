@@ -30,10 +30,10 @@ struct Label {
     Tag tag;
     char* text;  // NULL-terminated text string
     Vec2 origin;
-    Anchor anchor;    // Text anchor (not supported by OASIS)
-    double rotation;  // in radians
-    double magnification;
-    bool x_reflection;
+    Anchor anchor;         // Text anchor (not supported by OASIS)
+    double rotation;       // in radians (not supported by OASIS)
+    double magnification;  // (not supported by OASIS)
+    bool x_reflection;     // (not supported by OASIS)
     Repetition repetition;
     Property* properties;
     // Used by the python interface to store the associated PyObject* (if any).

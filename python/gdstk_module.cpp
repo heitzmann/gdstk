@@ -1546,6 +1546,12 @@ static PyObject* read_rawcells_function(PyObject* mod, PyObject* args) {
         }
         Py_DECREF(rawcell_obj);
     }
+    for (MapItem<RawCell*>* item = map.next(NULL); item; item = map.next(item)) {
+        RawCell* rawcell = item->value;
+        for (uint64_t i = 0; i < rawcell->dependencies.count; i++) {
+            Py_INCREF(rawcell->dependencies[i]->owner);
+        }
+    }
     map.clear();
     return (PyObject*)result;
 }
