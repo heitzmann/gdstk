@@ -89,7 +89,7 @@ python setup.py install
 
 ## Support
 
-Help support Gdstk development by [donating via PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JD2EUE2WPPBQQ)
+Help support Gdstk development by [donating via PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=JD2EUE2WPPBQQ) or [sponsoring me on GitHub](https://github.com/sponsors/heitzmann).
 
 
 ## Benchmarks
