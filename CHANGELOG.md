@@ -1,5 +1,7 @@
 # Change Log
 ## Unreleased
+### Added
+- `Reference.get_polygons`, `Reference.get_paths`, `Reference.get_labels`
 ### Changed
 - `Cell.filter` arguments modified to match `read_gds`.
 - Changed default tolerance for `read_gds` and `read_oas` to be the library's rounding size.

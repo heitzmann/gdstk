@@ -147,6 +147,218 @@ static PyObject* reference_object_convex_hull(ReferenceObject* self, PyObject*) 
     return (PyObject*)result;
 }
 
+static PyObject* reference_object_get_polygons(ReferenceObject* self, PyObject* args,
+                                               PyObject* kwds) {
+    int apply_repetitions = 1;
+    int include_paths = 1;
+    PyObject* py_depth = Py_None;
+    PyObject* py_layer = Py_None;
+    PyObject* py_datatype = Py_None;
+    const char* keywords[] = {
+        "apply_repetitions", "include_paths", "depth", "layer", "datatype", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|ppOOO:get_polygons", (char**)keywords,
+                                     &apply_repetitions, &include_paths, &py_depth, &py_layer,
+                                     &py_datatype))
+        return NULL;
+
+    int64_t depth = -1;
+    if (py_depth != Py_None) {
+        depth = PyLong_AsLongLong(py_depth);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert depth to integer.");
+            return NULL;
+        }
+    }
+
+    uint32_t layer = 0;
+    uint32_t datatype = 0;
+    bool filter = (py_layer != Py_None) && (py_datatype != Py_None);
+    if (filter) {
+        layer = PyLong_AsUnsignedLong(py_layer);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert layer to unsigned integer.");
+            return NULL;
+        }
+        datatype = PyLong_AsUnsignedLong(py_datatype);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert datatype to unsigned integer.");
+            return NULL;
+        }
+    }
+
+    Array<Polygon*> array = {0};
+    self->reference->get_polygons(apply_repetitions > 0, include_paths > 0, depth, filter,
+                                  make_tag(layer, datatype), array);
+
+    PyObject* result = PyList_New(array.count);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        for (uint64_t i = 0; i < array.count; i++) {
+            array[i]->clear();
+            free_allocation(array[i]);
+        }
+        array.clear();
+        return NULL;
+    }
+
+    for (uint64_t i = 0; i < array.count; i++) {
+        Polygon* poly = array[i];
+        PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
+        obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
+        obj->polygon = poly;
+        poly->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+
+    array.clear();
+    return result;
+}
+
+static PyObject* reference_object_get_paths(ReferenceObject* self, PyObject* args, PyObject* kwds) {
+    int apply_repetitions = 1;
+    PyObject* py_depth = Py_None;
+    PyObject* py_layer = Py_None;
+    PyObject* py_datatype = Py_None;
+    const char* keywords[] = {"apply_repetitions", "depth", "layer", "datatype", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|pOOO:get_polygons", (char**)keywords,
+                                     &apply_repetitions, &py_depth, &py_layer, &py_datatype))
+        return NULL;
+
+    int64_t depth = -1;
+    if (py_depth != Py_None) {
+        depth = PyLong_AsLongLong(py_depth);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert depth to integer.");
+            return NULL;
+        }
+    }
+
+    uint32_t layer = 0;
+    uint32_t datatype = 0;
+    bool filter = (py_layer != Py_None) && (py_datatype != Py_None);
+    if (filter) {
+        layer = PyLong_AsUnsignedLong(py_layer);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert layer to unsigned integer.");
+            return NULL;
+        }
+        datatype = PyLong_AsUnsignedLong(py_datatype);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert datatype to unsigned integer.");
+            return NULL;
+        }
+    }
+
+    Array<FlexPath*> fp_array = {0};
+    self->reference->get_flexpaths(apply_repetitions > 0, depth, filter, make_tag(layer, datatype),
+                                   fp_array);
+
+    Array<RobustPath*> rp_array = {0};
+    self->reference->get_robustpaths(apply_repetitions > 0, depth, filter,
+                                     make_tag(layer, datatype), rp_array);
+
+    PyObject* result = PyList_New(fp_array.count + rp_array.count);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        for (uint64_t i = 0; i < fp_array.count; i++) {
+            fp_array[i]->clear();
+            free_allocation(fp_array[i]);
+        }
+        fp_array.clear();
+        for (uint64_t i = 0; i < rp_array.count; i++) {
+            rp_array[i]->clear();
+            free_allocation(rp_array[i]);
+        }
+        rp_array.clear();
+        return NULL;
+    }
+
+    for (uint64_t i = 0; i < fp_array.count; i++) {
+        FlexPath* path = fp_array[i];
+        FlexPathObject* obj = PyObject_New(FlexPathObject, &flexpath_object_type);
+        obj = (FlexPathObject*)PyObject_Init((PyObject*)obj, &flexpath_object_type);
+        obj->flexpath = path;
+        path->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+    for (uint64_t i = 0; i < rp_array.count; i++) {
+        RobustPath* path = rp_array[i];
+        RobustPathObject* obj = PyObject_New(RobustPathObject, &robustpath_object_type);
+        obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
+        obj->robustpath = path;
+        path->owner = obj;
+        PyList_SET_ITEM(result, i + fp_array.count, (PyObject*)obj);
+    }
+
+    fp_array.clear();
+    rp_array.clear();
+    return result;
+}
+
+static PyObject* reference_object_get_labels(ReferenceObject* self, PyObject* args,
+                                             PyObject* kwds) {
+    int apply_repetitions = 1;
+    PyObject* py_depth = Py_None;
+    PyObject* py_layer = Py_None;
+    PyObject* py_texttype = Py_None;
+    const char* keywords[] = {"apply_repetitions", "depth", "layer", "texttype", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|pOOO:get_polygons", (char**)keywords,
+                                     &apply_repetitions, &py_depth, &py_layer, &py_texttype))
+        return NULL;
+
+    int64_t depth = -1;
+    if (py_depth != Py_None) {
+        depth = PyLong_AsLongLong(py_depth);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert depth to integer.");
+            return NULL;
+        }
+    }
+
+    uint32_t layer = 0;
+    uint32_t texttype = 0;
+    bool filter = (py_layer != Py_None) && (py_texttype != Py_None);
+    if (filter) {
+        layer = PyLong_AsUnsignedLong(py_layer);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert layer to unsigned integer.");
+            return NULL;
+        }
+        texttype = PyLong_AsUnsignedLong(py_texttype);
+        if (PyErr_Occurred()) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to convert texttype to unsigned integer.");
+            return NULL;
+        }
+    }
+
+    Array<Label*> array = {0};
+    self->reference->get_labels(apply_repetitions > 0, depth, filter, make_tag(layer, texttype),
+                                array);
+
+    PyObject* result = PyList_New(array.count);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create return list.");
+        for (uint64_t i = 0; i < array.count; i++) {
+            array[i]->clear();
+            free_allocation(array[i]);
+        }
+        array.clear();
+        return NULL;
+    }
+
+    for (uint64_t i = 0; i < array.count; i++) {
+        Label* label = array[i];
+        LabelObject* obj = PyObject_New(LabelObject, &label_object_type);
+        obj = (LabelObject*)PyObject_Init((PyObject*)obj, &label_object_type);
+        obj->label = label;
+        label->owner = obj;
+        PyList_SET_ITEM(result, i, (PyObject*)obj);
+    }
+
+    array.clear();
+    return result;
+}
+
 static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject*) {
     Array<Reference*> array = {0};
     self->reference->apply_repetition(array);
@@ -214,6 +426,12 @@ static PyMethodDef reference_object_methods[] = {
      reference_object_bounding_box_doc},
     {"convex_hull", (PyCFunction)reference_object_convex_hull, METH_NOARGS,
      reference_object_convex_hull_doc},
+    {"get_polygons", (PyCFunction)reference_object_get_polygons, METH_VARARGS | METH_KEYWORDS,
+     reference_object_get_polygons_doc},
+    {"get_paths", (PyCFunction)reference_object_get_paths, METH_VARARGS | METH_KEYWORDS,
+     reference_object_get_paths_doc},
+    {"get_labels", (PyCFunction)reference_object_get_labels, METH_VARARGS | METH_KEYWORDS,
+     reference_object_get_labels_doc},
     {"apply_repetition", (PyCFunction)reference_object_apply_repetition, METH_NOARGS,
      reference_object_apply_repetition_doc},
     {"set_property", (PyCFunction)reference_object_set_property, METH_VARARGS,

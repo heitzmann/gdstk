@@ -686,6 +686,71 @@ Notes:
     This operation can be slow because all paths and references are
     included in the computation.)!");
 
+PyDoc_STRVAR(reference_object_get_polygons_doc, R"!(get_polygons(apply_repetitions=True, include_paths=True, depth=None, layer=None, datatype=None) -> list
+
+Return a copy of all polygons created by this reference.
+
+Args:
+    apply_repetitions: Define whether repetitions should be applied in
+      the created polygons.
+    include_paths: If ``True``, polygonal representation of paths are
+      also included in the result.
+    depth: If non negative, indicates the number of reference levels
+      processed recursively.  A value of 0 will result in no references
+      being visited.  A value of ``None`` (the default) or a negative
+      integer will include all reference levels below the cell.
+    layer: If set, only polygons in the defined layer and data type are
+      returned.
+    datatype: If set, only polygons in the defined layer and data type
+      are returned.
+
+Notes:
+    Arguments ``layer`` and ``datatype`` must both be set to integers
+    for the filtering to be executed.  If either one is ``None`` they
+    are both ignored.)!");
+
+PyDoc_STRVAR(reference_object_get_paths_doc, R"!(get_paths(apply_repetitions=True, depth=None, layer=None, datatype=None) -> list
+
+Return a copy of all paths created by this reference.
+
+Args:
+    apply_repetitions: Define whether repetitions should be applied in
+      the created paths.
+    depth: If non negative, indicates the number of reference levels
+      processed recursively.  A value of 0 will result in no references
+      being visited.  A value of ``None`` (the default) or a negative
+      integer will include all reference levels below the cell.
+    layer: If set, only paths in the defined layer and data type are
+      returned.
+    datatype: If set, only paths in the defined layer and data type are
+      returned.
+
+Notes:
+    Arguments ``layer`` and ``datatype`` must both be set to integers
+    for the filtering to be executed.  If either one is ``None`` they
+    are both ignored.)!");
+
+PyDoc_STRVAR(reference_object_get_labels_doc, R"!(get_labels(apply_repetitions=True, depth=None, layer=None, texttype=None) -> list
+
+Return a copy of all labels created by this reference.
+
+Args:
+    apply_repetitions: Define whether repetitions should be applied in
+      the created labels.
+    depth: If non negative, indicates the number of reference levels
+      processed recursively.  A value of 0 will result in no references
+      being visited.  A value of ``None`` (the default) or a negative
+      integer will include all reference levels below the cell.
+    layer: If set, only labels in the defined layer and text type are
+      returned.
+    texttype: If set, only labels in the defined layer and text type
+      are returned.
+
+Notes:
+    Arguments ``layer`` and ``texttype`` must both be set to integers
+    for the filtering to be executed.  If either one is ``None`` they
+    are both ignored.)!");
+
 PyDoc_STRVAR(reference_object_apply_repetition_doc, R"!(apply_repetition() -> list
 
 Create new references based on this object's ``repetition`` attribute.

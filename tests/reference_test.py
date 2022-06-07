@@ -13,6 +13,24 @@ import gdstk
 from conftest import assert_same_shape, assert_close
 
 
+@pytest.fixture
+def tree():
+    p1 = gdstk.Polygon(((0, 0), (0, 1), (1, 0)), 0, 0)
+    p2 = gdstk.Polygon(((2, 0), (2, 1), (1, 0)), 1, 1)
+    l1 = gdstk.Label("label1", (0, 0), layer=11)
+    l2 = gdstk.Label("label2", (2, 1), layer=12)
+    c1 = gdstk.Cell("tree1")
+    c1.add(p1)
+    c1.add(l1)
+    c2 = gdstk.Cell("tree2")
+    c2.add(l2)
+    c2.add(p2)
+    c2.add(gdstk.Reference(c1))
+    c3 = gdstk.Cell("tree3")
+    c3.add(gdstk.Reference(c2, (0, 0), columns=3, rows=2, spacing=(3, 3)))
+    return c3, c2, c1
+
+
 def test_noreference():
     name = "ca_noreference"
     ref = gdstk.Reference(name, (1, -1), numpy.pi / 2, 2.1, True)
@@ -153,3 +171,63 @@ def test_gds_array(tmpdir):
         polygons2 = cell.get_polygons()
         assert len(polygons1) == len(polygons2)
         assert_same_shape(polygons1, polygons2)
+
+
+def test_get_polygons_depth(tree):
+    c3, c2, c1 = tree
+    r3 = c3.references[0]
+    polys = r3.get_polygons()
+    assert len(polys) == 12
+    polys = r3.get_polygons(depth=0)
+    assert len(polys) == 6
+    polys = r3.get_polygons(depth=1)
+    assert len(polys) == 12
+
+
+def test_get_polygons_filter(tree):
+    c3, c2, c1 = tree
+    r3 = c3.references[0]
+    polys = r3.get_polygons(layer=3)
+    assert len(polys) == 12
+    polys = r3.get_polygons(datatype=3)
+    assert len(polys) == 12
+    polys = r3.get_polygons(layer=0, datatype=0)
+    assert len(polys) == 6
+    polys = r3.get_polygons(layer=1, datatype=1)
+    assert len(polys) == 6
+    polys = r3.get_polygons(layer=0, datatype=1)
+    assert len(polys) == 0
+    polys = r3.get_polygons(layer=1, datatype=0)
+    assert len(polys) == 0
+
+
+def test_get_paths(tree):
+    c3, c2, c1 = tree
+    r3 = c3.references[0]
+    c1.add(gdstk.FlexPath([(0, 0), (1, 1)], [0.1, 0.1], layer=[0, 1], datatype=[2, 3]))
+    c2.add(gdstk.RobustPath((0, 0), [0.1, 0.1], layer=[0, 1], datatype=[2, 3]))
+    paths = r3.get_paths()
+    assert len(paths) == 12
+    assert paths[0].num_paths == 2
+    assert all(p is not None for p in paths)
+    paths = r3.get_paths(depth=0)
+    assert len(paths) == 6
+    assert paths[0].num_paths == 2
+    assert all(p is not None for p in paths)
+    paths = r3.get_paths(depth=0, layer=1, datatype=3)
+    assert len(paths) == 6
+    assert paths[0].num_paths == 1
+    assert all(p is not None for p in paths)
+
+
+def test_get_labels(tree):
+    c3, c2, c1 = tree
+    r3 = c3.references[0]
+    labels = r3.get_labels()
+    assert len(labels) == 12
+    labels = r3.get_labels(depth=0)
+    assert len(labels) == 6
+    labels = r3.get_labels(depth=0, layer=11, texttype=0)
+    assert len(labels) == 0
+    labels = r3.get_labels(depth=1, layer=11, texttype=0)
+    assert len(labels) == 6
