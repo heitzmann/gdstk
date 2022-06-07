@@ -2761,6 +2761,15 @@ Examples:
     >>> polygon = gdstk.rectangle((0, 0), (1, 1))
     >>> cell.add(polygon))!");
 
+PyDoc_STRVAR(library_object_rename_cell_doc, R"!(rename_cell(old_name, new_name) -> self
+
+Rename a cell in this library, updating any references that use the old
+name with the new one.
+
+Args:
+    old_name (str or Cell): Cell or name of the cell to be renamed.
+    new_name (str): New cell name.)!");
+
 PyDoc_STRVAR(library_object_top_level_doc, R"!(top_level() -> list
 
 Return the top-level cells in the library.

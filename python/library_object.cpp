@@ -263,6 +263,25 @@ static PyObject* library_object_replace(LibraryObject* self, PyObject* args) {
     return (PyObject*)self;
 }
 
+static PyObject* library_object_rename_cell(LibraryObject* self, PyObject* args, PyObject* kwds) {
+    const char* keywords[] = {"old_name", "new_name", NULL};
+    const char* new_name = NULL;
+    PyObject* py_old = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Os:rename_cell", (char**)keywords, &py_old,
+                                     &new_name)) {
+        return NULL;
+    }
+
+    if (PyUnicode_Check(py_old)) {
+        self->library->rename_cell(PyUnicode_AsUTF8(py_old), new_name);
+    } else if(CellObject_Check(py_old)) {
+        self->library->rename_cell(((CellObject*)py_old)->cell, new_name);
+    }
+
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
     Library* library = self->library;
     Array<Cell*> top_cells = {0};
@@ -417,6 +436,8 @@ static PyMethodDef library_object_methods[] = {
     {"remove", (PyCFunction)library_object_remove, METH_VARARGS, library_object_remove_doc},
     {"replace", (PyCFunction)library_object_replace, METH_VARARGS, library_object_replace_doc},
     {"new_cell", (PyCFunction)library_object_new_cell, METH_VARARGS, library_object_new_cell_doc},
+    {"rename_cell", (PyCFunction)library_object_rename_cell, METH_VARARGS | METH_KEYWORDS,
+     library_object_rename_cell_doc},
     {"top_level", (PyCFunction)library_object_top_level, METH_NOARGS, library_object_top_level_doc},
     {"layers_and_datatypes", (PyCFunction)library_object_layers_and_datatypes, METH_NOARGS,
      library_object_layers_and_datatypes_doc},

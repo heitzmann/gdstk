@@ -97,6 +97,7 @@ def test_gds_info(tmpdir, sample_library):
     assert info["unit"] == 2e-3
     assert info["precision"] == 1e-5
 
+
 def test_rw_gds(tmpdir, sample_library):
     fname = str(tmpdir.join("test.gds"))
     sample_library.write_gds(fname, max_points=20)
@@ -425,8 +426,55 @@ def test_frozen_gds_with_cell_array_has_constant_hash(tmpdir):
     hash2 = hash_file(fn2)
     assert hash1 == hash2
 
+
 def test_layers_and_types(sample_library):
     ld = sample_library.layers_and_datatypes()
     assert ld == {(2, 4), (0, 0)}
     lt = sample_library.layers_and_texttypes()
     assert lt == {(5, 6)}
+
+
+def test_rename_cell():
+    c1 = gdstk.Cell("C1")
+    c2 = gdstk.Cell("C2")
+    c3 = gdstk.Cell("C3")
+    c4 = gdstk.Cell("C4")
+    c4.add(gdstk.Reference("C1"))
+    c4.add(gdstk.Reference(c3))
+    c3.add(gdstk.Reference("C2"))
+    c2.add(gdstk.Reference("C1"))
+    lib = gdstk.Library("TEST")
+    lib.add(c1, c2, c3, c4)
+    lib.rename_cell("C1", "c1")
+    assert c1.name == "c1"
+    assert c2.name == "C2"
+    assert c3.name == "C3"
+    assert c2.references[0].cell == "c1"
+    assert c4.references[0].cell == "c1"
+    assert c4.references[1].cell is c3
+    lib.rename_cell(c1, "C1")
+    assert c1.name == "C1"
+    assert c2.name == "C2"
+    assert c3.name == "C3"
+    assert c2.references[0].cell == "C1"
+    assert c4.references[0].cell == "C1"
+    assert c4.references[1].cell is c3
+
+
+# def test_replace_cell():
+#     c0 = gdstk.Cell("C0")
+#     c1 = gdstk.Cell("C1")
+#     c2 = gdstk.Cell("C2")
+#     c3 = gdstk.Cell("C3")
+#     c4 = gdstk.Cell("C4")
+#     c4.add(gdstk.Reference("C1"))
+#     c4.add(gdstk.Reference(c3))
+#     c3.add(gdstk.Reference("C2"))
+#     c2.add(gdstk.Reference(c1))
+#     lib = gdstk.Library("TEST")
+#     lib.add(c1, c2, c3, c4)
+#     lib.replace_cell(c1, c0)
+#     assert c1 not in lib.cells
+#     assert c0 in lib.cells
+#     assert c4.references[0].cell == "c0"
+#     assert c2.references[0].cell == c0
