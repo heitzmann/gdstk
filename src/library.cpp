@@ -142,6 +142,180 @@ RawCell* Library::get_rawcell(const char* rawcell_name) const {
     return NULL;
 }
 
+void Library::rename_cell(const char* old_name, const char* new_name) {
+    Cell* cell = get_cell(old_name);
+    if (cell) {
+        rename_cell(cell, new_name);
+    }
+}
+
+void Library::rename_cell(Cell* cell, const char* new_name) {
+    const char* old_name = cell->name;
+    uint64_t size = 1 + strlen(new_name);
+    for (uint64_t i = 0; i < cell_array.count; ++i) {
+        Array<Reference*> ref_array = cell_array[i]->reference_array;
+        for (uint64_t j = 0; j < ref_array.count; ++j) {
+            Reference* ref = ref_array[j];
+            if (ref->type == ReferenceType::Name && strcmp(ref->name, old_name) == 0) {
+                ref->name = (char*)reallocate(ref->name, size);
+                memcpy(ref->name, new_name, size);
+            }
+        }
+    }
+    cell->name = (char*)reallocate(cell->name, size);
+    memcpy(cell->name, new_name, size);
+}
+
+void Library::replace_cell(Cell* old_cell, Cell* new_cell) {
+    uint64_t index = cell_array.index(old_cell);
+    if (index < cell_array.count) {
+        cell_array.items[index] = new_cell;
+    }
+
+    const char* old_name = old_cell->name;
+    const char* new_name = new_cell->name;
+    uint64_t size = 1 + strlen(new_name);
+    bool rename = strcmp(old_name, new_name) != 0;
+    for (uint64_t i = 0; i < cell_array.count; ++i) {
+        Array<Reference*> ref_array = cell_array[i]->reference_array;
+        for (uint64_t j = 0; j < ref_array.count; ++j) {
+            Reference* ref = ref_array[j];
+            switch (ref->type) {
+                case ReferenceType::Cell:
+                    if (ref->cell == old_cell) {
+                        ref->cell = new_cell;
+                    }
+                    break;
+                case ReferenceType::RawCell:
+                    if (strcmp(ref->rawcell->name, old_name) == 0) {
+                        ref->type = ReferenceType::Cell;
+                        ref->cell = new_cell;
+                    }
+                    break;
+                case ReferenceType::Name:
+                    if (rename && (strcmp(ref->name, old_name) == 0)) {
+                        ref->name = (char*)reallocate(ref->name, size);
+                        memcpy(ref->name, new_name, size);
+                    }
+                    break;
+            }
+        }
+    }
+}
+
+void Library::replace_cell(RawCell* old_cell, Cell* new_cell) {
+    uint64_t index = rawcell_array.index(old_cell);
+    if (index < rawcell_array.count) {
+        rawcell_array.remove_unordered(index);
+        cell_array.append(new_cell);
+    }
+
+    const char* old_name = old_cell->name;
+    const char* new_name = new_cell->name;
+    uint64_t size = 1 + strlen(new_name);
+    bool rename = strcmp(old_name, new_name) != 0;
+    for (uint64_t i = 0; i < cell_array.count; ++i) {
+        Array<Reference*> ref_array = cell_array[i]->reference_array;
+        for (uint64_t j = 0; j < ref_array.count; ++j) {
+            Reference* ref = ref_array[j];
+            switch (ref->type) {
+                case ReferenceType::Cell:
+                    if (strcmp(ref->cell->name, old_name) == 0) {
+                        ref->cell = new_cell;
+                    }
+                    break;
+                case ReferenceType::RawCell:
+                    if (ref->rawcell == old_cell) {
+                        ref->type = ReferenceType::Cell;
+                        ref->cell = new_cell;
+                    }
+                    break;
+                case ReferenceType::Name:
+                    if (rename && (strcmp(ref->name, old_name) == 0)) {
+                        ref->name = (char*)reallocate(ref->name, size);
+                        memcpy(ref->name, new_name, size);
+                    }
+                    break;
+            }
+        }
+    }
+}
+
+void Library::replace_cell(Cell* old_cell, RawCell* new_cell) {
+    uint64_t index = cell_array.index(old_cell);
+    if (index < cell_array.count) {
+        cell_array.remove_unordered(index);
+        rawcell_array.append(new_cell);
+    }
+
+    const char* old_name = old_cell->name;
+    const char* new_name = new_cell->name;
+    uint64_t size = 1 + strlen(new_name);
+    bool rename = strcmp(old_name, new_name) != 0;
+    for (uint64_t i = 0; i < cell_array.count; ++i) {
+        Array<Reference*> ref_array = cell_array[i]->reference_array;
+        for (uint64_t j = 0; j < ref_array.count; ++j) {
+            Reference* ref = ref_array[j];
+            switch (ref->type) {
+                case ReferenceType::Cell:
+                    if (ref->cell == old_cell) {
+                        ref->type = ReferenceType::RawCell;
+                        ref->rawcell = new_cell;
+                    }
+                    break;
+                case ReferenceType::RawCell:
+                    if (strcmp(ref->rawcell->name, old_name) == 0) {
+                        ref->rawcell = new_cell;
+                    }
+                    break;
+                case ReferenceType::Name:
+                    if (rename && (strcmp(ref->name, old_name) == 0)) {
+                        ref->name = (char*)reallocate(ref->name, size);
+                        memcpy(ref->name, new_name, size);
+                    }
+                    break;
+            }
+        }
+    }
+}
+
+void Library::replace_cell(RawCell* old_cell, RawCell* new_cell) {
+    uint64_t index = rawcell_array.index(old_cell);
+    if (index < rawcell_array.count) {
+        rawcell_array.items[index] = new_cell;
+    }
+
+    const char* old_name = old_cell->name;
+    const char* new_name = new_cell->name;
+    uint64_t size = 1 + strlen(new_name);
+    bool rename = strcmp(old_name, new_name) != 0;
+    for (uint64_t i = 0; i < cell_array.count; ++i) {
+        Array<Reference*> ref_array = cell_array[i]->reference_array;
+        for (uint64_t j = 0; j < ref_array.count; ++j) {
+            Reference* ref = ref_array[j];
+            switch (ref->type) {
+                case ReferenceType::Cell:
+                    if (strcmp(ref->cell->name, old_name) == 0) {
+                        ref->type = ReferenceType::RawCell;
+                        ref->rawcell = new_cell;
+                    }
+                    break;
+                case ReferenceType::RawCell:
+                    if (ref->rawcell == old_cell) {
+                        ref->rawcell = new_cell;
+                    }
+                    break;
+                case ReferenceType::Name:
+                    if (rename && (strcmp(ref->name, old_name) == 0)) {
+                        ref->name = (char*)reallocate(ref->name, size);
+                        memcpy(ref->name, new_name, size);
+                    }
+                    break;
+            }
+        }
+    }
+}
+
 ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
     ErrorCode error_code = ErrorCode::NoError;
     FILE* out = fopen(filename, "wb");

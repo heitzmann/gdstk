@@ -90,6 +90,20 @@ struct Library {
     Cell* get_cell(const char* name) const;
     RawCell* get_rawcell(const char* name) const;
 
+    // Rename a cell in the library, updating any references that use the old
+    // name with the new one.  Note: these assume cell names are dynamically
+    // allocated in cells and references throughout the library.
+    void rename_cell(const char* old_name, const char* new_name);
+    void rename_cell(Cell* cell, const char* new_name);
+
+    // Replace a library cell updating references to the old cell with
+    // references to the new one.  If old_cell is not present in the library,
+    // new_cell is not inserted either, but references are updated anyway.
+    void replace_cell(Cell* old_cell, Cell* new_cell);
+    void replace_cell(RawCell* old_cell, Cell* new_cell);
+    void replace_cell(Cell* old_cell, RawCell* new_cell);
+    void replace_cell(RawCell* old_cell, RawCell* new_cell);
+
     // Output this library to a GDSII file.  All polygons are fractured to
     // max_points before saving (but the originals are kept) if max_points > 4.
     // GDSII files include a timestamp, which can be specified by the caller or
