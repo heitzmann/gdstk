@@ -406,8 +406,8 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1, filter,
-                             tag, result);
+            (*ref)->get_polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1,
+                                 filter, tag, result);
         }
     }
 }
@@ -470,7 +470,8 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
+            (*ref)->get_flexpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag,
+                                  result);
         }
     }
 }
@@ -535,7 +536,8 @@ void Cell::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, T
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
+            (*ref)->get_robustpaths(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag,
+                                    result);
         }
     }
 }
@@ -571,7 +573,7 @@ void Cell::get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag ta
     if (depth != 0) {
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
-            (*ref)->labels(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
+            (*ref)->get_labels(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
         }
     }
 }
@@ -583,10 +585,10 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
         if (ref->type == ReferenceType::Cell) {
             reference_array.remove_unordered(i);
             result.append(ref);
-            ref->polygons(apply_repetitions, false, -1, false, 0, polygon_array);
-            ref->flexpaths(apply_repetitions, -1, false, 0, flexpath_array);
-            ref->robustpaths(apply_repetitions, -1, false, 0, robustpath_array);
-            ref->labels(apply_repetitions, -1, false, 0, label_array);
+            ref->get_polygons(apply_repetitions, false, -1, false, 0, polygon_array);
+            ref->get_flexpaths(apply_repetitions, -1, false, 0, flexpath_array);
+            ref->get_robustpaths(apply_repetitions, -1, false, 0, robustpath_array);
+            ref->get_labels(apply_repetitions, -1, false, 0, label_array);
         } else {
             ++i;
         }

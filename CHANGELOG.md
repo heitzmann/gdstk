@@ -3,6 +3,10 @@
 ### Changed
 - `Cell.filter` arguments modified to match `read_gds`.
 - Changed default tolerance for `read_gds` and `read_oas` to be the library's rounding size.
+- `Reference::polygons` renamed to `Reference::get_polygons` in the C++ API.
+- `Reference::flexpaths` renamed to `Reference::get_flexpaths` in the C++ API.
+- `Reference::robustpaths` renamed to `Reference::get_robustpaths` in the C++ API.
+- `Reference::labels` renamed to `Reference::get_labels` in the C++ API.
 
 ## 0.8.3 - 2022-06-02
 ### Fixed
@@ -16,7 +20,7 @@
 - Reference array is no longer transformed into multiple references when element displacement is zero
 - Memory leaks in the python wrapper (thanks @jatoben)
 ### Changed
-- Set separation instead of offset in FlexPath::init and RobustPath::init
+- Set separation instead of offset in `FlexPath::init` and `RobustPath::init`
 
 ## 0.8.1 - 2022-01-04
 ### Fixed

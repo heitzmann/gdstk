@@ -105,14 +105,14 @@ struct Reference {
     // polygonal representation of paths are also included in polygons.  If
     // filter is true, only polygons in the indicated layer and data type are
     // created.
-    void polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter, Tag tag,
-                  Array<Polygon*>& result) const;
-    void flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
-                   Array<FlexPath*>& result) const;
-    void robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
-                     Array<RobustPath*>& result) const;
-    void labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
-                Array<Label*>& result) const;
+    void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
+                      Tag tag, Array<Polygon*>& result) const;
+    void get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                       Array<FlexPath*>& result) const;
+    void get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                         Array<RobustPath*>& result) const;
+    void get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                    Array<Label*>& result) const;
 
     // These functions output the reference in the GDSII and SVG formats.  They
     // are not supposed to be called by the user.

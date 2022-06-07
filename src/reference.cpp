@@ -214,8 +214,8 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 }
 
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
-void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
-                         Tag tag, Array<Polygon*>& result) const {
+void Reference::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
+                             Tag tag, Array<Polygon*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Polygon*> array = {0};
@@ -252,8 +252,8 @@ void Reference::polygons(bool apply_repetitions, bool include_paths, int64_t dep
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
-                          Array<FlexPath*>& result) const {
+void Reference::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                              Array<FlexPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<FlexPath*> array = {0};
@@ -289,8 +289,8 @@ void Reference::flexpaths(bool apply_repetitions, int64_t depth, bool filter, Ta
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
-                            Array<RobustPath*>& result) const {
+void Reference::get_robustpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                                Array<RobustPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<RobustPath*> array = {0};
@@ -326,8 +326,8 @@ void Reference::robustpaths(bool apply_repetitions, int64_t depth, bool filter, 
     if (repetition.type != RepetitionType::None) offsets.clear();
 }
 
-void Reference::labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
-                       Array<Label*>& result) const {
+void Reference::get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
+                           Array<Label*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Label*> array = {0};
