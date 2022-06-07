@@ -756,8 +756,8 @@ modifications, the function :func:`gdstk.read_rawcells` is much more efficient.
 
       Map<RawCell*> cells = read_rawcells("filename.gds");
 
-      Reference my_ref = {.type = ReferenceType::RawCell, .magnification = 1};
-      my_ref.rawcell = cells.get("SOME_CELL");
+      Reference my_ref = {0};
+      my_ref.init(cells.get("SOME_CELL"), 1);
 
 .. Note::
    This method only works when using the GDSII format; OASIS does *not* support

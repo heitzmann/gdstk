@@ -74,32 +74,35 @@ Cell* mach_zenhder_interferometer(Cell* directional_coupler_cell) {
     for (int64_t i = 0; i < COUNT(path); i++) {
         path[i] = (FlexPath*)allocate_clear(sizeof(FlexPath));
         path[i]->simple_path = true;
-        path[i]->init(starting_points[i], 1, i < 2 ? 0.5 : 2, 0, 0.01,
-                      make_tag(i < 2 ? 1 : 10, 0));
+        path[i]->init(starting_points[i], 1, i < 2 ? 0.5 : 2, 0, 0.01, make_tag(i < 2 ? 1 : 10, 0));
         path[i]->elements[0].bend_type = BendType::Circular;
         path[i]->elements[0].bend_radius = 15;
     }
 
     Vec2 arm_points[] = {{25, 1}, {25, 40}, {55, 40}, {55, 1}, {75, 1}};
-    path[0]->segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
+    path[0]->segment({.capacity = 0, .count = COUNT(arm_points), .items = arm_points}, NULL, NULL,
+                     false);
 
     for (int64_t i = 0; i < COUNT(arm_points); i++) arm_points[i].y = -arm_points[i].y;
-    path[1]->segment({.count = COUNT(arm_points), .items = arm_points}, NULL, NULL, false);
+    path[1]->segment({.capacity = 0, .count = COUNT(arm_points), .items = arm_points}, NULL, NULL,
+                     false);
 
     Vec2 heater_points[] = {{25, 40}, {55, 40}, {55, 20}};
-    path[2]->segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
+    path[2]->segment({.capacity = 0, .count = COUNT(heater_points), .items = heater_points}, NULL,
+                     NULL, false);
 
     for (int64_t i = 0; i < COUNT(heater_points); i++) heater_points[i].y = -heater_points[i].y;
-    path[3]->segment({.count = COUNT(heater_points), .items = heater_points}, NULL, NULL, false);
+    path[3]->segment({.capacity = 0, .count = COUNT(heater_points), .items = heater_points}, NULL,
+                     NULL, false);
 
-    cell->flexpath_array.extend({.count = COUNT(path), .items = path});
+    cell->flexpath_array.extend({.capacity = 0, .count = COUNT(path), .items = path});
 
     return cell;
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("Photonics", NULL);
+    Library lib = {0};
+    lib.init("Photonics", 1e-6, 1e-9);
     lib.cell_array.append(alignment_mark());
     Cell* directional_coupler_cell = directional_coupler();
     lib.cell_array.append(directional_coupler_cell);

@@ -12,19 +12,20 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("library", NULL);
+    Library lib = {0};
+    lib.init("library", 1e-6, 1e-9);
 
     Cell main_cell = {0};
     main_cell.name = copy_string("Main", NULL);
     lib.cell_array.append(&main_cell);
 
-    FlexPath vline = {.simple_path = true};
+    FlexPath vline = {0};
     vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01, 0);
+    vline.simple_path = true;
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
-    vline.repetition.coords.extend({.count = COUNT(vcoords), .items = vcoords});
+    vline.repetition.coords.extend({.capacity = 0, .count = COUNT(vcoords), .items = vcoords});
 
     Array<Polygon*> vlines = {0};
     vline.to_polygons(false, 0, vlines);
@@ -34,12 +35,13 @@ int main(int argc, char* argv[]) {
     // loop here.
     vlines[0]->apply_repetition(vlines);
 
-    RobustPath hline = {.simple_path = true};
+    RobustPath hline = {0};
     hline.init(Vec2{3, 2}, 1, 0.05, 0, 0.01, 1000, 0);
+    hline.simple_path = true;
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;
-    hline.repetition.coords.extend({.count = COUNT(hcoords), .items = hcoords});
+    hline.repetition.coords.extend({.capacity = 0, .count = COUNT(hcoords), .items = hcoords});
 
     Array<Polygon*> hlines = {0};
     hline.to_polygons(false, 0, hlines);

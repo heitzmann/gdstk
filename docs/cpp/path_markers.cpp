@@ -12,8 +12,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("library", NULL);
+    Library lib = {0};
+    lib.init("library", 1e-6, 1e-9);
 
     Cell* main_cell = (Cell*)allocate_clear(sizeof(Cell));
     main_cell->name = copy_string("Main", NULL);
@@ -27,8 +27,8 @@ int main(int argc, char* argv[]) {
     double angles[] = {0, 0, 0, 0, -M_PI / 4};
     bool angle_constraints[] = {true, false, false, false, true};
     Vec2 tension[] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
-    path->interpolation({.count = COUNT(points), .items = points}, angles, angle_constraints,
-                        tension, 1, 1, false, NULL, NULL, true);
+    path->interpolation({.capacity = 0, .count = COUNT(points), .items = points}, angles,
+                        angle_constraints, tension, 1, 1, false, NULL, NULL, true);
 
     path->segment(Vec2{3, -3}, NULL, NULL, true);
     main_cell->robustpath_array.append(path);

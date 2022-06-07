@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         },
     };
     Reference* unit_refs_p[] = {unit_refs, unit_refs + 1, unit_refs + 2, unit_refs + 3};
-    resonator_cell.reference_array.extend({.count = 4, .items = unit_refs_p});
+    resonator_cell.reference_array.extend({.capacity = 0, .count = 4, .items = unit_refs_p});
 
     Polygon rect = rectangle(Vec2{-r / 2, -r / 2}, Vec2{r / 2, r / 2}, 0);
     resonator_cell.polygon_array.append(&rect);
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
         },
     };
     Reference* resonator_refs_p[] = {resonator_refs, resonator_refs + 1, resonator_refs + 2};
-    main_cell.reference_array.extend({.count = 3, .items = resonator_refs_p});
+    main_cell.reference_array.extend({.capacity = 0, .count = 3, .items = resonator_refs_p});
 
     Array<Polygon*> all_text = {0};
     text("Original", d, Vec2{(n + 1) * d, -d / 2}, false, 0, all_text);

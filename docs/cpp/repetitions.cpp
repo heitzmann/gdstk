@@ -34,23 +34,25 @@ int main(int argc, char* argv[]) {
     Polygon circle = ellipse(Vec2{3.5, 0}, 0.1, 0.1, 0, 0, 0, 0, 0.01, 0);
     Vec2 offsets[] = {{0.5, 1}, {2, 0}, {1.5, 0.5}};
     circle.repetition.type = RepetitionType::Explicit;
-    circle.repetition.offsets.extend({.count = COUNT(offsets), .items = offsets});
+    circle.repetition.offsets.extend({.capacity = 0, .count = COUNT(offsets), .items = offsets});
     main_cell.polygon_array.append(&circle);
 
-    FlexPath vline = {.simple_path = true};
+    FlexPath vline = {0};
     vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01, 0);
+    vline.simple_path = true;
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
     double vcoords[] = {0.2, 0.6, 1.4, 3.0};
     vline.repetition.type = RepetitionType::ExplicitX;
-    vline.repetition.coords.extend({.count = COUNT(vcoords), .items = vcoords});
+    vline.repetition.coords.extend({.capacity = 0, .count = COUNT(vcoords), .items = vcoords});
     main_cell.flexpath_array.append(&vline);
 
-    RobustPath hline = { .simple_path = true };
+    RobustPath hline = {0};
     hline.init(Vec2{3, 2}, 1, 0.05, 0, 0.01, 1000, 0);
+    hline.simple_path = true;
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
     double hcoords[] = {0.1, 0.3, 0.7, 1.5};
     hline.repetition.type = RepetitionType::ExplicitY;
-    hline.repetition.coords.extend({.count = COUNT(hcoords), .items = hcoords});
+    hline.repetition.coords.extend({.capacity = 0, .count = COUNT(hcoords), .items = hcoords});
     main_cell.robustpath_array.append(&hline);
 
     lib.write_gds("repetitions.gds", 0, NULL);

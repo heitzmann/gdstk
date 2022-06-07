@@ -18,7 +18,7 @@ void example_polygons(Cell& out_cell) {
     // the function returns.  We also don't worry about leaking it at the end
     // of the program.  The OS will take care of it.
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    poly->point_array.extend({.count = COUNT(points), .items = points});
+    poly->point_array.extend({.capacity = 0, .count = COUNT(points), .items = points});
     out_cell.polygon_array.append(poly);
 }
 
@@ -26,7 +26,7 @@ void example_holes(Cell& out_cell) {
     Vec2 points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0},
                      {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
     Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    poly->point_array.extend({.count = COUNT(points), .items = points});
+    poly->point_array.extend({.capacity = 0, .count = COUNT(points), .items = points});
     out_cell.polygon_array.append(poly);
 }
 
@@ -49,18 +49,18 @@ void example_curves1(Cell& out_cell) {
 
     // Curve points will be copied to the polygons, so allocating the curve on
     // the stack is fine.
-    Curve c1 = {.tolerance = 0.01};
-    c1.append(Vec2{0, 0});
-    c1.segment({.count = COUNT(points), .items = points}, false);
+    Curve c1 = {0};
+    c1.init(Vec2{0, 0}, 0.01);
+    c1.segment({.capacity = 0, .count = COUNT(points), .items = points}, false);
 
     Polygon* p1 = (Polygon*)allocate_clear(sizeof(Polygon));
     p1->point_array.extend(c1.point_array);
     out_cell.polygon_array.append(p1);
     c1.clear();
 
-    Curve c2 = {.tolerance = 0.01};
-    c2.append(Vec2{3, 1});
-    c2.segment({.count = COUNT(points), .items = points}, true);
+    Curve c2 = {0};
+    c2.init(Vec2{3, 1}, 0.01);
+    c2.segment({.capacity = 0, .count = COUNT(points), .items = points}, true);
 
     Polygon* p2 = (Polygon*)allocate_clear(sizeof(Polygon));
     p2->point_array.extend(c2.point_array);
@@ -69,8 +69,8 @@ void example_curves1(Cell& out_cell) {
 }
 
 void example_curves2(Cell& out_cell) {
-    Curve c3 = {.tolerance = 0.01};
-    c3.append(Vec2{0, 2});
+    Curve c3 = {0};
+    c3.init(Vec2{0, 2}, 0.01);
     c3.segment(4 * cplx_from_angle(M_PI / 6), true);
     c3.arc(4, 2, M_PI / 2, -M_PI / 2, 0);
 
@@ -81,17 +81,17 @@ void example_curves2(Cell& out_cell) {
 }
 
 void example_curves3(Cell& out_cell) {
-    Curve c4 = {.tolerance = 1e-3};
-    c4.append(Vec2{0, 0});
+    Curve c4 = {0};
+    c4.init(Vec2{0, 0}, 1e-3);
 
     Vec2 points1[] = {{0, 1}, {1, 1}, {1, 0}};
-    c4.cubic({.count = COUNT(points1), .items = points1}, false);
+    c4.cubic({.capacity = 0, .count = COUNT(points1), .items = points1}, false);
 
     Vec2 points2[] = {{1, -1}, {1, 0}};
-    c4.cubic_smooth({.count = COUNT(points2), .items = points2}, true);
+    c4.cubic_smooth({.capacity = 0, .count = COUNT(points2), .items = points2}, true);
 
     Vec2 points3[] = {{0.5, 1}, {1, 0}};
-    c4.quadratic({.count = COUNT(points3), .items = points3}, true);
+    c4.quadratic({.capacity = 0, .count = COUNT(points3), .items = points3}, true);
 
     c4.quadratic_smooth(Vec2{1, 0}, true);
 
@@ -100,8 +100,8 @@ void example_curves3(Cell& out_cell) {
     bool angle_constraints[COUNT(points4) + 1] = {0};
     Vec2 tension[COUNT(points4) + 1] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
 
-    c4.interpolation({.count = COUNT(points4), .items = points4}, angles, angle_constraints,
-                     tension, 1, 1, false, false);
+    c4.interpolation({.capacity = 0, .count = COUNT(points4), .items = points4}, angles,
+                     angle_constraints, tension, 1, 1, false, false);
 
     // The last point will coincide with the first (this can be checked at
     // runtime with the `closed` method), so we remove it.
@@ -135,12 +135,12 @@ void example_layerdatatype(Cell& out_cell) {
     *poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, t_partial_etch);
     *poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, t_lift_off);
 
-    out_cell.polygon_array.extend({.count = COUNT(poly), .items = poly});
+    out_cell.polygon_array.extend({.capacity = 0, .count = COUNT(poly), .items = poly});
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("Getting started", NULL);
+    Library lib = {0};
+    lib.init("Getting started", 1e-6, 1e-9);
 
     Cell* polygons_cell = (Cell*)allocate_clear(sizeof(Cell));
     polygons_cell->name = copy_string("Polygons", NULL);

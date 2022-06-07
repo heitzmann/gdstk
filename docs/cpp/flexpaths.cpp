@@ -20,7 +20,7 @@ Cell* example_flexpath1(const char* name) {
     fp->simple_path = true;
 
     Vec2 points1[] = {{3, 0}, {3, 2}, {5, 3}, {3, 4}, {0, 4}};
-    fp->segment({.count = COUNT(points1), .items = points1}, NULL, NULL, false);
+    fp->segment({.capacity = 0, .count = COUNT(points1), .items = points1}, NULL, NULL, false);
 
     out_cell->flexpath_array.append(fp);
 
@@ -40,7 +40,7 @@ Cell* example_flexpath1(const char* name) {
     fp->elements[2].join_type = JoinType::Round;
 
     Vec2 points2[] = {{8, 0}, {8, 3}, {10, 2}};
-    fp->segment({.count = COUNT(points2), .items = points2}, NULL, NULL, false);
+    fp->segment({.capacity = 0, .count = COUNT(points2), .items = points2}, NULL, NULL, false);
 
     fp->arc(2, 2, -M_PI / 2, M_PI / 2, 0, NULL, NULL);
     fp->arc(1, 1, M_PI / 2, 1.5 * M_PI, 0, NULL, NULL);
@@ -65,7 +65,7 @@ Cell* example_flexpath2(const char* name) {
         } else {
             fp->elements[0].tag = make_tag(1, 0);
         }
-        fp->segment({.count = COUNT(points), .items = points}, NULL, NULL, false);
+        fp->segment({.capacity = 0, .count = COUNT(points), .items = points}, NULL, NULL, false);
         out_cell->flexpath_array.append(fp);
     }
 
@@ -98,8 +98,8 @@ Cell* example_flexpath3(const char* name) {
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("Paths", NULL);
+    Library lib = {0};
+    lib.init("Paths", 1e-6, 1e-9);
 
     Cell* flexpath1_cell = example_flexpath1("FlexPath 1");
     lib.cell_array.append(flexpath1_cell);

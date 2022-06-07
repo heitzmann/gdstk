@@ -42,7 +42,7 @@ Cell* example_slice(const char* name) {
     ring[2] = ellipse(Vec2{6, 0}, 6, 6, 4, 4, 0, 0, 0.01, 0);
 
     double x[] = {-3, 3};
-    Array<double> cuts = {.count = 1, .items = x};
+    Array<double> cuts = {.capacity = 0, .count = 1, .items = x};
     Array<Polygon*> result[3] = {0};
     slice(ring[0], cuts, true, 1000, result);
     out_cell->polygon_array.extend(result[0]);
@@ -115,7 +115,7 @@ Cell* example_fillet(const char* name) {
     FlexPath flexpath = {0};
     flexpath.init(Vec2{-8, -4}, 1, 4, 0, 0.01, 0);
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
-    flexpath.segment({.count = COUNT(points), .items = points}, NULL, NULL, false);
+    flexpath.segment({.capacity = 0, .count = COUNT(points), .items = points}, NULL, NULL, false);
 
     Array<Polygon*> poly_array = {0};
     flexpath.to_polygons(false, 0, poly_array);
@@ -123,7 +123,7 @@ Cell* example_fillet(const char* name) {
 
     double r = 1.5;
     for (int i = 0; i < poly_array.count; i++)
-        poly_array[i]->fillet({.count = 1, .items = &r}, 0.01);
+        poly_array[i]->fillet({.capacity = 0, .count = 1, .items = &r}, 0.01);
 
     out_cell->polygon_array.extend(poly_array);
     poly_array.clear();
@@ -132,8 +132,8 @@ Cell* example_fillet(const char* name) {
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("library", NULL);
+    Library lib = {0};
+    lib.init("library", 1e-6, 1e-9);
 
     Cell* boolean_cell = example_boolean("Boolean");
     lib.cell_array.append(boolean_cell);

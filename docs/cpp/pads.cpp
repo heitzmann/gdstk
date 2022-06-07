@@ -45,8 +45,8 @@ Array<Vec2> filleted_pad(const Vec2 p0, const Vec2 v0, const Vec2 p1, const Vec2
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("library", NULL);
+    Library lib = {0};
+    lib.init("library", 1e-6, 1e-9);
 
     Cell* main_cell = (Cell*)allocate_clear(sizeof(Cell));
     main_cell->name = copy_string("Main", NULL);
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     double offsets1[] = {-9, -3, 3, 9};
     bus->segment(Vec2{20, 10}, NULL, offsets1, false);
     Vec2 points[] = {{40, 20}, {40, 50}, {80, 50}};
-    const Array<Vec2> point_array = {.count = COUNT(points), .items = points};
+    const Array<Vec2> point_array = {.capacity = 0, .count = COUNT(points), .items = points};
     bus->segment(point_array, NULL, NULL, false);
     double offsets2[] = {-18, -6, 6, 18};
     bus->segment(Vec2{100, 50}, NULL, offsets2, false);

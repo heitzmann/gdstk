@@ -12,8 +12,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = {.unit = 1e-6, .precision = 1e-9};
-    lib.name = copy_string("library", NULL);
+    Library lib = {0};
+    lib.init("library", 1e-6, 1e-9);
 
     Cell cell = {0};
     cell.name = copy_string("FIRST", NULL);

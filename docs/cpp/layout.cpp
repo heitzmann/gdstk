@@ -93,7 +93,7 @@ int main(int argc, char* argv[]) {
     waveguide->segment(Vec2{-100, -150}, &w, NULL, false);
 
     Vec2 p[] = {{-70, -150}, {-70, -1}, {-40, -1}};
-    waveguide->segment({.count = COUNT(p), .items = p}, NULL, NULL, false);
+    waveguide->segment({.capacity = 0, .count = COUNT(p), .items = p}, NULL, NULL, false);
 
     Cell* wg_cell = (Cell*)allocate_clear(sizeof(Cell));
     wg_cell->name = copy_string("Waveguide", NULL);
@@ -128,8 +128,8 @@ int main(int argc, char* argv[]) {
     align_ref->repetition = {RepetitionType::Rectangular, 2, 3, Vec2{500, 500}};
     main_cell->reference_array.append(align_ref);
 
-    Library lib = {.unit = unit, .precision = precision};
-    lib.name = copy_string("library", NULL);
+    Library lib = {0};
+    lib.init("library", unit, precision);
     lib.cell_array.append(main_cell);
 
     Map<Cell*> dependencies = {0};
