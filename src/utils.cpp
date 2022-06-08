@@ -559,7 +559,7 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
         Array<Vec2> partial;
         partial.count = INT_MAX - 1;
         partial.items = points.items;
-        Array<Vec2> temp = {0};
+        Array<Vec2> temp = {};
         convex_hull(partial, temp);
 
         partial.count = points.count - (INT_MAX - 1);

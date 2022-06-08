@@ -691,7 +691,7 @@ Vec2 eval_parametric_vec2(double u, PyObject* function) {
 Array<Vec2> custom_end_function(const Vec2 first_point, const Vec2 first_direction,
                                 const Vec2 second_point, const Vec2 second_direction,
                                 PyObject* function) {
-    Array<Vec2> array = {0};
+    Array<Vec2> array = {};
     PyObject* result = PyObject_CallFunction(
         function, "(dd)(dd)(dd)(dd)", first_point.x, first_point.y, first_direction.x,
         first_direction.y, second_point.x, second_point.y, second_direction.x, second_direction.y);
@@ -708,7 +708,7 @@ Array<Vec2> custom_end_function(const Vec2 first_point, const Vec2 first_directi
 static Array<Vec2> custom_join_function(const Vec2 first_point, const Vec2 first_direction,
                                         const Vec2 second_point, const Vec2 second_direction,
                                         const Vec2 center, double width, PyObject* function) {
-    Array<Vec2> array = {0};
+    Array<Vec2> array = {};
     PyObject* result =
         PyObject_CallFunction(function, "(dd)(dd)(dd)(dd)(dd)d", first_point.x, first_point.y,
                               first_direction.x, first_direction.y, second_point.x, second_point.y,
@@ -725,7 +725,7 @@ static Array<Vec2> custom_join_function(const Vec2 first_point, const Vec2 first
 
 static Array<Vec2> custom_bend_function(double radius, double initial_angle, double final_angle,
                                         const Vec2 center, PyObject* function) {
-    Array<Vec2> array = {0};
+    Array<Vec2> array = {};
     PyObject* result = PyObject_CallFunction(function, "ddd(dd)", radius, initial_angle,
                                              final_angle, center.x, center.y);
     if (result != NULL) {
@@ -930,7 +930,7 @@ static PyObject* text_function(PyObject* mod, PyObject* args, PyObject* kwds) {
                                      &py_position, &vertical, &layer, &datatype))
         return NULL;
     if (parse_point(py_position, position, "position") != 0) return NULL;
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     text(s, size, position, vertical > 0, make_tag(layer, datatype), array);
 
     PyObject* result = PyList_New(array.count);
@@ -974,7 +974,7 @@ static PyObject* contour_function(PyObject* mod, PyObject* args, PyObject* kwds)
 
     double* data = (double*)PyArray_DATA(data_array);
 
-    Array<Polygon*> result_array = {0};
+    Array<Polygon*> result_array = {};
     ErrorCode error_code = contour(data, rows, cols, level, length_scale / precision, result_array);
     Py_DECREF(data_array);
 
@@ -1047,10 +1047,10 @@ static PyObject* offset_function(PyObject* mod, PyObject* args, PyObject* kwds) 
         }
     }
 
-    Array<Polygon*> polygon_array = {0};
+    Array<Polygon*> polygon_array = {};
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) return NULL;
 
-    Array<Polygon*> result_array = {0};
+    Array<Polygon*> result_array = {};
     ErrorCode error_code = offset(polygon_array, distance, offset_join, tolerance, 1 / precision,
                                   use_union > 0, result_array);
 
@@ -1123,8 +1123,8 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
         return NULL;
     }
 
-    Array<Polygon*> polygon_array1 = {0};
-    Array<Polygon*> polygon_array2 = {0};
+    Array<Polygon*> polygon_array1 = {};
+    Array<Polygon*> polygon_array2 = {};
     if (parse_polygons(py_polygons1, polygon_array1, "operand1") < 0) return NULL;
     if (parse_polygons(py_polygons2, polygon_array2, "operand2") < 0) {
         for (uint64_t j = 0; j < polygon_array1.count; j++) {
@@ -1135,7 +1135,7 @@ static PyObject* boolean_function(PyObject* mod, PyObject* args, PyObject* kwds)
         return NULL;
     }
 
-    Array<Polygon*> result_array = {0};
+    Array<Polygon*> result_array = {};
     ErrorCode error_code =
         boolean(polygon_array1, polygon_array2, oper, 1 / precision, result_array);
 
@@ -1211,7 +1211,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     }
 
     double single_position;
-    Array<double> positions = {0};
+    Array<double> positions = {};
     if (PySequence_Check(py_position)) {
         if (parse_double_sequence(py_position, positions, "position") < 0) return NULL;
     } else {
@@ -1224,7 +1224,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
         positions.count = 1;
     }
 
-    Array<Polygon*> polygon_array = {0};
+    Array<Polygon*> polygon_array = {};
     if (parse_polygons(py_polygons, polygon_array, "polygons") < 0) {
         if (positions.items != &single_position) positions.clear();
         return NULL;
@@ -1237,7 +1237,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
         return NULL;
     }
 
-    Array<PyObject*> parts = {0};
+    Array<PyObject*> parts = {};
     parts.ensure_slots(positions.count + 1);
     for (uint64_t s = 0; s <= positions.count; s++) {
         parts[s] = PyList_New(0);
@@ -1285,13 +1285,13 @@ static PyObject* inside_function(PyObject* mod, PyObject* args, PyObject* kwds) 
                                      &py_polygons))
         return NULL;
 
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     if (parse_point_sequence(py_points, points, "points") < 0) {
         points.clear();
         return NULL;
     }
 
-    Array<Polygon*> polygons = {0};
+    Array<Polygon*> polygons = {};
     if (parse_polygons(py_polygons, polygons, "polygons") < 0) {
         points.clear();
         return NULL;
@@ -1326,13 +1326,13 @@ static PyObject* all_inside_function(PyObject* mod, PyObject* args, PyObject* kw
                                      &py_polygons))
         return NULL;
 
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     if (parse_point_sequence(py_points, points, "points") < 0) {
         points.clear();
         return NULL;
     }
 
-    Array<Polygon*> polygons = {0};
+    Array<Polygon*> polygons = {};
     if (parse_polygons(py_polygons, polygons, "polygons") < 0) {
         points.clear();
         return NULL;
@@ -1359,13 +1359,13 @@ static PyObject* any_inside_function(PyObject* mod, PyObject* args, PyObject* kw
                                      &py_polygons))
         return NULL;
 
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     if (parse_point_sequence(py_points, points, "points") < 0) {
         points.clear();
         return NULL;
     }
 
-    Array<Polygon*> polygons = {0};
+    Array<Polygon*> polygons = {};
     if (parse_polygons(py_polygons, polygons, "polygons") < 0) {
         points.clear();
         return NULL;
@@ -1466,7 +1466,7 @@ static PyObject* read_gds_function(PyObject* mod, PyObject* args, PyObject* kwds
                                      PyUnicode_FSConverter, &pybytes, &unit, &tolerance, &pyfilter))
         return NULL;
 
-    Set<Tag> shape_tags = {0};
+    Set<Tag> shape_tags = {};
     Set<Tag>* shape_tags_ptr = NULL;
     if (pyfilter != Py_None) {
         if (parse_tag_sequence(pyfilter, shape_tags, "filter") < 0) {
@@ -1574,7 +1574,7 @@ static PyObject* gds_timestamp_function(PyObject* mod, PyObject* args, PyObject*
     PyObject* pybytes = NULL;
     PyObject* pytimestamp = Py_None;
     tm* timestamp = NULL;
-    tm _timestamp = {0};
+    tm _timestamp = {};
     const char* keywords[] = {"filename", "timestamp", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|O:gds_timestamp", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &pytimestamp))
@@ -1612,7 +1612,7 @@ static PyObject* gds_info_function(PyObject* mod, PyObject* args) {
     PyObject* pybytes = NULL;
     if (!PyArg_ParseTuple(args, "O&:gds_info", PyUnicode_FSConverter, &pybytes)) return NULL;
 
-    LibraryInfo info = {0};
+    LibraryInfo info = {};
     const char* filename = PyBytes_AS_STRING(pybytes);
     ErrorCode error_code = gds_info(filename, info);
     Py_DECREF(pybytes);

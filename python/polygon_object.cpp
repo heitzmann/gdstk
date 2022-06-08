@@ -89,7 +89,7 @@ static PyObject* polygon_object_contain(PolygonObject* self, PyObject* args) {
         }
     }
 
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     if (parse_point_sequence(args, points, "points") < 0) {
         points.clear();
         return NULL;
@@ -112,7 +112,7 @@ static PyObject* polygon_object_contain(PolygonObject* self, PyObject* args) {
 
 static PyObject* polygon_object_contain_all(PolygonObject* self, PyObject* args) {
     Polygon* polygon = self->polygon;
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     if (parse_point_sequence(args, points, "points") < 0) {
         points.clear();
         return NULL;
@@ -125,7 +125,7 @@ static PyObject* polygon_object_contain_all(PolygonObject* self, PyObject* args)
 
 static PyObject* polygon_object_contain_any(PolygonObject* self, PyObject* args) {
     Polygon* polygon = self->polygon;
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     if (parse_point_sequence(args, points, "points") < 0) {
         points.clear();
         return NULL;
@@ -303,7 +303,7 @@ static PyObject* polygon_object_fillet(PolygonObject* self, PyObject* args, PyOb
     double radius = 0;
     double tolerance = 0.01;
     PyObject* radius_obj = NULL;
-    Array<double> radius_array = {0};
+    Array<double> radius_array = {};
 
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|d:fillet", (char**)keywords, &radius_obj,
                                      &tolerance))
@@ -344,7 +344,7 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
         return NULL;
     }
 
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     self->polygon->fracture(max_points, precision, array);
     PyObject* result = PyList_New(array.count);
     for (uint64_t i = 0; i < array.count; i++) {
@@ -359,7 +359,7 @@ static PyObject* polygon_object_fracture(PolygonObject* self, PyObject* args, Py
 }
 
 static PyObject* polygon_object_apply_repetition(PolygonObject* self, PyObject*) {
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     self->polygon->apply_repetition(array);
     PyObject* result = PyList_New(array.count);
     for (uint64_t i = 0; i < array.count; i++) {

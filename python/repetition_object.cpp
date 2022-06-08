@@ -90,7 +90,7 @@ static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObje
 }
 
 static PyObject* repetition_object_getoffsets(RepetitionObject* self, PyObject*) {
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     self->repetition.get_offsets(offsets);
     npy_intp dims[] = {(npy_intp)offsets.count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);

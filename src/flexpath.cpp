@@ -178,7 +178,7 @@ void FlexPath::rotate(double angle, const Vec2 center) {
 void FlexPath::apply_repetition(Array<FlexPath*>& result) {
     if (repetition.type == RepetitionType::None) return;
 
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     repetition.get_offsets(offsets);
     repetition.clear();
 
@@ -249,8 +249,8 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
         const BendType bend_type = el->bend_type;
         const double bend_radius = el->bend_radius;
 
-        Curve right_curve = {0};
-        Curve left_curve = {0};
+        Curve right_curve = {};
+        Curve left_curve = {};
         right_curve.tolerance = spine.tolerance;
         left_curve.tolerance = spine.tolerance;
         right_curve.ensure_slots(curve_size_guess);
@@ -290,7 +290,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                 right_curve.append(cap_l);
                 const Vec2 p1_l = p1 + n0 * half_widths[2 * 1];
                 const Vec2 p1_r = p1 - n0 * half_widths[2 * 1];
-                Array<Vec2> point_array = {0};
+                Array<Vec2> point_array = {};
                 point_array.items = (Vec2*)&cap_r;
                 point_array.count = 1;
                 bool angle_constraints[2] = {true, true};
@@ -496,7 +496,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                                             final_angle, 0);
                         } else if (join_type == JoinType::Smooth) {
                             right_curve.append(r1);
-                            Array<Vec2> point_array = {0};
+                            Array<Vec2> point_array = {};
                             point_array.items = (Vec2*)&r2;
                             point_array.count = 1;
                             bool angle_constraints[2] = {true, true};
@@ -549,7 +549,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                                            final_angle, 0);
                         } else if (join_type == JoinType::Smooth) {
                             left_curve.append(l1);
-                            Array<Vec2> point_array = {0};
+                            Array<Vec2> point_array = {};
                             point_array.items = (Vec2*)&l2;
                             point_array.count = 1;
                             bool angle_constraints[2] = {true, true};
@@ -598,7 +598,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                 left_curve.append(cap_l);
                 const Vec2 p0_l = p0 + n0 * half_widths[2 * (last - 1)];
                 const Vec2 p0_r = p0 - n0 * half_widths[2 * (last - 1)];
-                Array<Vec2> point_array = {0};
+                Array<Vec2> point_array = {};
                 point_array.items = (Vec2*)&cap_r;
                 point_array.count = 1;
                 bool angle_constraints[2] = {true, true};
@@ -659,7 +659,7 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
     result.append(p0);
 
     if (spine_points.count > 2) {
-        Curve arc_curve = {0};
+        Curve arc_curve = {};
         arc_curve.tolerance = spine.tolerance;
         spine_normal = (spine_points[2] - spine_points[1]).ortho();
         spine_normal.normalize();
@@ -775,7 +775,7 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
     big_endian_swap16(buffer_end, COUNT(buffer_end));
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -783,8 +783,8 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
         offsets.items = &zero;
     }
 
-    Array<int32_t> coords = {0};
-    Array<Vec2> point_array = {0};
+    Array<int32_t> coords = {};
+    Array<Vec2> point_array = {};
     point_array.ensure_slots(spine.point_array.count);
 
     FlexPathElement* el = elements;
@@ -898,7 +898,7 @@ ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
 
     bool has_repetition = repetition.get_count() > 1;
 
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     point_array.ensure_slots(spine.point_array.count);
 
     FlexPathElement* el = elements;
@@ -961,7 +961,7 @@ ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
 }
 
 ErrorCode FlexPath::to_svg(FILE* out, double scaling, uint32_t precision) {
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     ErrorCode error_code = to_polygons(false, 0, array);
     for (uint64_t i = 0; i < array.count; i++) {
         ErrorCode err = array[i]->to_svg(out, scaling, precision);

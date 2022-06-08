@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     Cell main_cell = {.name = main_cell_name};
     lib.cell_array.append(&main_cell);
 
-    Cell resonator_cell_copy = {0};
+    Cell resonator_cell_copy = {};
     lib.cell_array.append(&resonator_cell_copy);
     resonator_cell_copy.copy_from(resonator_cell, "Resonator Copy", true);
     for (int64_t i = 0; i < resonator_cell_copy.polygon_array.count; i++) {
@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
     Reference* resonator_refs_p[] = {resonator_refs, resonator_refs + 1, resonator_refs + 2};
     main_cell.reference_array.extend({.capacity = 0, .count = 3, .items = resonator_refs_p});
 
-    Array<Polygon*> all_text = {0};
+    Array<Polygon*> all_text = {};
     text("Original", d, Vec2{(n + 1) * d, -d / 2}, false, 0, all_text);
     text("Reference\nscaling", d, Vec2{s * (n + 1) * d, (1 + s) * (n + 1) * d}, false, 0, all_text);
     text("Cell copy\nscaling", d, Vec2{s * (n + 1) * d, (1 + 3 * s) * (n + 1) * d}, false, 0,

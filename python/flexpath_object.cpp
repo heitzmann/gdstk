@@ -634,7 +634,7 @@ static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject*) {
 }
 
 static PyObject* flexpath_object_path_spines(FlexPathObject* self, PyObject*) {
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     FlexPath* path = self->flexpath;
     PyObject* result = PyList_New(path->num_elements);
     if (!result) {
@@ -700,7 +700,7 @@ static PyObject* flexpath_object_offsets(FlexPathObject* self, PyObject*) {
 }
 
 static PyObject* flexpath_object_to_polygons(FlexPathObject* self, PyObject*) {
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     if (return_error(self->flexpath->to_polygons(false, 0, array))) {
         for (uint64_t i = 0; i < array.count; i++) {
             array[i]->clear();
@@ -1093,7 +1093,7 @@ static PyObject* flexpath_object_horizontal(FlexPathObject* self, PyObject* args
         }
     }
     if (PySequence_Check(py_coord)) {
-        Array<double> coord = {0};
+        Array<double> coord = {};
         if (parse_double_sequence(py_coord, coord, "x") < 0) {
             free_allocation(buffer);
             return NULL;
@@ -1142,7 +1142,7 @@ static PyObject* flexpath_object_vertical(FlexPathObject* self, PyObject* args, 
         }
     }
     if (PySequence_Check(py_coord)) {
-        Array<double> coord = {0};
+        Array<double> coord = {};
         if (parse_double_sequence(py_coord, coord, "y") < 0) {
             free_allocation(buffer);
             return NULL;
@@ -1173,7 +1173,7 @@ static PyObject* flexpath_object_segment(FlexPathObject* self, PyObject* args, P
                                      &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     point_array.ensure_slots(1);
     if (parse_point(xy, *point_array.items, "xy") == 0)
         point_array.count = 1;
@@ -1220,7 +1220,7 @@ static PyObject* flexpath_object_cubic(FlexPathObject* self, PyObject* args, PyO
                                      &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count < 3) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError,
@@ -1264,7 +1264,7 @@ static PyObject* flexpath_object_cubic_smooth(FlexPathObject* self, PyObject* ar
                                      &py_width, &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count < 2) {
         point_array.clear();
         PyErr_SetString(PyExc_RuntimeError,
@@ -1307,7 +1307,7 @@ static PyObject* flexpath_object_quadratic(FlexPathObject* self, PyObject* args,
                                      &py_width, &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     point_array.ensure_slots(1);
     if (parse_point_sequence(xy, point_array, "xy") < 0 || point_array.count < 2) {
         point_array.clear();
@@ -1352,7 +1352,7 @@ static PyObject* flexpath_object_quadratic_smooth(FlexPathObject* self, PyObject
                                      &py_width, &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     point_array.ensure_slots(1);
     if (parse_point(xy, *point_array.items, "xy") == 0)
         point_array.count = 1;
@@ -1399,7 +1399,7 @@ static PyObject* flexpath_object_bezier(FlexPathObject* self, PyObject* args, Py
                                      &py_offset, &relative))
         return NULL;
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     point_array.ensure_slots(1);
     if (parse_point(xy, *point_array.items, "xy") == 0)
         point_array.count = 1;
@@ -1461,7 +1461,7 @@ static PyObject* flexpath_object_intepolation(FlexPathObject* self, PyObject* ar
         return NULL;
 
     FlexPath* flexpath = self->flexpath;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     if (parse_point_sequence(py_points, point_array, "points") < 0) {
         point_array.clear();
         return NULL;
@@ -1904,7 +1904,7 @@ static PyObject* flexpath_object_rotate(FlexPathObject* self, PyObject* args, Py
 }
 
 static PyObject* flexpath_object_apply_repetition(FlexPathObject* self, PyObject*) {
-    Array<FlexPath*> array = {0};
+    Array<FlexPath*> array = {};
     self->flexpath->apply_repetition(array);
     PyObject* result = PyList_New(array.count);
     for (uint64_t i = 0; i < array.count; i++) {

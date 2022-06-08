@@ -130,7 +130,7 @@ static PyObject* label_object_copy(LabelObject* self, PyObject*) {
 }
 
 static PyObject* label_object_apply_repetition(LabelObject* self, PyObject*) {
-    Array<Label*> array = {0};
+    Array<Label*> array = {};
     self->label->apply_repetition(array);
     PyObject* result = PyList_New(array.count);
     for (uint64_t i = 0; i < array.count; i++) {

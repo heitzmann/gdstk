@@ -31,7 +31,7 @@ Array<Vec2> filleted_pad(const Vec2 p0, const Vec2 v0, const Vec2 p1, const Vec2
     double alpha = acos(a / c);
     double gamma = atan2(v0.y, v0.x) + 0.5 * M_PI;
 
-    Curve curve = {0};
+    Curve curve = {};
     curve.init(p0 - b * v0, pad_data->tolerance);
     if (fillet_radius > 0) {
         curve.arc(fillet_radius, fillet_radius, gamma, gamma - alpha, 0);
@@ -45,7 +45,7 @@ Array<Vec2> filleted_pad(const Vec2 p0, const Vec2 v0, const Vec2 p1, const Vec2
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("library", 1e-6, 1e-9);
 
     Cell* main_cell = (Cell*)allocate_clear(sizeof(Cell));

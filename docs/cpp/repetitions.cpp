@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
     circle.repetition.offsets.extend({.capacity = 0, .count = COUNT(offsets), .items = offsets});
     main_cell.polygon_array.append(&circle);
 
-    FlexPath vline = {0};
+    FlexPath vline = {};
     vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01, 0);
     vline.simple_path = true;
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     vline.repetition.coords.extend({.capacity = 0, .count = COUNT(vcoords), .items = vcoords});
     main_cell.flexpath_array.append(&vline);
 
-    RobustPath hline = {0};
+    RobustPath hline = {};
     hline.init(Vec2{3, 2}, 1, 0.05, 0, 0.01, 1000, 0);
     hline.simple_path = true;
     hline.segment(Vec2{6, 2}, NULL, NULL, false);

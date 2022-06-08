@@ -133,7 +133,7 @@ static PyObject* reference_object_bounding_box(ReferenceObject* self, PyObject*)
 }
 
 static PyObject* reference_object_convex_hull(ReferenceObject* self, PyObject*) {
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     self->reference->convex_hull(points);
     npy_intp dims[] = {(npy_intp)points.count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
@@ -186,7 +186,7 @@ static PyObject* reference_object_get_polygons(ReferenceObject* self, PyObject* 
         }
     }
 
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     self->reference->get_polygons(apply_repetitions > 0, include_paths > 0, depth, filter,
                                   make_tag(layer, datatype), array);
 
@@ -249,11 +249,11 @@ static PyObject* reference_object_get_paths(ReferenceObject* self, PyObject* arg
         }
     }
 
-    Array<FlexPath*> fp_array = {0};
+    Array<FlexPath*> fp_array = {};
     self->reference->get_flexpaths(apply_repetitions > 0, depth, filter, make_tag(layer, datatype),
                                    fp_array);
 
-    Array<RobustPath*> rp_array = {0};
+    Array<RobustPath*> rp_array = {};
     self->reference->get_robustpaths(apply_repetitions > 0, depth, filter,
                                      make_tag(layer, datatype), rp_array);
 
@@ -331,7 +331,7 @@ static PyObject* reference_object_get_labels(ReferenceObject* self, PyObject* ar
         }
     }
 
-    Array<Label*> array = {0};
+    Array<Label*> array = {};
     self->reference->get_labels(apply_repetitions > 0, depth, filter, make_tag(layer, texttype),
                                 array);
 
@@ -360,7 +360,7 @@ static PyObject* reference_object_get_labels(ReferenceObject* self, PyObject* ar
 }
 
 static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObject*) {
-    Array<Reference*> array = {0};
+    Array<Reference*> array = {};
     self->reference->apply_repetition(array);
     PyObject* result = PyList_New(array.count);
     for (uint64_t i = 0; i < array.count; i++) {

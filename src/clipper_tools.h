@@ -56,7 +56,7 @@ inline ErrorCode boolean(const Polygon& poly1, const Polygon& poly2, Operation o
 
 // Shorthand for joining a set of polygons
 inline ErrorCode merge(const Array<Polygon*>& polygons, double scaling, Array<Polygon*>& result) {
-    const Array<Polygon*> empty = {0};
+    const Array<Polygon*> empty = {};
     return boolean(polygons, empty, Operation::Or, scaling, result);
 }
 

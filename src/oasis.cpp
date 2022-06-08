@@ -837,7 +837,7 @@ void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool close
 
 void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double scaling,
                             bool closed) {
-    Array<IntVec2> scaled_points = {0};
+    Array<IntVec2> scaled_points = {};
     scale_and_round_array(points, scaling, scaled_points);
     oasis_write_point_list(out, scaled_points, closed);
     scaled_points.clear();

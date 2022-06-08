@@ -284,8 +284,8 @@ static PyObject* library_object_rename_cell(LibraryObject* self, PyObject* args,
 
 static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
     Library* library = self->library;
-    Array<Cell*> top_cells = {0};
-    Array<RawCell*> top_rawcells = {0};
+    Array<Cell*> top_cells = {};
+    Array<RawCell*> top_rawcells = {};
     library->top_level(top_cells, top_rawcells);
 
     const uint64_t i0 = top_cells.count;
@@ -319,7 +319,7 @@ static PyObject* library_object_top_level(LibraryObject* self, PyObject*) {
 }
 
 static PyObject* library_object_layers_and_datatypes(LibraryObject* self, PyObject*) {
-    Set<Tag> tags = {0};
+    Set<Tag> tags = {};
     self->library->get_shape_tags(tags);
     PyObject* result = build_tag_set(tags);
     tags.clear();
@@ -327,7 +327,7 @@ static PyObject* library_object_layers_and_datatypes(LibraryObject* self, PyObje
 }
 
 static PyObject* library_object_layers_and_texttypes(LibraryObject* self, PyObject*) {
-    Set<Tag> tags = {0};
+    Set<Tag> tags = {};
     self->library->get_label_tags(tags);
     PyObject* result = build_tag_set(tags);
     tags.clear();
@@ -339,7 +339,7 @@ static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, P
     PyObject* pybytes = NULL;
     PyObject* pytimestamp = Py_None;
     tm* timestamp = NULL;
-    tm _timestamp = {0};
+    tm _timestamp = {};
     uint64_t max_points = 199;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&|KO:write_gds", (char**)keywords,
                                      PyUnicode_FSConverter, &pybytes, &max_points, &pytimestamp))

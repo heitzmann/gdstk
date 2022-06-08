@@ -128,16 +128,16 @@ int main(int argc, char* argv[]) {
     align_ref->repetition = {RepetitionType::Rectangular, 2, 3, Vec2{500, 500}};
     main_cell->reference_array.append(align_ref);
 
-    Library lib = {0};
+    Library lib = {};
     lib.init("library", unit, precision);
     lib.cell_array.append(main_cell);
 
-    Map<Cell*> dependencies = {0};
+    Map<Cell*> dependencies = {};
     main_cell->get_dependencies(true, dependencies);
     dependencies.to_array(lib.cell_array);
     dependencies.clear();
 
-    Map<RawCell*> raw_dependencies = {0};
+    Map<RawCell*> raw_dependencies = {};
     main_cell->get_raw_dependencies(true, raw_dependencies);
     raw_dependencies.to_array(lib.rawcell_array);
     raw_dependencies.clear();

@@ -284,7 +284,7 @@ static int64_t parse_polygons(PyObject* py_polygons, Array<Polygon*>& polygon_ar
 }
 
 static int update_style(PyObject* dict, StyleMap& map, const char* name) {
-    Array<char> buffer = {0};
+    Array<char> buffer = {};
     buffer.ensure_slots(4096);
 
     if (!PyDict_Check(dict)) {

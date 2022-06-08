@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 
     Vec2 cutout_points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0},
                             {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
-    Polygon cutout_poly = {0};
+    Polygon cutout_poly = {};
     cutout_poly.point_array.extend(
         {.capacity = 0, .count = COUNT(cutout_points), .items = cutout_points});
     device_cell.polygon_array.append(&cutout_poly);

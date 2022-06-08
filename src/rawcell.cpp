@@ -90,7 +90,7 @@ ErrorCode RawCell::to_gds(FILE* out) {
 }
 
 Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
-    Map<RawCell*> result = {0};
+    Map<RawCell*> result = {};
     uint8_t buffer[65537];
     char* str = (char*)(buffer + 4);
 

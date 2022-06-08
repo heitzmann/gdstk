@@ -44,11 +44,11 @@ int main(int argc, char* argv[]) {
     main_cell.reference_array.append(unit_refs);
     main_cell.reference_array.append(unit_refs + 1);
 
-    Array<Reference*> removed_references = {0};
+    Array<Reference*> removed_references = {};
     main_cell.flatten(true, removed_references);
     removed_references.clear();
 
-    Array<Polygon*> txt = {0};
+    Array<Polygon*> txt = {};
     text("PY", 8 * d, Vec2{0.5 * d, 0}, false, make_tag(1, 0), txt);
     for (uint64_t i = 0; i < main_cell.polygon_array.count; i++) {
         Polygon* poly = main_cell.polygon_array[i];

@@ -12,14 +12,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("library", 1e-6, 1e-9);
 
-    Cell main_cell = {0};
+    Cell main_cell = {};
     main_cell.name = copy_string("Main", NULL);
     lib.cell_array.append(&main_cell);
 
-    FlexPath vline = {0};
+    FlexPath vline = {};
     vline.init(Vec2{3, 2}, 1, 0.1, 0, 0.01, 0);
     vline.simple_path = true;
     vline.segment(Vec2{3, 3.5}, NULL, NULL, false);
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     vline.repetition.type = RepetitionType::ExplicitX;
     vline.repetition.coords.extend({.capacity = 0, .count = COUNT(vcoords), .items = vcoords});
 
-    Array<Polygon*> vlines = {0};
+    Array<Polygon*> vlines = {};
     vline.to_polygons(false, 0, vlines);
     vline.clear();
 
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     // loop here.
     vlines[0]->apply_repetition(vlines);
 
-    RobustPath hline = {0};
+    RobustPath hline = {};
     hline.init(Vec2{3, 2}, 1, 0.05, 0, 0.01, 1000, 0);
     hline.simple_path = true;
     hline.segment(Vec2{6, 2}, NULL, NULL, false);
@@ -43,14 +43,14 @@ int main(int argc, char* argv[]) {
     hline.repetition.type = RepetitionType::ExplicitY;
     hline.repetition.coords.extend({.capacity = 0, .count = COUNT(hcoords), .items = hcoords});
 
-    Array<Polygon*> hlines = {0};
+    Array<Polygon*> hlines = {};
     hline.to_polygons(false, 0, hlines);
     hline.clear();
 
     // Once again, no loop needed.
     hlines[0]->apply_repetition(vlines);
 
-    Array<Polygon*> result = {0};
+    Array<Polygon*> result = {};
     boolean(vlines, hlines, Operation::Or, 1000, result);
     for (uint64_t i = 0; i < vlines.count; i++) {
         vlines[i]->clear();

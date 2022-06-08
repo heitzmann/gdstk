@@ -108,7 +108,7 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
     // }
     // dbg_library.write_gds(dbg_name, 0, NULL);
 
-    Array<SortingPath> holes = {0};
+    Array<SortingPath> holes = {};
     holes.ensure_slots(node->ChildCount());
 
     ClipperLib::Path* contour = &node->Contour;

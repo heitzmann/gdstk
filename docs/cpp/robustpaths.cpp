@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     double widths[] = {2, 0.5, 1, 1};
     double offsets[] = {0, 0, -1, 1};
     Tag tags[] = {make_tag(1, 0), make_tag(0, 0), make_tag(2, 0), make_tag(2, 0)};
-    RobustPath rp = {0};
+    RobustPath rp = {};
     rp.init(Vec2{0, 50}, 4, widths, offsets, 0.01, 1000, tags);
     rp.scale_width = true;
     rp.elements[0].end_type = EndType::HalfWidth;

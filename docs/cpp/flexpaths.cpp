@@ -98,7 +98,7 @@ Cell* example_flexpath3(const char* name) {
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("Paths", 1e-6, 1e-9);
 
     Cell* flexpath1_cell = example_flexpath1("FlexPath 1");

@@ -38,10 +38,10 @@ or inheritance, limited private members, and no use of the STL.
    respective ``init`` methods.  The user can do it manually, of course, but
    the following idiom is safe to use:
 
-   .. code-block:: c++
+   .. code-block::
 
-      StructName var = {0};  // zero-initialize the struct
-      var.init(…);           // initialize important members
+      StructName var = {};  // zero-initialize the struct
+      var.init(…);          // initialize important members
 
 
 *****************

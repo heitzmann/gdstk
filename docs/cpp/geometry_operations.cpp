@@ -15,7 +15,7 @@ Cell* example_boolean(const char* name) {
     Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
     out_cell->name = copy_string(name, NULL);
 
-    Array<Polygon*> txt = {0};
+    Array<Polygon*> txt = {};
     text("GDSTK", 4, Vec2{0, 0}, false, 0, txt);
 
     Polygon rect = rectangle(Vec2{-1, -1}, Vec2{5 * 4 * 9 / 16 + 1, 4 + 1}, 0);
@@ -43,7 +43,7 @@ Cell* example_slice(const char* name) {
 
     double x[] = {-3, 3};
     Array<double> cuts = {.capacity = 0, .count = 1, .items = x};
-    Array<Polygon*> result[3] = {0};
+    Array<Polygon*> result[3] = {};
     slice(ring[0], cuts, true, 1000, result);
     out_cell->polygon_array.extend(result[0]);
     for (uint64_t i = 0; i < result[1].count; i++) {
@@ -112,12 +112,12 @@ Cell* example_fillet(const char* name) {
     Cell* out_cell = (Cell*)allocate_clear(sizeof(Cell));
     out_cell->name = copy_string(name, NULL);
 
-    FlexPath flexpath = {0};
+    FlexPath flexpath = {};
     flexpath.init(Vec2{-8, -4}, 1, 4, 0, 0.01, 0);
     Vec2 points[] = {{0, -4}, {0, 4}, {8, 4}};
     flexpath.segment({.capacity = 0, .count = COUNT(points), .items = points}, NULL, NULL, false);
 
-    Array<Polygon*> poly_array = {0};
+    Array<Polygon*> poly_array = {};
     flexpath.to_polygons(false, 0, poly_array);
     flexpath.clear();
 
@@ -132,7 +132,7 @@ Cell* example_fillet(const char* name) {
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("library", 1e-6, 1e-9);
 
     Cell* boolean_cell = example_boolean("Boolean");

@@ -49,7 +49,7 @@ void example_curves1(Cell& out_cell) {
 
     // Curve points will be copied to the polygons, so allocating the curve on
     // the stack is fine.
-    Curve c1 = {0};
+    Curve c1 = {};
     c1.init(Vec2{0, 0}, 0.01);
     c1.segment({.capacity = 0, .count = COUNT(points), .items = points}, false);
 
@@ -58,7 +58,7 @@ void example_curves1(Cell& out_cell) {
     out_cell.polygon_array.append(p1);
     c1.clear();
 
-    Curve c2 = {0};
+    Curve c2 = {};
     c2.init(Vec2{3, 1}, 0.01);
     c2.segment({.capacity = 0, .count = COUNT(points), .items = points}, true);
 
@@ -69,7 +69,7 @@ void example_curves1(Cell& out_cell) {
 }
 
 void example_curves2(Cell& out_cell) {
-    Curve c3 = {0};
+    Curve c3 = {};
     c3.init(Vec2{0, 2}, 0.01);
     c3.segment(4 * cplx_from_angle(M_PI / 6), true);
     c3.arc(4, 2, M_PI / 2, -M_PI / 2, 0);
@@ -81,7 +81,7 @@ void example_curves2(Cell& out_cell) {
 }
 
 void example_curves3(Cell& out_cell) {
-    Curve c4 = {0};
+    Curve c4 = {};
     c4.init(Vec2{0, 0}, 1e-3);
 
     Vec2 points1[] = {{0, 1}, {1, 1}, {1, 0}};
@@ -96,8 +96,8 @@ void example_curves3(Cell& out_cell) {
     c4.quadratic_smooth(Vec2{1, 0}, true);
 
     Vec2 points4[] = {{4, -1}, {3, -2}, {2, -1.5}, {1, -2}, {0, -1}, {0, 0}};
-    double angles[COUNT(points4) + 1] = {0};
-    bool angle_constraints[COUNT(points4) + 1] = {0};
+    double angles[COUNT(points4) + 1] = {};
+    bool angle_constraints[COUNT(points4) + 1] = {};
     Vec2 tension[COUNT(points4) + 1] = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
 
     c4.interpolation({.capacity = 0, .count = COUNT(points4), .items = points4}, angles,
@@ -139,7 +139,7 @@ void example_layerdatatype(Cell& out_cell) {
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("Getting started", 1e-6, 1e-9);
 
     Cell* polygons_cell = (Cell*)allocate_clear(sizeof(Cell));

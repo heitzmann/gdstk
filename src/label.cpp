@@ -50,7 +50,7 @@ void Label::bounding_box(Vec2& min, Vec2& max) const {
     min = origin;
     max = origin;
     if (repetition.type != RepetitionType::None) {
-        Array<Vec2> offsets = {0};
+        Array<Vec2> offsets = {};
         repetition.get_extrema(offsets);
         Vec2* off = offsets.items;
         Vec2 min0 = min;
@@ -81,7 +81,7 @@ void Label::transform(double mag, bool x_refl, double rot, const Vec2 orig) {
 void Label::apply_repetition(Array<Label*>& result) {
     if (repetition.type == RepetitionType::None) return;
 
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     repetition.get_offsets(offsets);
     repetition.clear();
 
@@ -151,7 +151,7 @@ ErrorCode Label::to_gds(FILE* out, double scaling) const {
     }
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -275,7 +275,7 @@ ErrorCode Label::to_svg(FILE* out, double scaling, uint32_t precision) const {
     fputs("</text>\n", out);
 
     if (repetition.type != RepetitionType::None) {
-        Array<Vec2> offsets = {0};
+        Array<Vec2> offsets = {};
         repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
         for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {

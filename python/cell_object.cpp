@@ -121,7 +121,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
     PyObject* result;
     int by_spec = 0;
     if (!PyArg_ParseTuple(args, "|p:area", &by_spec)) return NULL;
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     self->cell->get_polygons(true, true, -1, false, 0, array);
     if (by_spec) {
         result = PyDict_New();
@@ -225,7 +225,7 @@ static PyObject* cell_object_bounding_box(CellObject* self, PyObject*) {
 }
 
 static PyObject* cell_object_convex_hull(CellObject* self, PyObject*) {
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     self->cell->convex_hull(points);
     npy_intp dims[] = {(npy_intp)points.count, 2};
     PyObject* result = PyArray_SimpleNew(2, dims, NPY_DOUBLE);
@@ -277,7 +277,7 @@ static PyObject* cell_object_get_polygons(CellObject* self, PyObject* args, PyOb
         }
     }
 
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     self->cell->get_polygons(apply_repetitions > 0, include_paths > 0, depth, filter,
                              make_tag(layer, datatype), array);
 
@@ -340,11 +340,11 @@ static PyObject* cell_object_get_paths(CellObject* self, PyObject* args, PyObjec
         }
     }
 
-    Array<FlexPath*> fp_array = {0};
+    Array<FlexPath*> fp_array = {};
     self->cell->get_flexpaths(apply_repetitions > 0, depth, filter, make_tag(layer, datatype),
                               fp_array);
 
-    Array<RobustPath*> rp_array = {0};
+    Array<RobustPath*> rp_array = {};
     self->cell->get_robustpaths(apply_repetitions > 0, depth, filter, make_tag(layer, datatype),
                                 rp_array);
 
@@ -421,7 +421,7 @@ static PyObject* cell_object_get_labels(CellObject* self, PyObject* args, PyObje
         }
     }
 
-    Array<Label*> array = {0};
+    Array<Label*> array = {};
     self->cell->get_labels(apply_repetitions > 0, depth, filter, make_tag(layer, texttype), array);
 
     PyObject* result = PyList_New(array.count);
@@ -457,7 +457,7 @@ static PyObject* cell_object_flatten(CellObject* self, PyObject* args, PyObject*
 
     Cell* cell = self->cell;
 
-    Array<Reference*> reference_array = {0};
+    Array<Reference*> reference_array = {};
     cell->flatten(apply_repetitions > 0, reference_array);
     Reference** ref = reference_array.items;
     for (uint64_t i = reference_array.count; i > 0; i--, ref++) Py_XDECREF((*ref)->owner);
@@ -687,11 +687,11 @@ static PyObject* cell_object_write_svg(CellObject* self, PyObject* args, PyObjec
         }
     }
 
-    StyleMap shape_style = {0};
+    StyleMap shape_style = {};
     if (style_obj != Py_None && update_style(style_obj, shape_style, "shape_style") < 0)
         return NULL;
 
-    StyleMap label_style = {0};
+    StyleMap label_style = {};
     if (label_style_obj != Py_None &&
         update_style(label_style_obj, label_style, "label_style") < 0) {
         shape_style.clear();
@@ -787,7 +787,7 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
                                      &remove, &polygons, &paths, &labels))
         return NULL;
 
-    Set<Tag> tag_set = {0};
+    Set<Tag> tag_set = {};
     if (py_filter != Py_None) {
         if (parse_tag_sequence(py_filter, tag_set, "spec") < 0) {
             tag_set.clear();
@@ -897,8 +897,8 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
 static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
     int recursive;
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
-    Map<Cell*> cell_map = {0};
-    Map<RawCell*> rawcell_map = {0};
+    Map<Cell*> cell_map = {};
+    Map<RawCell*> rawcell_map = {};
     self->cell->get_dependencies(recursive > 0, cell_map);
     self->cell->get_raw_dependencies(recursive > 0, rawcell_map);
     PyObject* result = PyList_New(cell_map.count + rawcell_map.count);

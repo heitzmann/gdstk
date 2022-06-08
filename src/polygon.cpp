@@ -164,7 +164,7 @@ void Polygon::bounding_box(Vec2& min, Vec2& max) const {
         if (p->y > max.y) max.y = p->y;
     }
     if (repetition.type != RepetitionType::None) {
-        Array<Vec2> offsets = {0};
+        Array<Vec2> offsets = {};
         repetition.get_extrema(offsets);
         Vec2* off = offsets.items;
         Vec2 min0 = min;
@@ -333,7 +333,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
 
         const uint64_t num_cuts = num_points / max_points;
         const double frac = num_points / (num_cuts + 1.0);
-        Array<double> cuts = {0};
+        Array<double> cuts = {};
         cuts.ensure_slots(num_cuts);
         cuts.count = num_cuts;
         bool x_axis;
@@ -391,7 +391,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
 void Polygon::apply_repetition(Array<Polygon*>& result) {
     if (repetition.type == RepetitionType::None) return;
 
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     repetition.get_offsets(offsets);
     repetition.clear();
 
@@ -426,12 +426,12 @@ ErrorCode Polygon::to_gds(FILE* out, double scaling) const {
             stderr);
         error_code = ErrorCode::UnofficialSpecification;
     }
-    Array<int32_t> coords = {0};
+    Array<int32_t> coords = {};
     coords.ensure_slots(2 * total);
     coords.count = 2 * total;
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -820,7 +820,7 @@ ErrorCode Polygon::to_oas(OasisStream& out, OasisState& state) const {
     int64_t delta_a, delta_b;
     uint8_t type;
     bool has_repetition = repetition.get_count() > 1;
-    Array<IntVec2> points = {0};
+    Array<IntVec2> points = {};
     scale_and_round_array(point_array, state.scaling, points);
 
     if ((state.config_flags & OASIS_CONFIG_DETECT_RECTANGLES) &&
@@ -957,7 +957,7 @@ ErrorCode Polygon::to_svg(FILE* out, double scaling, uint32_t precision) const {
     fputs(double_print(p->y * scaling, precision, double_buffer, COUNT(double_buffer)), out);
     fputs("\"/>\n", out);
     if (repetition.type != RepetitionType::None) {
-        Array<Vec2> offsets = {0};
+        Array<Vec2> offsets = {};
         repetition.get_offsets(offsets);
         double* offset_p = (double*)(offsets.items + 1);
         for (uint64_t offset_count = offsets.count - 1; offset_count > 0; offset_count--) {
@@ -977,7 +977,7 @@ ErrorCode Polygon::to_svg(FILE* out, double scaling, uint32_t precision) const {
 }
 
 Polygon rectangle(const Vec2 corner1, const Vec2 corner2, Tag tag) {
-    Polygon result = {0};
+    Polygon result = {};
     result.tag = tag;
     result.point_array.ensure_slots(4);
     result.point_array.count = 4;
@@ -991,7 +991,7 @@ Polygon rectangle(const Vec2 corner1, const Vec2 corner2, Tag tag) {
 Polygon cross(const Vec2 center, double full_size, double arm_width, Tag tag) {
     const double len = full_size / 2;
     const double half_width = arm_width / 2;
-    Polygon result = {0};
+    Polygon result = {};
     result.tag = tag;
     result.point_array.ensure_slots(12);
     result.point_array.count = 12;
@@ -1012,7 +1012,7 @@ Polygon cross(const Vec2 center, double full_size, double arm_width, Tag tag) {
 
 Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, double rotation,
                         Tag tag) {
-    Polygon result = {0};
+    Polygon result = {};
     result.tag = tag;
     result.point_array.ensure_slots(sides);
     result.point_array.count = sides;
@@ -1029,7 +1029,7 @@ Polygon regular_polygon(const Vec2 center, double side_length, uint64_t sides, d
 Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inner_radius_x,
                 double inner_radius_y, double initial_angle, double final_angle, double tolerance,
                 Tag tag) {
-    Polygon result = {0};
+    Polygon result = {};
     result.tag = tag;
     const double full_angle =
         (final_angle == initial_angle) ? 2 * M_PI : fabs(final_angle - initial_angle);
@@ -1111,11 +1111,11 @@ Polygon ellipse(const Vec2 center, double radius_x, double radius_y, double inne
 
 Polygon racetrack(const Vec2 center, double straight_length, double radius, double inner_radius,
                   bool vertical, double tolerance, Tag tag) {
-    Polygon result = {0};
+    Polygon result = {};
     result.tag = tag;
 
     double initial_angle;
-    Vec2 direction = {0};
+    Vec2 direction = {};
     if (vertical) {
         direction.y = straight_length / 2;
         initial_angle = 0;
@@ -1524,10 +1524,10 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
     const double tolerance = 0.5 / scaling;
     uint8_t* state = (uint8_t*)allocate_clear(sizeof(uint8_t) * state_rows * state_cols);
 
-    Array<Polygon*> islands = {0};
-    Array<Polygon*> holes = {0};
-    Array<double> island_areas = {0};
-    Array<double> hole_areas = {0};
+    Array<Polygon*> islands = {};
+    Array<Polygon*> holes = {};
+    Array<double> island_areas = {};
+    Array<double> hole_areas = {};
 
     for (uint64_t row = 0; row < state_rows; row++) {
         for (uint64_t col = 0; col < state_cols; col++) {

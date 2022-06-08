@@ -136,9 +136,9 @@ void Curve::append_bezier(const Array<Vec2> ctrl) {
     const uint64_t count = ctrl.count;
     // Sampling based on curvature
     // dp : 1st derivative
-    Array<Vec2> dp = {0};
+    Array<Vec2> dp = {};
     // d2p : 2nd derivative
-    Array<Vec2> d2p = {0};
+    Array<Vec2> d2p = {};
 
     dp.ensure_slots(count - 1 + count - 2);
     d2p.items = dp.items + count - 1;
@@ -380,7 +380,7 @@ void Curve::quadratic_smooth(const Array<Vec2> points, bool relative) {
 }
 
 void Curve::bezier(const Array<Vec2> points, bool relative) {
-    Array<Vec2> ctrl = {0};
+    Array<Vec2> ctrl = {};
     ctrl.ensure_slots(points.count + 1);
     if (relative) {
         const Vec2* point = points.items;
@@ -401,7 +401,7 @@ void Curve::bezier(const Array<Vec2> points, bool relative) {
 void Curve::interpolation(const Array<Vec2> points, double* angles, bool* angle_constraints,
                           Vec2* tension, double initial_curl, double final_curl, bool cycle,
                           bool relative) {
-    Array<Vec2> hobby_vec = {0};
+    Array<Vec2> hobby_vec = {};
     hobby_vec.ensure_slots(3 * (points.count + 1) + 1);
     hobby_vec.count = 3 * (points.count + 1) + 1;
     const Vec2 ref = point_array[point_array.count - 1];
@@ -497,7 +497,7 @@ void Curve::parametric(ParametricVec2 curve_function, void* data, bool relative)
 uint64_t Curve::commands(const CurveInstruction* items, uint64_t count) {
     const CurveInstruction* item = items;
     const CurveInstruction* end = items + count;
-    Array<Vec2> points = {0};
+    Array<Vec2> points = {};
     while (item < end) {
         const char instruction = (item++)->command;
         switch (instruction) {

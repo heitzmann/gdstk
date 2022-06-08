@@ -756,7 +756,7 @@ modifications, the function :func:`gdstk.read_rawcells` is much more efficient.
 
       Map<RawCell*> cells = read_rawcells("filename.gds");
 
-      Reference my_ref = {0};
+      Reference my_ref = {};
       my_ref.init(cells.get("SOME_CELL"), 1);
 
 .. Note::

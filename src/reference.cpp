@@ -68,7 +68,7 @@ void Reference::repeat_and_transform(Array<Vec2>& point_array) const {
     if (num_points == 0) return;
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
 
     if (repetition.type != RepetitionType::None) {
         repetition.get_extrema(offsets);
@@ -105,7 +105,7 @@ void Reference::repeat_and_transform(Array<Vec2>& point_array) const {
 }
 
 void Reference::bounding_box(Vec2& min, Vec2& max) const {
-    Map<GeometryInfo> cache = {0};
+    Map<GeometryInfo> cache = {};
     bounding_box(min, max, cache);
     for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
         item->value.clear();
@@ -120,7 +120,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max, Map<GeometryInfo>& cache) con
 
     GeometryInfo info = cache.get(cell->name);
     int64_t m;
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
 
     if (is_multiple_of_pi_over_2(rotation, m)) {
         Vec2 cmin, cmax;
@@ -157,7 +157,7 @@ void Reference::bounding_box(Vec2& min, Vec2& max, Map<GeometryInfo>& cache) con
 
 void Reference::convex_hull(Array<Vec2>& result) const {
     if (type != ReferenceType::Cell) return;
-    Map<GeometryInfo> cache = {0};
+    Map<GeometryInfo> cache = {};
     convex_hull(result, cache);
     for (MapItem<GeometryInfo>* item = cache.next(NULL); item; item = cache.next(item)) {
         item->value.clear();
@@ -171,7 +171,7 @@ void Reference::convex_hull(Array<Vec2>& result, Map<GeometryInfo>& cache) const
     if (!info.convex_hull_valid) {
         info = cell->convex_hull(cache);
     }
-    Array<Vec2> point_array = {0};
+    Array<Vec2> point_array = {};
     point_array.extend(info.convex_hull);
     repeat_and_transform(point_array);
     gdstk::convex_hull(point_array, result);
@@ -194,7 +194,7 @@ void Reference::transform(double mag, bool x_refl, double rot, const Vec2 orig) 
 void Reference::apply_repetition(Array<Reference*>& result) {
     if (repetition.type == RepetitionType::None) return;
 
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     repetition.get_offsets(offsets);
     repetition.clear();
 
@@ -218,11 +218,11 @@ void Reference::get_polygons(bool apply_repetitions, bool include_paths, int64_t
                              Tag tag, Array<Polygon*>& result) const {
     if (type != ReferenceType::Cell) return;
 
-    Array<Polygon*> array = {0};
+    Array<Polygon*> array = {};
     cell->get_polygons(apply_repetitions, include_paths, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -256,11 +256,11 @@ void Reference::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter
                               Array<FlexPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
-    Array<FlexPath*> array = {0};
+    Array<FlexPath*> array = {};
     cell->get_flexpaths(apply_repetitions, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -293,11 +293,11 @@ void Reference::get_robustpaths(bool apply_repetitions, int64_t depth, bool filt
                                 Array<RobustPath*>& result) const {
     if (type != ReferenceType::Cell) return;
 
-    Array<RobustPath*> array = {0};
+    Array<RobustPath*> array = {};
     cell->get_robustpaths(apply_repetitions, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -330,11 +330,11 @@ void Reference::get_labels(bool apply_repetitions, int64_t depth, bool filter, T
                            Array<Label*>& result) const {
     if (type != ReferenceType::Cell) return;
 
-    Array<Label*> array = {0};
+    Array<Label*> array = {};
     cell->get_labels(apply_repetitions, depth, filter, tag, array);
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {
@@ -369,7 +369,7 @@ ErrorCode Reference::to_gds(FILE* out, double scaling) const {
     bool array = false;
     double x2, y2, x3, y3;
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     offsets.count = 1;
     offsets.items = &zero;
 
@@ -536,7 +536,7 @@ ErrorCode Reference::to_svg(FILE* out, double scaling, uint32_t precision) const
     *d = 0;
 
     Vec2 zero = {0, 0};
-    Array<Vec2> offsets = {0};
+    Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
     } else {

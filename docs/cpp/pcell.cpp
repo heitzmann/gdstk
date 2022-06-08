@@ -31,7 +31,7 @@ Cell* grating(double period, double fill_frac, double length, double width, Tag 
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("library", 1e-6, 1e-9);
 
     double length = 20;

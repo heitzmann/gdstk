@@ -101,7 +101,7 @@ Cell* mach_zenhder_interferometer(Cell* directional_coupler_cell) {
 }
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("Photonics", 1e-6, 1e-9);
     lib.cell_array.append(alignment_mark());
     Cell* directional_coupler_cell = directional_coupler();

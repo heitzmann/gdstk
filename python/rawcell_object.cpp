@@ -49,7 +49,7 @@ static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kw
 static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args) {
     int recursive;
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
-    Map<RawCell*> rawcell_map = {0};
+    Map<RawCell*> rawcell_map = {};
     self->rawcell->get_dependencies(recursive > 0, rawcell_map);
     PyObject* result = PyList_New(rawcell_map.count);
     if (!result) {

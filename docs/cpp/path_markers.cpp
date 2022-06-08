@@ -12,7 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 using namespace gdstk;
 
 int main(int argc, char* argv[]) {
-    Library lib = {0};
+    Library lib = {};
     lib.init("library", 1e-6, 1e-9);
 
     Cell* main_cell = (Cell*)allocate_clear(sizeof(Cell));
