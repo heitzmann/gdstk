@@ -61,11 +61,11 @@ Cell* mach_zenhder_interferometer(Cell* directional_coupler_cell) {
     cell->name = copy_string("MZI", NULL);
 
     Reference* ref = (Reference*)allocate_clear(sizeof(Reference));
-    ref->init(directional_coupler_cell, 1);
+    ref->init(directional_coupler_cell);
     cell->reference_array.append(ref);
 
     ref = (Reference*)allocate_clear(sizeof(Reference));
-    ref->init(directional_coupler_cell, 1);
+    ref->init(directional_coupler_cell);
     ref->origin.x = 75;
     cell->reference_array.append(ref);
 

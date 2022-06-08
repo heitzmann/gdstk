@@ -11,6 +11,7 @@
 - `Reference::flexpaths` renamed to `Reference::get_flexpaths` in the C++ API.
 - `Reference::robustpaths` renamed to `Reference::get_robustpaths` in the C++ API.
 - `Reference::labels` renamed to `Reference::get_labels` in the C++ API.
+- Removed magnification argument from `Reference::init` and `Label::init` in the C++ API.
 
 ## 0.8.3 - 2022-06-02
 ### Fixed

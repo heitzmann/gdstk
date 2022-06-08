@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
     dev_cell->name = copy_string("Device", NULL);
 
     Reference* mzi_ref = (Reference*)allocate_clear(sizeof(Reference));
-    mzi_ref->init(pdk.get("MZI"), 1);
+    mzi_ref->init(pdk.get("MZI"));
     mzi_ref->origin = Vec2{-40, 0};
     dev_cell->reference_array.append(mzi_ref);
 
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     // SREFs. If x_reflection was set to true, that would also have to be
     // applied to v2 for an AREF to be created.
     Reference* grating_ref1 = (Reference*)allocate_clear(sizeof(Reference));
-    grating_ref1->init(grating_cell, 1);
+    grating_ref1->init(grating_cell);
     grating_ref1->origin = Vec2{-200, -150};
     grating_ref1->rotation = M_PI / 2;
     grating_ref1->repetition.type = RepetitionType::Regular;
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     dev_cell->reference_array.append(grating_ref1);
 
     Reference* grating_ref2 = (Reference*)allocate_clear(sizeof(Reference));
-    grating_ref2->init(grating_cell, 1);
+    grating_ref2->init(grating_cell);
     grating_ref2->origin = Vec2{200, 150};
     grating_ref2->rotation = -M_PI / 2;
     grating_ref2->repetition.type = RepetitionType::Regular;
@@ -101,7 +101,7 @@ int main(int argc, char* argv[]) {
 
     for (uint64_t i = 0; i < 4; i++) {
         Reference* wg_ref = (Reference*)allocate_clear(sizeof(Reference));
-        wg_ref->init(wg_cell, 1);
+        wg_ref->init(wg_cell);
         if (i == 1) {
             wg_ref->x_reflection = true;
         } else if (i == 2) {
@@ -118,13 +118,13 @@ int main(int argc, char* argv[]) {
 
     for (uint64_t i = 0; i < 2; i++) {
         Reference* dev_ref = (Reference*)allocate_clear(sizeof(Reference));
-        dev_ref->init(dev_cell, 1);
+        dev_ref->init(dev_cell);
         dev_ref->origin = i == 0 ? Vec2{250, 250} : Vec2{250, 750};
         main_cell->reference_array.append(dev_ref);
     }
 
     Reference* align_ref = (Reference*)allocate_clear(sizeof(Reference));
-    align_ref->init(pdk.get("Alignment Mark"), 1);
+    align_ref->init(pdk.get("Alignment Mark"));
     align_ref->repetition = {RepetitionType::Rectangular, 2, 3, Vec2{500, 500}};
     main_cell->reference_array.append(align_ref);
 

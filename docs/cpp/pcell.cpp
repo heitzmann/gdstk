@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     main_cell->polygon_array.append(rect);
 
     Reference* ref1 = (Reference*)allocate_clear(sizeof(Reference));
-    ref1->init(grat1, 1);
+    ref1->init(grat1);
     ref1->origin = Vec2{length, 0};
     ref1->rotation = M_PI / 2;
     main_cell->reference_array.append(ref1);
