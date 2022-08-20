@@ -1,5 +1,5 @@
 # Change Log
-## 0.9.0
+## 0.9.0 - 2022-08-20
 ### Fixed
 - Bug when saving OASIS files with missing references.
 ### Added
