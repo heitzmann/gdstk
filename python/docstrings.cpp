@@ -2817,7 +2817,7 @@ Args:
       format.
     validation ("crc32", "checksum32", None): type of validation to
       include in the saved file.
-    standard_properties: Staore standard OASIS properties in the file.
+    standard_properties: Store standard OASIS properties in the file.
 
 Notes:
     The standard OASIS options include the maximal string length and

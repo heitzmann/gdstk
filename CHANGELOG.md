@@ -1,5 +1,7 @@
 # Change Log
-## Unreleased
+## 0.9.0
+### Fixed
+- Bug when saving OASIS files with missing references.
 ### Added
 - `Reference.get_polygons`, `Reference.get_paths`, `Reference.get_labels`
 - `Library.rename_cell`
