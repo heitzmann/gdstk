@@ -677,7 +677,9 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 error_code = ErrorCode::MissingReference;
                 continue;
             }
-            uint8_t info = 0xF0;
+            const char* name_ = (ref->type == ReferenceType::Cell) ? ref->cell->name : ref->name;
+            bool reference_exists = cell_name_map.has_key(name_);
+            uint8_t info = reference_exists ? 0xF0 : 0xB0;
             bool has_repetition = ref->repetition.get_count() > 1;
             if (has_repetition) info |= 0x08;
             if (ref->x_reflection) info |= 0x01;
@@ -690,17 +692,27 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
                 }
                 oasis_putc((int)OasisRecord::PLACEMENT, out);
                 oasis_putc(info, out);
-                uint64_t index = cell_name_map.get(
-                    (ref->type == ReferenceType::Cell) ? ref->cell->name : ref->name);
-                oasis_write_unsigned_integer(out, index);
+                if (reference_exists) {
+                    uint64_t index = cell_name_map.get(name_);
+                    oasis_write_unsigned_integer(out, index);
+                } else {
+                    uint64_t len = strlen(name_);
+                    oasis_write_unsigned_integer(out, len);
+                    oasis_write(ref->name, 1, len, out);
+                }
             } else {
                 if (ref->magnification != 1) info |= 0x04;
                 if (ref->rotation != 0) info |= 0x02;
                 oasis_putc((int)OasisRecord::PLACEMENT_TRANSFORM, out);
                 oasis_putc(info, out);
-                uint64_t index = cell_name_map.get(
-                    (ref->type == ReferenceType::Cell) ? ref->cell->name : ref->name);
-                oasis_write_unsigned_integer(out, index);
+                if (reference_exists) {
+                    uint64_t index = cell_name_map.get(name_);
+                    oasis_write_unsigned_integer(out, index);
+                } else {
+                    uint64_t len = strlen(name_);
+                    oasis_write_unsigned_integer(out, len);
+                    oasis_write(ref->name, 1, len, out);
+                }
                 if (ref->magnification != 1) {
                     oasis_write_real(out, ref->magnification);
                 }
