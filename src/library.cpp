@@ -1103,7 +1103,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             case GdsiiRecord::XY:
                 if (polygon) {
                     polygon->point_array.ensure_slots(data_length / 2);
-                    double* d = (double*)polygon->point_array.items + polygon->point_array.count;
+                    double* d = (double*)(polygon->point_array.items + polygon->point_array.count);
                     int32_t* s = data32;
                     for (uint64_t i = data_length; i > 0; i--) *d++ = factor * (*s++);
                     polygon->point_array.count += data_length / 2;
