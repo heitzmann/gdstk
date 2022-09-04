@@ -85,28 +85,30 @@ static inline bool path_less(const SortingPath& p1, const SortingPath& p2) {
 }
 
 static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
-    // static int dbg_counter = 0;
-    // char dbg_name[16];
-    // snprintf(dbg_name, COUNT(dbg_name), "d%d.gds", dbg_counter++);
-    // Library dbg_library = {.name = dbg_name, .unit = 1e-6, .precision = 1e-9};
-    // Cell dbg_cell = {.name = dbg_name};
-    // dbg_library.cell_array.append(&dbg_cell);
-    // Polygon* dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    // dbg_cell.polygon_array.append(dbg_poly);
-    // dbg_poly->tag = make_tag(1, 0);
-    // ClipperLib::Path dbg_path = node->Contour;
-    // for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
-    //     dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
-    // for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child !=
-    // node->Childs.end();
-    //      child++) {
-    //     dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
-    //     dbg_cell.polygon_array.append(dbg_poly);
-    //     dbg_path = (*child)->Contour;
-    //     for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
-    //         dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
-    // }
-    // dbg_library.write_gds(dbg_name, 0, NULL);
+    /*
+    static int dbg_counter = 0;
+    char dbg_name[16];
+    snprintf(dbg_name, COUNT(dbg_name), "d%d.gds", dbg_counter++);
+    Library dbg_library = {.name = dbg_name, .unit = 1e-6, .precision = 1e-9};
+    Cell dbg_cell = {.name = dbg_name};
+    dbg_library.cell_array.append(&dbg_cell);
+    Polygon* dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
+    dbg_cell.polygon_array.append(dbg_poly);
+    dbg_poly->tag = make_tag(1, 0);
+    ClipperLib::Path dbg_path = node->Contour;
+    for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
+        dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
+    for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child != node->Childs.end();
+         child++) {
+        dbg_poly = (Polygon*)allocate_clear(sizeof(Polygon));
+        dbg_cell.polygon_array.append(dbg_poly);
+        dbg_path = (*child)->Contour;
+        for (ClipperLib::Path::iterator pt = dbg_path.begin(); pt != dbg_path.end(); pt++)
+            dbg_poly->point_array.append(Vec2{(double)pt->X, (double)pt->Y});
+    }
+    printf("Debug library %s written with %ld polygons\n", dbg_name, dbg_cell.polygon_array.count);
+    dbg_library.write_gds(dbg_name, 0, NULL);
+    */
 
     Array<SortingPath> holes = {};
     holes.ensure_slots(node->ChildCount());
@@ -141,9 +143,10 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
         for (; p_next != p_end; p_prev = p_next++) {
             if ((p_next->Y <= hole_min->Y && hole_min->Y < p_prev->Y) ||
                 (p_prev->Y < hole_min->Y && hole_min->Y <= p_next->Y)) {
-                ClipperLib::cInt x =
-                    p_next->X +
-                    ((p_prev->X - p_next->X) * (hole_min->Y - p_next->Y)) / (p_prev->Y - p_next->Y);
+                // Avoid integer overflow in the multiplication
+                double temp = (double)(p_prev->X - p_next->X) * (double)(hole_min->Y - p_next->Y) /
+                              (double)(p_prev->Y - p_next->Y);
+                ClipperLib::cInt x = p_next->X + (ClipperLib::cInt)llround(temp);
                 if ((x > xnew || p_closest == p_end) && x <= hole_min->X) {
                     xnew = x;
                     p_closest = p_next;
