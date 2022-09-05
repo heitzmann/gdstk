@@ -28,7 +28,7 @@ find_package(ZLIB 1.2.9)
 if(NOT ZLIB_FOUND)
     # Check first for header files
     if(DEFINED ENV{ZLIB_INCLUDE_DIRS})
-        set(ZLIB_INCLUDE_DIRS ENV{ZLIB_INCLUDE_DIRS})
+        set(ZLIB_INCLUDE_DIRS $ENV{ZLIB_INCLUDE_DIRS})
     else()
         message(FATAL_ERROR "ZLIB headers were not found, either via find_package or env variable")
     endif()
@@ -37,7 +37,7 @@ if(NOT ZLIB_FOUND)
     find_library(ZLIB_LIBRARIES zlib)
     # But give precedence to user-set library path
     if(DEFINED ENV{ZLIB_LIBRARIES})
-        set(ZLIB_LIBRARIES ENV{ZLIB_LIBRARIES})
+        set(ZLIB_LIBRARIES $ENV{ZLIB_LIBRARIES})
     # This would be set if find_library succedes, e.g. the library is on PATH, but no env-var was set.
     elseif(NOT ZLIB_LIBRARIES)
         message(FATAL_ERROR "ZLIB could not be found, either via find_package, find_library, or env variable.")
