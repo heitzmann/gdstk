@@ -1155,7 +1155,9 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             case GdsiiRecord::ENDEL:
                 if (polygon) {
                     // Polygons are closed in GDSII (first and last points are the same)
-                    polygon->point_array.count--;
+                    Array<Vec2>& pa = polygon->point_array;
+                    if (pa[0] == pa[pa.count-1])
+                        pa.count--;
                     if (shape_tags && !shape_tags->has_value(polygon->tag) && cell) {
                         Array<Polygon*>* array = &cell->polygon_array;
                         uint64_t index = array->count - 1;
