@@ -368,6 +368,11 @@ static PyObject* reference_object_apply_repetition(ReferenceObject* self, PyObje
         obj = (ReferenceObject*)PyObject_Init((PyObject*)obj, &reference_object_type);
         obj->reference = array[i];
         array[i]->owner = obj;
+        if (array[i]->type == ReferenceType::Cell) {
+            Py_INCREF(array[i]->cell->owner);
+        } else if (array[i]->type == ReferenceType::RawCell) {
+            Py_INCREF(array[i]->rawcell->owner);
+        }
         PyList_SET_ITEM(result, i, (PyObject*)obj);
     }
     array.clear();
