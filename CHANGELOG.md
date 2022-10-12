@@ -1,4 +1,13 @@
 # Change Log
+## 0.9.1 - 2022-10-12
+### Fixed
+- Reading polygons with extremelly large number of vertices
+- Integer overflow in boolean operations
+- `GdsWriter` C++ API fix
+- Properly read zlib path from environment during build
+- Ensure polygons are closed when laoding GDSII files
+- Reference counting in `Reference.apply_repetition` and `Cell.flatten`
+
 ## 0.9.0 - 2022-08-20
 ### Fixed
 - Bug when saving OASIS files with missing references.
