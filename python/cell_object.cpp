@@ -456,6 +456,10 @@ static PyObject* cell_object_flatten(CellObject* self, PyObject* args, PyObject*
         return NULL;
 
     Cell* cell = self->cell;
+    uint64_t last_polygon = cell->polygon_array.count;
+    uint64_t last_flexpath = cell->flexpath_array.count;
+    uint64_t last_robustpath = cell->robustpath_array.count;
+    uint64_t last_label = cell->label_array.count;
 
     Array<Reference*> reference_array = {};
     cell->flatten(apply_repetitions > 0, reference_array);
@@ -463,47 +467,59 @@ static PyObject* cell_object_flatten(CellObject* self, PyObject* args, PyObject*
     for (uint64_t i = reference_array.count; i > 0; i--, ref++) Py_XDECREF((*ref)->owner);
     reference_array.clear();
 
-    Polygon** p_item = cell->polygon_array.items;
-    for (uint64_t i = cell->polygon_array.count; i > 0; i--, p_item++) {
+    Polygon** p_item = cell->polygon_array.items + last_polygon;
+    for (uint64_t i = cell->polygon_array.count; i > last_polygon; i--, p_item++) {
         Polygon* poly = *p_item;
         if (!poly->owner) {
             PolygonObject* obj = PyObject_New(PolygonObject, &polygon_object_type);
             obj = (PolygonObject*)PyObject_Init((PyObject*)obj, &polygon_object_type);
             obj->polygon = poly;
             obj->polygon->owner = obj;
+        } else {
+            // This case should never happen, we're just future-proofing
+            Py_INCREF(poly->owner);
         }
     }
 
-    FlexPath** fp_item = cell->flexpath_array.items;
-    for (uint64_t i = cell->flexpath_array.count; i > 0; i--, fp_item++) {
+    FlexPath** fp_item = cell->flexpath_array.items + last_flexpath;
+    for (uint64_t i = cell->flexpath_array.count; i > last_flexpath; i--, fp_item++) {
         FlexPath* flexpath = *fp_item;
         if (!flexpath->owner) {
             FlexPathObject* obj = PyObject_New(FlexPathObject, &flexpath_object_type);
             obj = (FlexPathObject*)PyObject_Init((PyObject*)obj, &flexpath_object_type);
             obj->flexpath = flexpath;
             obj->flexpath->owner = obj;
+        } else {
+            // This case should never happen, we're just future-proofing
+            Py_INCREF(flexpath->owner);
         }
     }
 
-    RobustPath** rp_item = cell->robustpath_array.items;
-    for (uint64_t i = cell->robustpath_array.count; i > 0; i--, rp_item++) {
+    RobustPath** rp_item = cell->robustpath_array.items + last_robustpath;
+    for (uint64_t i = cell->robustpath_array.count; i > last_robustpath; i--, rp_item++) {
         RobustPath* robustpath = *rp_item;
         if (!robustpath->owner) {
             RobustPathObject* obj = PyObject_New(RobustPathObject, &robustpath_object_type);
             obj = (RobustPathObject*)PyObject_Init((PyObject*)obj, &robustpath_object_type);
             obj->robustpath = robustpath;
             obj->robustpath->owner = obj;
+        } else {
+            // This case should never happen, we're just future-proofing
+            Py_INCREF(robustpath->owner);
         }
     }
 
-    Label** l_item = cell->label_array.items;
-    for (uint64_t i = cell->label_array.count; i > 0; i--, l_item++) {
+    Label** l_item = cell->label_array.items + last_label;
+    for (uint64_t i = cell->label_array.count; i > last_label; i--, l_item++) {
         Label* label = *l_item;
         if (!label->owner) {
             LabelObject* obj = PyObject_New(LabelObject, &label_object_type);
             obj = (LabelObject*)PyObject_Init((PyObject*)obj, &label_object_type);
             obj->label = label;
             obj->label->owner = obj;
+        } else {
+            // This case should never happen, we're just future-proofing
+            Py_INCREF(label->owner);
         }
     }
 
