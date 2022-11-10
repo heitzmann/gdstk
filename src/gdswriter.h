@@ -54,8 +54,8 @@ struct GdsWriter {
 // the current time will be used.  If not NULL, any errors will be reported
 // through error_code.
 inline GdsWriter gdswriter_init(const char* filename, const char* library_name, double unit,
-                         double precision, uint64_t max_points, tm* timestamp,
-                         ErrorCode* error_code) {
+                                double precision, uint64_t max_points, tm* timestamp,
+                                ErrorCode* error_code) {
     GdsWriter result = {NULL, unit, precision, max_points};
 
     if (timestamp) {

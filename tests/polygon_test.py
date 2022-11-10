@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -117,6 +116,7 @@ def test_translate():
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])
     poly.translate(-1, 2)
     assert_close(poly.points, [[-1, 2], [0, 2], [-1, 3]])
+
 
 def test_transform():
     poly = gdstk.Polygon([0j, 1 + 0j, 1j])

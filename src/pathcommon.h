@@ -39,12 +39,18 @@ enum struct BendType {
 
 inline const char* end_type_name(EndType end_type) {
     switch (end_type) {
-        case EndType::Flush: return "flush";
-        case EndType::Round: return "round";
-        case EndType::HalfWidth: return "half-width";
-        case EndType::Extended: return "extended";
-        case EndType::Smooth: return "smooth";
-        case EndType::Function: return "function";
+        case EndType::Flush:
+            return "flush";
+        case EndType::Round:
+            return "round";
+        case EndType::HalfWidth:
+            return "half-width";
+        case EndType::Extended:
+            return "extended";
+        case EndType::Smooth:
+            return "smooth";
+        case EndType::Function:
+            return "function";
     }
     return "unknown";
 }
@@ -69,9 +75,12 @@ inline const char* join_type_name(JoinType join_type) {
 
 inline const char* bend_type_name(BendType bend_type) {
     switch (bend_type) {
-        case BendType::None: return "none";
-        case BendType::Circular: return "circular";
-        case BendType::Function: return "function";
+        case BendType::None:
+            return "none";
+        case BendType::Circular:
+            return "circular";
+        case BendType::Function:
+            return "function";
     }
     return "unknown";
 }

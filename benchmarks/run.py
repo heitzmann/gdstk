@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -50,8 +49,8 @@ def prefix_format(value, stdev=None, unit="", fmtstr=None, base=10):
             9: "G",
             12: "T",
         }.get(m, f"× {base}^{m} ")
-    value *= base ** -m
-    stdev *= base ** -m
+    value *= base**-m
+    stdev *= base**-m
     return fmtstr.format(value=value, stdev=stdev, prefix=prefix, unit=unit)
 
 
@@ -78,7 +77,7 @@ def timing_benchmark():
 
     path = pathlib.Path(__file__).absolute()
     modules = ("gdspy", "gdstk")
-    bench_names = sorted([f.stem for f in path.parent.glob("*.py") if f != path])
+    bench_names = sorted(f.stem for f in path.parent.glob("*.py") if f != path)
 
     timers = {}
     best_avg_time = {}

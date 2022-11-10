@@ -21,7 +21,7 @@ if __name__ == "__main__":
             half_trace_width = 0.5 * numpy.sqrt(numpy.sum((p0 - p1) ** 2))
             a = half_trace_width + fillet_radius
             c = pad_radius + fillet_radius
-            b = (c ** 2 - a ** 2) ** 0.5
+            b = (c**2 - a**2) ** 0.5
             alpha = numpy.arccos(a / c)
             gamma = numpy.arctan2(v0[1], v0[0]) + 0.5 * numpy.pi
 

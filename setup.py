@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -53,9 +52,9 @@ class build_ext(_build_ext):
         pkgconfig = list(install_dir.glob("**/gdstk.pc"))
         if len(pkgconfig) == 0:
             raise RuntimeError(
-                "File gdstk.pc not found in cmake install tree: {}".format(install_dir)
+                f"File gdstk.pc not found in cmake install tree: {install_dir}"
             )
-        with open(pkgconfig[0], "r") as pkg:
+        with open(pkgconfig[0]) as pkg:
             for line in pkg:
                 if line.startswith("Cflags:"):
                     for arg in line.split()[1:]:

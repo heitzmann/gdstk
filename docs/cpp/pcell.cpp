@@ -65,4 +65,3 @@ int main(int argc, char* argv[]) {
     lib.free_all();
     return 0;
 }
-

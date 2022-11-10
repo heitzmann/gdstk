@@ -274,7 +274,7 @@ static PyObject* library_object_rename_cell(LibraryObject* self, PyObject* args,
 
     if (PyUnicode_Check(py_old)) {
         self->library->rename_cell(PyUnicode_AsUTF8(py_old), new_name);
-    } else if(CellObject_Check(py_old)) {
+    } else if (CellObject_Check(py_old)) {
         self->library->rename_cell(((CellObject*)py_old)->cell, new_name);
     }
 

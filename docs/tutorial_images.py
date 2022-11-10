@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -19,7 +18,9 @@ def draw(cell, path):
         name,
         scaling=scaling,
         background="none",
-        shape_style={(0, 1): {"fill": "none", "stroke": "black", "stroke-dasharray": "8,8"}},
+        shape_style={
+            (0, 1): {"fill": "none", "stroke": "black", "stroke-dasharray": "8,8"}
+        },
         label_style={(3, 2): {"stroke": "red", "fill": "none", "font-size": "32px"}},
         pad="5%",
     )

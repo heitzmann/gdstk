@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -42,7 +41,7 @@ def init1_image():
         # p0 + u0 * v0 (for all u0) and p1 + u1 * v1 (for all u1)
         den = v1[1] * v0[0] - v1[0] * v0[1]
         lim = 1e-12 * (v0[0] ** 2 + v0[1] ** 2) * (v1[0] ** 2 + v1[1] ** 2)
-        if den ** 2 < lim:
+        if den**2 < lim:
             # Lines are parallel: use mid-point
             u0 = u1 = 0
             p = 0.5 * (p0 + p1)
@@ -64,8 +63,8 @@ def init1_image():
         p1 = numpy.array(p1)
         v1 = numpy.array(v1)
         r = 0.5 * numpy.sqrt(numpy.sum((p0 - p1) ** 2))
-        v0 /= numpy.sqrt(numpy.sum(v0 ** 2))
-        v1 /= numpy.sqrt(numpy.sum(v1 ** 2))
+        v0 /= numpy.sqrt(numpy.sum(v0**2))
+        v1 /= numpy.sqrt(numpy.sum(v1**2))
         return [p0, 0.5 * (p0 + p1) + 0.5 * (v0 - v1) * r, p1]
 
     path = gdstk.FlexPath(
@@ -144,7 +143,7 @@ def arc_image():
 
 def parametric_image():
     def spiral(u):
-        rad = 2 * u ** 0.5
+        rad = 2 * u**0.5
         ang = 3 * numpy.pi * u
         return (rad * numpy.cos(ang), rad * numpy.sin(ang))
 

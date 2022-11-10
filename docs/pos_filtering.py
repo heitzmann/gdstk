@@ -18,9 +18,9 @@ if __name__ == "__main__":
 
     # Create repeating pattern using references
     d = 2
-    ref1 = gdstk.Reference(unit, columns=11, rows=6, spacing=(d, d * 3 ** 0.5))
+    ref1 = gdstk.Reference(unit, columns=11, rows=6, spacing=(d, d * 3**0.5))
     ref2 = gdstk.Reference(
-        unit, (d / 2, d * 3 ** 0.5 / 2), columns=10, rows=5, spacing=(d, d * 3 ** 0.5)
+        unit, (d / 2, d * 3**0.5 / 2), columns=10, rows=5, spacing=(d, d * 3**0.5)
     )
     main.add(ref1, ref2)
     main.flatten()

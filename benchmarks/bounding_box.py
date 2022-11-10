@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -14,9 +13,7 @@ import gdstk
 def bench_gdspy(output=None):
     p = gdspy.Polygon([(0, 0), (1, 0), (0, 1)])
     fp = gdspy.FlexPath([(-1, 0.5), (1, 0), (0.5, -0.5)], [0.1, 0.1], 0.3, ends="round")
-    rp = gdspy.RobustPath((0, 0), [0.1, 0.1], 0.3).smooth(
-        [(2, 0.5), (2, 1), (-1, 4)]
-    )
+    rp = gdspy.RobustPath((0, 0), [0.1, 0.1], 0.3).smooth([(2, 0.5), (2, 1), (-1, 4)])
     c1 = gdspy.Cell("REF", exclude_from_current=True)
     c1.add([p, fp, rp])
     r1 = gdspy.CellArray(c1, columns=3, rows=2, spacing=(2, 2), rotation=30)

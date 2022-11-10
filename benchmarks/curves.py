@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -13,7 +12,7 @@ import gdstk
 
 def bench_gdspy(output=None):
     r = 0.15
-    c1 = gdspy.Curve(1 / 2 - r, -(3 ** 0.5) / 6, 1e-3)
+    c1 = gdspy.Curve(1 / 2 - r, -(3**0.5) / 6, 1e-3)
     c1.arc(r, numpy.pi, numpy.pi * 2 / 3)
     c1.l((1 - 2 * r) * numpy.exp(1j * numpy.pi * 2 / 3))
     c1.arc(r, -numpy.pi / 3, -numpy.pi * 2 / 3)
@@ -44,7 +43,7 @@ def bench_gdspy(output=None):
 
 def bench_gdstk(output=None):
     r = 0.15
-    c1 = gdstk.Curve((1 / 2 - r, -(3 ** 0.5) / 6), 1e-3)
+    c1 = gdstk.Curve((1 / 2 - r, -(3**0.5) / 6), 1e-3)
     c1.arc(r, numpy.pi, numpy.pi * 2 / 3)
     c1.segment((1 - 2 * r) * numpy.exp(1j * numpy.pi * 2 / 3), relative=True)
     c1.arc(r, -numpy.pi / 3, -numpy.pi * 2 / 3)
