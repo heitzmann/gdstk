@@ -1,6 +1,5 @@
 # Developer tools
 cmake_build/
-Makefile
 release.sh
 
 ### C++ ###
