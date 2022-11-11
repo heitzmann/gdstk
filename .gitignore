@@ -1,6 +1,7 @@
 # Developer tools
 cmake_build/
 release.sh
+extra/
 
 ### C++ ###
 # Prerequisites
