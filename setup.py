@@ -115,6 +115,7 @@ setup(
     url="https://github.com/heitzmann/gdstk",
     description="Python module for creation and manipulation of GDSII files.",
     long_description=long_description,
+    long_description_content_type="text/markdown",
     keywords="GDSII CAD layout",
     provides=["gdstk"],
     ext_modules=[
