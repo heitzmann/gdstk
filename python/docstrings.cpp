@@ -478,7 +478,9 @@ Args:
     angle: Rotation angle (in radians).
     center (coordinate pair or complex): Center of the transformation.)!");
 
-PyDoc_STRVAR(polygon_object_transform_doc, R"!(transform(magnification=1, x_reflection=False, rotation=0, translation=None, matrix=None) -> self
+PyDoc_STRVAR(
+    polygon_object_transform_doc,
+    R"!(transform(magnification=1, x_reflection=False, rotation=0, translation=None, matrix=None) -> self
 
 Transform the vertices of this polygon.
 
@@ -686,7 +688,9 @@ Notes:
     This operation can be slow because all paths and references are
     included in the computation.)!");
 
-PyDoc_STRVAR(reference_object_get_polygons_doc, R"!(get_polygons(apply_repetitions=True, include_paths=True, depth=None, layer=None, datatype=None) -> list
+PyDoc_STRVAR(
+    reference_object_get_polygons_doc,
+    R"!(get_polygons(apply_repetitions=True, include_paths=True, depth=None, layer=None, datatype=None) -> list
 
 Return a copy of all polygons created by this reference.
 
@@ -709,7 +713,8 @@ Notes:
     for the filtering to be executed.  If either one is ``None`` they
     are both ignored.)!");
 
-PyDoc_STRVAR(reference_object_get_paths_doc, R"!(get_paths(apply_repetitions=True, depth=None, layer=None, datatype=None) -> list
+PyDoc_STRVAR(reference_object_get_paths_doc,
+             R"!(get_paths(apply_repetitions=True, depth=None, layer=None, datatype=None) -> list
 
 Return a copy of all paths created by this reference.
 
@@ -730,7 +735,8 @@ Notes:
     for the filtering to be executed.  If either one is ``None`` they
     are both ignored.)!");
 
-PyDoc_STRVAR(reference_object_get_labels_doc, R"!(get_labels(apply_repetitions=True, depth=None, layer=None, texttype=None) -> list
+PyDoc_STRVAR(reference_object_get_labels_doc,
+             R"!(get_labels(apply_repetitions=True, depth=None, layer=None, texttype=None) -> list
 
 Return a copy of all labels created by this reference.
 
@@ -2242,7 +2248,8 @@ Notes:
 See also:
     :meth:`gdstk.RobustPath.set_ends`)!");
 
-PyDoc_STRVAR(robustpath_object_max_evals_doc, R"!(Maximal number of path evaluations per section.)!");
+PyDoc_STRVAR(robustpath_object_max_evals_doc,
+             R"!(Maximal number of path evaluations per section.)!");
 
 // Label
 
@@ -2424,7 +2431,9 @@ Notes:
     This operation can be slow because all paths and references are
     included in the computation.)!");
 
-PyDoc_STRVAR(cell_object_get_polygons_doc, R"!(get_polygons(apply_repetitions=True, include_paths=True, depth=None, layer=None, datatype=None) -> list
+PyDoc_STRVAR(
+    cell_object_get_polygons_doc,
+    R"!(get_polygons(apply_repetitions=True, include_paths=True, depth=None, layer=None, datatype=None) -> list
 
 Return a copy of all polygons in the cell.
 
@@ -2447,7 +2456,8 @@ Notes:
     for the filtering to be executed.  If either one is ``None`` they
     are both ignored.)!");
 
-PyDoc_STRVAR(cell_object_get_paths_doc, R"!(get_paths(apply_repetitions=True, depth=None, layer=None, datatype=None) -> list
+PyDoc_STRVAR(cell_object_get_paths_doc,
+             R"!(get_paths(apply_repetitions=True, depth=None, layer=None, datatype=None) -> list
 
 Return a copy of all paths in the cell.
 
@@ -2468,7 +2478,8 @@ Notes:
     for the filtering to be executed.  If either one is ``None`` they
     are both ignored.)!");
 
-PyDoc_STRVAR(cell_object_get_labels_doc, R"!(get_labels(apply_repetitions=True, depth=None, layer=None, texttype=None) -> list
+PyDoc_STRVAR(cell_object_get_labels_doc,
+             R"!(get_labels(apply_repetitions=True, depth=None, layer=None, texttype=None) -> list
 
 Return a copy of all labels in the cell.
 
@@ -2785,7 +2796,8 @@ PyDoc_STRVAR(library_object_layers_and_texttypes_doc, R"!(layers_and_texttypes()
 
 Return a set of tuples with the layer and text types in the library.)!");
 
-PyDoc_STRVAR(library_object_write_gds_doc, R"!(write_gds(outfile, max_points=199, timestamp=None) -> None
+PyDoc_STRVAR(library_object_write_gds_doc,
+             R"!(write_gds(outfile, max_points=199, timestamp=None) -> None
 
 Save this library to a GDSII file.
 
@@ -2839,8 +2851,9 @@ Notes:
 
 // GdsWriter
 
-PyDoc_STRVAR(gdswriter_object_type_doc,
-             R"!(GdsWriter(outfile, name="library", unit=1e-6, precision=1e-9, max_points=199, timestamp=None)
+PyDoc_STRVAR(
+    gdswriter_object_type_doc,
+    R"!(GdsWriter(outfile, name="library", unit=1e-6, precision=1e-9, max_points=199, timestamp=None)
 
 Multi-step GDSII stream file writer.
 
@@ -3175,9 +3188,8 @@ Notes:
     full height ``size``, respectively. For vertical text, characters
     and columns are respectively spaced by 9 / 8 and 1 times ``size``.)!");
 
-PyDoc_STRVAR(
-    contour_function_doc,
-    R"!(contour(data, level=0, length_scale=1, precision=0.01, layer=0, datatype=0) -> list
+PyDoc_STRVAR(contour_function_doc,
+             R"!(contour(data, level=0, length_scale=1, precision=0.01, layer=0, datatype=0) -> list
 
 Extract polygonal contours from 2-d array data at given level.
 
@@ -3379,7 +3391,8 @@ Args:
 Returns:
     `True` if any point is inside the polygon set, `False` otherwise.)!");
 
-PyDoc_STRVAR(read_gds_function_doc, R"!(read_gds(infile, unit=0, tolerance=0, filter=None) -> gdstk.Library
+PyDoc_STRVAR(read_gds_function_doc,
+             R"!(read_gds(infile, unit=0, tolerance=0, filter=None) -> gdstk.Library
 
 Import a library from a GDSII stream file.
 

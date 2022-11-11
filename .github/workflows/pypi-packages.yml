@@ -21,10 +21,17 @@ jobs:
           path: "dist/*"
 
   build-win64-wheels:
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.11"]
+        include:
+          - os: "macos-latest"
+            cibuild: "*macosx*"
+          - os: "ubuntu-latest"
+            cibuild: "*manylinux*"
+          - os: "ubuntu-latest"
+            cibuild: "*musllinux*"
     steps:
       - uses: actions/checkout@v3
       - name: Set up MSVC
@@ -39,10 +46,10 @@ jobs:
           python -m pip install --upgrade pip wheel oldest-supported-numpy
           python -m pip install conan ninja
           conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
-      - name: Build Python ${{ matrix.python-version }} wheel
-        run: |
-          python setup.py bdist_wheel
+      - name: Build wheels ${{ matrix.python-version }}   # check https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
+        uses: pypa/cibuildwheel@v2.5.0
         env:
+          CIBW_BUILD: ${{ matrix.cibuild }}
           CMAKE_GENERATOR: "Ninja"
           CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
       - uses: actions/upload-artifact@v3
@@ -50,25 +57,50 @@ jobs:
           name: packages
           path: "dist/*.whl"
 
-  pypi-publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    needs: [build-sdist, build-win64-wheels]
+# The following was taken from https://cibuildwheel.readthedocs.io/en/stable/deliver-to-pypi/
+  make_sdist:
+    name: Make SDist
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/checkout@v2
       with:
-        name: packages
+        fetch-depth: 0  # Optional, use if you use setuptools_scm
+        submodules: true  # Optional, use if you have submodules
+
+    - name: Build SDist
+      run: pipx run build --sdist
+
+    - uses: actions/upload-artifact@v2
+      with:
+        path: dist/*.tar.gz
+
+  upload_to_test_pypy:
+    needs: [build, make_sdist]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/download-artifact@v2
+      with:
+        name: artifact
         path: dist
-    - name: List of produced packages
-      run: |
-        du -bh dist/*
-    - name: Test PyPI publish
-      uses: pypa/gh-action-pypi-publish@release/v1
+
+    - uses: pypa/gh-action-pypi-publish@v1.4.2
+      continue-on-error: true   # might fail if we don't bump the version
       with:
+        user: __token__
+        password: ${{ secrets.test_pypi_password }}
         repository_url: https://test.pypi.org/legacy/
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        skip_existing: true
-    - name: PyPI publish
-      uses: pypa/gh-action-pypi-publish@release/v1
+
+  upload_to_pypi:
+    needs: [build, make_sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    steps:
+    - uses: actions/download-artifact@v2
       with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        name: artifact
+        path: dist
+
+    - uses: pypa/gh-action-pypi-publish@v1.4.2
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}

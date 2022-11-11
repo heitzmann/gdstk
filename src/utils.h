@@ -208,7 +208,7 @@ tm* get_now(tm& result);
 // FNV-1a hash function (64 bits)
 #define HASH_FNV_PRIME 0x00000100000001b3
 #define HASH_FNV_OFFSET 0xcbf29ce484222325
-template<class T>
+template <class T>
 inline uint64_t hash(T key) {
     uint64_t result = HASH_FNV_OFFSET;
     uint8_t* byte = (uint8_t*)(&key);

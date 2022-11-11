@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -87,7 +86,7 @@ def arc_image():
 
     curve = gdstk.Curve((0.6, 0), tolerance=1e-3)
     curve.segment((1, 0), True)
-    curve.arc((2 ** -0.5, 0.4), -numpy.pi / 4, 3 * numpy.pi / 4, -numpy.pi / 4)
+    curve.arc((2**-0.5, 0.4), -numpy.pi / 4, 3 * numpy.pi / 4, -numpy.pi / 4)
     polygon_2 = gdstk.Polygon(curve.points())
     return gdstk.Cell("arc").add(polygon_1, polygon_2)
 
@@ -100,7 +99,7 @@ def parametric_image():
 
     curve = gdstk.Curve((-2, 0), tolerance=1e-3)
     curve.parametric(top)
-    curve.parametric(lambda u: (4 - 2 * u ** 0.5) * numpy.exp(-1.5j * numpy.pi * u) - 4)
+    curve.parametric(lambda u: (4 - 2 * u**0.5) * numpy.exp(-1.5j * numpy.pi * u) - 4)
     polygon = gdstk.Polygon(curve.points())
     return gdstk.Cell("parametric").add(polygon)
 

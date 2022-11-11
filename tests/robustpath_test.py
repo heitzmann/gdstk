@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -98,7 +97,7 @@ def test_position(robust_path):
     assert_close(robust_path.position(0), (-1, 0))
     assert_close(robust_path.position(0.5), (0, 0.5))
     assert_close(robust_path.position(1), (1, 1))
-    assert_close(robust_path.position(1.5), (1 + 2 ** 0.5, -1 + 2 ** 0.5))
+    assert_close(robust_path.position(1.5), (1 + 2**0.5, -1 + 2**0.5))
     assert_close(robust_path.position(2), (3, -1))
     assert_close(robust_path.position(2.1), (3, -1))
 
@@ -109,7 +108,7 @@ def test_gradient(robust_path):
     assert_close(robust_path.gradient(0.5), (2, 1))
     assert_close(robust_path.gradient(1), (2, 1))
     assert_close(robust_path.gradient(1, False), (numpy.pi, 0))
-    assert_close(robust_path.gradient(1.5), (numpy.pi / 2 ** 0.5, -numpy.pi / 2 ** 0.5))
+    assert_close(robust_path.gradient(1.5), (numpy.pi / 2**0.5, -numpy.pi / 2**0.5))
     assert_close(robust_path.gradient(2), (0, -numpy.pi))
     assert_close(robust_path.gradient(2, False), (0, -numpy.pi))
     assert_close(robust_path.gradient(2.1), (0, -numpy.pi))

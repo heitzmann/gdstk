@@ -76,9 +76,7 @@ struct Cell {
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
-    void init(const char* name_) {
-        name = copy_string(name_, NULL);
-    }
+    void init(const char* name_) { name = copy_string(name_, NULL); }
 
     void print(bool all) const;
 

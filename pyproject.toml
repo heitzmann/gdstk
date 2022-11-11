@@ -1,3 +1,2 @@
 [build-system]
 requires = ["setuptools", "wheel", "numpy >= 1.20.0"]
-

@@ -1317,13 +1317,15 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 row++;
                 s = state + col + row * state_cols;
                 from = S;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
                 //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {(double)state_cols, 0};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (col == state_cols && row < state_rows) {
@@ -1342,13 +1344,15 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 col--;
                 s = state + col + row * state_cols;
                 from = E;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
                 //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {(double)state_cols, (double)state_rows};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (row == state_rows && col >= 0) {
@@ -1367,13 +1371,15 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 row--;
                 s = state + col + row * state_cols;
                 from = N;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
                 //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {0, (double)state_rows};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else if (col == -1 && row >= 0) {
@@ -1392,13 +1398,15 @@ static Polygon* get_polygon(const int64_t start_row, const int64_t start_col, co
                 col++;
                 s = state + col + row * state_cols;
                 from = W;
-                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count - 1].x,
+                // DEBUG_PRINT("→ [%ld, %ld] (%g, %g)\n", col, row, points->items[points->count -
+                // 1].x,
                 //             points->items[points->count - 1].y);
             } else {
                 Vec2 v = {0, 0};
                 append_contour_point(points, v, tolerance);
                 // DEBUG_PRINT("→ Corner [%ld, %ld] (%g, %g)\n", col, row,
-                //             points->items[points->count - 1].x, points->items[points->count - 1].y);
+                //             points->items[points->count - 1].x, points->items[points->count -
+                //             1].y);
             }
             f0 = field + col + row * (state_cols + 1);
         } else {

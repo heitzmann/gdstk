@@ -1661,7 +1661,8 @@ static PyObject* gds_info_function(PyObject* mod, PyObject* args) {
         return NULL;
     }
     if (PyDict_SetItemString(result, "layers_and_datatypes", item) < 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to add layers_and_datatypes to return dictionary.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Unable to add layers_and_datatypes to return dictionary.");
         Py_DECREF(item);
         Py_DECREF(result);
         info.clear();
@@ -1675,7 +1676,8 @@ static PyObject* gds_info_function(PyObject* mod, PyObject* args) {
         return NULL;
     }
     if (PyDict_SetItemString(result, "layers_and_texttypes", item) < 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Unable to add layers_and_texttypes to return dictionary.");
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Unable to add layers_and_texttypes to return dictionary.");
         Py_DECREF(item);
         Py_DECREF(result);
         info.clear();

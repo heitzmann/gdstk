@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -9,11 +8,14 @@
 import gdspy
 import gdstk
 
+
 def bench_gdspy():
     d = gdspy.get_binary_cells("tests/proof_lib.gds")
 
+
 def bench_gdstk():
     d = gdstk.read_rawcells("tests/proof_lib.gds")
+
 
 if __name__ == "__main__":
     bench_gdspy()

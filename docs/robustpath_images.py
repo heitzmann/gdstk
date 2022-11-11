@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -79,7 +78,7 @@ def bezier_image():
     path = gdstk.RobustPath((0, 0), 0.2, tolerance=1e-3)
     path.bezier(
         [(4, 1), (4, 3), (0, 5), (-4, 3), (-4, -2), (0, -4)],
-        width=lambda u: 0.2 + 0.8 * u ** 2,
+        width=lambda u: 0.2 + 0.8 * u**2,
     )
     return gdstk.Cell("bezier").add(path)
 
@@ -105,12 +104,12 @@ def arc_image():
 
 def parametric_image():
     def spiral(u):
-        rad = 2 * u ** 0.5
+        rad = 2 * u**0.5
         ang = 3 * numpy.pi * u
         return (rad * numpy.cos(ang), rad * numpy.sin(ang))
 
     path = gdstk.RobustPath((0, 0), 0.2, tolerance=1e-3)
-    path.parametric(spiral, width=lambda u: 0.2 + 0.6 * u ** 2)
+    path.parametric(spiral, width=lambda u: 0.2 + 0.6 * u**2)
     return gdstk.Cell("parametric").add(path)
 
 

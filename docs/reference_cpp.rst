@@ -85,4 +85,3 @@ Header files
    :glob:
 
    headers/*
-

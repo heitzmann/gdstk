@@ -63,7 +63,6 @@ static PyObject* rawcell_object_dependencies(RawCellObject* self, PyObject* args
         PyObject* rawcell_obj = (PyObject*)item->value->owner;
         Py_INCREF(rawcell_obj);
         PyList_SET_ITEM(result, i++, rawcell_obj);
-
     }
     rawcell_map.clear();
     return result;

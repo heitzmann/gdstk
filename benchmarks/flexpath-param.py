@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
@@ -15,7 +14,7 @@ def bench_gdspy(output=None):
     def broken(p0, v0, p1, v1, p2, w):
         den = v1[1] * v0[0] - v1[0] * v0[1]
         lim = 1e-12 * (v0[0] ** 2 + v0[1] ** 2) * (v1[0] ** 2 + v1[1] ** 2)
-        if den ** 2 < lim:
+        if den**2 < lim:
             u0 = u1 = 0
             p = 0.5 * (p0 + p1)
         else:
@@ -30,8 +29,8 @@ def bench_gdspy(output=None):
 
     def pointy(p0, v0, p1, v1):
         r = 0.5 * numpy.sqrt(numpy.sum((p0 - p1) ** 2))
-        v0 /= numpy.sqrt(numpy.sum(v0 ** 2))
-        v1 /= numpy.sqrt(numpy.sum(v1 ** 2))
+        v0 /= numpy.sqrt(numpy.sum(v0**2))
+        v1 /= numpy.sqrt(numpy.sum(v1**2))
         return [p0, 0.5 * (p0 + p1) + 0.5 * (v0 - v1) * r, p1]
 
     sp0 = gdspy.FlexPath(
@@ -70,7 +69,7 @@ def bench_gdstk(output=None):
         p2 = numpy.array(p2)
         den = v1[1] * v0[0] - v1[0] * v0[1]
         lim = 1e-12 * (v0[0] ** 2 + v0[1] ** 2) * (v1[0] ** 2 + v1[1] ** 2)
-        if den ** 2 < lim:
+        if den**2 < lim:
             u0 = u1 = 0
             p = 0.5 * (p0 + p1)
         else:
