@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - v[0-9]+.**
+  workflow_dispatch:
 
 jobs:
   build-sdist:
@@ -20,7 +21,7 @@ jobs:
           name: packages
           path: "dist/*"
 
-  build-win64-wheels:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
