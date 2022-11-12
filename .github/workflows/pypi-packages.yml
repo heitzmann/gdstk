@@ -31,7 +31,7 @@ jobs:
     - name: Build SDist
       run: |
           mamba install zlib cmake numpy -y
-          pip install numpy
+          pip3 install numpy
           python3 setup.py bdist_wheel
     - uses: actions/upload-artifact@v3
       with:
