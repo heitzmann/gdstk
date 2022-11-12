@@ -46,7 +46,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip wheel oldest-supported-numpy
           python -m pip install conan ninja
-          conan install zlib/1.2.13@ -s compiler.version='16' -g cmake_paths
+          conan install zlib/1.2.13@ -s compiler.version='12' -g cmake_paths
       - name: Build wheels ${{ matrix.python-version }}   # check https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
         uses: pypa/cibuildwheel@v2.11.2
         env:
