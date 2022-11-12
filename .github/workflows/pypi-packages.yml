@@ -24,7 +24,6 @@ jobs:
         run: pip install cibuildwheel
       - name: Build wheels
         run: |
-          pip install numpy
           cibuildwheel --output-dir wheelhouse
         # env:
         #     CIBW_TEST_REQUIRES: setuptools numpy
