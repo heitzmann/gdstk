@@ -15,17 +15,18 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v2
         with:
+          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          cache: pip
+          channels: conda-forge
+      - name: Install dependencies
+        run: conda install cmake zlib numpy pytest
       - name: Install cibuildwheel
         run: pip install cibuildwheel
       - name: Build wheels
         run: |
-          pip install conan ninja
-          conan install zlib/1.2.13@ -s compiler.version='12' -g cmake_paths
           cibuildwheel --output-dir wheelhouse
         # env:
         #     CIBW_TEST_REQUIRES: setuptools numpy
