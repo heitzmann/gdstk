@@ -10,6 +10,11 @@ jobs:
   make_sdist:
     name: Make SDist
     runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 12
+      matrix:
+        python-version: ["3.10"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
     - uses: actions/checkout@v3
       with:
@@ -22,6 +27,11 @@ jobs:
 
   build:
     runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 12
+      matrix:
+        python-version: ["3.10"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Miniconda
@@ -41,7 +51,7 @@ jobs:
           path: wheelhouse/*.whl
 
   upload_to_test_pypy:
-    needs: [build]
+    needs: [build, sdist]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/download-artifact@v3
@@ -57,7 +67,7 @@ jobs:
         repository_url: https://test.pypi.org/legacy/
 
   upload_to_pypi:
-    needs: [build]
+    needs: [build, sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
