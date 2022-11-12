@@ -25,7 +25,7 @@ jobs:
     - name: Build SDist
       run: |
           python -m pip install conan ninja
-          conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
+          conan install zlib/1.2.13@ -s compiler.version=12 -g cmake_paths
           python -m pip install --upgrade pip build numpy
           python setup.py bdist_wheel
       env:
