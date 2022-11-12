@@ -13,6 +13,7 @@ import platform
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 from distutils.version import LooseVersion
+import numpy
 
 
 class build_ext(_build_ext):
@@ -121,7 +122,7 @@ setup(
         Extension(
             "gdstk",
             ["python/gdstk_module.cpp"],
-            # include_dirs=[numpy.get_include()],
+            include_dirs=[numpy.get_include()],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
         ),
