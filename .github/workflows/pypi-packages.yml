@@ -33,8 +33,7 @@ jobs:
           pipx run build
     - uses: actions/upload-artifact@v3
       with:
-          name: packages
-          path: "dist/*.whl"
+          path: dist/*
 
 
   upload_to_test_pypy:
@@ -44,7 +43,6 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: artifact
         path: dist
 
     - uses: pypa/gh-action-pypi-publish@v1.5.1
@@ -61,7 +59,6 @@ jobs:
     steps:
     - uses: actions/download-artifact@v3
       with:
-        name: artifact
         path: dist
 
     - uses: pypa/gh-action-pypi-publish@v1.5.1
