@@ -29,7 +29,7 @@ jobs:
         activate-environment: anaconda-client-env
     - name: Build SDist
       run: |
-          mamba install zlib cmake numpy
+          mamba install zlib cmake numpy -y
           python setup.py bdist_wheel
       env:
         CMAKE_GENERATOR: "Ninja"
