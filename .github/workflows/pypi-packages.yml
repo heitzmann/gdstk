@@ -31,9 +31,6 @@ jobs:
       run: |
           mamba install zlib cmake numpy -y
           python setup.py bdist_wheel
-      env:
-        CMAKE_GENERATOR: "Ninja"
-        CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
     - uses: actions/upload-artifact@v3
       with:
           name: packages
