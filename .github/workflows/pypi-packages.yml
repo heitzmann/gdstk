@@ -24,6 +24,8 @@ jobs:
         run: pip install cibuildwheel
       - name: Build wheels
         run: |
+          pip install conan ninja
+          conan install zlib/1.2.13@ -s compiler.version='12' -g cmake_paths
           cibuildwheel --output-dir wheelhouse
         # env:
         #     CIBW_TEST_REQUIRES: setuptools numpy
