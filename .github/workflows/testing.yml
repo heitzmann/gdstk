@@ -9,9 +9,9 @@ jobs:
         python-version: ['3.7', '3.10']
     name: Linux test for ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -35,7 +35,7 @@ jobs:
         python-version: ['3.7', '3.10']
     name: Windows test for ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -56,9 +56,9 @@ jobs:
         python-version: ['3.7', '3.10']
     name: MacOS test for ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
