@@ -7,32 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-sdist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-      - name: Building source package
-        run: |
-          python -m pip install --upgrade pip build
-          python -m build --sdist
-      - uses: actions/upload-artifact@v3
-        with:
-          name: packages
-          path: "dist/*"
-
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         python-version: ["3.10"]
-        include:
-          - os: "macos-latest"
-            cibuild: "*macosx*"
-          - os: "ubuntu-latest"
-            cibuild: "*manylinux*"
-          - os: "ubuntu-latest"
-            cibuild: "*musllinux*"
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -44,9 +24,8 @@ jobs:
         run: python -m pip install cibuildwheel==2.11.2 numpy setuptools
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
-        env:
-            CIBW_TEST_REQUIRES: setuptools numpy
-
+        # env:
+        #     CIBW_TEST_REQUIRES: setuptools numpy
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
@@ -64,7 +43,7 @@ jobs:
       continue-on-error: true   # might fail if we don't bump the version
       with:
         user: __token__
-        password: ${{ secrets.test_pypi_password }}
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
 
   upload_to_pypi:
@@ -80,4 +59,4 @@ jobs:
     - uses: pypa/gh-action-pypi-publish@v1.5.1
       with:
         user: __token__
-        password: ${{ secrets.pypi_password }}
+        password: ${{ secrets.PYPI_API_TOKEN }}
