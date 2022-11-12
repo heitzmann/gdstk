@@ -20,12 +20,12 @@ jobs:
       with:
         fetch-depth: 0  # Optional, use if you use setuptools_scm
         submodules: true  # Optional, use if you have submodules
-
     - name: Build SDist
-      run: pipx run build --sdist
+      run: python setup.py bdist_wheel
     - uses: actions/upload-artifact@v3
       with:
-        path: dist/*.tar.gz
+          name: packages
+          path: "dist/*.whl"
 
 
   upload_to_test_pypy:
