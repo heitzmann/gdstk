@@ -52,7 +52,6 @@ jobs:
           CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
       - uses: actions/upload-artifact@v3
         with:
-          name: packages
           path: "dist/*.whl"
 
   make_sdist:
