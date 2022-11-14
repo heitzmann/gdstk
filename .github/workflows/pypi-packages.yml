@@ -5,111 +5,100 @@ on:
   workflow_dispatch:
 
 jobs:
-  make_wheels:
-    name: Make MacOs and Widows wheels
+  build_wheels:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       max-parallel: 12
       matrix:
-        python-version: ["3.10"]
-        os: [macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # Optional, use if you use setuptools_scm
-        submodules: true  # Optional, use if you have submodules
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: 3.9
-        mamba-version: "*"
-        channels: conda-forge,defaults
-        channel-priority: true
-        activate-environment: anaconda-client-env
-    - name: Build SDist
-      run: |
-          mamba install zlib cmake numpy -y
-          pipx install numpy
-          pipx run build
-    - uses: actions/upload-artifact@v3
-      with:
-          path: dist/*
+      - uses: actions/checkout@v3
+      - name: Build wheels # check https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
+        uses: pypa/cibuildwheel@v2.11.2
+        # to supply options, put them in 'env', like:
+        # env:
+        #   CIBW_SOME_OPTION: value
+        # env:
+        #   CIBW_BUILD: ${{ matrix.cibuild }}
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
 
-  make_linux_wheels:
-    name: Make Linux wheels
-    runs-on: ${{ matrix.os }}
+  build_windows_wheels:
+    runs-on: windows-latest
     strategy:
-      fail-fast: false
-      max-parallel: 12
       matrix:
-        python-version: ["3.10"]
-        os: [ubuntu-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # Optional, use if you use setuptools_scm
-        submodules: true  # Optional, use if you have submodules
-    - uses: conda-incubator/setup-miniconda@v2
-      with:
-        python-version: 3.9
-        mamba-version: "*"
-        channels: conda-forge,defaults
-        channel-priority: true
-        activate-environment: anaconda-client-env
-    - name: Build SDist
-      run: |
-          mamba install zlib cmake numpy -y
-          python -m pip install numpy
-          python setup.py bdist_wheel --universal
-    - uses: actions/upload-artifact@v3
-      with:
-          path: dist/*
+      - uses: actions/checkout@v3
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip wheel oldest-supported-numpy
+          python -m pip install conan ninja
+          conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
+      - name: Build Python ${{ matrix.python-version }} wheel
+        run: |
+          python setup.py bdist_wheel
+        env:
+          CMAKE_GENERATOR: "Ninja"
+          CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: "dist/*.whl"
 
   make_sdist:
     name: Make SDist
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0  # Optional, use if you use setuptools_scm
-        submodules: true  # Optional, use if you have submodules
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Optional, use if you use setuptools_scm
+          submodules: true # Optional, use if you have submodules
 
-    - name: Build SDist
-      run: pipx run build --sdist
+      - name: Build SDist
+        run: pipx run build --sdist
 
-    - uses: actions/upload-artifact@v3
-      with:
-        path: dist/*.tar.gz
-
+      - uses: actions/upload-artifact@v3
+        with:
+          path: dist/*.tar.gz
 
   upload_to_test_pypy:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    needs: [make_sdist, make_wheels, make_linux_wheels]
+    needs: [make_sdist, build_wheels, build_windows_wheels]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: artifact
-        path: dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
 
-    - uses: pypa/gh-action-pypi-publish@v1.5.1
-      continue-on-error: true   # might fail if we don't bump the version
-      with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+      - uses: pypa/gh-action-pypi-publish@v1.5.1
+        continue-on-error: true # might fail if we don't bump the version
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
 
   upload_to_pypi:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    needs: [make_sdist, make_wheels, make_linux_wheels]
+    needs: [make_sdist, build_wheels, build_windows_wheels]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/download-artifact@v3
-      with:
-        name: artifact
-        path: dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: dist
 
-    - uses: pypa/gh-action-pypi-publish@v1.5.1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - uses: pypa/gh-action-pypi-publish@v1.5.1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
