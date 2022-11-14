@@ -1,4 +1,4 @@
-# Change Log
+# Changelog
 ## 0.9.1 - 2022-10-12
 ### Fixed
 - Reading polygons with extremelly large number of vertices
