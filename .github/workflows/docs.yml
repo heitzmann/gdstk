@@ -18,34 +18,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install sphinx sphinx-rtd-theme sphinx-inline-tabs matplotlib
+          pip install -r requirements_dev.txt
       - name: Install Gdstk
         run: python setup.py install --user
-      - name: Make figures and samples
-        run: |
-          python docs/cell_images.py
-          python docs/curve_images.py
-          python docs/flexpath_images.py
-          python docs/function_images.py
-          python docs/label_images.py
-          python docs/polygon_images.py
-          python docs/reference_images.py
-          python docs/robustpath_images.py
-          python docs/tutorial_images.py
-          python docs/pcell.py
-          python docs/photonics.py
-          python docs/layout.py
-          python docs/merging.py
-          python docs/transforms.py
-          python docs/repetitions.py
-          python docs/apply_repetition.py
-          python docs/filtering.py
-          python docs/pos_filtering.py
-          python docs/path_markers.py
-          python docs/pads.py
-          python docs/fonts.py
       - name: Build docs
-        run: python setup.py build_sphinx
+        run: make docs
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

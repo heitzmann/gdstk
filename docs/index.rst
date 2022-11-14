@@ -30,6 +30,7 @@ included with the source.
    how-tos
    reference_python
    reference_cpp
+   CHANGELOG
 
 
 *******
