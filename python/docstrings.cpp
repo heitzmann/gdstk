@@ -556,13 +556,13 @@ PyDoc_STRVAR(polygon_object_apply_repetition_doc, R"!(apply_repetition() -> list
 
 Create new polygons based on this object's ``repetition`` attribute.
 
-After the repetition is applyed, the original attribute is set to
+After the repetition is applied, the original attribute is set to
 ``None``.
 
 Returns:
     Newly created objects.)!");
 
-PyDoc_STRVAR(polygon_object_points_doc, R"!(Vertiecs of the polygon.
+PyDoc_STRVAR(polygon_object_points_doc, R"!(Vertices of the polygon.
 
 Notes:
     This attribute is read-only.)!");
@@ -761,7 +761,7 @@ PyDoc_STRVAR(reference_object_apply_repetition_doc, R"!(apply_repetition() -> li
 
 Create new references based on this object's ``repetition`` attribute.
 
-After the repetition is applyed, the original attribute is set to
+After the repetition is applied, the original attribute is set to
 ``None``.
 
 Returns:
@@ -1243,7 +1243,7 @@ PyDoc_STRVAR(
 Append a smooth interpolating curve through the given points.
 
 Use the Hobby algorithm [#]_ to calculate a smooth interpolating
-path made of cubic Bezier segments between each pair of points.  Angle
+path made of cubic Bézier segments between each pair of points.  Angle
 and tension parameters can be specified at each point, and the path can
 be open or closed.
 
@@ -1451,7 +1451,7 @@ PyDoc_STRVAR(flexpath_object_apply_repetition_doc, R"!(apply_repetition() -> lis
 
 Create new flexpaths based on this object's ``repetition`` attribute.
 
-After the repetition is applyed, the original attribute is set to
+After the repetition is applied, the original attribute is set to
 ``None``.
 
 Returns:
@@ -2208,7 +2208,7 @@ PyDoc_STRVAR(robustpath_object_apply_repetition_doc, R"!(apply_repetition() -> l
 
 Create new robustpaths based on this object's ``repetition`` attribute.
 
-After the repetition is applyed, the original attribute is set to
+After the repetition is applied, the original attribute is set to
 ``None``.
 
 Returns:
@@ -2308,7 +2308,7 @@ PyDoc_STRVAR(label_object_apply_repetition_doc, R"!(apply_repetition() -> list
 
 Create new labels based on this object's ``repetition`` attribute.
 
-After the repetition is applyed, the original attribute is set to
+After the repetition is applied, the original attribute is set to
 ``None``.
 
 Returns:
