@@ -26,7 +26,7 @@ static void flexpath_cleanup(FlexPathObject* self) {
 
 static void flexpath_object_dealloc(FlexPathObject* self) {
     if (self->flexpath) flexpath_cleanup(self);
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int flexpath_object_init(FlexPathObject* self, PyObject* args, PyObject* kwds) {

@@ -17,7 +17,7 @@ static void curve_object_dealloc(CurveObject* self) {
         self->curve->clear();
         free_allocation(self->curve);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int curve_object_init(CurveObject* self, PyObject* args, PyObject* kwds) {

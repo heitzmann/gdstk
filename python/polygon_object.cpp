@@ -19,7 +19,7 @@ static void polygon_object_dealloc(PolygonObject* self) {
         self->polygon->clear();
         free_allocation(self->polygon);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int polygon_object_init(PolygonObject* self, PyObject* args, PyObject* kwds) {

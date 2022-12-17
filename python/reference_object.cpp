@@ -24,14 +24,14 @@ static void reference_object_dealloc(ReferenceObject* self) {
     Reference* reference = self->reference;
     if (reference) {
         if (reference->type == ReferenceType::Cell) {
-            Py_DECREF(reference->cell->owner);
+            Py_XDECREF(reference->cell->owner);
         } else if (reference->type == ReferenceType::RawCell) {
-            Py_DECREF(reference->rawcell->owner);
+            Py_XDECREF(reference->rawcell->owner);
         }
         reference->clear();
         free_allocation(reference);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject* kwds) {
@@ -79,6 +79,8 @@ static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject
         reference->name = (char*)allocate(++len);
         memcpy(reference->name, name, len);
     } else {
+        free_allocation(reference);
+        self->reference = NULL;
         PyErr_SetString(PyExc_TypeError, "Argument cell must be a Cell, RawCell, or string.");
         return -1;
     }

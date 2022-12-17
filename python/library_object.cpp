@@ -17,13 +17,13 @@ static void library_object_dealloc(LibraryObject* self) {
     Library* library = self->library;
     if (library) {
         for (uint64_t i = 0; i < library->cell_array.count; i++)
-            Py_DECREF(library->cell_array[i]->owner);
+            Py_XDECREF(library->cell_array[i]->owner);
         for (uint64_t i = 0; i < library->rawcell_array.count; i++)
-            Py_DECREF(library->rawcell_array[i]->owner);
+            Py_XDECREF(library->rawcell_array[i]->owner);
         library->clear();
         free_allocation(library);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kwds) {
