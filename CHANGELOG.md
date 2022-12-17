@@ -1,4 +1,9 @@
 # Changelog
+## 0.9.35 - 2022-12-16
+### Fixed
+- Segfaults caused by class inheritance in Python
+- Segfaults caused by cleanup of incomplete initialization of Python instances
+
 ## 0.9.1 - 2022-10-12
 ### Fixed
 - Reading polygons with extremelly large number of vertices

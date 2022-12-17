@@ -1,4 +1,4 @@
-# GDSTK 0.9.34
+# GDSTK 0.9.35
 
 [![Boost Software License - Version 1.0](https://img.shields.io/github/license/heitzmann/gdstk.svg)](https://www.boost.org/LICENSE_1_0.txt)
 [![Tests Runner](https://github.com/heitzmann/gdstk/workflows/Tests%20Runner/badge.svg)](https://github.com/heitzmann/gdstk/actions)
@@ -57,6 +57,8 @@ Simply run the following to install the package for the current user:
 ```sh
 pip install --user gdstk
 ```
+
+Or download and install the available wheels manually.
 
 #### Conda
 
