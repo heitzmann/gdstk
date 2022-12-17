@@ -20,15 +20,15 @@ static void cell_object_dealloc(CellObject* self) {
     Cell* cell = self->cell;
     if (cell) {
         for (uint64_t i = 0; i < cell->polygon_array.count; i++)
-            Py_DECREF(cell->polygon_array[i]->owner);
+            Py_XDECREF(cell->polygon_array[i]->owner);
         for (uint64_t i = 0; i < cell->reference_array.count; i++)
-            Py_DECREF(cell->reference_array[i]->owner);
+            Py_XDECREF(cell->reference_array[i]->owner);
         for (uint64_t i = 0; i < cell->flexpath_array.count; i++)
-            Py_DECREF(cell->flexpath_array[i]->owner);
+            Py_XDECREF(cell->flexpath_array[i]->owner);
         for (uint64_t i = 0; i < cell->robustpath_array.count; i++)
-            Py_DECREF(cell->robustpath_array[i]->owner);
+            Py_XDECREF(cell->robustpath_array[i]->owner);
         for (uint64_t i = 0; i < cell->label_array.count; i++)
-            Py_DECREF(cell->label_array[i]->owner);
+            Py_XDECREF(cell->label_array[i]->owner);
         cell->clear();
         free_allocation(cell);
     }
@@ -60,6 +60,9 @@ static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {
     cell->name = copy_string(name, &len);
     cell->owner = self;
     if (len <= 1) {
+        free_allocation(cell->name);
+        free_allocation(cell);
+        self->cell = NULL;
         PyErr_SetString(PyExc_ValueError, "Empty cell name.");
         return -1;
     }
