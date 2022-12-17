@@ -17,7 +17,7 @@ static void label_object_dealloc(LabelObject* self) {
         self->label->clear();
         free_allocation(self->label);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int label_object_init(LabelObject* self, PyObject* args, PyObject* kwds) {

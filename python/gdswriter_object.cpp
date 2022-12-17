@@ -15,7 +15,7 @@ static PyObject* gdswriter_object_str(GdsWriterObject* self) {
 
 static void gdswriter_object_dealloc(GdsWriterObject* self) {
     free_allocation(self->gdswriter);
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int gdswriter_object_init(GdsWriterObject* self, PyObject* args, PyObject* kwds) {

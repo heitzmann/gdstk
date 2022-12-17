@@ -22,7 +22,7 @@ static void rawcell_object_dealloc(RawCellObject* self) {
         rawcell->clear();
         free_allocation(rawcell);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int rawcell_object_init(RawCellObject* self, PyObject* args, PyObject* kwds) {

@@ -32,7 +32,7 @@ static void cell_object_dealloc(CellObject* self) {
         cell->clear();
         free_allocation(cell);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int cell_object_init(CellObject* self, PyObject* args, PyObject* kwds) {

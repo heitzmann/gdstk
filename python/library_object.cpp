@@ -23,7 +23,7 @@ static void library_object_dealloc(LibraryObject* self) {
         library->clear();
         free_allocation(library);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int library_object_init(LibraryObject* self, PyObject* args, PyObject* kwds) {

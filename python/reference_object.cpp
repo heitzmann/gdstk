@@ -31,7 +31,7 @@ static void reference_object_dealloc(ReferenceObject* self) {
         reference->clear();
         free_allocation(reference);
     }
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int reference_object_init(ReferenceObject* self, PyObject* args, PyObject* kwds) {

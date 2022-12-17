@@ -37,8 +37,7 @@ static PyObject* repetition_object_str(RepetitionObject* self) {
 static void repetition_object_dealloc(RepetitionObject* self) {
     Repetition repetition = self->repetition;
     repetition.clear();
-
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int repetition_object_init(RepetitionObject* self, PyObject* args, PyObject* kwds) {

@@ -37,7 +37,7 @@ static void robustpath_cleanup(RobustPathObject* self) {
 
 static void robustpath_object_dealloc(RobustPathObject* self) {
     if (self->robustpath) robustpath_cleanup(self);
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int robustpath_object_init(RobustPathObject* self, PyObject* args, PyObject* kwds) {
