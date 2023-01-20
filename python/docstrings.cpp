@@ -2990,12 +2990,13 @@ have the same name.
 
 Args:
     name (str): Property name.
-    value (str, bytes, number, or sequence of those): Values associated with
-      the property.
+    value (str, bytes, number, or sequence of those): Values associated
+      with the property.
 
 Notes:
-    General properties are not supported by GDSII files. Use the
-    specific methods to access GDSII properties.)!");
+    These properties can be used to associate custom metadata with an
+    element, but general properties are not supported by GDSII files,
+    only OASIS.  Use the specific methods to access GDSII properties.)!");
 
 PyDoc_STRVAR(object_get_property_doc, R"!(get_property(name) -> list
 
