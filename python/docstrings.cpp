@@ -3254,7 +3254,8 @@ Examples:
     >>> text = gdstk.text("#A", 10, (0, 0), datatype=1)
     >>> circle = gdstk.ellipse((5, 11), 5, initial_angle=0,
     ...                        final_angle=numpy.pi, datatype=1)
-    >>> path = gdstk.FlexPath([(0, -1), (5, -10), (10, -1)], 1, datatype=1)
+    >>> path = gdstk.FlexPath([(0, -1), (5, -10), (10, -1)], 1,
+    >>>                       datatype=1)
     >>> dilated = gdstk.offset(text + [circle, path], 0.4)
     >>> eroded = gdstk.offset(text + [circle, path], -0.4,
     ...                       use_union=True, layer=1)
@@ -3300,8 +3301,13 @@ Examples:
        :align: center
 
 Notes:
-    Repetitions are not applied to any elements, except references and
-    their contents.)!");
+    1. Repetitions are not applied to any elements, except references
+       and their contents.
+    2. All polygons in `operand1` are merged during the operation, as
+       well as those in `operand2`.  As such, if, for example,
+       `operand2` is an empty list, the result of the operation will be
+       the union of polygons in `operand1`.
+    )!");
 
 PyDoc_STRVAR(slice_function_doc, R"!(slice(polygons, position, axis, precision=1e-3) -> list
 
