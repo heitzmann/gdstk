@@ -2834,7 +2834,7 @@ bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_co
             fprintf(stderr, "[GDSTK] Error reading file %s", filename);
             if (error_code) *error_code = ErrorCode::InvalidFile;
         }
-        sig = crc32(sig, buffer, size);
+        sig = crc32(sig, buffer, (unsigned int)size);
         little_endian_swap32(&sig, 1);
         if (signature) *signature = sig;
         // printf("CRC32: 0x%08X == 0x%08X\n", sig, *(uint32_t*)(file_sum + 1));
