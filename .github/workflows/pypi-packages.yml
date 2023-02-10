@@ -53,6 +53,20 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: "dist/*.whl"
+  
+  build_manylinux_wheels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build manylinux Python wheels
+        uses: RalfG/python-wheels-manylinux-build@v0.7.1-manylinux2014_x86_64
+        with:
+          python-versions: 'cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
+          build-requirements: 'numpy'
+          system-packages: 'zlib-devel'
+      - uses: actions/upload-artifact@v3
+        with:
+          path: "dist/*-manylinux*.whl"
 
   make_sdist:
     name: Make SDist
