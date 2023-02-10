@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Build wheels # check https://cibuildwheel.readthedocs.io/en/stable/setup/#github-actions
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v2.12.0
         # to supply options, put them in 'env', like:
         # env:
         #   CIBW_SOME_OPTION: value
@@ -94,7 +94,7 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.5.2
+      - uses: pypa/gh-action-pypi-publish@v1.6.4
         continue-on-error: true # might fail if we don't bump the version
         with:
           user: __token__
@@ -111,7 +111,7 @@ jobs:
           name: artifact
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.5.2
+      - uses: pypa/gh-action-pypi-publish@v1.6.4
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
