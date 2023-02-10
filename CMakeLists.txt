@@ -24,7 +24,7 @@ else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -DNDEBUG")
 endif()
 
-find_package(ZLIB 1.2.9)
+find_package(ZLIB 1.2.7)
 if(NOT ZLIB_FOUND)
     # Check first for header files
     if(DEFINED ENV{ZLIB_INCLUDE_DIRS})

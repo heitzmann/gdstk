@@ -67,7 +67,7 @@ size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& o
         return total;
     }
     if (out.crc32) {
-        out.signature = crc32_z(out.signature, (uint8_t*)buffer, size * count);
+        out.signature = crc32(out.signature, (uint8_t*)buffer, size * count);
     } else if (out.checksum32) {
         out.signature = checksum32(out.signature, (uint8_t*)buffer, size * count);
     }
@@ -89,7 +89,7 @@ int oasis_putc(int c, OasisStream& out) {
     }
     if (out.crc32) {
         uint8_t c_cast = (uint8_t)c;
-        out.signature = crc32_z(out.signature, &c_cast, 1);
+        out.signature = crc32(out.signature, &c_cast, 1);
     } else if (out.checksum32) {
         uint8_t c_cast = (uint8_t)c;
         out.signature = checksum32(out.signature, &c_cast, 1);

@@ -53,7 +53,21 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: "dist/*.whl"
-  
+
+  build_manylinux_wheels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build manylinux Python wheels
+        uses: RalfG/python-wheels-manylinux-build@v0.7.1-manylinux2014_x86_64
+        with:
+          python-versions: 'cp37-cp37 cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
+          build-requirements: 'numpy'
+          system-packages: 'zlib-devel'
+      - uses: actions/upload-artifact@v3
+        with:
+          path: "dist/*-manylinux*.whl"
+
   make_sdist:
     name: Make SDist
     runs-on: ubuntu-latest
@@ -72,7 +86,7 @@ jobs:
 
   upload_to_test_pypy:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    needs: [make_sdist, build_wheels, build_windows_wheels]
+    needs: [make_sdist, build_wheels, build_windows_wheels, build_manylinux_wheels]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3
@@ -89,7 +103,7 @@ jobs:
 
   upload_to_pypi:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-    needs: [make_sdist, build_wheels, build_windows_wheels]
+    needs: [make_sdist, build_wheels, build_windows_wheels, build_manylinux_wheels]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v3

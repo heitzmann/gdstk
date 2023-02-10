@@ -427,7 +427,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     out.crc32 = state.config_flags & OASIS_CONFIG_INCLUDE_CRC32;
     out.checksum32 = state.config_flags & OASIS_CONFIG_INCLUDE_CHECKSUM32;
     if (out.crc32) {
-        out.signature = crc32_z(0, NULL, 0);
+        out.signature = crc32(0, NULL, 0);
     } else if (out.checksum32) {
         out.signature = 0;
     }
@@ -2820,21 +2820,21 @@ bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_co
 
     if (file_sum[0] == 1) {
         // CRC32
-        uint32_t sig = crc32_z(0, NULL, 0);
+        uint32_t sig = crc32(0, NULL, 0);
         FSEEK64(in, 0, SEEK_SET);
         while (size >= COUNT(buffer)) {
             if (fread(buffer, 1, COUNT(buffer), in) < COUNT(buffer)) {
                 fprintf(stderr, "[GDSTK] Error reading file %s", filename);
                 if (error_code) *error_code = ErrorCode::InvalidFile;
             }
-            sig = crc32_z(sig, buffer, COUNT(buffer));
+            sig = crc32(sig, buffer, COUNT(buffer));
             size -= COUNT(buffer);
         }
         if (fread(buffer, 1, size, in) < size) {
             fprintf(stderr, "[GDSTK] Error reading file %s", filename);
             if (error_code) *error_code = ErrorCode::InvalidFile;
         }
-        sig = crc32_z(sig, buffer, size);
+        sig = crc32(sig, buffer, size);
         little_endian_swap32(&sig, 1);
         if (signature) *signature = sig;
         // printf("CRC32: 0x%08X == 0x%08X\n", sig, *(uint32_t*)(file_sum + 1));
