@@ -1,4 +1,10 @@
 # Changelog
+## 0.9.36 - 2023-02-10
+### Changed
+- Downgrade the zlib version dependency to support manylinux2014
+- Minor documentation improvements
+
+# Changelog
 ## 0.9.35 - 2022-12-16
 ### Fixed
 - Segfaults caused by class inheritance in Python
