@@ -25,6 +25,21 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
 
+  build_manylinux_wheels:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 12
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.0
+        env:
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
+      - uses: actions/upload-artifact@v3
+        with:
+          path: ./wheelhouse/*.whl
+
   build_windows_wheels:
     runs-on: windows-latest
     strategy:
@@ -53,20 +68,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: "dist/*.whl"
-
-  build_manylinux_wheels:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build manylinux Python wheels
-        uses: RalfG/python-wheels-manylinux-build@v0.7.1-manylinux2014_x86_64
-        with:
-          python-versions: 'cp37-cp37m cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
-          build-requirements: 'numpy'
-          system-packages: 'zlib-devel'
-      - uses: actions/upload-artifact@v3
-        with:
-          path: "dist/*-manylinux*.whl"
 
   make_sdist:
     name: Make SDist
