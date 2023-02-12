@@ -2,7 +2,7 @@
 requires = [
     "setuptools>=42",
     "wheel",
-    "numpy; platform_system=='Darwin'"
+    "numpy; platform_system=='Darwin'",
     "oldest-supported-numpy; platform_system!='Darwin'",
 ]
 
