@@ -1,4 +1,8 @@
 # Changelog
+## 0.9.37 - 2023002-12
+### Changed
+- Build system changes for lower numpy version requirements
+
 ## 0.9.36 - 2023-02-10
 ### Changed
 - Downgrade the zlib version dependency to support manylinux2014

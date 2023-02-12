@@ -1,33 +1,29 @@
+default: module
+
 help:
-	@echo 'make install:          Install package, hook, notebooks and gdslib'
-	@echo 'make test:             Run tests with pytest'
-	@echo 'make test-force:       Rebuilds regression test'
+	@echo 'make library:		Build C++ library in build/'
+	@echo 'make module:			Build python library'
+	@echo 'make test:       	Run tests with pytest'
+
+library:
+	cmake -S . -B build
+	cmake --build build
+
+module:
+	python setup.py build
+
+clean:
+	-rm -r build
 
 install:
 	pip install -r requirements.txt
 	pip install -r requirements_dev.txt
 	pip install -e .
-	pre-commit install
+	#pre-commit install
 
 test:
 	flake8 python
-	pytest -s
-
-lint:
-	flake8 python
-
-pylint:
-	pylint
-
-git-rm-merged:
-	git branch -D `git branch --merged | grep -v \* | xargs`
-
-release:
-	git push
-	git push origin --tags
-
-spell:
-	codespell -i 3 -w -L TE,TE/TM,te,ba,FPR,fpr_spacing
+	pytest
 
 docs:
 	python docs/cell_images.py
