@@ -2,8 +2,8 @@
 requires = [
     "setuptools>=42",
     "wheel",
-    "Cython",
-    "oldest-supported-numpy",
+    "numpy; platform_system=='Darwin'"
+    "oldest-supported-numpy; platform_system!='Darwin'",
 ]
 
 [tool.cibuildwheel]
