@@ -790,10 +790,23 @@ void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool close
         }
     }
 
+    uint64_t count = points.count - 1;
+    if (list_type == OasisPointList::ManhattanHorizontalFirst
+        || list_type == OasisPointList::ManhattanVerticalFirst) {
+        if (closed) {
+            --count;
+            if (count < 2 || count % 2 == 1) {
+                // There is probably a duplicate vertex in the polygon,
+                // otherwise the point count should be even.
+                count = points.count - 1;
+                list_type = OasisPointList::Manhattan;
+            }
+        }
+    }
+
     switch (list_type) {
         case OasisPointList::ManhattanHorizontalFirst: {
             oasis_putc((uint8_t)OasisPointList::ManhattanHorizontalFirst, out);
-            uint64_t count = closed ? points.count - 2 : points.count - 1;
             oasis_write_unsigned_integer(out, count);
             prev_delta_is_horizontal = false;
             IntVec2* delta = points.items + 1;
@@ -805,7 +818,6 @@ void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool close
         } break;
         case OasisPointList::ManhattanVerticalFirst: {
             oasis_putc((uint8_t)OasisPointList::ManhattanVerticalFirst, out);
-            uint64_t count = closed ? points.count - 2 : points.count - 1;
             oasis_write_unsigned_integer(out, count);
             prev_delta_is_horizontal = true;
             IntVec2* delta = points.items + 1;
@@ -817,27 +829,27 @@ void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool close
         } break;
         case OasisPointList::Manhattan: {
             oasis_putc((uint8_t)OasisPointList::Manhattan, out);
-            oasis_write_unsigned_integer(out, points.count - 1);
+            oasis_write_unsigned_integer(out, count);
             IntVec2* delta = points.items + 1;
-            for (uint64_t i = points.count - 1; i > 0; i--) {
+            for (uint64_t i = count; i > 0; i--) {
                 oasis_write_2delta(out, delta->x, delta->y);
                 delta++;
             }
         } break;
         case OasisPointList::Octangular: {
             oasis_putc((uint8_t)OasisPointList::Octangular, out);
-            oasis_write_unsigned_integer(out, points.count - 1);
+            oasis_write_unsigned_integer(out, count);
             IntVec2* delta = points.items + 1;
-            for (uint64_t i = points.count - 1; i > 0; i--) {
+            for (uint64_t i = count; i > 0; i--) {
                 oasis_write_3delta(out, delta->x, delta->y);
                 delta++;
             }
         } break;
         default: {
             oasis_putc((uint8_t)OasisPointList::General, out);
-            oasis_write_unsigned_integer(out, points.count - 1);
+            oasis_write_unsigned_integer(out, count);
             IntVec2* delta = points.items + 1;
-            for (uint64_t i = points.count - 1; i > 0; i--) {
+            for (uint64_t i = count; i > 0; i--) {
                 oasis_write_gdelta(out, delta->x, delta->y);
                 delta++;
             }
