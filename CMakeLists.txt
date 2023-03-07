@@ -83,6 +83,7 @@ add_library(gdstk STATIC
     src/libqhull_r/user_r.c
     src/libqhull_r/rboxlib_r.c
     src/libqhull_r/userprintf_rbox_r.c
+    src/zfstream/zfstream.cc
 )
 
 target_include_directories(gdstk PRIVATE ${ZLIB_INCLUDE_DIRS})

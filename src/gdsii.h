@@ -14,6 +14,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 
+#include <iosfwd>
+
 #include "utils.h"
 
 namespace gdstk {
@@ -99,6 +101,8 @@ double gdsii_real_to_double(uint64_t real);
 // buffer must be passed in buffer_count.  On return, the record lenght
 // (including header) is returned in buffer_count.
 ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count);
+
+ErrorCode gdsii_read_record(std::istream& in, uint8_t* buffer, uint64_t& buffer_count);
 
 }  // namespace gdstk
 

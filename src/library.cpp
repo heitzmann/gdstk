@@ -15,6 +15,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <string.h>
 #include <zlib.h>
 
+#include <fstream>
+#include <iostream>
+#include <memory>
+
 #include "allocator.h"
 #include "cell.h"
 #include "flexpath.h"
@@ -27,6 +31,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "reference.h"
 #include "utils.h"
 #include "vec.h"
+#include "zfstream/zfstream.h"
 
 namespace gdstk {
 
@@ -911,7 +916,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     return error_code;
 }
 
-Library read_gds(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags,
+Library read_gds(std::istream& in, double unit, double tolerance, const Set<Tag>* shape_tags,
                  ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
@@ -943,13 +948,6 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     double factor = 1;
     double width = 0;
     int16_t key = 0;
-
-    FILE* in = fopen(filename, "rb");
-    if (in == NULL) {
-        fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
-        if (error_code) *error_code = ErrorCode::InputFileOpenError;
-        return library;
-    }
 
     while (true) {
         uint64_t record_length = COUNT(buffer);
@@ -1041,7 +1039,6 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     }
                 }
                 map.clear();
-                fclose(in);
                 return library;
             } break;
             case GdsiiRecord::BGNSTR:
@@ -1325,25 +1322,46 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     }
 
     library.free_all();
-    fclose(in);
     return Library{0};
 }
 
+std::unique_ptr<std::istream> stream_from_file(const char* filename) {
+    std::unique_ptr<std::istream> pstream;
+    const char* ext = strrchr(filename, '.');
+    if (ext != nullptr && strcmp(ext, ".gz") == 0) {
+        gzifstream* igs = new gzifstream(filename, std::ios::binary);
+        pstream = std::unique_ptr<std::istream>(igs);
+
+    } else {
+        std::ifstream* ifs = new std::ifstream(filename, std::ios::binary);
+        if (ifs->is_open()) {
+            pstream = std::unique_ptr<std::istream>(ifs);
+        } else {
+            return nullptr;
+        }
+    }
+    return pstream;
+}
+
+Library read_gds(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags,
+                 ErrorCode* error_code) {
+    std::unique_ptr<std::istream> stream = stream_from_file(filename);
+    if (stream) return read_gds(*stream, unit, tolerance, shape_tags, error_code);
+    if (error_logger) fputs("[GDSTK] Unable to open file for input.\n", error_logger);
+    if (error_code) *error_code = ErrorCode::InputFileOpenError;
+    return {0};
+}
+
 // TODO: verify modal variables are correctly updated
-Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
+Library read_oas(std::istream& is, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {};
 
     OasisStream in = {};
-    in.file = fopen(filename, "rb");
-    if (in.file == NULL) {
-        if (error_logger) fputs("[GDSTK] Unable to open OASIS file for input.\n", error_logger);
-        if (error_code) *error_code = ErrorCode::InputFileOpenError;
-        return library;
-    }
+    in.stream = &is;
 
     // Check header bytes and START record
     char header[14];
-    if (fread(header, 1, 14, in.file) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
+    if (oasis_fread(header, 1, 14, in) < 14 || memcmp(header, "%SEMI-OASIS\r\n\x01", 14) != 0) {
         if (error_logger) fputs("[GDSTK] Invalid OASIS header found.\n", error_logger);
         if (error_code) *error_code = ErrorCode::InvalidFile;
         fclose(in.file);
@@ -1355,7 +1373,6 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     uint8_t* version = oasis_read_string(in, false, len);
     if (in.error_code != ErrorCode::NoError) {
         if (error_code) *error_code = in.error_code;
-        fclose(in.file);
         return library;
     }
     if (len != 3 || memcmp(version, "1.0", 3) != 0) {
@@ -1477,7 +1494,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 break;
             case OasisRecord::END: {
-                FSEEK64(in.file, 0, SEEK_END);
+                oasis_fseek(in, 0, SEEK_END);
                 library.name = (char*)allocate(4);
                 library.name[0] = 'L';
                 library.name[1] = 'I';
@@ -2438,7 +2455,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     oasis_read_unsigned_integer(in);
                     len = oasis_read_unsigned_integer(in);
                     assert(len <= INT64_MAX);
-                    FSEEK64(in.file, (int64_t)len, SEEK_SET);
+                    oasis_fseek(in, (int64_t)len, SEEK_SET);
                 } else {
                     z_stream s = {};
                     s.zalloc = zalloc;
@@ -2451,7 +2468,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     s.next_out = in.data;
                     uint8_t* data = (uint8_t*)allocate(s.avail_in);
                     s.next_in = (Bytef*)data;
-                    if (fread(s.next_in, 1, s.avail_in, in.file) != s.avail_in) {
+                    if (oasis_fread(s.next_in, 1, s.avail_in, in) != s.avail_in) {
                         if (error_logger)
                             fputs("[GDSTK] Unable to read full CBLOCK.\n", error_logger);
                         if (error_code) *error_code = ErrorCode::InvalidFile;
@@ -2486,8 +2503,6 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     if (in.error_code != ErrorCode::NoError && error_code) *error_code = in.error_code;
 
 CLEANUP:
-    fclose(in.file);
-
     ByteArray* ba = cell_name_table.items;
     for (uint64_t i = cell_name_table.count; i > 0; i--, ba++) {
         if (ba->bytes) free_allocation(ba->bytes);
@@ -2526,33 +2541,41 @@ CLEANUP:
     return library;
 }
 
-ErrorCode gds_units(const char* filename, double& unit, double& precision) {
+Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
+    std::ifstream ifs(filename, std::ios::binary);
+    if (!ifs.is_open()) {
+        fputs("[GDSTK] Unable to open OASIS file for input.\n", stderr);
+        if (error_code) *error_code = ErrorCode::InputFileOpenError;
+        return {0};
+    }
+    return read_oas(ifs, unit, tolerance, error_code);
+}
+
+ErrorCode gds_units(std::istream& in, double& unit, double& precision) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
-    FILE* in = fopen(filename, "rb");
-    if (in == NULL) {
-        fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
-        return ErrorCode::InputFileOpenError;
-    }
 
     while (true) {
         uint64_t record_length = COUNT(buffer);
         ErrorCode error_code = gdsii_read_record(in, buffer, record_length);
         if (error_code != ErrorCode::NoError) {
-            fclose(in);
             return error_code;
         }
         if ((GdsiiRecord)buffer[2] == GdsiiRecord::UNITS) {
             big_endian_swap64(data64, 2);
             precision = gdsii_real_to_double(data64[1]);
             unit = precision / gdsii_real_to_double(data64[0]);
-            fclose(in);
             return ErrorCode::NoError;
         }
     }
-    fclose(in);
-    fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
     return ErrorCode::InvalidFile;
+}
+
+ErrorCode gds_units(const char* filename, double& unit, double& precision) {
+    std::unique_ptr<std::istream> stream = stream_from_file(filename);
+    if (error_logger) fputs("[GDSTK] Unable to open file for input.\n", error_logger);
+    if (stream) return gds_units(*stream, unit, precision);
+    return ErrorCode::InputFileOpenError;
 }
 
 tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error_code) {

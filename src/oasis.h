@@ -14,6 +14,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <stdio.h>
 
+#include <iosfwd>
+
 #include "array.h"
 #include "map.h"
 #include "repetition.h"
@@ -147,6 +149,7 @@ enum struct OasisRecord : uint8_t {
 
 struct OasisStream {
     FILE* file;
+    std::istream* stream;
     uint8_t* data;
     uint8_t* cursor;
     uint64_t data_size;
@@ -163,6 +166,10 @@ struct OasisState {
     Array<PropertyValue*> property_value_array;
     uint16_t config_flags;
 };
+
+size_t oasis_fread(void* buffer, size_t size, size_t count, OasisStream& in);
+
+int64_t oasis_fseek(OasisStream& in, int64_t pos, int whence);
 
 ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);
 

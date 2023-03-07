@@ -14,10 +14,28 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <zlib.h>
 
+#include <istream>
+
 #include "sort.h"
 #include "utils.h"
 
 namespace gdstk {
+
+size_t oasis_fread(void* buffer, size_t size, size_t count, OasisStream& in) {
+    if (in.file) return fread(buffer, size, count, in.file);
+
+    in.stream->read(reinterpret_cast<char*>(buffer), size * count);
+    return static_cast<size_t>(in.stream->gcount()) / size;
+}
+
+int64_t oasis_fseek(OasisStream& in, int64_t pos, int whence) {
+    if (in.file) return FSEEK64(in.file, pos, whence);
+
+    auto dir =
+        (whence == SEEK_END ? std::ios::end : (whence == SEEK_SET ? std::ios::beg : std::ios::cur));
+    in.stream->seekg(pos, dir);
+    return in.stream->tellg();
+}
 
 ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
     if (in.data) {
@@ -33,7 +51,7 @@ ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
             free_allocation(in.data);
             in.data = NULL;
         }
-    } else if (fread(buffer, size, count, in.file) < count) {
+    } else if (oasis_fread(buffer, size, count, in) < count) {
         if (error_logger) fputs("[GDSTK] Error reading OASIS file.\n", error_logger);
         in.error_code = ErrorCode::InputFileError;
     }
@@ -45,11 +63,11 @@ static uint8_t oasis_peek(OasisStream& in) {
     if (in.data) {
         byte = *in.cursor;
     } else {
-        if (fread(&byte, 1, 1, in.file) < 1) {
+        if (oasis_fread(&byte, 1, 1, in) < 1) {
             if (error_logger) fputs("[GDSTK] Error reading OASIS file.\n", error_logger);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
         }
-        FSEEK64(in.file, -1, SEEK_CUR);
+        oasis_fseek(in, -1, SEEK_CUR);
     }
     return byte;
 }
