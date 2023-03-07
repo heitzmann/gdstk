@@ -40,16 +40,20 @@ double gdsii_real_to_double(uint64_t real) {
 
 ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
     if (buffer_count < 4) {
-        fputs("[GDSTK] Insufficient memory in buffer.\n", stderr);
+        if (error_logger) fputs("[GDSTK] Insufficient memory in buffer.\n", error_logger);
         return ErrorCode::InsufficientMemory;
     }
     uint64_t read_length = fread(buffer, 1, 4, in);
     if (read_length < 4) {
         DEBUG_PRINT("Read bytes (expected 4): %" PRIu64 "\n", read_length);
         if (feof(in) != 0) {
-            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
+            if (error_logger)
+                fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n",
+                      error_logger);
         } else {
-            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
+            if (error_logger)
+                fprintf(error_logger, "[GDSTK] Unable to read input file. Error number %d\n.",
+                        ferror(in));
         }
         buffer_count = read_length;
         return ErrorCode::InputFileError;
@@ -58,7 +62,7 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
     const uint32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) {
         DEBUG_PRINT("Record length should be at least 4. Found %" PRIu32 "\n", record_length);
-        fputs("[GDSTK] Invalid or corrupted GDSII file.\n", stderr);
+        if (error_logger) fputs("[GDSTK] Invalid or corrupted GDSII file.\n", error_logger);
         buffer_count = read_length;
         return ErrorCode::InvalidFile;
     } else if (record_length == 4) {
@@ -66,7 +70,7 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
         return ErrorCode::NoError;
     }
     if (buffer_count < 4 + record_length) {
-        fputs("[GDSTK] Insufficient memory in buffer.\n", stderr);
+        if (error_logger) fputs("[GDSTK] Insufficient memory in buffer.\n", error_logger);
         buffer_count = read_length;
         return ErrorCode::InsufficientMemory;
     }
@@ -76,9 +80,13 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
         DEBUG_PRINT("Read bytes (expected %" PRIu32 "): %" PRIu64 "\n", record_length - 4,
                     read_length);
         if (feof(in) != 0) {
-            fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n", stderr);
+            if (error_logger)
+                fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n",
+                      error_logger);
         } else {
-            fprintf(stderr, "[GDSTK] Unable to read input file. Error number %d\n.", ferror(in));
+            if (error_logger)
+                fprintf(error_logger, "[GDSTK] Unable to read input file. Error number %d\n.",
+                        ferror(in));
         }
         return ErrorCode::InputFileError;
     }

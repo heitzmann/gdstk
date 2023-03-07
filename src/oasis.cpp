@@ -26,14 +26,15 @@ ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
         in.cursor += total;
         if (in.cursor >= in.data + in.data_size) {
             if (in.cursor > in.data + in.data_size) {
-                fputs("[GDSTK] Error reading compressed data in file.\n", stderr);
+                if (error_logger)
+                    fputs("[GDSTK] Error reading compressed data in file.\n", error_logger);
                 in.error_code = ErrorCode::InputFileError;
             }
             free_allocation(in.data);
             in.data = NULL;
         }
     } else if (fread(buffer, size, count, in.file) < count) {
-        fputs("[GDSTK] Error reading OASIS file.\n", stderr);
+        if (error_logger) fputs("[GDSTK] Error reading OASIS file.\n", error_logger);
         in.error_code = ErrorCode::InputFileError;
     }
     return in.error_code;
@@ -45,7 +46,7 @@ static uint8_t oasis_peek(OasisStream& in) {
         byte = *in.cursor;
     } else {
         if (fread(&byte, 1, 1, in.file) < 1) {
-            fputs("[GDSTK] Error reading OASIS file.\n", stderr);
+            if (error_logger) fputs("[GDSTK] Error reading OASIS file.\n", error_logger);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InputFileError;
         }
         FSEEK64(in.file, -1, SEEK_CUR);
@@ -116,7 +117,8 @@ uint64_t oasis_read_unsigned_integer(OasisStream& in) {
     while (byte & 0x80) {
         if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return result;
         if (num_bits == 63 && byte > 1) {
-            fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", stderr);
+            if (error_logger)
+                fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", error_logger);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::Overflow;
             return 0xFFFFFFFFFFFFFFFF;
         }
@@ -166,7 +168,8 @@ static uint8_t oasis_read_int_internal(OasisStream& in, uint8_t skip_bits, int64
     while (byte & 0x80) {
         if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return bits;
         if (num_bits > 56 && (byte >> (63 - num_bits)) > 0) {
-            fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", stderr);
+            if (error_logger)
+                fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", error_logger);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::Overflow;
             result = 0x7FFFFFFFFFFFFFFF;
             return bits;
@@ -322,7 +325,7 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
             return value;
         }
         default:
-            fputs("[GDSTK] Unable to determine real value.\n", stderr);
+            if (error_logger) fputs("[GDSTK] Unable to determine real value.\n", error_logger);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
     }
     return 0;
@@ -418,7 +421,7 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Arr
             result.count += num;
         } break;
         default:
-            fputs("[GDSTK] Point list type not supported.\n", stderr);
+            if (error_logger) fputs("[GDSTK] Point list type not supported.\n", error_logger);
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
             return 0;
     }
@@ -578,7 +581,7 @@ void oasis_write_2delta(OasisStream& out, int64_t x, int64_t y) {
             oasis_write_int_internal(out, x, 2, (uint8_t)OasisDirection::E);
         }
     } else {
-        fputs("[GDSTK] Error writing 2-delta.\n", stderr);
+        if (error_logger) fputs("[GDSTK] Error writing 2-delta.\n", error_logger);
     }
 }
 
@@ -609,7 +612,7 @@ void oasis_write_3delta(OasisStream& out, int64_t x, int64_t y) {
             oasis_write_int_internal(out, x, 3, (uint8_t)OasisDirection::SE);
         }
     } else {
-        fputs("[GDSTK] Error writing 3-delta.\n", stderr);
+        if (error_logger) fputs("[GDSTK] Error writing 3-delta.\n", error_logger);
     }
 }
 
@@ -791,8 +794,8 @@ void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool close
     }
 
     uint64_t count = points.count - 1;
-    if (list_type == OasisPointList::ManhattanHorizontalFirst
-        || list_type == OasisPointList::ManhattanVerticalFirst) {
+    if (list_type == OasisPointList::ManhattanHorizontalFirst ||
+        list_type == OasisPointList::ManhattanVerticalFirst) {
         if (closed) {
             --count;
             if (count < 2 || count % 2 == 1) {

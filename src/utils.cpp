@@ -23,6 +23,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+#define UTILS_UNIT
+FILE* error_logger = stderr;
+
+void set_error_logger(FILE* log) { error_logger = log; }
+
 char* copy_string(const char* str, uint64_t* len) {
     uint64_t size = 1 + strlen(str);
     char* result = (char*)allocate(size);
@@ -572,10 +577,10 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
 
     qhT qh;
     QHULL_LIB_CHECK;
-    qh_zero(&qh, stderr);
+    qh_zero(&qh, error_logger);
     char command[256] = "qhull";
     int exitcode = qh_new_qhull(&qh, 2, (int)points.count, (double*)points.items, false, command,
-                                NULL, stderr);
+                                NULL, error_logger);
 
     if (exitcode == 0) {
         result.ensure_slots(qh.num_facets);
@@ -617,7 +622,7 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
     qh_memfreeshort(&qh, &curlong, &totlong); /* free short memory and memory allocator */
     if (curlong || totlong) {
         fprintf(
-            stderr,
+            error_logger,
             "[GDSTK] Qhull internal warning: did not free %d bytes of long memory (%d pieces)\n",
             totlong, curlong);
     }
