@@ -791,8 +791,8 @@ void oasis_write_point_list(OasisStream& out, Array<IntVec2>& points, bool close
     }
 
     uint64_t count = points.count - 1;
-    if (list_type == OasisPointList::ManhattanHorizontalFirst
-        || list_type == OasisPointList::ManhattanVerticalFirst) {
+    if (list_type == OasisPointList::ManhattanHorizontalFirst ||
+        list_type == OasisPointList::ManhattanVerticalFirst) {
         if (closed) {
             --count;
             if (count < 2 || count % 2 == 1) {

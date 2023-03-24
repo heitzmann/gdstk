@@ -3436,7 +3436,7 @@ Returns:
     The imported library.
 
 Examples:
-    >>> library = gdstk.read_gds("layout.oas")
+    >>> library = gdstk.read_oas("layout.oas")
     >>> top_cells = library.top_level())!");
 
 PyDoc_STRVAR(read_rawcells_function_doc, R"!(read_rawcells(infile) -> dict
