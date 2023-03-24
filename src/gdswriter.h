@@ -66,7 +66,7 @@ inline GdsWriter gdswriter_init(const char* filename, const char* library_name, 
 
     result.out = fopen(filename, "wb");
     if (result.out == NULL) {
-        fputs("[GDSTK] Unable to open GDSII file for output.\n", stderr);
+        fputs("[GDSTK] Unable to open GDSII file for output.\n", error_logger);
         if (error_code) *error_code = ErrorCode::OutputFileOpenError;
         return result;
     }

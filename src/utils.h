@@ -34,15 +34,15 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define DEBUG_HERE ((void)0)
 #define DEBUG_PRINT(...) ((void)0)
 #else
-#define DEBUG_HERE                                                   \
-    do {                                                             \
-        fprintf(stderr, "%s:%d:%s\n", __FILE__, __LINE__, __func__); \
-        fflush(stderr);                                              \
+#define DEBUG_HERE                                                         \
+    do {                                                                   \
+        fprintf(error_logger, "%s:%d:%s\n", __FILE__, __LINE__, __func__); \
+        fflush(error_logger);                                              \
     } while (false)
-#define DEBUG_PRINT(...)              \
-    do {                              \
-        fprintf(stderr, __VA_ARGS__); \
-        fflush(stderr);               \
+#define DEBUG_PRINT(...)                    \
+    do {                                    \
+        fprintf(error_logger, __VA_ARGS__); \
+        fflush(error_logger);               \
     } while (false)
 #endif
 
@@ -227,6 +227,9 @@ inline uint64_t hash(const char* key) {
     }
     return result;
 }
+
+extern FILE* error_logger;
+void set_error_logger(FILE* log);
 
 }  // namespace gdstk
 

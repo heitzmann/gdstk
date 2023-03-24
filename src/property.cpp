@@ -332,9 +332,10 @@ ErrorCode properties_to_gds(const Property* properties, FILE* out) {
         if (free_bytes) free_allocation(bytes);
     }
     if (count > 128) {
-        fputs(
-            "[GDSTK] Properties with count larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
-            stderr);
+        if (error_logger)
+            fputs(
+                "[GDSTK] Properties with count larger than 128 bytes are not officially supported by the GDSII specification.  This file might not be compatible with all readers.\n",
+                error_logger);
         return ErrorCode::UnofficialSpecification;
     }
     return ErrorCode::NoError;

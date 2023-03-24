@@ -161,7 +161,8 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
         }
 
         if (p_closest == p_end) {
-            fprintf(stderr, "[GDSTK] Unable to link hole in boolean operation.\n");
+            if (error_logger)
+                fprintf(error_logger, "[GDSTK] Unable to link hole in boolean operation.\n");
             error_code = ErrorCode::BooleanError;
         } else {
             ClipperLib::IntPoint p_new(xnew, hole_min->Y);
