@@ -421,9 +421,10 @@ ErrorCode Polygon::to_gds(FILE* out, double scaling) const {
 
     uint64_t total = point_array.count + 1;
     if (total > 8190) {
-        fputs(
-            "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
-            stderr);
+        if (error_logger)
+            fputs(
+                "[GDSTK] Polygons with more than 8190 are not supported by the official GDSII specification. This GDSII file might not be compatible with all readers.\n",
+                error_logger);
         error_code = ErrorCode::UnofficialSpecification;
     }
     Array<int32_t> coords = {};
@@ -1598,7 +1599,8 @@ ErrorCode contour(const double* data, uint64_t rows, uint64_t cols, double level
             }
         }
         if (!found) {
-            fprintf(stderr, "[GDSTK] Unable to process polygon hole in contour.\n");
+            if (error_logger)
+                fprintf(error_logger, "[GDSTK] Unable to process polygon hole in contour.\n");
             error_code = ErrorCode::BooleanError;
             hole->clear();
             free_allocation(hole);
