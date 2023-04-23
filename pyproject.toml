@@ -11,28 +11,12 @@ manylinux-x86_64-image = "manylinux_2_28"
 musllinux-x86_64-image = "musllinux_1_1"
 
 # Skip 32-bit builds
-skip = ["*-win32", "*-manylinux_i686", "*musllinux*"]
-
-# Skip building on CPython 3.6 on the Mac
-skip = "cp36-macosx_x86_64"
-
-# Skip building on CPython 3.8 on the Mac
-skip = "cp38-macosx_x86_64"
-
-# Skip building on CPython 3.6 on all platforms
-skip = "cp36-*"
-
-# Skip CPython 3.6 on Windows
-skip = "cp36-win*"
-
-# Skip CPython 3.6 on 32-bit Windows
-skip = "cp36-win32"
-
-# Skip CPython 3.6 
-skip = ["cp36-*"]
-
-# Skip Python 3.6 on Linux
-skip = "cp36-manylinux*"
+skip = [
+    "*-win32",
+    "*-manylinux_i686",
+    "*musllinux*",
+    "cp36-*",
+    ]
 
 
 [[tool.cibuildwheel.overrides]]
