@@ -49,4 +49,8 @@ docs:
 	python docs/fonts.py
 	python setup.py build_sphinx
 
+release:
+	git push
+	git push origin --tags
+
 .PHONY: docs
