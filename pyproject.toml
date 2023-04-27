@@ -16,7 +16,7 @@ skip = [
     "*-manylinux_i686",
     "*musllinux*",
     "cp36-*",
-    ]
+]
 
 
 [[tool.cibuildwheel.overrides]]
