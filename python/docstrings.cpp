@@ -769,6 +769,8 @@ Returns:
 
 PyDoc_STRVAR(reference_object_cell_doc, R"!(Cell referenced by this object.)!");
 
+PyDoc_STRVAR(reference_object_cell_name_doc, R"!(Name of the cell referenced by this object.)!");
+
 PyDoc_STRVAR(reference_object_origin_doc, R"!(Reference origin.)!");
 
 PyDoc_STRVAR(reference_object_rotation_doc, R"!(Reference rotation angle (in radians).)!");

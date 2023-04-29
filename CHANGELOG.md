@@ -3,6 +3,7 @@
 ### Added
 - Dictionary-like access to library cells by name.
 - `len(Library)` returns the number of cells in the library
+- `Reference.cell_name` to directly access a referenced cell's name
 
 ## 0.9.37 - 2023002-12
 ### Changed

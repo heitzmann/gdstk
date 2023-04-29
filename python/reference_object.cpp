@@ -527,6 +527,28 @@ int reference_object_set_cell(ReferenceObject* self, PyObject* arg, void*) {
     return 0;
 }
 
+static PyObject* reference_object_get_cell_name(ReferenceObject* self, void*) {
+    char const* name = NULL;
+    switch (self->reference->type) {
+        case ReferenceType::Cell:
+            name = self->reference->cell->name;
+            break;
+        case ReferenceType::RawCell:
+            name = self->reference->rawcell->name;
+            break;
+        case ReferenceType::Name:
+            name = self->reference->name;
+            break;
+    }
+    PyObject* result = PyUnicode_FromString(name);
+    if (!result) {
+        PyErr_SetString(PyExc_TypeError, "Unable to convert cell name to string.");
+        return NULL;
+    }
+    Py_INCREF(result);
+    return result;
+}
+
 static PyObject* reference_object_get_origin(ReferenceObject* self, void*) {
     return Py_BuildValue("(dd)", self->reference->origin.x, self->reference->origin.y);
 }
@@ -613,6 +635,8 @@ int reference_object_set_repetition(ReferenceObject* self, PyObject* arg, void*)
 static PyGetSetDef reference_object_getset[] = {
     {"cell", (getter)reference_object_get_cell, (setter)reference_object_set_cell,
      reference_object_cell_doc, NULL},
+    {"cell_name", (getter)reference_object_get_cell_name, NULL, reference_object_cell_name_doc,
+     NULL},
     {"origin", (getter)reference_object_get_origin, (setter)reference_object_set_origin,
      reference_object_origin_doc, NULL},
     {"rotation", (getter)reference_object_get_rotation, (setter)reference_object_set_rotation,

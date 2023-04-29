@@ -34,6 +34,7 @@ def test_noreference():
     name = "ca_noreference"
     ref = gdstk.Reference(name, (1, -1), numpy.pi / 2, 2.1, True)
     assert ref.cell == name
+    assert ref.cell_name == name
     assert ref.bounding_box() is None
     assert ref.origin == (1, -1)
     assert ref.rotation == numpy.pi / 2
@@ -58,6 +59,7 @@ def test_empty():
     c = gdstk.Cell(name)
     ref = gdstk.Reference(c, (1, -1), numpy.pi / 2, 2, True, 2, 3, (3, 2))
     assert ref.cell is c
+    assert ref.cell_name == name
     assert ref.bounding_box() is None
 
 
@@ -72,6 +74,7 @@ def test_notempty():
         [gdstk.rectangle((0, 0), (8, 2)), gdstk.rectangle((0, 3), (8, 5))],
         gdstk.Cell("TMP").add(ref).flatten().polygons,
     )
+    assert ref.cell_name == name
 
 
 def test_label_bounding_box():
@@ -111,12 +114,14 @@ def test_copy_with_cell():
     ref_copy = _copy_and_set_properties(_create_cell_reference(raw=False))
     assert ref_copy.get_gds_property(101) == "test"
     assert ref_copy.cell.name == "CELL"
+    assert ref_copy.cell_name == "CELL"
 
 
 def test_copy_with_rawcell():
     ref_copy = _copy_and_set_properties(_create_cell_reference(raw=True))
     assert ref_copy.get_gds_property(101) == "test"
     assert ref_copy.cell.name == "CELL"
+    assert ref_copy.cell_name == "CELL"
 
 
 def test_gds_array(tmpdir):
