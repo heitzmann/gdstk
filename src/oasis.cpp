@@ -73,8 +73,8 @@ size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& o
         uint8_t* b = (uint8_t*)buffer;
         while (remaining > UINT_MAX) {
             out.signature = crc32(out.signature, b, UINT_MAX);
-            remaining -= UINT64_MAX;
-            b += UINT64_MAX;
+            remaining -= UINT_MAX;
+            b += UINT_MAX;
         }
         if (remaining > 0) {
             out.signature = crc32(out.signature, b, (unsigned int)remaining);
