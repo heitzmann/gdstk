@@ -656,7 +656,7 @@ void oasis_write_gdelta(OasisStream& out, int64_t x, int64_t y) {
 }
 
 void oasis_write_real(OasisStream& out, double value) {
-    if (trunc(value) == value && fabs(value) < UINT64_MAX) {
+    if (trunc(value) == value && fabs(value) < (double)UINT64_MAX) {
         // value is integer
         if (value >= 0) {
             oasis_putc((uint8_t)OasisDataType::RealPositiveInteger, out);
@@ -670,7 +670,7 @@ void oasis_write_real(OasisStream& out, double value) {
     }
 
     double inverse = 1.0 / value;
-    if (trunc(inverse) == inverse && fabs(inverse) < UINT64_MAX) {
+    if (trunc(inverse) == inverse && fabs(inverse) < (double)UINT64_MAX) {
         // inverse is integer
         if (inverse >= 0) {
             oasis_putc((uint8_t)OasisDataType::RealPositiveReciprocal, out);
