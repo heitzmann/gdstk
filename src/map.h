@@ -127,7 +127,7 @@ struct Map {
 
     // Key is internally allocated and copied; value is simply assigned
     void set(const char* key, T value) {
-        // Equallity is important for capacity == 0
+        // Equality is important for capacity == 0
         if (count * 10 >= capacity * GDSTK_MAP_CAPACITY_THRESHOLD)
             resize(capacity >= GDSTK_INITIAL_MAP_CAPACITY ? capacity * GDSTK_MAP_GROWTH_FACTOR
                                                           : GDSTK_INITIAL_MAP_CAPACITY);

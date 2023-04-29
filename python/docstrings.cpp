@@ -513,7 +513,7 @@ Args:
 
 Notes:
     The actual fillet radius for a given corner is the specified value
-    or half the lenght of the shortest segment adjacent to that corner,
+    or half the length of the shortest segment adjacent to that corner,
     whichever is smaller.
 
 Examples:
@@ -2354,7 +2354,7 @@ Add polygons, paths, labels and references to this cell.)!");
 
 PyDoc_STRVAR(cell_object_area_doc, R"!(area(by_spec=False) -> float or dictionary
 
-Calulate the area of this cell.
+Calculate the area of this cell.
 
 Args:
     by_spec: If ``True``, return a dictionary with keys
@@ -2575,7 +2575,7 @@ Args:
       be specified as an absolute dimension or a percentage of the
       largest image dimension.
     sort_function (callable): If set, the polygons on each cell will be
-      sorted according to this fuction.  It must accept 2 polygons and
+      sorted according to this function.  It must accept 2 polygons and
       return ``True`` if the first one is below the second.
 
 Notes:

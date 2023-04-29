@@ -95,12 +95,12 @@ struct Array {
     // array.
     void remove_unordered(uint64_t index_) { items[index_] = items[--count]; }
 
-    // Remove the item at index and pull the remainig to fill the gap.
+    // Remove the item at index and pull the remaining to fill the gap.
     void remove(uint64_t index_) {
         memmove(items + index_, items + index_ + 1, sizeof(T) * ((--count) - index_));
     }
 
-    // Remove (ordered) the first occurence of a specific item in the array.
+    // Remove (ordered) the first occurrence of a specific item in the array.
     // Return false if the item cannot be found.
     bool remove_item(const T& item) {
         uint64_t i = index(item);

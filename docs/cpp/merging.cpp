@@ -126,7 +126,7 @@ int main(int argc, char* argv[]) {
                 cell->name = (char*)reallocate(cell->name, len + 6);
                 strcpy(cell->name + len, "-lib2");
                 // We should make sure the new name is also unique, but we are
-                // skiping that.
+                // skipping that.
                 break;
             }
         }

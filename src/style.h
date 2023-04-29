@@ -17,7 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-// Style used in SVG output. Value is the SVG style to be applyed to elements
+// Style used in SVG output. Value is the SVG style to be applied to elements
 // with the given tag, e.g., "stroke: #D04030; fill: #D89080;"
 struct Style {
     Tag tag;

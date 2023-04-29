@@ -507,7 +507,7 @@ static int parse_properties(Property*& properties, PyObject* arg) {
         int64_t num_values = PySequence_Size(py_property) - 1;
         if (num_values < 1) {
             PyErr_SetString(PyExc_RuntimeError,
-                            "Properties must be a sequance with lenght 2 or more.");
+                            "Properties must be a sequence with length 2 or more.");
             Py_DECREF(py_property);
             return -1;
         }

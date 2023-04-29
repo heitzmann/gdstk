@@ -58,7 +58,7 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
         buffer_count = read_length;
         return ErrorCode::InputFileError;
     }
-    big_endian_swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swaping);
+    big_endian_swap16((uint16_t*)buffer, 1);  // second word is interpreted byte-wise (no swapping);
     const uint32_t record_length = *((uint16_t*)buffer);
     if (record_length < 4) {
         DEBUG_PRINT("Record length should be at least 4. Found %" PRIu32 "\n", record_length);

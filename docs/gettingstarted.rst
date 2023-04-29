@@ -249,7 +249,7 @@ arguments to control the shape of the curve.
 Transformations
 ===============
 
-All polygons can be transformed trough :meth:`gdstk.Polygon.translate`,
+All polygons can be transformed through :meth:`gdstk.Polygon.translate`,
 :meth:`gdstk.Polygon.rotate`, :meth:`gdstk.Polygon.scale`, and
 :meth:`gdstk.Polygon.mirror`.  The transformations are applied in-place, i.e.,
 no new polygons are created.
@@ -724,7 +724,7 @@ existing GDSII or OASIS file into a new instance of :class:`gdstk.Library`.
       // Convert to new unit
       Library lib2 = read_gds("filename.gds", 1e-9);
 
-      // Use deafult OASIS unit (1e-6)
+      // Use default OASIS unit (1e-6)
       Library lib3 = read_oas("filename.oas");
 
 Access to the cells in the loaded library is primarily provided through the

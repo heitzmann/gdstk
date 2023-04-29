@@ -88,7 +88,7 @@ conda install gdstk
 
 #### From source
 
-The module must be linked aginst zlib.
+The module must be linked against zlib.
 The included CMakeLists.txt file can be used as a guide.
 
 Installation from source should follow the usual method (there is no need to compile the static library beforehand):

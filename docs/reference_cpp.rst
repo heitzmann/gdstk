@@ -11,7 +11,7 @@ Code Style
 **********
 
 The library is fully contained in the ``gdstk`` namespace. Structs and enums
-use ``PascalCase``, functions and variables (includig constants),
+use ``PascalCase``, functions and variables (including constants),
 ``snake_case``, and definitions are all ``UPPER_CASE``.  Exceptions are the
 members of enums ``GdsiiRecord`` and ``OasisRecord``, which use ``UPPER_CASE``
 to better match their specification documents.

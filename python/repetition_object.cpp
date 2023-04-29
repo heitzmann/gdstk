@@ -28,7 +28,7 @@ static PyObject* repetition_object_str(RepetitionObject* self) {
             snprintf(buffer, COUNT(buffer), "Repetition (y-explicit) of count %" PRIu64, count);
             break;
         default:
-            PyErr_SetString(PyExc_RuntimeError, "Uknown repetition type.");
+            PyErr_SetString(PyExc_RuntimeError, "Unknown repetition type.");
             return NULL;
     }
     return PyUnicode_FromString(buffer);

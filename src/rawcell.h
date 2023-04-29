@@ -41,7 +41,7 @@ struct RawSource {
     };
 };
 
-// Rawcells are not meant to be created except thorugh read_rawcells.  They are
+// Rawcells are not meant to be created except through read_rawcells.  They are
 // not explicitly loaded in memory until used, so the GDSII file where they are
 // loaded from, remains open until it is no longer needed.  That is done by
 // reference counting.
@@ -63,7 +63,7 @@ struct RawCell {
     void clear();
 
     // Append dependencies of this cell to result.  If recursive is true, also
-    // includes depedencies of any dependencies recursively.
+    // includes dependencies of any dependencies recursively.
     void get_dependencies(bool recursive, Map<RawCell*>& result) const;
 
     // This function outputs the rawcell in the GDSII.  It is not supposed to

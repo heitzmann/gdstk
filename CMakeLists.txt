@@ -40,7 +40,7 @@ if(NOT ZLIB_FOUND)
     # But give precedence to user-set library path
     if(DEFINED ENV{ZLIB_LIBRARIES})
         set(ZLIB_LIBRARIES $ENV{ZLIB_LIBRARIES})
-    # This would be set if find_library succedes, e.g. the library is on PATH, but no env-var was set.
+    # This would be set if find_library succeeds, e.g. the library is on PATH, but no env-var was set.
     elseif(NOT ZLIB_LIBRARIES)
         message(FATAL_ERROR "ZLIB could not be found, either via find_package, find_library, or env variable.")
     endif()

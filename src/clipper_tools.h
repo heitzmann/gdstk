@@ -60,7 +60,7 @@ inline ErrorCode merge(const Array<Polygon*>& polygons, double scaling, Array<Po
     return boolean(polygons, empty, Operation::Or, scaling, result);
 }
 
-// Dilates or erodes polygons acording to distance (negative distance results
+// Dilates or erodes polygons according to distance (negative distance results
 // in erosion).  The effects of internal polygon edges (in polygons with holes,
 // for example) can be suppressed by setting use_union to true.  Resulting
 // polygons are appended to result.
@@ -77,7 +77,7 @@ inline ErrorCode offset(const Polygon& poly, double distance, OffsetJoin join, d
 // Slice the given polygon along the coordinates in posiotions.  Cuts are
 // vertical (horizontal) when x_axis is set to true (false).  Argument result
 // must be an array with length at least positions.count + 1.  The resulting
-// slices are appendend to the arrays in their respective bins.
+// slices are appended to the arrays in their respective bins.
 ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
                 Array<Polygon*>* result);
 
