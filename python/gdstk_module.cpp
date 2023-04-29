@@ -2039,6 +2039,7 @@ static int gdstk_exec(PyObject* module) {
     library_object_type.tp_init = (initproc)library_object_init;
     library_object_type.tp_methods = library_object_methods;
     library_object_type.tp_getset = library_object_getset;
+    library_object_type.tp_as_mapping = &library_object_as_mapping;
     library_object_type.tp_str = (reprfunc)library_object_str;
     if (PyType_Ready(&library_object_type) < 0) {
         Py_DECREF(&curve_object_type);

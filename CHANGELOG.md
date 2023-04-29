@@ -1,4 +1,9 @@
 # Changelog
+## Unreleased
+### Added
+- Dictionary-like access to library cells by name.
+- `len(Library)` returns the number of cells in the library
+
 ## 0.9.37 - 2023002-12
 ### Changed
 - Build system changes for lower numpy version requirements

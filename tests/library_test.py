@@ -50,6 +50,21 @@ def test_top_level_3(tree):
     assert lib.top_level() == []
 
 
+def test_mapping(tree):
+    empty = gdstk.Library("Empty")
+    assert len(empty) == 0
+    with pytest.raises(TypeError):
+        _ = empty[0]
+    with pytest.raises(KeyError):
+        _ = empty["X"]
+
+    lib, c = tree
+    assert len(lib) == 8
+    assert c[0] is lib["tree_0"]
+    with pytest.raises(KeyError):
+        _ = lib["X"]
+
+
 @pytest.fixture
 def sample_library():
     lib = gdstk.Library("lib", unit=2e-3, precision=1e-5)

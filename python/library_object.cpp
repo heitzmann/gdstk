@@ -558,3 +558,45 @@ static PyGetSetDef library_object_getset[] = {
     {"properties", (getter)library_object_get_properties, (setter)library_object_set_properties,
      object_properties_doc, NULL},
     {NULL}};
+
+Py_ssize_t library_object_len(LibraryObject* self) {
+    return self->library->cell_array.count + self->library->rawcell_array.count;
+}
+
+PyObject* library_object_get_item(LibraryObject* self, PyObject* key) {
+    if (!PyUnicode_Check(key)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "Library cells can only be accessed by name (string type).");
+        return NULL;
+    }
+
+    const char* name = PyUnicode_AsUTF8(key);
+    if (!name) return NULL;
+
+    Array<Cell*>* cell_array = &self->library->cell_array;
+    for (uint64_t i = 0; i < cell_array->count; ++i) {
+        if (strcmp(name, cell_array->items[i]->name) == 0) {
+            PyObject* cell_obj = (PyObject*)(cell_array->items[i]->owner);
+            Py_INCREF(cell_obj);
+            return cell_obj;
+        }
+    }
+
+    Array<RawCell*>* rawcell_array = &self->library->rawcell_array;
+    for (uint64_t i = 0; i < rawcell_array->count; ++i) {
+        if (strcmp(name, rawcell_array->items[i]->name) == 0) {
+            PyObject* rawcell_obj = (PyObject*)(rawcell_array->items[i]->owner);
+            Py_INCREF(rawcell_obj);
+            return rawcell_obj;
+        }
+    }
+
+    PyErr_Format(PyExc_KeyError, "Cell '%s' not found in library.", name);
+    return NULL;
+}
+
+static PyMappingMethods library_object_as_mapping = {
+    (lenfunc)library_object_len,
+    (binaryfunc)library_object_get_item,
+    NULL,
+};

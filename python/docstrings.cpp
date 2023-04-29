@@ -2720,6 +2720,18 @@ Args:
     precision: Desired precision to store the units once written to a
       GDSII/OASIS file.
 
+Examples:
+    >>> lib = gdstk.read_gds("filename.gds")
+    >>> num_cells = len(lib)
+    >>> cell = lib["CELL_NAME"]
+
+Notes:
+    Although cells can be accessed by name this is not a cached
+    operation.  If many queries are expected, using a cell dictionary
+    is more efficient, for example:
+    >>> cells = {c.name for c in lib.cells}
+    >>> cells["CELL_NAME"]
+
 See also:
     :ref:`about-units`)!");
 

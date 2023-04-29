@@ -727,10 +727,16 @@ existing GDSII or OASIS file into a new instance of :class:`gdstk.Library`.
       // Use deafult OASIS unit (1e-6)
       Library lib3 = read_oas("filename.oas");
 
-Access to the cells in the loaded library is provided through the list
-:attr:`gdstk.Library.cells`.  The method :meth:`gdstk.Library.top_level` can be
-used to find the top-level cells in the library (cells on the top of the
-hierarchy, i.e., cell that are not referenced by any other cells).
+Access to the cells in the loaded library is primarily provided through the
+list :attr:`gdstk.Library.cells`.  As a shorthand, if the desired cell name is
+know, the idiom ``lib1["CELL_NAME"]`` can be used, although it is not as
+efficient as building a cell dictionary if a large number of queries is
+expected.
+
+Additionally, the method :meth:`gdstk.Library.top_level` can be used to find
+the top-level cells in the library (cells on the top of the hierarchy, i.e.,
+cell that are not referenced by any other cells).
+
 
 Raw Cells
 =========
