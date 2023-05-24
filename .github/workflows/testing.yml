@@ -27,9 +27,7 @@ jobs:
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
       - name: Build and install
-        run: |
-          python setup.py build --build-lib lib
-          cp lib/gdstk.* .
+        run: python setup.py install
       - name: Test
         run: pytest
 

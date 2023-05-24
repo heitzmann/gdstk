@@ -45,8 +45,7 @@ jobs:
           pip install -r requirements.txt
           conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
       - name: Build Python ${{ matrix.python-version }} wheel
-        run: |
-          python setup.py bdist_wheel
+        run: python setup.py bdist_wheel
         env:
           CMAKE_GENERATOR: "Ninja"
           CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
