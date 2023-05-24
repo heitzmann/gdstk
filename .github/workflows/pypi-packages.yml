@@ -10,7 +10,6 @@ jobs:
   build_wheels:
     strategy:
       fail-fast: false
-      max-parallel: 12
       matrix:
         os: [ubuntu-latest, macos-latest]
     name: Build wheels on ${{ matrix.os }}

@@ -9,7 +9,6 @@ jobs:
   linux-test:
     strategy:
       fail-fast: false
-      max-parallel: 12
       matrix:
         os: [ubuntu-latest, macos-latest]
         python-version: ['3.7', '3.11']
@@ -54,7 +53,7 @@ jobs:
           pip install pip-tools ninja conan pytest
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
-          conan install zlib -s compiler.version=16 -g cmake_paths
+          conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
       - name: Build Python ${{ matrix.python-version }} wheel
         run: |
           python setup.py install --user
