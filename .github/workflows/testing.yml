@@ -27,7 +27,9 @@ jobs:
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
       - name: Build and install
-        run: python setup.py install --user
+        run: |
+          python setup.py build --build-lib lib
+          cp lib/gdstk.* .
       - name: Test
         run: pytest
 
@@ -39,7 +41,7 @@ jobs:
     defaults:
       run:
         shell: pwsh
-    name: Windows test for ${{ matrix.python-version }}
+    name: Test for ${{ matrix.python-version }} on windows-latest
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
