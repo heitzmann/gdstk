@@ -1,8 +1,9 @@
 # GDSTK
 
 [![Boost Software License - Version 1.0](https://img.shields.io/github/license/heitzmann/gdstk.svg)](https://www.boost.org/LICENSE_1_0.txt)
-[![Tests Runner](https://github.com/heitzmann/gdstk/workflows/Tests%20Runner/badge.svg)](https://github.com/heitzmann/gdstk/actions)
-[![Publish Docs](https://github.com/heitzmann/gdstk/workflows/Publish%20Docs/badge.svg)](http://heitzmann.github.io/gdstk)
+[![Tests Runner](https://github.com/heitzmann/gdstk/actions/workflows/testing.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/testing.yml)
+[![Publish Docs](https://github.com/heitzmann/gdstk/actions/workflows/docs.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/docs.yml)
+[![PyPI Packages](https://github.com/heitzmann/gdstk/actions/workflows/pypi-packages.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/pypi-packages.yml)
 [![Downloads](https://img.shields.io/github/downloads/heitzmann/gdstk/total.svg)](https://github.com/heitzmann/gdstk/releases)
 
 Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII and OASIS files.

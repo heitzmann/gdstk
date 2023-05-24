@@ -50,7 +50,7 @@ jobs:
           cache: 'pip'
       - name: Install build dependencies
         run: |
-          pip install pip-tools ninja conan pytest
+          pip install pip-tools pytest ninja conan==1.60
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
           conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
