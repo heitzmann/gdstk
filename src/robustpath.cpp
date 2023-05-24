@@ -1444,15 +1444,14 @@ ErrorCode RobustPath::to_polygons(bool filter, Tag tag, Array<Polygon *> &result
         uint64_t num =
             left_side.count + initial_cap.point_array.count + final_cap.point_array.count - 2;
         right_side.ensure_slots(num);
-        Vec2 *dst = right_side.items + right_side.count;
+        Vec2 *dst = right_side.items + right_side.count - 1;
 
-        memcpy(dst, final_cap.point_array.items + 1,
-               sizeof(Vec2) * (final_cap.point_array.count - 2));
-        dst += final_cap.point_array.count - 2;
+        memcpy(dst, final_cap.point_array.items, sizeof(Vec2) * final_cap.point_array.count);
+        dst += final_cap.point_array.count;
         final_cap.clear();
 
-        Vec2 *src = left_side.items + left_side.count - 1;
-        for (uint64_t i = left_side.count; i > 0; i--) *dst++ = *src--;
+        Vec2 *src = left_side.items + left_side.count - 2;
+        for (uint64_t i = left_side.count - 1; i > 0; i--) *dst++ = *src--;
         left_side.clear();
 
         memcpy(dst, initial_cap.point_array.items, sizeof(Vec2) * initial_cap.point_array.count);

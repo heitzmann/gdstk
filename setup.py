@@ -1,15 +1,16 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
-import os
-import re
-import sys
 import pathlib
 import platform
+import re
+import sys
+
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 from distutils.version import LooseVersion
