@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.41 - 2023-05-24
 ### Added
 - Dictionary-like access to library cells by name.
 - `len(Library)` returns the number of cells in the library
@@ -8,7 +8,7 @@
 ### Fixed
 - `RobustPath` accepts width of 0 at the path end
 
-## 0.9.37 - 2023002-12
+## 0.9.37 - 2023-02-12
 ### Changed
 - Build system changes for lower numpy version requirements
 
