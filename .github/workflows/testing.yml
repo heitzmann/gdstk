@@ -7,12 +7,14 @@ on:
 
 jobs:
   linux-test:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      max-parallel: 12
       matrix:
+        os: [ubuntu-latest, macos-latest]
         python-version: ['3.7', '3.11']
-    name: Linux test for ${{ matrix.python-version }}
+    name: Test for ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -31,15 +33,15 @@ jobs:
         run: pytest
 
   windows-test:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: pwsh
     strategy:
       fail-fast: false
       matrix:
         python-version: ['3.7', '3.11']
+    defaults:
+      run:
+        shell: pwsh
     name: Windows test for ${{ matrix.python-version }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ilammy/msvc-dev-cmd@v1
@@ -59,30 +61,5 @@ jobs:
         env:
           CMAKE_GENERATOR: "Ninja"
           CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
-      - name: Test
-        run: pytest
-
-  macos-test:
-    runs-on: macos-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.7', '3.11']
-    name: MacOS test for ${{ matrix.python-version }}
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-          cache: 'pip'
-      - uses: lukka/get-cmake@latest
-      - name: Install dependencies
-        run: |
-          pip install pip-tools pytest
-          python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
-          pip install -r requirements.txt
-      - name: Build and install
-        run: python setup.py install --user
       - name: Test
         run: pytest

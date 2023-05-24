@@ -44,7 +44,7 @@ jobs:
           pip install pip-tools ninja conan
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
-          conan install zlib -s compiler.version=16 -g cmake_paths
+          conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
       - name: Build Python ${{ matrix.python-version }} wheel
         run: |
           python setup.py bdist_wheel
