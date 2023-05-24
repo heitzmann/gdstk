@@ -1,10 +1,10 @@
 # Changelog
+
 ## Unreleased
 ### Added
 - Dictionary-like access to library cells by name.
 - `len(Library)` returns the number of cells in the library
 - `Reference.cell_name` to directly access a referenced cell's name
-
 ### Fixed
 - `RobustPath` accepts width of 0 at the path end
 
@@ -17,7 +17,6 @@
 - Downgrade the zlib version dependency to support manylinux2014
 - Minor documentation improvements
 
-# Changelog
 ## 0.9.35 - 2022-12-16
 ### Fixed
 - Segfaults caused by class inheritance in Python

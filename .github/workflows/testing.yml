@@ -1,29 +1,35 @@
 name: Tests Runner
-on: [push, pull_request]
+
+on: 
+  push:
+    branches: [master]
+  pull_request:
+
 jobs:
   linux-test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.10']
+        python-version: ['3.7', '3.11']
     name: Linux test for ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - name: Install Python dependencies
+          cache: 'pip'
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install pytest
+          pip install pip-tools pytest
+          python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
       - name: Build and install
         run: python setup.py install --user
       - name: Test
         run: pytest
+
   windows-test:
     runs-on: windows-latest
     defaults:
@@ -32,42 +38,49 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.10']
+        python-version: ['3.7', '3.11']
     name: Windows test for ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Miniconda
-        uses: conda-incubator/setup-miniconda@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: actions/setup-python@v4
         with:
-          auto-update-conda: true
           python-version: ${{ matrix.python-version }}
-          channels: conda-forge
-      - name: Install dependencies
-        run: conda install cmake zlib numpy pytest
-      - name: Build
-        run: python setup.py install --user
+          cache: 'pip'
+      - name: Install build dependencies
+        run: |
+          pip install pip-tools ninja conan pytest
+          python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
+          pip install -r requirements.txt
+          conan install zlib -s compiler.version=16 -g cmake_paths
+      - name: Build Python ${{ matrix.python-version }} wheel
+        run: |
+          python setup.py install --user
+        env:
+          CMAKE_GENERATOR: "Ninja"
+          CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
       - name: Test
         run: pytest
+
   macos-test:
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.10']
+        python-version: ['3.7', '3.11']
     name: MacOS test for ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - name: Install CMake
-        uses: lukka/get-cmake@latest
-      - name: Install Python dependencies
+          cache: 'pip'
+      - uses: lukka/get-cmake@latest
+      - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install pytest
+          pip install pip-tools pytest
+          python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
       - name: Build and install
         run: python setup.py install --user

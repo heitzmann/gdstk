@@ -1,6 +1,0 @@
-myst-parser
-pre-commit
-sphinx
-sphinx-rtd-theme
-sphinx-inline-tabs
-matplotlib

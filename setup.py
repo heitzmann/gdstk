@@ -9,7 +9,6 @@
 import pathlib
 import platform
 import re
-import sys
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
@@ -52,9 +51,7 @@ class build_ext(_build_ext):
 
         pkgconfig = list(install_dir.glob("**/gdstk.pc"))
         if len(pkgconfig) == 0:
-            raise RuntimeError(
-                f"File gdstk.pc not found in cmake install tree: {install_dir}"
-            )
+            raise RuntimeError(f"File gdstk.pc not found in cmake install tree: {install_dir}")
         with open(pkgconfig[0]) as pkg:
             for line in pkg:
                 if line.startswith("Cflags:"):
@@ -80,22 +77,6 @@ class build_ext(_build_ext):
         super().run()
 
 
-with open("README.md") as fin:
-    long_description = fin.read()
-
-setup_requires = ["numpy"]
-if "build_sphinx" in sys.argv:
-    setup_requires.extend(["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs"])
-
-extra_compile_args = []
-extra_link_args = []
-
-if platform.system() == "Darwin" and LooseVersion(platform.release()) >= LooseVersion(
-    "17.7"
-):
-    extra_compile_args.extend(["-std=c++11", "-mmacosx-version-min=10.9"])
-    extra_link_args.extend(["-stdlib=libc++", "-mmacosx-version-min=10.9"])
-
 version = None
 version_re = re.compile('#define GDSTK_VERSION "(.*)"')
 with open("src/gdstk.h") as fin:
@@ -107,18 +88,13 @@ with open("src/gdstk.h") as fin:
 if version is None:
     raise RuntimeError("Unable to determine version.")
 
+extra_compile_args = []
+extra_link_args = []
+if platform.system() == "Darwin" and LooseVersion(platform.release()) >= LooseVersion("17.7"):
+    extra_compile_args.extend(["-std=c++11", "-mmacosx-version-min=10.9"])
+    extra_link_args.extend(["-stdlib=libc++", "-mmacosx-version-min=10.9"])
+
 setup(
-    name="gdstk",
-    version=version,
-    author="Lucas H. Gabrielli",
-    author_email="heitzmann@gmail.com",
-    license="Boost Software License v1.0",
-    url="https://github.com/heitzmann/gdstk",
-    description="Python module for creation and manipulation of GDSII files.",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    keywords="GDSII CAD layout",
-    provides=["gdstk"],
     ext_modules=[
         Extension(
             "gdstk",
@@ -139,21 +115,5 @@ setup(
             "build_dir": ("setup.py", "docs/_build"),
         }
     },
-    install_requires=["numpy"],
-    setup_requires=setup_requires,
-    platforms="OS Independent",
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: Console",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Manufacturing",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: Boost Software License 1.0 (BSL-1.0)",
-        "Operating System :: OS Independent",
-        "Programming Language :: C++",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: Implementation :: CPython",
-        "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
-    ],
     zip_safe=False,
 )

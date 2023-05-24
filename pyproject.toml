@@ -1,3 +1,38 @@
+[project]
+name = "gdstk"
+version = "0.9.40"
+authors = [{name = "Lucas H. Gabrielli", email = "heitzmann@gmail.com"}]
+description = "Python module for creation and manipulation of GDSII files."
+readme = "README.md"
+keywords = ["GDSII", "OASIS", "CAD",  "layout"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Boost Software License 1.0 (BSL-1.0)",
+    "Operating System :: OS Independent",
+    "Programming Language :: C++",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+]
+license = {file = "LICENSE"}
+dependencies = ["numpy"]
+requires-python = ">=3.7"
+
+[project.optional-dependencies]
+docs = ["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs"]
+
+[project.urls]
+documentation = "https://heitzmann.github.io/gdstk/"
+repository = "https://github.com/heitzmann/gdstk"
+changelog = "https://github.com/heitzmann/gdstk/blob/main/CHANGELOG.md"
+
+[tool.black]
+line-length = 100
+
 [build-system]
 requires = [
     "setuptools>=42",
@@ -5,19 +40,3 @@ requires = [
     "numpy; platform_system=='Darwin'",
     "oldest-supported-numpy; platform_system!='Darwin'",
 ]
-
-[tool.cibuildwheel]
-manylinux-x86_64-image = "manylinux_2_28"
-musllinux-x86_64-image = "musllinux_1_1"
-
-# Skip 32-bit builds
-skip = [
-    "*-win32",
-    "*-manylinux_i686",
-    "*musllinux*",
-    "cp36-*",
-]
-
-
-[[tool.cibuildwheel.overrides]]
-select = "cp3{7,8,9,10,11}-*"
