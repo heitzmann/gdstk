@@ -22,7 +22,7 @@ jobs:
           CIBW_ARCHS_MACOS: "x86_64 arm64"
       - uses: actions/upload-artifact@v3
         with:
-          path: ./wheelhouse/*.whl
+          path: ./wheelhouse/gdstk*.whl
 
   build_windows:
     strategy:
@@ -51,7 +51,7 @@ jobs:
           CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
       - uses: actions/upload-artifact@v3
         with:
-          path: "dist/*.whl"
+          path: "dist/gdstk*.whl"
 
   build_sdist:
     name: Build source distribution
