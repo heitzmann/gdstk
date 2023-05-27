@@ -23,7 +23,7 @@ dependencies = ["numpy"]
 requires-python = ">=3.7"
 
 [project.optional-dependencies]
-docs = ["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs"]
+docs = ["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs", "matplotlib"]
 
 [project.urls]
 documentation = "https://heitzmann.github.io/gdstk/"
