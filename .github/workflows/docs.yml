@@ -23,7 +23,7 @@ jobs:
       - name: Install Gdstk
         run: python setup.py install --user
       - name: Build docs
-        run: python setup.py build_sphinx
+        run: sphinx-build docs docs/_build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:

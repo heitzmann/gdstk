@@ -6,7 +6,7 @@ LIB=$(LIB_INSTALL_PREFIX)/lib/libgdstk.a
 
 PY_SRC=$(wildcard python/*.cpp)
 
-IMG_SRC=$(wildcard docs/*_images.py) docs/pcell.py docs/photonics.py docs/merging.py docs/transforms.py docs/repetitions.py docs/apply_repetition.py docs/fonts.py docs/pos_filtering.py docs/path_markers.py docs/pads.py
+IMG_SRC=$(wildcard docs/*_images.py) docs/pcell.py docs/photonics.py docs/merging.py docs/transforms.py docs/repetitions.py docs/apply_repetition.py docs/fonts.py docs/pos_filtering.py docs/path_markers.py docs/pads.py docs/layout.py docs/filtering.py
 DOCS_SRC=$(wildcard docs/*.rst)
 DOCS=docs/_build/html/index.html
 
@@ -57,17 +57,8 @@ $(LIB): $(LIB_SRC) $(LIB_HDR) Makefile
 	cmake -S . -B $(LIB_BUILD_PREFIX) -DCMAKE_INSTALL_PREFIX=$(LIB_INSTALL_PREFIX) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 	cmake --build $(LIB_BUILD_PREFIX) --target install
 
-$(DOCS): module $(DOCS_SRC) $(IMG_SRC) docs/layout.py docs/filtering.py
+$(DOCS): module $(DOCS_SRC) $(IMG_SRC)
 	sphinx-build docs docs/_build
-
-docs/filtering.py: module docs/layout.py
-	python $@
-
-docs/layout.py: module docs/photonics.py
-	python $@
-
-$(IMG_SRC): module
-	python $@
 
 %.out: %.cpp $(LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $< -I$(LIB_INSTALL_PREFIX)/include -L$(LIB_INSTALL_PREFIX)/lib -llapack -lpthread -lm -ldl -lgdstk /usr/lib/libz.a

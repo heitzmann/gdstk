@@ -1,22 +1,9 @@
-#!/usr/bin/env python
-
 # Copyright 2020 Lucas Heitzmann Gabrielli.
 # This file is part of gdstk, distributed under the terms of the
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
-import sys
-import pathlib
-import distutils.command.build
-from distutils.dist import Distribution
-
-# Update path so that autodoc is able to find the module
-empty_build = distutils.command.build.build(Distribution())
-empty_build.initialize_options()
-empty_build.finalize_options()
-path = pathlib.Path("..") / empty_build.build_platlib
-sys.path.insert(0, str(path.absolute()))
-
+import subprocess
 import gdstk
 
 project = "gdstk"
@@ -74,3 +61,30 @@ html_theme_options = {
     #'includehidden': True,
     #'titles_only': False
 }
+
+# Build images
+
+for img_src in (
+    "cell_images.py",
+    "curve_images.py",
+    "flexpath_images.py",
+    "function_images.py",
+    "label_images.py",
+    "polygon_images.py",
+    "reference_images.py",
+    "robustpath_images.py",
+    "tutorial_images.py",
+    "apply_repetition.py",
+    "fonts.py",
+    "merging.py",
+    "pads.py",
+    "path_markers.py",
+    "pcell.py",
+    "photonics.py",
+    "pos_filtering.py",
+    "repetitions.py",
+    "transforms.py",
+    "layout.py",
+    "filtering.py",
+):
+    subprocess.run(["python", img_src], check=True)

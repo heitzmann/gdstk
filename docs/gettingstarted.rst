@@ -111,7 +111,7 @@ they will be ordered internally.
       :language: c++
       :lines: 14-23
 
-.. image:: tutorial/polygons.*
+.. image:: tutorial/polygons.svg
    :align: center
 
 
@@ -135,7 +135,7 @@ boundary of the polygon, as in the following example:
       :language: c++
       :lines: 25-31
 
-.. image:: tutorial/holes.*
+.. image:: tutorial/holes.svg
    :align: center
 
 
@@ -170,7 +170,7 @@ tolerance and automatically converted.
       :language: c++
       :lines: 33-45
 
-.. image:: tutorial/circles.*
+.. image:: tutorial/circles.svg
    :align: center
 
 
@@ -197,7 +197,7 @@ step-by-step.  The syntax is inspired by the `SVG path specification
       :language: c++
       :lines: 47-69
 
-.. image:: tutorial/curves.*
+.. image:: tutorial/curves.svg
    :align: center
 
 Coordinate pairs can be given as a complex number: real and imaginary parts are
@@ -221,7 +221,7 @@ for an extra rotation of the major axis of the ellipse.
       :language: c++
       :lines: 71-81
 
-.. image:: tutorial/curves_1.*
+.. image:: tutorial/curves_1.svg
    :align: center
 
 Curves sections can be constructed as cubic, quadratic and general-degree
@@ -243,7 +243,7 @@ arguments to control the shape of the curve.
       :language: c++
       :lines: 83-115
 
-.. image:: tutorial/curves_2.*
+.. image:: tutorial/curves_2.svg
    :align: center
 
 Transformations
@@ -268,7 +268,7 @@ no new polygons are created.
       :language: c++
       :lines: 117-123
 
-.. image:: tutorial/transformations.*
+.. image:: tutorial/transformations.svg
    :align: center
 
 
@@ -302,7 +302,7 @@ simplify the assignment to each polygon.
       :language: c++
       :lines: 125-141
 
-.. image:: tutorial/layer_and_datatype.*
+.. image:: tutorial/layer_and_datatype.svg
    :align: center
 
 .. _references:
@@ -336,7 +336,7 @@ are exemplified below.
       :language: c++
       :start-at: #include
 
-.. image:: tutorial/references.*
+.. image:: tutorial/references.svg
    :align: center
 
 
@@ -397,7 +397,7 @@ with additional features to facilitate path creation:
       :language: c++
       :lines: 14-44
 
-.. image:: tutorial/flexible_paths.*
+.. image:: tutorial/flexible_paths.svg
    :align: center
 
 The corner type "circular bend" (together with the `bend_radius` argument) can
@@ -417,7 +417,7 @@ be used to automatically curve the path.
       :language: c++
       :lines: 46-61
 
-.. image:: tutorial/flexible_paths_2.*
+.. image:: tutorial/flexible_paths_2.svg
    :align: center
 
 Width and offset variations are possible throughout the path.  Changes are
@@ -439,7 +439,7 @@ polygonal objects.
       :language: c++
       :lines: 63-80
 
-.. image:: tutorial/flexible_paths_3.*
+.. image:: tutorial/flexible_paths_3.svg
    :align: center
 
 
@@ -474,7 +474,7 @@ the paths.
       :language: c++
       :start-at: #include
 
-.. image:: tutorial/robust_paths.*
+.. image:: tutorial/robust_paths.svg
    :align: center
 
 Note that, analogously to :class:`gdstk.FlexPath`, :class:`gdstk.RobustPath`
@@ -511,7 +511,7 @@ which is important for some laser writing systems.
       :language: c++
       :start-at: #include
 
-.. image:: tutorial/text.*
+.. image:: tutorial/text.svg
    :align: center
 
 
@@ -548,7 +548,7 @@ vertices is all polygons as low as possible also helps.
       :language: c++
       :lines: 14-28
 
-.. image:: tutorial/boolean_operations.*
+.. image:: tutorial/boolean_operations.svg
    :align: center
 
 
@@ -572,7 +572,7 @@ horizontal or vertical cut lines.
       :language: c++
       :lines: 30-57
 
-.. image:: tutorial/slice_operation.*
+.. image:: tutorial/slice_operation.svg
    :align: center
 
 
@@ -598,7 +598,7 @@ same is valid for polygons with holes.
       :language: c++
       :lines: 59-71
 
-.. image:: tutorial/offset_operation.*
+.. image:: tutorial/offset_operation.svg
    :align: center
 
 
@@ -621,7 +621,7 @@ The method :meth:`gdstk.Polygon.fillet` can be used to round polygon corners.
       :language: c++
       :lines: 73-88
 
-.. image:: tutorial/fillet_operation.*
+.. image:: tutorial/fillet_operation.svg
    :align: center
 
 

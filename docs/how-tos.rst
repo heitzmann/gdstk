@@ -40,7 +40,7 @@ user-defined parameters.
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/parametric_cell.*
+.. image:: how-tos/parametric_cell.svg
    :align: center
 
 *************
@@ -104,7 +104,7 @@ and imported as a Python module, as long as it can be found in the Python path
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/layout.*
+.. image:: how-tos/layout.svg
    :align: center
 
 *****************
@@ -160,7 +160,7 @@ be modified.
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/transforms.*
+.. image:: how-tos/transforms.svg
    :align: center
 
 .. note::
@@ -196,7 +196,7 @@ contain all copies).
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/repetitions.*
+.. image:: how-tos/repetitions.svg
    :align: center
 
 When geometry operations are applied to elements with repetitions, they are not
@@ -217,7 +217,7 @@ this use:
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/apply_repetition.*
+.. image:: how-tos/apply_repetition.svg
    :align: center
 
 ******************
@@ -242,7 +242,7 @@ polygons in layer 2 (grating teeth) and paths in layer 10 (in the MZI).
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/filtering.*
+.. image:: how-tos/filtering.svg
    :align: center
 
 Another common use of filtering is to remove geometry in a particular region.
@@ -262,7 +262,7 @@ overlap a particular shape using :func:`gdstk.inside` to test.
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/pos_filtering.*
+.. image:: how-tos/pos_filtering.svg
    :align: center
 
 Finally, :func:`gdstk.read_gds` provides a way to only load specific layers and
@@ -293,7 +293,7 @@ at a fixed distance must be calculated for each section independently.
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/path_markers.*
+.. image:: how-tos/path_markers.svg
    :align: center
 
 
@@ -321,7 +321,7 @@ filleted.
       :language: c++
       :start-at: #include
 
-.. image:: how-tos/pads.*
+.. image:: how-tos/pads.svg
    :align: center
 
 
@@ -338,5 +338,5 @@ polygon arrays that can be used to create :class:`gdstk.Polygon` objects.
    :start-at: import gdstk
    :end-at: cell.add
 
-.. image:: how-tos/fonts.*
+.. image:: how-tos/fonts.svg
    :align: center
