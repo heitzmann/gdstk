@@ -17,6 +17,13 @@ empty_build.finalize_options()
 path = pathlib.Path("..") / empty_build.build_platlib
 sys.path.insert(0, str(path.absolute()))
 
+import gdstk
+
+project = "gdstk"
+version = gdstk.__version__
+release = gdstk.__version__
+copyright = "2020, Lucas H. Gabrielli"
+
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",

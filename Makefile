@@ -58,7 +58,7 @@ $(LIB): $(LIB_SRC) $(LIB_HDR) Makefile
 	cmake --build $(LIB_BUILD_PREFIX) --target install
 
 $(DOCS): module $(DOCS_SRC) $(IMG_SRC) docs/layout.py docs/filtering.py
-	python setup.py build_sphinx
+	sphinx-build docs docs/_build
 
 docs/filtering.py: module docs/layout.py
 	python $@

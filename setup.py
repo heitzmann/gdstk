@@ -8,7 +8,6 @@
 
 import pathlib
 import platform
-import re
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
@@ -77,17 +76,6 @@ class build_ext(_build_ext):
         super().run()
 
 
-version = None
-version_re = re.compile('#define GDSTK_VERSION "(.*)"')
-with open("src/gdstk.h") as fin:
-    for line in fin:
-        m = version_re.match(line)
-        if m:
-            version = m[1]
-            break
-if version is None:
-    raise RuntimeError("Unable to determine version.")
-
 extra_compile_args = []
 extra_link_args = []
 if platform.system() == "Darwin" and LooseVersion(platform.release()) >= LooseVersion("17.7"):
@@ -105,15 +93,5 @@ setup(
         ),
     ],
     cmdclass={"build_ext": build_ext},
-    command_options={
-        "build_sphinx": {
-            "project": ("setup.py", "gdstk"),
-            "version": ("setup.py", version),
-            "release": ("setup.py", version),
-            "copyright": ("setup.py", "2020, Lucas H. Gabrielli"),
-            "source_dir": ("setup.py", "docs"),
-            "build_dir": ("setup.py", "docs/_build"),
-        }
-    },
     zip_safe=False,
 )
