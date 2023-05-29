@@ -1133,8 +1133,9 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
     result.point_array.count = 2 * num_points;
     Vec2* v1 = result.point_array.items;
     Vec2* v2 = result.point_array.items + num_points;
+    uint64_t divisor = (num_points > 1 && straight_length > 0) ? num_points - 1 : num_points;
     for (uint64_t i = 0; i < num_points; i++) {
-        const double angle = initial_angle + i * M_PI / num_points;
+        const double angle = initial_angle + i * M_PI / divisor;
         const Vec2 rad_vec = {radius * cos(angle), radius * sin(angle)};
         *v1++ = c1 + rad_vec;
         *v2++ = c2 - rad_vec;
@@ -1149,7 +1150,7 @@ Polygon racetrack(const Vec2 center, double straight_length, double radius, doub
         *v2++ = c1 + Vec2{inner_radius * cos(initial_angle), inner_radius * sin(initial_angle)};
         v1 = v2 + num_points;
         for (uint64_t i = num_points; i > 0; i--) {
-            const double angle = initial_angle + (i - 1) * M_PI / num_points;
+            const double angle = initial_angle + (i - 1) * M_PI / divisor;
             const Vec2 rad_vec = {inner_radius * cos(angle), inner_radius * sin(angle)};
             *v1++ = c1 + rad_vec;
             *v2++ = c2 - rad_vec;
