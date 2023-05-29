@@ -20,7 +20,6 @@ namespace gdstk {
 
 enum struct Operation { Or, And, Xor, Not };
 enum struct OffsetJoin { Miter, Bevel, Round };
-enum struct ShortCircuit { None, Any, All };
 
 // The following operations are executed in an integer grid of vertices, so the
 // geometry should be scaled by a large enough factor to garante a minimal
