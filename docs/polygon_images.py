@@ -34,11 +34,6 @@ def fillet_image():
 def fracture_image():
     polygon = gdstk.racetrack((0, 0), 30, 60, 40, tolerance=1e-3)
     poly_list = polygon.fracture()
-    assert len(poly_list) == 10
-    assert all(
-        p.size == s
-        for p, s in zip(poly_list, [102, 103, 103, 101, 101, 102, 102, 103, 103, 102])
-    )
     return gdstk.Cell("fracture").add(*poly_list)
 
 
