@@ -2,8 +2,8 @@ name: Publish Docs
 
 on:
   push:
-    branches:
-      - master
+    branches: [main]
+
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
