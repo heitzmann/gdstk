@@ -165,8 +165,8 @@ def test_rw_gds(tmpdir, sample_library):
     assert c.references[0].x_reflection == True
     assert c.references[0].repetition.columns == 2
     assert c.references[0].repetition.rows == 3
-    assert c.references[0].repetition.v1 == (-2.0, 0.0)
-    assert c.references[0].repetition.v2 == (0.0, 8.0)
+    assert c.references[0].repetition.v1 == pytest.approx((-2.0, 0.0))
+    assert c.references[0].repetition.v2 == pytest.approx((0.0, 8.0))
 
 
 def test_rw_gds_filter(tmpdir, sample_library):
@@ -220,8 +220,8 @@ def test_rw_gds_filter(tmpdir, sample_library):
     assert c.references[0].x_reflection == True
     assert c.references[0].repetition.columns == 2
     assert c.references[0].repetition.rows == 3
-    assert c.references[0].repetition.v1 == (-2.0, 0.0)
-    assert c.references[0].repetition.v2 == (0.0, 8.0)
+    assert c.references[0].repetition.v1 == pytest.approx((-2.0, 0.0))
+    assert c.references[0].repetition.v2 == pytest.approx((0.0, 8.0))
 
 
 def test_read_gds_missing_refs(tmpdir):
