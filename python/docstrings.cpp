@@ -363,7 +363,7 @@ Args:
 
 Examples:
     >>> polygon_1 = gdstk.Polygon([(0, 0), (1, 0), 1 + 1.5j, 1j])
-    >>> polygon_2 = gsdkt.Polygon([0j, (-1, 1), (-1, 0)], 2, 3)
+    >>> polygon_2 = gdstk.Polygon([0j, (-1, 1), (-1, 0)], 2, 3)
 
     .. image:: ../polygon/init.svg
        :align: center)!");

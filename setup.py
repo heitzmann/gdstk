@@ -6,16 +6,15 @@
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
+import numpy
 import pathlib
 import platform
-
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext as _build_ext
-from distutils.version import LooseVersion
-import numpy
+import re
+import setuptools
+from setuptools.command.build_ext import build_ext
 
 
-class build_ext(_build_ext):
+class CMakeBuilder(build_ext):
     def run(self):
         root_dir = pathlib.Path().absolute()
         build_dir = pathlib.Path(self.build_temp).absolute() / "cmake_build"
@@ -76,15 +75,28 @@ class build_ext(_build_ext):
         super().run()
 
 
+def loose_version(version_string):
+    """Extracted from distutils.version.LooseVersion"""
+    version = []
+    for component in re.split(r'(\d+ | [a-z]+ | \.)', version_string, flags=re.VERBOSE):
+        if len(component) == 0 or component == ".":
+            continue
+        try:
+            version.append(int(component))
+        except ValueError:
+            version.append(component)
+    return tuple(version)
+
+
 extra_compile_args = []
 extra_link_args = []
-if platform.system() == "Darwin" and LooseVersion(platform.release()) >= LooseVersion("17.7"):
+if platform.system() == "Darwin" and loose_version(platform.release()) >= (17, 7):
     extra_compile_args.extend(["-std=c++11", "-mmacosx-version-min=10.9"])
     extra_link_args.extend(["-stdlib=libc++", "-mmacosx-version-min=10.9"])
 
-setup(
+setuptools.setup(
     ext_modules=[
-        Extension(
+        setuptools.Extension(
             "gdstk",
             ["python/gdstk_module.cpp"],
             include_dirs=[numpy.get_include()],
@@ -92,6 +104,6 @@ setup(
             extra_link_args=extra_link_args,
         ),
     ],
-    cmdclass={"build_ext": build_ext},
+    cmdclass={"build_ext": CMakeBuilder},
     zip_safe=False,
 )

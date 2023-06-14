@@ -27,7 +27,7 @@ jobs:
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
       - name: Build and install
-        run: python setup.py install
+        run: pip install .
       - name: Test
         run: pytest
 
@@ -50,13 +50,13 @@ jobs:
           cache: 'pip'
       - name: Install build dependencies
         run: |
+          pip install --upgrade pip setuptools wheel
           pip install pip-tools pytest ninja conan==1.60
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
           conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
       - name: Build Python ${{ matrix.python-version }} wheel
-        run: |
-          python setup.py install --user
+        run: python setup.py install --user
         env:
           CMAKE_GENERATOR: "Ninja"
           CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"

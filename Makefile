@@ -8,7 +8,8 @@ PY_SRC=$(wildcard python/*.cpp)
 
 IMG_SRC=$(wildcard docs/*_images.py) docs/pcell.py docs/photonics.py docs/merging.py docs/transforms.py docs/repetitions.py docs/apply_repetition.py docs/fonts.py docs/pos_filtering.py docs/path_markers.py docs/pads.py docs/layout.py docs/filtering.py
 DOCS_SRC=$(wildcard docs/*.rst)
-DOCS=docs/_build/html/index.html
+DOCS_DIR=docs/_build
+DOCS=$(DOCS_DIR)/index.html
 
 CPP_EXAMPLES=$(wildcard docs/cpp/*.cpp)
 
@@ -25,8 +26,8 @@ PYTHON_RELEASE=
 default: module
 
 clean:
-	-rm -rf build dist gdstk.egg-info
-	-rm -rf docs/_build/* docs/geometry/* docs/library/*
+	-rm -rf build dist gdstk.egg-info src/gdstk.egg-info
+	-rm -rf $(DOCS_DIR)/* docs/geometry/* docs/library/*
 	-rm -rf *.svg
 	-rm -rf *.gds
 	-rm -rf *.oas
@@ -41,7 +42,7 @@ clean:
 
 all: module test docs examples
 
-module: $(PY_SRC) $(LIB_SRC) $(LIB_HDR) Makefile
+module: $(PY_SRC) $(LIB_SRC) $(LIB_HDR)
 	python setup.py build $(PYTHON_RELEASE)
 
 docs: $(DOCS)
@@ -53,12 +54,12 @@ examples: $(LIB) $(CPP_EXAMPLES:.cpp=.run)
 
 valgrind: $(LIB) $(CPP_EXAMPLES:.cpp=.grind)
 
-$(LIB): $(LIB_SRC) $(LIB_HDR) Makefile
+$(LIB): $(LIB_SRC) $(LIB_HDR)
 	cmake -S . -B $(LIB_BUILD_PREFIX) -DCMAKE_INSTALL_PREFIX=$(LIB_INSTALL_PREFIX) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 	cmake --build $(LIB_BUILD_PREFIX) --target install
 
 $(DOCS): module $(DOCS_SRC) $(IMG_SRC)
-	sphinx-build docs docs/_build
+	sphinx-build docs $(DOCS_DIR)
 
 %.out: %.cpp $(LIB)
 	$(CXX) $(CXXFLAGS) -o $@ $< -I$(LIB_INSTALL_PREFIX)/include -L$(LIB_INSTALL_PREFIX)/lib -llapack -lpthread -lm -ldl -lgdstk /usr/lib/libz.a
