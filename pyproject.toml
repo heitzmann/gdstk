@@ -1,6 +1,6 @@
 [project]
 name = "gdstk"
-version = "0.9.41"
+version = "0.9.42"
 authors = [{name = "Lucas H. Gabrielli", email = "heitzmann@gmail.com"}]
 description = "Python module for creation and manipulation of GDSII files."
 readme = "README.md"

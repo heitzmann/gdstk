@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.42 - 2023-06-14
+### Fixed
+- `racetrack` bug in inner radius
+
 ## 0.9.41 - 2023-05-24
 ### Added
 - Dictionary-like access to library cells by name.
