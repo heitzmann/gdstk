@@ -129,6 +129,10 @@ static PyObject* label_object_copy(LabelObject* self, PyObject*) {
     return (PyObject*)result;
 }
 
+static PyObject* label_object_deepcopy(LabelObject* self, PyObject* arg) {
+    return label_object_copy(self, NULL);
+}
+
 static PyObject* label_object_apply_repetition(LabelObject* self, PyObject*) {
     Array<Label*> array = {};
     self->label->apply_repetition(array);
@@ -192,6 +196,7 @@ static PyObject* label_object_delete_gds_property(LabelObject* self, PyObject* a
 
 static PyMethodDef label_object_methods[] = {
     {"copy", (PyCFunction)label_object_copy, METH_NOARGS, label_object_copy_doc},
+    {"__deepcopy__", (PyCFunction)label_object_deepcopy, METH_VARARGS, label_object_deepcopy_doc},
     {"apply_repetition", (PyCFunction)label_object_apply_repetition, METH_NOARGS,
      label_object_apply_repetition_doc},
     {"set_property", (PyCFunction)label_object_set_property, METH_VARARGS, object_set_property_doc},

@@ -620,6 +620,10 @@ static PyObject* flexpath_object_copy(FlexPathObject* self, PyObject*) {
     return (PyObject*)result;
 }
 
+static PyObject* flexpath_object_deepcopy(FlexPathObject* self, PyObject* arg) {
+    return flexpath_object_copy(self, NULL);
+}
+
 static PyObject* flexpath_object_spine(FlexPathObject* self, PyObject*) {
     const Array<Vec2>* point_array = &self->flexpath->spine.point_array;
     npy_intp dims[] = {(npy_intp)point_array->count, 2};
@@ -1966,6 +1970,7 @@ static PyObject* flexpath_object_delete_gds_property(FlexPathObject* self, PyObj
 
 static PyMethodDef flexpath_object_methods[] = {
     {"copy", (PyCFunction)flexpath_object_copy, METH_NOARGS, flexpath_object_copy_doc},
+    {"__deepcopy__", (PyCFunction)flexpath_object_deepcopy, METH_VARARGS, flexpath_object_deepcopy_doc},
     {"spine", (PyCFunction)flexpath_object_spine, METH_NOARGS, flexpath_object_spine_doc},
     {"path_spines", (PyCFunction)flexpath_object_path_spines, METH_NOARGS,
      flexpath_object_path_spines_doc},

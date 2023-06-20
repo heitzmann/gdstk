@@ -375,6 +375,16 @@ Create a copy this polygon.
 Returns:
     Copy of this polygon.)!");
 
+PyDoc_STRVAR(polygon_object_deepcopy_doc, R"!(__deepcopy(memo)__ -> gdstk.Polygon
+
+Create a copy this polygon.
+
+Args:
+    memo: Dict used internally by the deepcopy function.
+
+Returns:
+    Copy of this polygon.)!");
+
 PyDoc_STRVAR(polygon_object_area_doc, R"!(area() -> float
 
 Polygon area.
@@ -907,6 +917,16 @@ Examples:
 PyDoc_STRVAR(flexpath_object_copy_doc, R"!(copy() -> gdstk.FlexPath
 
 Create a copy this flexpath.
+
+Returns:
+    Copy of this flexpath.)!");
+
+PyDoc_STRVAR(flexpath_object_deepcopy_doc, R"!(__deepcopy(memo)__ -> gdstk.FlexPath
+
+Create a copy this flexpath.
+
+Args:
+    memo: Dict used internally by the deepcopy function.
 
 Returns:
     Copy of this flexpath.)!");
@@ -1596,6 +1616,16 @@ Examples:
 PyDoc_STRVAR(robustpath_object_copy_doc, R"!(copy() -> gdstk.RobustPath
 
 Create a copy this robustpath.
+
+Returns:
+    Copy of this robustpath.)!");
+
+PyDoc_STRVAR(robustpath_object_deepcopy_doc, R"!(__deepcopy(memo)__ -> gdstk.RobustPath
+
+Create a copy this robustpath.
+
+Args:
+    memo: Dict used internally by the deepcopy function.
 
 Returns:
     Copy of this robustpath.)!");
@@ -2305,6 +2335,17 @@ Create a copy this label.
 
 Returns:
     Copy of this label.)!");
+
+PyDoc_STRVAR(label_object_deepcopy_doc, R"!(__deepcopy()__ -> gdstk.Label
+
+Create a copy this label.
+
+Args:
+    memo: Dict used internally by the deepcopy function.
+
+Returns:
+    Copy of this label.)!");
+
 
 PyDoc_STRVAR(label_object_apply_repetition_doc, R"!(apply_repetition() -> list
 
