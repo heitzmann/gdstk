@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Changed
+- Raise an error if not both layer and datatype are specified in `Cell.get_polygons` and `Reference.get_polygons`.
+
 ## 0.9.42 - 2023-06-14
 ### Fixed
 - `racetrack` bug in inner radius

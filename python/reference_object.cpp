@@ -172,6 +172,12 @@ static PyObject* reference_object_get_polygons(ReferenceObject* self, PyObject* 
         }
     }
 
+    if ((py_layer == Py_None) != (py_datatype == Py_None)) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Filtering is only enabled if both layer and datatype are set.");
+        return NULL;
+    }
+
     uint32_t layer = 0;
     uint32_t datatype = 0;
     bool filter = (py_layer != Py_None) && (py_datatype != Py_None);
