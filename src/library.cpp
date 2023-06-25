@@ -5,8 +5,6 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "library.h"
-
 #include <float.h>
 #include <inttypes.h>
 #include <math.h>
@@ -15,18 +13,19 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <string.h>
 #include <zlib.h>
 
-#include "allocator.h"
-#include "cell.h"
-#include "flexpath.h"
-#include "gdsii.h"
-#include "label.h"
-#include "map.h"
-#include "oasis.h"
-#include "polygon.h"
-#include "rawcell.h"
-#include "reference.h"
-#include "utils.h"
-#include "vec.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/cell.hpp>
+#include <gdstk/flexpath.hpp>
+#include <gdstk/gdsii.hpp>
+#include <gdstk/label.hpp>
+#include <gdstk/library.hpp>
+#include <gdstk/map.hpp>
+#include <gdstk/oasis.hpp>
+#include <gdstk/polygon.hpp>
+#include <gdstk/rawcell.hpp>
+#include <gdstk/reference.hpp>
+#include <gdstk/utils.hpp>
+#include <gdstk/vec.hpp>
 
 namespace gdstk {
 

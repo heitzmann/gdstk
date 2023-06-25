@@ -5,19 +5,20 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "clipper_tools.h"
-
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include "allocator.h"
-#include "array.h"
-#include "clipperlib/clipper.hpp"
-#include "polygon.h"
-#include "sort.h"
-#include "utils.h"
-#include "vec.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/array.hpp>
+#include <gdstk/clipper_tools.hpp>
+#include <gdstk/polygon.hpp>
+#include <gdstk/sort.hpp>
+#include <gdstk/utils.hpp>
+#include <gdstk/vec.hpp>
+
+// Clipper
+#include <clipper/clipper.hpp>
 
 namespace gdstk {
 

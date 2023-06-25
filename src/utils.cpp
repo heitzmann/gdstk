@@ -5,8 +5,6 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "utils.h"
-
 #include <assert.h>
 #include <inttypes.h>
 #include <limits.h>
@@ -15,11 +13,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <string.h>
 #include <time.h>
 
-#include "allocator.h"
-#include "vec.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/utils.hpp>
+#include <gdstk/vec.hpp>
 
 // Qhull
-#include "libqhull_r/qhull_ra.h"
+#include <libqhull_r/qhull_ra.h>
 
 namespace gdstk {
 

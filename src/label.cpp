@@ -5,14 +5,13 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "label.h"
-
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include "gdsii.h"
-#include "utils.h"
+#include <gdstk/gdsii.hpp>
+#include <gdstk/label.hpp>
+#include <gdstk/utils.hpp>
 
 namespace gdstk {
 

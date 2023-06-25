@@ -5,19 +5,18 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "reference.h"
-
 #include <float.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "allocator.h"
-#include "cell.h"
-#include "gdsii.h"
-#include "rawcell.h"
-#include "utils.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/cell.hpp>
+#include <gdstk/gdsii.hpp>
+#include <gdstk/rawcell.hpp>
+#include <gdstk/reference.hpp>
+#include <gdstk/utils.hpp>
 
 namespace gdstk {
 

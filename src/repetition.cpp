@@ -7,13 +7,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #define _USE_MATH_DEFINES
 
-#include "repetition.h"
-
 #include <stdint.h>
 #include <stdio.h>
 
-#include "array.h"
-#include "vec.h"
+#include <gdstk/array.hpp>
+#include <gdstk/repetition.hpp>
+#include <gdstk/vec.hpp>
 
 namespace gdstk {
 

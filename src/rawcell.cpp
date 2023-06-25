@@ -5,15 +5,14 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "rawcell.h"
-
 #include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
 
-#include "allocator.h"
-#include "gdsii.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/gdsii.hpp>
+#include <gdstk/rawcell.hpp>
 
 namespace gdstk {
 

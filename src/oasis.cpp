@@ -5,8 +5,6 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "oasis.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -14,8 +12,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <zlib.h>
 
-#include "sort.h"
-#include "utils.h"
+#include <gdstk/oasis.hpp>
+#include <gdstk/sort.hpp>
+#include <gdstk/utils.hpp>
 
 namespace gdstk {
 

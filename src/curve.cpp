@@ -5,16 +5,15 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "curve.h"
-
 #include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "array.h"
-#include "utils.h"
+#include <gdstk/array.hpp>
+#include <gdstk/curve.hpp>
+#include <gdstk/utils.hpp>
 
 namespace gdstk {
 

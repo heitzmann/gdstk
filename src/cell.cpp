@@ -5,8 +5,6 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "cell.h"
-
 #include <float.h>
 #include <inttypes.h>
 #include <stdint.h>
@@ -14,12 +12,12 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <string.h>
 #include <time.h>
 
-#include "allocator.h"
-#include "cell.h"
-#include "rawcell.h"
-#include "sort.h"
-#include "utils.h"
-#include "vec.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/cell.hpp>
+#include <gdstk/rawcell.hpp>
+#include <gdstk/sort.hpp>
+#include <gdstk/utils.hpp>
+#include <gdstk/vec.hpp>
 
 namespace gdstk {
 

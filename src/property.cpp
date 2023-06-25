@@ -5,17 +5,16 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "property.h"
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "allocator.h"
-#include "map.h"
-#include "oasis.h"
-#include "utils.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/map.hpp>
+#include <gdstk/oasis.hpp>
+#include <gdstk/property.hpp>
+#include <gdstk/utils.hpp>
 
 namespace gdstk {
 
