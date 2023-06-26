@@ -1,33 +1,8 @@
-LIB_SRC=$(wildcard src/*.cpp) src/clipperlib/clipper.cpp
-LIB_HDR=$(wildcard src/*.h) src/clipperlib/clipper.hpp
-LIB_BUILD_PREFIX=cmake_build
-LIB_INSTALL_PREFIX=$(LIB_BUILD_PREFIX)/install
-LIB=$(LIB_INSTALL_PREFIX)/lib/libgdstk.a
-
-PY_SRC=$(wildcard python/*.cpp)
-
-IMG_SRC=$(wildcard docs/*_images.py) docs/pcell.py docs/photonics.py docs/merging.py docs/transforms.py docs/repetitions.py docs/apply_repetition.py docs/fonts.py docs/pos_filtering.py docs/path_markers.py docs/pads.py docs/layout.py docs/filtering.py
-DOCS_SRC=$(wildcard docs/*.rst)
-DOCS_DIR=docs/_build
-DOCS=$(DOCS_DIR)/index.html
-
-CPP_EXAMPLES=$(wildcard docs/cpp/*.cpp)
-
-CFLAGS+=-O3
-CXXFLAGS+=-O3
-CMAKE_BUILD_TYPE=Release
-PYTHON_RELEASE=
-
-# CFLAGS+=-ggdb -Og
-# CXXFLAGS+=-ggdb -Og
-# CMAKE_BUILD_TYPE=Debug
-# PYTHON_RELEASE=--debug
-
-default: module
+default: test
 
 clean:
 	-rm -rf build dist gdstk.egg-info src/gdstk.egg-info
-	-rm -rf $(DOCS_DIR)/* docs/geometry/* docs/library/*
+	-rm -rf docs/_build docs/geometry/* docs/library/*
 	-rm -rf *.svg
 	-rm -rf *.gds
 	-rm -rf *.oas
@@ -35,34 +10,28 @@ clean:
 	-rm -rf docs/*.gds
 	-rm -rf docs/*.svg
 	-rm -rf docs/*/*.svg
-	-rm -rf docs/cpp/*.svg
-	-rm -rf docs/cpp/*.gds
-	-rm -rf $(LIB_BUILD_PREFIX)
-	-rm $(CPP_EXAMPLES:.cpp=.out)
 
-all: module test docs examples
+all: test docs examples
 
-module: $(PY_SRC) $(LIB_SRC) $(LIB_HDR)
+lib:
+	cmake -S . -B build -DCMAKE_INSTALL_PREFIX=build/install
+	cmake --build build --target install
+
+module:
 	python setup.py build $(PYTHON_RELEASE)
 
-docs: $(DOCS)
+docs: module
+	sphinx-build docs docs/_build
 
 test: module
 	pytest
 
-examples: $(LIB) $(CPP_EXAMPLES:.cpp=.run)
+examples: lib
+	cmake --build build --target examples
+	cmake --build build --target test
 
-valgrind: $(LIB) $(CPP_EXAMPLES:.cpp=.grind)
-
-$(LIB): $(LIB_SRC) $(LIB_HDR)
-	cmake -S . -B $(LIB_BUILD_PREFIX) -DCMAKE_INSTALL_PREFIX=$(LIB_INSTALL_PREFIX) -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE) -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-	cmake --build $(LIB_BUILD_PREFIX) --target install
-
-$(DOCS): module $(DOCS_SRC) $(IMG_SRC)
-	sphinx-build docs $(DOCS_DIR)
-
-%.out: %.cpp $(LIB)
-	$(CXX) $(CXXFLAGS) -o $@ $< -I$(LIB_INSTALL_PREFIX)/include -L$(LIB_INSTALL_PREFIX)/lib -llapack -lpthread -lm -ldl -lgdstk /usr/lib/libz.a
+%.out: %.cpp lib
+	$(CXX) $(CXXFLAGS) -o $@ $< $(shell pkg-config --with-path=build --cflags gdstk) $(shell pkg-config --with-path=build --libs gdstk)
 
 %.run: %.out
 	-./$<
@@ -70,9 +39,5 @@ $(DOCS): module $(DOCS_SRC) $(IMG_SRC)
 %.grind: %.out
 	valgrind --undef-value-errors=no --leak-check=full --error-exitcode=1 --quiet ./$<
 
-release:
-	git push
-	git push origin --tags
-
-.PHONY: default clean all docs test examples valgrind
+.PHONY: default clean all lib module docs test examples
 .PRECIOUS: %.out

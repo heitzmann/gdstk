@@ -16,6 +16,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
       - uses: pypa/cibuildwheel@v2.12.3
         env:
           CIBW_SKIP: "cp36-* pp* *_ppc64le *_s390x *-macosx_universal2"
@@ -33,6 +35,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
       - uses: ilammy/msvc-dev-cmd@v1
       - uses: actions/setup-python@v4
         with:
@@ -59,6 +63,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
       - name: Build sdist
         run: pipx run build --sdist
       - uses: actions/upload-artifact@v3

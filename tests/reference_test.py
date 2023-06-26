@@ -39,7 +39,7 @@ def test_noreference():
     assert ref.origin == (1, -1)
     assert ref.rotation == numpy.pi / 2
     assert ref.magnification == 2.1
-    assert ref.x_reflection == True
+    assert ref.x_reflection
 
 
 def test_x_reflection():
@@ -191,10 +191,10 @@ def test_get_polygons_depth(tree):
 def test_get_polygons_filter(tree):
     c3, c2, c1 = tree
     r3 = c3.references[0]
-    polys = r3.get_polygons(layer=3)
-    assert len(polys) == 12
-    polys = r3.get_polygons(datatype=3)
-    assert len(polys) == 12
+    with pytest.raises(ValueError):
+        _ = r3.get_polygons(layer=3)
+    with pytest.raises(ValueError):
+        _ = r3.get_polygons(datatype=3)
     polys = r3.get_polygons(layer=0, datatype=0)
     assert len(polys) == 6
     polys = r3.get_polygons(layer=1, datatype=1)

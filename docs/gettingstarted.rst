@@ -109,7 +109,8 @@ they will be ordered internally.
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 14-23
+      :start-at: example_polygons
+      :end-before: example_holes
 
 .. image:: tutorial/polygons.svg
    :align: center
@@ -133,7 +134,8 @@ boundary of the polygon, as in the following example:
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 25-31
+      :start-at: example_holes
+      :end-before: example_circles
 
 .. image:: tutorial/holes.svg
    :align: center
@@ -168,7 +170,8 @@ tolerance and automatically converted.
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 33-45
+      :start-at: example_circles
+      :end-before: example_curves1
 
 .. image:: tutorial/circles.svg
    :align: center
@@ -195,7 +198,8 @@ step-by-step.  The syntax is inspired by the `SVG path specification
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 47-69
+      :start-at: example_curves1
+      :end-before: example_curves2
 
 .. image:: tutorial/curves.svg
    :align: center
@@ -219,7 +223,8 @@ for an extra rotation of the major axis of the ellipse.
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 71-81
+      :start-at: example_curves2
+      :end-before: example_curves3
 
 .. image:: tutorial/curves_1.svg
    :align: center
@@ -241,7 +246,8 @@ arguments to control the shape of the curve.
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 83-115
+      :start-at: example_curves3
+      :end-before: example_transformations
 
 .. image:: tutorial/curves_2.svg
    :align: center
@@ -266,7 +272,8 @@ no new polygons are created.
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 117-123
+      :start-at: example_transformations
+      :end-before: example_layerdatatype
 
 .. image:: tutorial/transformations.svg
    :align: center
@@ -300,7 +307,8 @@ simplify the assignment to each polygon.
 
    .. literalinclude:: cpp/polygons.cpp
       :language: c++
-      :lines: 125-141
+      :start-at: example_layerdatatype
+      :end-before: main
 
 .. image:: tutorial/layer_and_datatype.svg
    :align: center
@@ -395,7 +403,8 @@ with additional features to facilitate path creation:
 
    .. literalinclude:: cpp/flexpaths.cpp
       :language: c++
-      :lines: 14-44
+      :start-at: example_flexpath1
+      :end-before: example_flexpath2
 
 .. image:: tutorial/flexible_paths.svg
    :align: center
@@ -415,7 +424,8 @@ be used to automatically curve the path.
 
    .. literalinclude:: cpp/flexpaths.cpp
       :language: c++
-      :lines: 46-61
+      :start-at: example_flexpath2
+      :end-before: example_flexpath3
 
 .. image:: tutorial/flexible_paths_2.svg
    :align: center
@@ -437,7 +447,8 @@ polygonal objects.
 
    .. literalinclude:: cpp/flexpaths.cpp
       :language: c++
-      :lines: 63-80
+      :start-at: example_flexpath3
+      :end-before: main
 
 .. image:: tutorial/flexible_paths_3.svg
    :align: center
@@ -546,7 +557,8 @@ vertices is all polygons as low as possible also helps.
 
    .. literalinclude:: cpp/geometry_operations.cpp
       :language: c++
-      :lines: 14-28
+      :start-at: example_boolean
+      :end-before: example_slice
 
 .. image:: tutorial/boolean_operations.svg
    :align: center
@@ -570,7 +582,8 @@ horizontal or vertical cut lines.
 
    .. literalinclude:: cpp/geometry_operations.cpp
       :language: c++
-      :lines: 30-57
+      :start-at: example_slice
+      :end-before: example_offset
 
 .. image:: tutorial/slice_operation.svg
    :align: center
@@ -596,7 +609,8 @@ same is valid for polygons with holes.
 
    .. literalinclude:: cpp/geometry_operations.cpp
       :language: c++
-      :lines: 59-71
+      :start-at: example_offset
+      :end-before: example_fillet
 
 .. image:: tutorial/offset_operation.svg
    :align: center
@@ -619,7 +633,8 @@ The method :meth:`gdstk.Polygon.fillet` can be used to round polygon corners.
 
    .. literalinclude:: cpp/geometry_operations.cpp
       :language: c++
-      :lines: 73-88
+      :start-at: example_fillet
+      :end-before: main
 
 .. image:: tutorial/fillet_operation.svg
    :align: center

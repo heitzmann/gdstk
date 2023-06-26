@@ -5,7 +5,7 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#define __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
 #define PY_SSIZE_T_CLEAN
@@ -39,8 +39,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <numpy/arrayobject.h>
 #include <structmember.h>
 
+#include <gdstk/gdstk.hpp>
+
 #include "docstrings.cpp"
-#include "gdstk.h"
 
 using namespace gdstk;
 
@@ -1856,184 +1857,48 @@ static int gdstk_exec(PyObject* module) {
     curve_object_type.tp_methods = curve_object_methods;
     curve_object_type.tp_getset = curve_object_getset;
     curve_object_type.tp_str = (reprfunc)curve_object_str;
-    if (PyType_Ready(&curve_object_type) < 0) {
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&curve_object_type);
-    if (PyModule_AddObject(module, "Curve", (PyObject*)&curve_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     polygon_object_type.tp_dealloc = (destructor)polygon_object_dealloc;
     polygon_object_type.tp_init = (initproc)polygon_object_init;
     polygon_object_type.tp_methods = polygon_object_methods;
     polygon_object_type.tp_getset = polygon_object_getset;
     polygon_object_type.tp_str = (reprfunc)polygon_object_str;
-    if (PyType_Ready(&polygon_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&polygon_object_type);
-    if (PyModule_AddObject(module, "Polygon", (PyObject*)&polygon_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     reference_object_type.tp_dealloc = (destructor)reference_object_dealloc;
     reference_object_type.tp_init = (initproc)reference_object_init;
     reference_object_type.tp_methods = reference_object_methods;
     reference_object_type.tp_getset = reference_object_getset;
     reference_object_type.tp_str = (reprfunc)reference_object_str;
-    if (PyType_Ready(&reference_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&reference_object_type);
-    if (PyModule_AddObject(module, "Reference", (PyObject*)&reference_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     flexpath_object_type.tp_dealloc = (destructor)flexpath_object_dealloc;
     flexpath_object_type.tp_init = (initproc)flexpath_object_init;
     flexpath_object_type.tp_methods = flexpath_object_methods;
     flexpath_object_type.tp_getset = flexpath_object_getset;
     flexpath_object_type.tp_str = (reprfunc)flexpath_object_str;
-    if (PyType_Ready(&flexpath_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&flexpath_object_type);
-    if (PyModule_AddObject(module, "FlexPath", (PyObject*)&flexpath_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     robustpath_object_type.tp_dealloc = (destructor)robustpath_object_dealloc;
     robustpath_object_type.tp_init = (initproc)robustpath_object_init;
     robustpath_object_type.tp_methods = robustpath_object_methods;
     robustpath_object_type.tp_getset = robustpath_object_getset;
     robustpath_object_type.tp_str = (reprfunc)robustpath_object_str;
-    if (PyType_Ready(&robustpath_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&robustpath_object_type);
-    if (PyModule_AddObject(module, "RobustPath", (PyObject*)&robustpath_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     label_object_type.tp_dealloc = (destructor)label_object_dealloc;
     label_object_type.tp_init = (initproc)label_object_init;
     label_object_type.tp_methods = label_object_methods;
     label_object_type.tp_getset = label_object_getset;
     label_object_type.tp_str = (reprfunc)label_object_str;
-    if (PyType_Ready(&label_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&label_object_type);
-    if (PyModule_AddObject(module, "Label", (PyObject*)&label_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     cell_object_type.tp_dealloc = (destructor)cell_object_dealloc;
     cell_object_type.tp_init = (initproc)cell_object_init;
     cell_object_type.tp_methods = cell_object_methods;
     cell_object_type.tp_getset = cell_object_getset;
     cell_object_type.tp_str = (reprfunc)cell_object_str;
-    if (PyType_Ready(&cell_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&cell_object_type);
-    if (PyModule_AddObject(module, "Cell", (PyObject*)&cell_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     rawcell_object_type.tp_dealloc = (destructor)rawcell_object_dealloc;
     rawcell_object_type.tp_init = (initproc)rawcell_object_init;
     rawcell_object_type.tp_methods = rawcell_object_methods;
     rawcell_object_type.tp_getset = rawcell_object_getset;
     rawcell_object_type.tp_str = (reprfunc)rawcell_object_str;
-    if (PyType_Ready(&rawcell_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&rawcell_object_type);
-    if (PyModule_AddObject(module, "RawCell", (PyObject*)&rawcell_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     library_object_type.tp_dealloc = (destructor)library_object_dealloc;
     library_object_type.tp_init = (initproc)library_object_init;
@@ -2041,101 +1906,40 @@ static int gdstk_exec(PyObject* module) {
     library_object_type.tp_getset = library_object_getset;
     library_object_type.tp_as_mapping = &library_object_as_mapping;
     library_object_type.tp_str = (reprfunc)library_object_str;
-    if (PyType_Ready(&library_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&library_object_type);
-    if (PyModule_AddObject(module, "Library", (PyObject*)&library_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_DECREF(&library_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     gdswriter_object_type.tp_dealloc = (destructor)gdswriter_object_dealloc;
     gdswriter_object_type.tp_init = (initproc)gdswriter_object_init;
     gdswriter_object_type.tp_methods = gdswriter_object_methods;
     // gdswriter_object_type.tp_getset = gdswriter_object_getset;
     gdswriter_object_type.tp_str = (reprfunc)gdswriter_object_str;
-    if (PyType_Ready(&gdswriter_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_DECREF(&library_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&gdswriter_object_type);
-    if (PyModule_AddObject(module, "GdsWriter", (PyObject*)&gdswriter_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_DECREF(&library_object_type);
-        Py_DECREF(&gdswriter_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
 
     repetition_object_type.tp_dealloc = (destructor)repetition_object_dealloc;
     repetition_object_type.tp_init = (initproc)repetition_object_init;
     repetition_object_type.tp_methods = repetition_object_methods;
     repetition_object_type.tp_getset = repetition_object_getset;
     repetition_object_type.tp_str = (reprfunc)repetition_object_str;
-    if (PyType_Ready(&repetition_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_DECREF(&library_object_type);
-        Py_DECREF(&gdswriter_object_type);
-        Py_XDECREF(module);
-        return -1;
-    }
-    Py_INCREF(&repetition_object_type);
-    if (PyModule_AddObject(module, "Repetition", (PyObject*)&repetition_object_type) < 0) {
-        Py_DECREF(&curve_object_type);
-        Py_DECREF(&polygon_object_type);
-        Py_DECREF(&reference_object_type);
-        Py_DECREF(&flexpath_object_type);
-        Py_DECREF(&robustpath_object_type);
-        Py_DECREF(&label_object_type);
-        Py_DECREF(&cell_object_type);
-        Py_DECREF(&rawcell_object_type);
-        Py_DECREF(&library_object_type);
-        Py_DECREF(&gdswriter_object_type);
-        Py_DECREF(&repetition_object_type);
-        Py_XDECREF(module);
-        return -1;
+
+    char const* names[] = {
+        "Library",   "Cell",       "Polygon", "FlexPath", "RobustPath", "Label",
+        "Reference", "Repetition", "Curve",   "RawCell",  "GdsWriter",
+    };
+    PyTypeObject* types[] = {
+        &library_object_type,   &cell_object_type,       &polygon_object_type,
+        &flexpath_object_type,  &robustpath_object_type, &label_object_type,
+        &reference_object_type, &repetition_object_type, &curve_object_type,
+        &rawcell_object_type,   &gdswriter_object_type,
+    };
+    for (unsigned long i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
+        if (PyType_Ready(types[i]) < 0) {
+            Py_DECREF(module);
+            return -1;
+        }
+        Py_INCREF(types[i]);
+        if (PyModule_AddObject(module, names[i], (PyObject*)types[i]) < 0) {
+            Py_DECREF(types[i]);
+            Py_DECREF(module);
+            return -1;
+        }
     }
 
     return 0;

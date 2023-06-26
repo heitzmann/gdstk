@@ -5,17 +5,16 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "flexpath.h"
-
 #include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "allocator.h"
-#include "curve.h"
-#include "utils.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/curve.hpp>
+#include <gdstk/flexpath.hpp>
+#include <gdstk/utils.hpp>
 
 namespace gdstk {
 

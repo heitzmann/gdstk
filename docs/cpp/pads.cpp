@@ -8,7 +8,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <math.h>
 #include <stdio.h>
 
-#include "gdstk.h"
+#include <gdstk/gdstk.hpp>
 
 using namespace gdstk;
 

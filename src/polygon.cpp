@@ -5,8 +5,6 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#include "polygon.h"
-
 #include <float.h>
 #include <inttypes.h>
 #include <math.h>
@@ -14,13 +12,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <string.h>
 
-#include "allocator.h"
-#include "clipper_tools.h"
-#include "font.h"
-#include "repetition.h"
-#include "sort.h"
-#include "utils.h"
-#include "vec.h"
+#include <gdstk/allocator.hpp>
+#include <gdstk/clipper_tools.hpp>
+#include <gdstk/font.hpp>
+#include <gdstk/polygon.hpp>
+#include <gdstk/repetition.hpp>
+#include <gdstk/sort.hpp>
+#include <gdstk/utils.hpp>
+#include <gdstk/vec.hpp>
 
 namespace gdstk {
 
