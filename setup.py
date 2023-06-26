@@ -97,13 +97,16 @@ if platform.system() == "Darwin" and loose_version(platform.release()) >= (17, 7
 setuptools.setup(
     ext_modules=[
         setuptools.Extension(
-            "gdstk",
+            "gdstk.gdstk",
             ["python/gdstk_module.cpp"],
             include_dirs=[numpy.get_include()],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
         ),
     ],
+    packages=["gdstk"],
+    package_data={"gdstk": ["*.pyi", "py.typed"]},
+    include_package_data=True,
     cmdclass={"build_ext": CMakeBuilder},
     zip_safe=False,
 )
