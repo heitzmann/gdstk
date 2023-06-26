@@ -5,6 +5,7 @@
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
+from copy import deepcopy
 import pytest
 import numpy
 import gdstk
@@ -69,6 +70,22 @@ def test_copy():
     assert p2.datatype == 6
     numpy.testing.assert_array_equal(p1.points, points)
     numpy.testing.assert_array_equal(p2.points, points)
+
+def test_deepcopy():
+    points = [[-1, 0], [0, -2], [3, 0], [0, 4]]
+    p1 = gdstk.Polygon(points, 5, 6)
+    p2 = deepcopy(p1)
+    assert p1 is not p2
+    assert p1.layer == 5
+    assert p2.layer == 5
+    assert p1.datatype == 6
+    assert p2.datatype == 6
+    numpy.testing.assert_array_equal(p1.points, points)
+    numpy.testing.assert_array_equal(p2.points, points)
+
+    p1.layer = 12
+    assert p1.layer == 12
+    assert p2.layer == 5
 
 
 def test_fillet(proof_cells):

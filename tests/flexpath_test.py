@@ -5,6 +5,7 @@
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
+from copy import deepcopy
 import pytest
 import numpy
 import gdstk
@@ -117,3 +118,25 @@ def test_points():
     )
     path_spines = path.path_spines()
     assert len(path_spines) == 2
+
+def test_deepcopy():
+    path = gdstk.FlexPath(0j, 2)
+    path2 = deepcopy(path)
+
+    assert path is not path2
+    
+    assert path.layers == path2.layers
+    assert path.datatypes == path2.datatypes
+    assert path.num_paths == path2.num_paths
+    assert path.size == path2.size
+    assert path.tolerance == path2.tolerance
+    assert path.simple_path == path2.simple_path
+    assert path.scale_width == path2.scale_width
+    assert path.joins == path2.joins
+    assert path.ends == path2.ends
+    assert path.bend_radius == path2.bend_radius
+    assert path.bend_function == path2.bend_function
+
+    path2.set_layers(1)
+    assert path.layers == (0,)
+    assert path2.layers == (1,)
