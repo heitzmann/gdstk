@@ -1854,7 +1854,7 @@ static PyObject* robustpath_object_delete_gds_property(RobustPathObject* self, P
 
 static PyMethodDef robustpath_object_methods[] = {
     {"copy", (PyCFunction)robustpath_object_copy, METH_NOARGS, robustpath_object_copy_doc},
-    {"__deepcopy__", (PyCFunction)robustpath_object_deepcopy, METH_VARARGS, robustpath_object_deepcopy_doc},
+    {"__deepcopy__", (PyCFunction)robustpath_object_deepcopy, METH_VARARGS | METH_KEYWORDS, robustpath_object_deepcopy_doc},
     {"spine", (PyCFunction)robustpath_object_spine, METH_NOARGS, robustpath_object_spine_doc},
     {"path_spines", (PyCFunction)robustpath_object_path_spines, METH_NOARGS,
      robustpath_object_path_spines_doc},

@@ -1970,7 +1970,7 @@ static PyObject* flexpath_object_delete_gds_property(FlexPathObject* self, PyObj
 
 static PyMethodDef flexpath_object_methods[] = {
     {"copy", (PyCFunction)flexpath_object_copy, METH_NOARGS, flexpath_object_copy_doc},
-    {"__deepcopy__", (PyCFunction)flexpath_object_deepcopy, METH_VARARGS, flexpath_object_deepcopy_doc},
+    {"__deepcopy__", (PyCFunction)flexpath_object_deepcopy, METH_VARARGS | METH_KEYWORDS, flexpath_object_deepcopy_doc},
     {"spine", (PyCFunction)flexpath_object_spine, METH_NOARGS, flexpath_object_spine_doc},
     {"path_spines", (PyCFunction)flexpath_object_path_spines, METH_NOARGS,
      flexpath_object_path_spines_doc},
