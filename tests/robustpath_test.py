@@ -5,6 +5,7 @@
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
+from copy import deepcopy
 import pytest
 import numpy
 import gdstk
@@ -136,3 +137,21 @@ def test_offsets(robust_path):
     assert_close(robust_path.offsets(2), (-0.1, 0))
     assert_close(robust_path.offsets(2, False), (-0.1, 0))
     assert_close(robust_path.offsets(2.1), (-0.1, 0))
+
+def test_deepcopy():
+    path = gdstk.RobustPath(0j, 2)
+    path2 = deepcopy(path)
+
+    assert path2 is not path
+    assert path.layers == path2.layers
+    assert path.datatypes == path2.datatypes
+    assert path.tolerance == path2.tolerance
+    assert path.max_evals == path2.max_evals
+    assert path.simple_path == path2.simple_path
+    assert path.ends == path2.ends
+    assert path.num_paths == path2.num_paths
+    assert path.size == path2.size
+
+    path2.set_layers(1)
+    assert path.layers == (0,)
+    assert path2.layers == (1,)
