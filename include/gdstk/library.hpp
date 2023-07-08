@@ -104,6 +104,12 @@ struct Library {
     void replace_cell(Cell* old_cell, RawCell* new_cell);
     void replace_cell(RawCell* old_cell, RawCell* new_cell);
 
+    // Change the tags of all elements in this library.  Map keys are the
+    // current element tags and map values are the desired new tags.
+    void remap_tags(const TagMap& map) {
+        for (uint64_t i = 0; i < cell_array.count; i++) cell_array[i]->remap_tags(map);
+    };
+
     // Output this library to a GDSII file.  All polygons are fractured to
     // max_points before saving (but the originals are kept) if max_points > 4.
     // GDSII files include a timestamp, which can be specified by the caller or

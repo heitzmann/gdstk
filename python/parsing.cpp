@@ -132,6 +132,21 @@ static int64_t parse_uint_sequence(PyObject* sequence, Array<uint32_t>& dest, co
 }
 */
 
+static bool parse_tag(PyObject* py_tag, Tag& tag) {
+    if (!PySequence_Check(py_tag) || PySequence_Length(py_tag) != 2) return false;
+    PyObject* value = PySequence_ITEM(py_tag, 0);
+    if (!value) return false;
+    uint32_t layer = (uint32_t)PyLong_AsUnsignedLong(value);
+    Py_DECREF(value);
+    value = PySequence_ITEM(py_tag, 1);
+    if (!value) return false;
+    uint32_t type = (uint32_t)PyLong_AsUnsignedLong(value);
+    Py_DECREF(value);
+    if (PyErr_Occurred()) return false;
+    tag = make_tag(layer, type);
+    return true;
+}
+
 static int64_t parse_tag_sequence(PyObject* iterable, Set<Tag>& dest, const char* name) {
     PyObject* iterator = PyObject_GetIter(iterable);
     if (!iterator) {
@@ -141,41 +156,15 @@ static int64_t parse_tag_sequence(PyObject* iterable, Set<Tag>& dest, const char
     int64_t count = 0;
     PyObject* item;
     while ((item = PyIter_Next(iterator))) {
-        if (!PySequence_Check(item) || PySequence_Length(item) != 2) {
-            PyErr_Format(PyExc_TypeError, "Items in argument %s must be a 2-element sequences.",
+        Tag tag;
+        if (!parse_tag(item, tag)) {
+            PyErr_Format(PyExc_TypeError, "Items in argument %s must be a 2-element sequence of non-negative integers (layer, type).",
                          name);
             Py_DECREF(item);
             Py_DECREF(iterator);
             return -1;
         }
-        PyObject* value = PySequence_ITEM(item, 0);
-        if (!value) {
-            PyErr_Format(PyExc_TypeError, "Unable to retrieve layer number in item in argument %s.",
-                         name);
-            Py_DECREF(item);
-            Py_DECREF(iterator);
-            return -1;
-        }
-        uint32_t layer = (uint32_t)PyLong_AsUnsignedLong(value);
-        Py_DECREF(value);
-        value = PySequence_ITEM(item, 1);
-        if (!value) {
-            PyErr_Format(PyExc_TypeError, "Unable to retrieve type number in item in argument %s.",
-                         name);
-            Py_DECREF(item);
-            Py_DECREF(iterator);
-            return -1;
-        }
-        uint32_t type = (uint32_t)PyLong_AsUnsignedLong(value);
-        Py_DECREF(value);
-        Py_DECREF(item);
-        if (PyErr_Occurred()) {
-            PyErr_Format(PyExc_RuntimeError,
-                         "Unable to extract 2 unsigned integers from item in %s.", name);
-            Py_DECREF(iterator);
-            return -1;
-        }
-        dest.add(make_tag(layer, type));
+        dest.add(tag);
         count++;
     }
     Py_DECREF(iterator);

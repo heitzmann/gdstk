@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+### Added
+- `Library.remap` and `Cell.remap` to remap layer and data/text types
 ### Changed
 - Raise an error if not both layer and datatype are specified in `Cell.get_polygons` and `Reference.get_polygons`.
 
@@ -10,7 +12,7 @@
 
 ## 0.9.41 - 2023-05-24
 ### Added
-- Dictionary-like access to library cells by name.
+- Dictionary-like access to library cells by name
 - `len(Library)` returns the number of cells in the library
 - `Reference.cell_name` to directly access a referenced cell's name
 ### Fixed

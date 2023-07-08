@@ -43,6 +43,7 @@ set(HEADER_LIST
     "${gdstk_SOURCE_DIR}/include/gdstk/set.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/sort.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/style.hpp"
+    "${gdstk_SOURCE_DIR}/include/gdstk/tagmap.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/utils.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/vec.hpp")
 

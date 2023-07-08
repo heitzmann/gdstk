@@ -593,6 +593,29 @@ void Cell::flatten(bool apply_repetitions, Array<Reference*>& result) {
     }
 }
 
+void Cell::remap_tags(const TagMap& map) {
+    for (uint64_t i = 0; i < polygon_array.count; i++) {
+        Polygon* polygon = polygon_array[i];
+        polygon->tag = map.get(polygon->tag);
+    }
+    for (uint64_t i = 0; i < flexpath_array.count; i++) {
+        FlexPath* path = flexpath_array[i];
+        for (uint64_t j = 0; i < path->num_elements; j++) {
+            path->elements[j].tag = map.get(path->elements[j].tag);
+        }
+    }
+    for (uint64_t i = 0; i < robustpath_array.count; i++) {
+        RobustPath* path = robustpath_array[i];
+        for (uint64_t j = 0; i < path->num_elements; j++) {
+            path->elements[j].tag = map.get(path->elements[j].tag);
+        }
+    }
+    for (uint64_t i = 0; i < label_array.count; i++) {
+        Label* label = label_array[i];
+        label->tag = map.get(label->tag);
+    }
+}
+
 void Cell::get_dependencies(bool recursive, Map<Cell*>& result) const {
     Reference** reference = reference_array.items;
     for (uint64_t i = 0; i < reference_array.count; i++, reference++) {

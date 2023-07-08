@@ -24,6 +24,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "robustpath.hpp"
 #include "set.hpp"
 #include "style.hpp"
+#include "tagmap.hpp"
 
 namespace gdstk {
 
@@ -163,6 +164,11 @@ struct Cell {
     // cell (with the corresponding transformations).  Removed references are
     // appended to removed_references.
     void flatten(bool apply_repetitions, Array<Reference*>& removed_references);
+
+    // Change the tags of all elements in this cell.  Map keys are the current
+    // tags and map values are the desired new tags.  Elements in references
+    // are not remapped (use get_dependencies to loop over and remap them).
+    void remap_tags(const TagMap& map);
 
     // These functions output the cell and its contents in the GDSII and SVG
     // formats.  They are not supposed to be called by the user.  Use

@@ -919,6 +919,55 @@ static PyObject* cell_object_filter(CellObject* self, PyObject* args, PyObject* 
     return (PyObject*)self;
 }
 
+static PyObject* cell_object_remap(CellObject* self, PyObject* args, PyObject* kwds) {
+    PyObject* py_map = NULL;
+    const char* keywords[] = {"layer_type_map", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O:remap", (char**)keywords, &py_map)) return NULL;
+
+    if (!PyMapping_Check(py_map)) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Argument layer_type_map must be a mapping of (layer, type) tuples to (layer, type) tuples.");
+        return NULL;
+    }
+
+    PyObject* py_items = PyMapping_Items(py_map);
+    if (!py_items) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to get map items.");
+        return NULL;
+    }
+
+    TagMap map = {};
+    const int64_t count = PyList_Size(py_items);
+    for (int64_t i = 0; i < count; i++) {
+        PyObject* py_item = PyList_GET_ITEM(py_items, i);
+        PyObject* py_key = PyTuple_GET_ITEM(py_item, 0);
+        PyObject* py_value = PyTuple_GET_ITEM(py_item, 1);
+        Tag key;
+        if (!parse_tag(py_key, key)) {
+            PyErr_SetString(PyExc_TypeError, "Keys must be (layer, type) tuples.");
+            Py_DECREF(py_items);
+            map.clear();
+            return NULL;
+        }
+        Tag value;
+        if (!parse_tag(py_value, value)) {
+            PyErr_SetString(PyExc_TypeError, "Values must be (layer, type) tuples.");
+            Py_DECREF(py_items);
+            map.clear();
+            return NULL;
+        }
+        map.set(key, value);
+    }
+
+    self->cell->remap_tags(map);
+    map.clear();
+    Py_DECREF(py_items);
+
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
     int recursive;
     if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
@@ -988,6 +1037,7 @@ static PyMethodDef cell_object_methods[] = {
     {"remove", (PyCFunction)cell_object_remove, METH_VARARGS, cell_object_remove_doc},
     {"filter", (PyCFunction)cell_object_filter, METH_VARARGS | METH_KEYWORDS,
      cell_object_filter_doc},
+    {"remap", (PyCFunction)cell_object_remap, METH_VARARGS | METH_KEYWORDS, cell_object_remap_doc},
     {"dependencies", (PyCFunction)cell_object_dependencies, METH_VARARGS,
      cell_object_dependencies_doc},
     {"set_property", (PyCFunction)cell_object_set_property, METH_VARARGS, object_set_property_doc},

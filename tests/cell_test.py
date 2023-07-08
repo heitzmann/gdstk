@@ -72,9 +72,7 @@ def test_copy_transform(proof_cells):
     ref_cell1 = gdstk.Cell("Reference 1")
     ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
     ref_cell1.add(gdstk.Label("LaBeL", (2.4, 8.7), "s"))
-    ref_cell1.add(
-        gdstk.FlexPath(8 + 4j, 1, simple_path=True, layer=3).arc(2, 0, numpy.pi / 2)
-    )
+    ref_cell1.add(gdstk.FlexPath(8 + 4j, 1, simple_path=True, layer=3).arc(2, 0, numpy.pi / 2))
     ref_cell1.add(
         gdstk.RobustPath(7.5 + 7j, 1, simple_path=True, layer=4).bezier(
             [-2 + 1j, -2 + 3j, 4j, 6j, -3 + 6j], relative=True
@@ -89,12 +87,8 @@ def test_copy_transform(proof_cells):
     cell.add(gdstk.rectangle((-1, -0.5), (1, 0.5), layer=2))
     cell.add(gdstk.Reference(ref_cell2))
     cell.add(gdstk.Reference(ref_cell1, (10, 7), numpy.pi / 4, 0.5, True))
-    cell.add(
-        gdstk.Reference(ref_cell1, (-7, 15), -numpy.pi / 3, 0.5, True, 3, 2, (5, 4))
-    )
-    cell.add(
-        gdstk.Reference(ref_cell2, (-7, 23), numpy.pi / 3, 0.5, True, 3, 2, (5, 8))
-    )
+    cell.add(gdstk.Reference(ref_cell1, (-7, 15), -numpy.pi / 3, 0.5, True, 3, 2, (5, 4)))
+    cell.add(gdstk.Reference(ref_cell2, (-7, 23), numpy.pi / 3, 0.5, True, 3, 2, (5, 8)))
     cell_copy = cell.copy("Cell.copy", (-10, -10), numpy.pi / 2, 2, True).flatten()
     for path in cell_copy.paths:
         cell_copy.add(*path.to_polygons())
@@ -115,22 +109,15 @@ def test_remove(tree):
 
 def test_filter():
     polys = [
-        gdstk.rectangle((0, 0), (1, 1), layer=l, datatype=t)
-        for t in range(3)
-        for l in range(3)
+        gdstk.rectangle((0, 0), (1, 1), layer=l, datatype=t) for t in range(3) for l in range(3)
     ]
     labels = [
-        gdstk.Label("FILTER", (1, 1), layer=l, texttype=t)
-        for t in range(3)
-        for l in range(3)
+        gdstk.Label("FILTER", (1, 1), layer=l, texttype=t) for t in range(3) for l in range(3)
     ]
     paths = [
         gdstk.FlexPath([0j, 1j], [0.1, 0.1, 0.1], 0.5, layer=[0, 1, 2], datatype=t)
         for t in range(3)
-    ] + [
-        gdstk.RobustPath(0j, [0.1, 0.1], 0.5, layer=[1, 2], datatype=t)
-        for t in range(3)
-    ]
+    ] + [gdstk.RobustPath(0j, [0.1, 0.1], 0.5, layer=[1, 2], datatype=t) for t in range(3)]
     spec = [(1, 0), (2, 0)]
     for remove in (True, False):
         cell = gdstk.Cell(str(remove))
@@ -152,8 +139,7 @@ def test_filter():
                 assert label in cell_labels
 
         path_results = [
-            [(tag in spec) == remove for tag in zip(path.layers, path.datatypes)]
-            for path in paths
+            [(tag in spec) == remove for tag in zip(path.layers, path.datatypes)] for path in paths
         ]
         cell_paths = cell.paths
         for path, results in zip(paths, path_results):
@@ -162,9 +148,27 @@ def test_filter():
             else:
                 assert path in cell_paths
                 assert len(path.layers) == len(results) - sum(results)
-                assert all(
-                    (tag in spec) != remove for tag in zip(path.layers, path.datatypes)
-                )
+                assert all((tag in spec) != remove for tag in zip(path.layers, path.datatypes))
+
+
+def test_remap(tree):
+    c3, c2, c1 = tree
+
+    c2.remap({(0, 0): (10, 10), (12, 0): (0, 12)})
+    assert c1.labels[0].layer == 11
+    assert c1.labels[0].texttype == 0
+    assert c1.polygons[0].layer == 0
+    assert c1.polygons[0].datatype == 0
+    assert c2.labels[0].layer == 0
+    assert c2.labels[0].texttype == 12
+    assert c2.polygons[0].layer == 1
+    assert c2.polygons[0].datatype == 1
+
+    c1.remap({(0, 0): (10, 10), (12, 0): (0, 12)})
+    assert c1.labels[0].layer == 11
+    assert c1.labels[0].texttype == 0
+    assert c1.polygons[0].layer == 10
+    assert c1.polygons[0].datatype == 10
 
 
 def test_area():

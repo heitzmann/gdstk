@@ -334,6 +334,55 @@ static PyObject* library_object_layers_and_texttypes(LibraryObject* self, PyObje
     return result;
 }
 
+static PyObject* library_object_remap(LibraryObject* self, PyObject* args, PyObject* kwds) {
+    PyObject* py_map = NULL;
+    const char* keywords[] = {"layer_type_map", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O:remap", (char**)keywords, &py_map)) return NULL;
+
+    if (!PyMapping_Check(py_map)) {
+        PyErr_SetString(
+            PyExc_TypeError,
+            "Argument layer_type_map must be a mapping of (layer, type) tuples to (layer, type) tuples.");
+        return NULL;
+    }
+
+    PyObject* py_items = PyMapping_Items(py_map);
+    if (!py_items) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to get map items.");
+        return NULL;
+    }
+
+    TagMap map = {};
+    const int64_t count = PyList_Size(py_items);
+    for (int64_t i = 0; i < count; i++) {
+        PyObject* py_item = PyList_GET_ITEM(py_items, i);
+        PyObject* py_key = PyTuple_GET_ITEM(py_item, 0);
+        PyObject* py_value = PyTuple_GET_ITEM(py_item, 1);
+        Tag key;
+        if (!parse_tag(py_key, key)) {
+            PyErr_SetString(PyExc_TypeError, "Keys must be (layer, type) tuples.");
+            Py_DECREF(py_items);
+            map.clear();
+            return NULL;
+        }
+        Tag value;
+        if (!parse_tag(py_value, value)) {
+            PyErr_SetString(PyExc_TypeError, "Values must be (layer, type) tuples.");
+            Py_DECREF(py_items);
+            map.clear();
+            return NULL;
+        }
+        map.set(key, value);
+    }
+
+    self->library->remap_tags(map);
+    map.clear();
+    Py_DECREF(py_items);
+
+    Py_INCREF(self);
+    return (PyObject*)self;
+}
+
 static PyObject* library_object_write_gds(LibraryObject* self, PyObject* args, PyObject* kwds) {
     const char* keywords[] = {"outfile", "max_points", "timestamp", NULL};
     PyObject* pybytes = NULL;
@@ -443,6 +492,8 @@ static PyMethodDef library_object_methods[] = {
      library_object_layers_and_datatypes_doc},
     {"layers_and_texttypes", (PyCFunction)library_object_layers_and_texttypes, METH_NOARGS,
      library_object_layers_and_texttypes_doc},
+    {"remap", (PyCFunction)library_object_remap, METH_VARARGS | METH_KEYWORDS,
+     library_object_remap_doc},
     {"write_gds", (PyCFunction)library_object_write_gds, METH_VARARGS | METH_KEYWORDS,
      library_object_write_gds_doc},
     {"write_oas", (PyCFunction)library_object_write_oas, METH_VARARGS | METH_KEYWORDS,

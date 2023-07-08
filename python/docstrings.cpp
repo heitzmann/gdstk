@@ -2668,7 +2668,7 @@ PyDoc_STRVAR(cell_object_filter_doc,
 Remove elements from this cell based on their layer and data/text type.
 
 Args:
-    spec (iterable of tuples): tuples of (layer, data/text type) to
+    spec (iterable of tuples): Tuples of (layer, data/text type) to
       remove or to keep in the cell.
     remove: If `True`, shapes whose layer and type specification are in
       `spec` will be removed from the cell.  If `False`, only those
@@ -2682,6 +2682,19 @@ Examples:
     >>> cell.filter([(3, 10)], True)
     >>> # Remove all elements except for those on layer 5, type 2:
     >>> cell.filter([(5, 2)], False))!");
+
+PyDoc_STRVAR(cell_object_remap_doc, R"!(remap(layer_type_map) -> self
+
+Remap layers and data/text types for all elements in this cell.
+
+Args:
+    layer_type_map: Dictionary mapping existing (layer, type) tuples to
+      desired (layer, type) tuples.
+
+Notes:
+    References in this cell are *not* affected. To remap those, loop
+    over them with `get_dependencies`.  To remap a whole libarry, use
+    `Library.remap`.)!");
 
 PyDoc_STRVAR(cell_object_dependencies_doc, R"!(dependencies(recursive) -> list
 
@@ -2850,6 +2863,14 @@ Return a set of tuples with the layer and data types in the library.)!");
 PyDoc_STRVAR(library_object_layers_and_texttypes_doc, R"!(layers_and_texttypes() -> set
 
 Return a set of tuples with the layer and text types in the library.)!");
+
+PyDoc_STRVAR(library_object_remap_doc, R"!(remap(layer_type_map) -> self
+
+Remap layers and data/text types for all elements in this library.
+
+Args:
+    layer_type_map: Dictionary mapping existing (layer, type) tuples to
+      desired (layer, type) tuples.)!");
 
 PyDoc_STRVAR(library_object_write_gds_doc,
              R"!(write_gds(outfile, max_points=199, timestamp=None) -> None
