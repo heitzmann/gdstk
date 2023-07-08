@@ -15,8 +15,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <string.h>
 
-#include <gdstk/array.hpp>
-#include <gdstk/utils.hpp>
+#include "array.hpp"
+#include "utils.hpp"
 
 namespace gdstk {
 

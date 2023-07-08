@@ -16,11 +16,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdlib.h>
 #include <string.h>
 
-#include <gdstk/allocator.hpp>
-#include <gdstk/property.hpp>
-#include <gdstk/repetition.hpp>
-#include <gdstk/utils.hpp>
-#include <gdstk/vec.hpp>
+#include "allocator.hpp"
+#include "property.hpp"
+#include "repetition.hpp"
+#include "utils.hpp"
+#include "vec.hpp"
 
 namespace gdstk {
 

@@ -13,8 +13,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <assert.h>
 
-#include <gdstk/allocator.hpp>
-#include <gdstk/utils.hpp>
+#include "allocator.hpp"
+#include "utils.hpp"
 
 namespace gdstk {
 
@@ -145,11 +145,11 @@ struct Map {
         return item->key != NULL;
     }
 
-    // If the desired key is not found, returns T{0}
+    // If the desired key is not found, returns T{}
     T get(const char* key) const {
-        if (count == 0) return T{0};
+        if (count == 0) return T{};
         const MapItem<T>* item = get_slot(key);
-        return item->key == NULL ? T{0} : item->value;
+        return item->key == NULL ? T{} : item->value;
     }
 
     // Return true if the key existed, false otherwise

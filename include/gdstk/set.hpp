@@ -13,8 +13,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <assert.h>
 
-#include <gdstk/allocator.hpp>
-#include <gdstk/utils.hpp>
+#include "allocator.hpp"
+#include "utils.hpp"
 
 namespace gdstk {
 

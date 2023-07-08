@@ -60,8 +60,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <time.h>
 
-#include <gdstk/array.hpp>
-#include <gdstk/vec.hpp>
+#include "array.hpp"
+#include "vec.hpp"
 
 namespace gdstk {
 

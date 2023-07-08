@@ -11,9 +11,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
-#include <gdstk/array.hpp>
-#include <gdstk/property.hpp>
-#include <gdstk/vec.hpp>
+#include "array.hpp"
+#include "property.hpp"
+#include "vec.hpp"
 
 namespace gdstk {
 

@@ -13,8 +13,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <stdio.h>
 
-#include <gdstk/cell.hpp>
-#include <gdstk/rawcell.hpp>
+#include "cell.hpp"
+#include "rawcell.hpp"
 
 namespace gdstk {
 

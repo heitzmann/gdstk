@@ -1325,7 +1325,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
 
     library.free_all();
     fclose(in);
-    return Library{0};
+    return Library{};
 }
 
 // TODO: verify modal variables are correctly updated

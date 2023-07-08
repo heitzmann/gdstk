@@ -18,9 +18,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <unistd.h>
 #endif
 
-#include <gdstk/array.hpp>
-#include <gdstk/map.hpp>
-#include <gdstk/utils.hpp>
+#include "array.hpp"
+#include "map.hpp"
+#include "utils.hpp"
 
 namespace gdstk {
 

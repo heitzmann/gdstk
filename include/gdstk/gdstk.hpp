@@ -27,27 +27,27 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 // After installation, this should be the only header required to be included
 // by the user.  All other headers are included below.
 
-#include <gdstk/array.hpp>
-#include <gdstk/cell.hpp>
-#include <gdstk/clipper_tools.hpp>
-#include <gdstk/curve.hpp>
-#include <gdstk/flexpath.hpp>
-#include <gdstk/gdsii.hpp>
-#include <gdstk/gdswriter.hpp>
-#include <gdstk/label.hpp>
-#include <gdstk/library.hpp>
-#include <gdstk/map.hpp>
-#include <gdstk/oasis.hpp>
-#include <gdstk/pathcommon.hpp>
-#include <gdstk/polygon.hpp>
-#include <gdstk/rawcell.hpp>
-#include <gdstk/reference.hpp>
-#include <gdstk/repetition.hpp>
-#include <gdstk/robustpath.hpp>
-#include <gdstk/set.hpp>
-#include <gdstk/sort.hpp>
-#include <gdstk/style.hpp>
-#include <gdstk/utils.hpp>
-#include <gdstk/vec.hpp>
+#include "array.hpp"
+#include "cell.hpp"
+#include "clipper_tools.hpp"
+#include "curve.hpp"
+#include "flexpath.hpp"
+#include "gdsii.hpp"
+#include "gdswriter.hpp"
+#include "label.hpp"
+#include "library.hpp"
+#include "map.hpp"
+#include "oasis.hpp"
+#include "pathcommon.hpp"
+#include "polygon.hpp"
+#include "rawcell.hpp"
+#include "reference.hpp"
+#include "repetition.hpp"
+#include "robustpath.hpp"
+#include "set.hpp"
+#include "sort.hpp"
+#include "style.hpp"
+#include "utils.hpp"
+#include "vec.hpp"
 
 #endif

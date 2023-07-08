@@ -13,8 +13,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <stdint.h>
 
-#include <gdstk/array.hpp>
-#include <gdstk/polygon.hpp>
+#include "array.hpp"
+#include "polygon.hpp"
 
 namespace gdstk {
 

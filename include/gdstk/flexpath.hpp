@@ -14,14 +14,14 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdint.h>
 #include <string.h>
 
-#include <gdstk/array.hpp>
-#include <gdstk/curve.hpp>
-#include <gdstk/oasis.hpp>
-#include <gdstk/pathcommon.hpp>
-#include <gdstk/polygon.hpp>
-#include <gdstk/property.hpp>
-#include <gdstk/repetition.hpp>
-#include <gdstk/utils.hpp>
+#include "array.hpp"
+#include "curve.hpp"
+#include "oasis.hpp"
+#include "pathcommon.hpp"
+#include "polygon.hpp"
+#include "property.hpp"
+#include "repetition.hpp"
+#include "utils.hpp"
 
 namespace gdstk {
 

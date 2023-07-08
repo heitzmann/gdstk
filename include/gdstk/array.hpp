@@ -20,8 +20,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdlib.h>
 #include <string.h>
 
-#include <gdstk/allocator.hpp>
-#include <gdstk/vec.hpp>
+#include "allocator.hpp"
+#include "vec.hpp"
 
 namespace gdstk {
 

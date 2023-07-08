@@ -15,15 +15,15 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <time.h>
 
-#include <gdstk/array.hpp>
-#include <gdstk/flexpath.hpp>
-#include <gdstk/label.hpp>
-#include <gdstk/map.hpp>
-#include <gdstk/polygon.hpp>
-#include <gdstk/reference.hpp>
-#include <gdstk/robustpath.hpp>
-#include <gdstk/set.hpp>
-#include <gdstk/style.hpp>
+#include "array.hpp"
+#include "flexpath.hpp"
+#include "label.hpp"
+#include "map.hpp"
+#include "polygon.hpp"
+#include "reference.hpp"
+#include "robustpath.hpp"
+#include "set.hpp"
+#include "style.hpp"
 
 namespace gdstk {
 
