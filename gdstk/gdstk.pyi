@@ -1,8 +1,19 @@
 import pathlib
 import datetime
-
-from typing import Any, Literal, Self, Optional, Iterable
+import sys
+from typing import Optional, Iterable
 from collections.abc import Callable, Sequence
+
+if sys.version_info >= (3, 8):
+    from typing import Literal
+else:
+    from typing_extensions import Literal
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
+
 import numpy
 from numpy.typing import ArrayLike
 
@@ -873,6 +884,7 @@ def ellipse(
     datatype: int = 0,
 ) -> Polygon: ...
 def gds_info(infile: str | pathlib.Path) -> dict: ...
+
 # def gds_timestamp(filename: str | pathlib.Path, timestamp:Optional[datetime.datetime]=None) -> datetime.datetime: ...
 def gds_units(infile: str | pathlib.Path) -> tuple[float, float]: ...
 def inside(
