@@ -17,9 +17,13 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+    "Typing :: Typed",
 ]
 license = {file = "LICENSE"}
-dependencies = ["numpy"]
+dependencies = [
+    "numpy",
+    "typing_extensions; python_version < '3.11'"
+]
 requires-python = ">=3.7"
 
 [project.optional-dependencies]
