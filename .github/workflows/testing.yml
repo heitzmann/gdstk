@@ -25,6 +25,7 @@ jobs:
           cache: 'pip'
       - name: Install dependencies
         run: |
+          pip install --upgrade pip setuptools wheel
           pip install pip-tools pytest
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
