@@ -1926,31 +1926,31 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x80) {
                     uint8_t extension_scheme;
                     oasis_read(&extension_scheme, 1, 1, in);
-                    switch (extension_scheme & 0x03) {
-                        case 0x01:
-                            modal_path_extensions.x = 0;
-                            break;
-                        case 0x02:
-                            modal_path_extensions.x = modal_path_halfwidth;
-                            break;
-                        case 0x03:
-                            modal_path_extensions.x = factor * oasis_read_integer(in);
-                    }
                     switch (extension_scheme & 0x0c) {
                         case 0x04:
-                            modal_path_extensions.y = 0;
+                            modal_path_extensions.u = 0;
                             break;
                         case 0x08:
-                            modal_path_extensions.y = modal_path_halfwidth;
+                            modal_path_extensions.u = modal_path_halfwidth;
                             break;
                         case 0x0c:
-                            modal_path_extensions.y = factor * oasis_read_integer(in);
+                            modal_path_extensions.u = factor * oasis_read_integer(in);
+                    }
+                    switch (extension_scheme & 0x03) {
+                        case 0x01:
+                            modal_path_extensions.v = 0;
+                            break;
+                        case 0x02:
+                            modal_path_extensions.v = modal_path_halfwidth;
+                            break;
+                        case 0x03:
+                            modal_path_extensions.v = factor * oasis_read_integer(in);
                     }
                 }
-                if (modal_path_extensions.x == 0 && modal_path_extensions.y == 0) {
+                if (modal_path_extensions.u == 0 && modal_path_extensions.v == 0) {
                     element->end_type = EndType::Flush;
-                } else if (modal_path_extensions.x == modal_path_halfwidth &&
-                           modal_path_extensions.y == modal_path_halfwidth) {
+                } else if (modal_path_extensions.u == modal_path_halfwidth &&
+                           modal_path_extensions.v == modal_path_halfwidth) {
                     element->end_type = EndType::HalfWidth;
                 } else {
                     element->end_type = EndType::Extended;
