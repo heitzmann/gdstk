@@ -7,6 +7,7 @@
 
 from datetime import datetime
 import hashlib
+import pathlib
 import pytest
 import numpy
 import gdstk
@@ -503,3 +504,31 @@ def test_rename_cell():
 #     assert c0 in lib.cells
 #     assert c4.references[0].cell == "c0"
 #     assert c2.references[0].cell == c0
+
+
+def test_roundtrip_path_ends(tmpdir: pathlib.Path):
+    for path_type in gdstk.FlexPath, gdstk.RobustPath:
+        path = path_type(
+            (0, 0),
+            0.2,
+            ends=(0.1, 0.0),
+            simple_path=True,
+        )
+
+        path.vertical(2)
+
+        cell = gdstk.Cell("path_test")
+        cell.add(path)
+
+        lib = gdstk.Library("path_test")
+        lib.add(cell)
+
+        lib.write_gds(tmpdir / "path_test.gds")
+        lib.write_oas(tmpdir / "path_test.oas")
+
+        gds_path = gdstk.read_gds(tmpdir / "path_test.gds").top_level()[0].get_paths()[0]
+        oas_path = gdstk.read_oas(tmpdir / "path_test.oas").top_level()[0].get_paths()[0]
+
+        assert (
+            path.ends == gds_path.ends and path.ends == oas_path.ends
+        ), f"expected: {path.ends}, gds: {gds_path.ends}, oas: {oas_path.ends}"
