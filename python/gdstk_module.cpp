@@ -1215,6 +1215,7 @@ static PyObject* slice_function(PyObject* mod, PyObject* args, PyObject* kwds) {
     Array<double> positions = {};
     if (PySequence_Check(py_position)) {
         if (parse_double_sequence(py_position, positions, "position") < 0) return NULL;
+        sort(positions);
     } else {
         single_position = PyFloat_AsDouble(py_position);
         if (PyErr_Occurred()) {

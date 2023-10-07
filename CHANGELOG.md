@@ -5,6 +5,8 @@
 - `Library.remap` and `Cell.remap` to remap layer and data/text types
 ### Changed
 - Raise an error if not both layer and datatype are specified in `Cell.get_polygons` and `Reference.get_polygons`.
+### Fixed
+- Sort `slice` positions when converting from python because the internal implementation expects the coordinates to be sorted.
 
 ## 0.9.42 - 2023-06-14
 ### Fixed
