@@ -22,7 +22,7 @@ classifiers = [
 license = {file = "LICENSE"}
 dependencies = [
     "numpy",
-    "typing_extensions; python_version < '3.11'"
+    "typing_extensions==4.7.1; python_version < '3.11'"
 ]
 requires-python = ">=3.7"
 
