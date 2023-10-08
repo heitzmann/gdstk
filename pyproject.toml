@@ -24,7 +24,7 @@ dependencies = [
     "numpy",
     "typing_extensions; python_version < '3.11'"
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 
 [project.optional-dependencies]
 docs = ["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs", "matplotlib"]
