@@ -1,12 +1,22 @@
 # Changelog
 
 ## Unreleased
+
+## 0.9.43 - 2023-10-08
 ### Added
 - `Library.remap` and `Cell.remap` to remap layer and data/text types
+- enable tbump [#206](https://github.com/$OWNER/$REPOSITORY/pull/#206)
+- add release drafter [#202](https://github.com/$OWNER/$REPOSITORY/pull/#202)
+- pin version to python>=3.8 [#205](https://github.com/$OWNER/$REPOSITORY/pull/#205)
+- Add typing stub [#185](https://github.com/$OWNER/$REPOSITORY/pull/#185)
+- Add deepcopy support [#183](https://github.com/$OWNER/$REPOSITORY/pull/#183)
 ### Changed
 - Raise an error if not both layer and datatype are specified in `Cell.get_polygons` and `Reference.get_polygons`.
+- Correct ordering of path ends in `Library::read_oas()` [#196](https://github.com/$OWNER/$REPOSITORY/pull/#196)
 ### Fixed
 - Sort `slice` positions when converting from python because the internal implementation expects the coordinates to be sorted.
+- Fix outdated pip in CI [#193](https://github.com/$OWNER/$REPOSITORY/pull/#193)
+- Fix missing version [#192](https://github.com/$OWNER/$REPOSITORY/pull/#192)
 
 ## 0.9.42 - 2023-06-14
 ### Fixed
