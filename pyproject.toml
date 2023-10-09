@@ -44,3 +44,33 @@ requires = [
     "numpy; platform_system=='Darwin'",
     "oldest-supported-numpy; platform_system!='Darwin'",
 ]
+[tool.tbump]
+
+[[tool.tbump.before_commit]]
+cmd = "git add CHANGELOG.md"
+name = "create & check changelog"
+
+[[tool.tbump.before_commit]]
+cmd = "grep -q -F {new_version} CHANGELOG.md"
+name = "create & check changelog"
+
+[[tool.tbump.file]]
+src = "pyproject.toml"
+
+[[tool.tbump.file]]
+src = "include/gdstk/gdstk.hpp"
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+[tool.tbump.version]
+current = "0.9.42"
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
+
