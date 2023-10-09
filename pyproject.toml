@@ -50,10 +50,6 @@ requires = [
 cmd = "git add CHANGELOG.md"
 name = "create & check changelog"
 
-[[tool.tbump.before_commit]]
-cmd = "grep -q -F {new_version} CHANGELOG.md"
-name = "create & check changelog"
-
 [[tool.tbump.file]]
 src = "pyproject.toml"
 
