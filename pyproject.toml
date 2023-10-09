@@ -47,10 +47,6 @@ requires = [
 [tool.tbump]
 
 [[tool.tbump.before_commit]]
-cmd = "towncrier build --yes --version {new_version}"
-name = "create & check changelog"
-
-[[tool.tbump.before_commit]]
 cmd = "git add CHANGELOG.md"
 name = "create & check changelog"
 
