@@ -1,4 +1,5 @@
 name-template: 'v$RESOLVED_VERSION'
+change-template: '- $TITLE [#$NUMBER](https://github.com/$OWNER/$REPOSITORY/pull/#$NUMBER)'
 tag-template: 'v$RESOLVED_VERSION'
 template: |
   # What's Changed
