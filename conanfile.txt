@@ -1,0 +1,6 @@
+[requires]
+zlib/1.2.13
+qhull/8.0.1
+
+[generators]
+cmake_paths

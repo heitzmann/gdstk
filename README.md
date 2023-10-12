@@ -46,6 +46,7 @@ The Python module can be installed via pip, Conda or compiled directly from sour
 It depends on:
 
 * [zlib](https://zlib.net/)
+* [qhull](http://www.qhull.org/)
 * [CMake](https://cmake.org/)
 * [Python](https://www.python.org/)
 * [Numpy](https://numpy.org/)

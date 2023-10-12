@@ -44,6 +44,7 @@ requires = [
     "numpy; platform_system=='Darwin'",
     "oldest-supported-numpy; platform_system!='Darwin'",
 ]
+
 [tool.tbump]
 
 [[tool.tbump.before_commit]]

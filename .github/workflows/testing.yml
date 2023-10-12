@@ -24,7 +24,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
           cache: 'pip'
-      - name: Install dependencies
+      - name: Install dependencies (Linux)
+        run: sudo apt-get install -y libqhull-dev
+        if: runner.os == 'Linux'
+      - name: Install dependencies (macOS)
+        run: brew install qhull
+        if: runner.os == 'macOS'
+      - name: Install python dependencies
         run: |
           pip install --upgrade pip setuptools wheel
           pip install pip-tools pytest
@@ -54,13 +60,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - name: Install build dependencies
+      - name: Install build dependencies (pip)
         run: |
           pip install --upgrade pip setuptools wheel
           pip install pip-tools pytest ninja conan==1.60
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
-          conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
+      - name: Install build dependencies (conan)
+        run: |
+          conan install . -s compiler.version=16
       - name: Build Python ${{ matrix.python-version }} wheel
         run: python setup.py install --user
         env:

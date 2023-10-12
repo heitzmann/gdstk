@@ -20,8 +20,15 @@ jobs:
           submodules: 'recursive'
       - uses: pypa/cibuildwheel@v2.12.3
         env:
-          CIBW_SKIP: "cp36-* pp* *_ppc64le *_s390x *-macosx_universal2"
-          CIBW_ARCHS_MACOS: "x86_64 arm64"
+          CIBW_SKIP: "cp36-* cp37-* pp* *_ppc64le *_s390x *_universal2"
+          CIBW_BEFORE_ALL_LINUX: >
+            yum install -y wget || apk add qhull-dev;
+            wget https://github.com/qhull/qhull/archive/refs/tags/v8.0.2.tar.gz &&
+            tar -xf v8.0.2.tar.gz &&
+            cd qhull-8.0.2 &&
+            cmake -S . -B build &&
+            cmake --build build --target install
+          CIBW_BEFORE_ALL_MACOS: brew install qhull
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/gdstk*.whl
@@ -42,13 +49,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - name: Install build dependencies
+      - name: Install build dependencies (pip)
         run: |
           pip install --upgrade pip setuptools wheel
           pip install pip-tools ninja conan==1.60
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
-          conan install zlib/1.2.13@ -s compiler.version=16 -g cmake_paths
+      - name: Install build dependencies (conan)
+        run: |
+          conan install . -s compiler.version=16
       - name: Build Python ${{ matrix.python-version }} wheel
         run: python setup.py bdist_wheel
         env:

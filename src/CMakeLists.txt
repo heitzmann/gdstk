@@ -18,6 +18,8 @@ if(NOT ZLIB_FOUND)
     endif()
 endif(NOT ZLIB_FOUND)
 
+find_package(Qhull 8)
+
 set(HEADER_LIST 
     "${gdstk_SOURCE_DIR}/include/gdstk/allocator.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/array.hpp"
@@ -76,19 +78,23 @@ set_target_properties(gdstk PROPERTIES
 
 target_include_directories(gdstk PUBLIC "${gdstk_SOURCE_DIR}/include")
 target_include_directories(gdstk PUBLIC "${gdstk_SOURCE_DIR}/external")
-target_include_directories(gdstk PUBLIC "${gdstk_SOURCE_DIR}/external/qhull/src")
 target_include_directories(gdstk PRIVATE ${ZLIB_INCLUDE_DIRS})
+target_include_directories(gdstk PRIVATE ${QHULL_INCLUDE_DIRS})
 
-target_link_libraries(gdstk qhullstatic_r clipper)
-set(gdstk_LIBS "-lqhullstatic_r -lclipper")
+target_link_libraries(gdstk clipper)
+set(gdstk_LIBS "-lclipper")
 
 if(UNIX)
-    target_link_libraries(qhullstatic_r m)
     set(gdstk_LIBS "${gdstk_LIBS} -lm")
 endif(UNIX)
 
 target_link_libraries(gdstk ${ZLIB_LIBRARIES})
 foreach(IT ${ZLIB_LIBRARIES})
+    set(gdstk_LIBS "${gdstk_LIBS} ${IT}")
+endforeach()
+
+target_link_libraries(gdstk ${QHULL_LIBRARIES})
+foreach(IT ${QHULL_LIBRARIES})
     set(gdstk_LIBS "${gdstk_LIBS} ${IT}")
 endforeach()
 
