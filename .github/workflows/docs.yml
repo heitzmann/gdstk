@@ -17,6 +17,9 @@ jobs:
           python-version: 3.11
           architecture: x64
           cache: 'pip'
+      - name: Install dependencies
+        run: sudo apt-get install -y libqhull-dev
+        if: runner.os == 'Linux'
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip setuptools wheel
