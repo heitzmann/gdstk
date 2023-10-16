@@ -1,0 +1,13 @@
+graft external
+graft include
+graft python
+graft src
+graft docs
+graft tests
+include CHANGELOG.md
+include CMakeLists.txt
+include LICENSE
+include conanfile.txt
+include gdstk.pc.in
+include pyproject.toml
+include setup.py
