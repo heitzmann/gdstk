@@ -1,6 +1,6 @@
 [project]
 name = "gdstk"
-version = "0.9.46"
+version = "0.9.47"
 authors = [{name = "Lucas H. Gabrielli", email = "heitzmann@gmail.com"}]
 description = "Python module for creation and manipulation of GDSII files."
 readme = "README.md"
@@ -62,7 +62,7 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [tool.tbump.version]
-current = "0.9.46"
+current = "0.9.47"
 regex = '''
   (?P<major>\d+)
   \.
