@@ -18,7 +18,7 @@ if(NOT ZLIB_FOUND)
     endif()
 endif(NOT ZLIB_FOUND)
 
-find_package(Qhull 8)
+find_package(Qhull 8 REQUIRED)
 
 set(HEADER_LIST 
     "${gdstk_SOURCE_DIR}/include/gdstk/allocator.hpp"

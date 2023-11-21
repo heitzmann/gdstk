@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies (Linux)
         run: sudo apt-get install -y libqhull-dev
         if: runner.os == 'Linux'
-      - name: Install dependencies (macOS)
+      - name: Install dependencies (MacOS)
         run: brew install qhull
         if: runner.os == 'macOS'
       - name: Install python dependencies
@@ -69,7 +69,7 @@ jobs:
       - name: Install build dependencies (conan)
         run: |
           conan install . -s compiler.version=16
-      - name: Build Python ${{ matrix.python-version }} wheel
+      - name: Build Python ${{ matrix.python-version }}
         run: python setup.py install --user
         env:
           CMAKE_GENERATOR: "Ninja"
