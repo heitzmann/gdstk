@@ -968,9 +968,12 @@ static PyObject* cell_object_remap(CellObject* self, PyObject* args, PyObject* k
     return (PyObject*)self;
 }
 
-static PyObject* cell_object_dependencies(CellObject* self, PyObject* args) {
-    int recursive;
-    if (!PyArg_ParseTuple(args, "p:dependencies", &recursive)) return NULL;
+static PyObject* cell_object_dependencies(CellObject* self, PyObject* args, PyObject* kwds) {
+    int recursive = 1;
+    const char* keywords[] = {"recursive", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "p:dependencies", (char**)keywords, &recursive))
+        return NULL;
+
     Map<Cell*> cell_map = {};
     Map<RawCell*> rawcell_map = {};
     self->cell->get_dependencies(recursive > 0, cell_map);
@@ -1038,7 +1041,7 @@ static PyMethodDef cell_object_methods[] = {
     {"filter", (PyCFunction)cell_object_filter, METH_VARARGS | METH_KEYWORDS,
      cell_object_filter_doc},
     {"remap", (PyCFunction)cell_object_remap, METH_VARARGS | METH_KEYWORDS, cell_object_remap_doc},
-    {"dependencies", (PyCFunction)cell_object_dependencies, METH_VARARGS,
+    {"dependencies", (PyCFunction)cell_object_dependencies, METH_VARARGS | METH_KEYWORDS,
      cell_object_dependencies_doc},
     {"set_property", (PyCFunction)cell_object_set_property, METH_VARARGS, object_set_property_doc},
     {"get_property", (PyCFunction)cell_object_get_property, METH_VARARGS, object_get_property_doc},
