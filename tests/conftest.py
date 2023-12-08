@@ -55,7 +55,7 @@ def proof_cells():
 
 
 def make_proof_lib():
-    lib = gdstk.Library("Test Library", unit=1e-6, precision=1e-12)
+    lib = gdstk.Library("Test_Library", unit=1e-6, precision=1e-12)
 
     cell = lib.new_cell("Polygon.fillet")
     p1 = gdstk.Polygon([(0, 0), (1.2, 0), (1.2, 0.3), (1, 0.3), (1.5, 1), (0, 1.5)])
@@ -64,7 +64,7 @@ def make_proof_lib():
     cell.add(p2.fillet([0.3, 0, 0.1, 0, 0.5, 10], tolerance=1e-3))
 
     for scale_width in [True, False]:
-        cell = lib.new_cell(f"FlexPath: scale_width {scale_width}")
+        cell = lib.new_cell(f"FlexPath:scale_width_{scale_width}")
         path0 = gdstk.FlexPath(
             (0j, 1j, 0.5 + 1j),
             [0.1, 0.2],
@@ -86,7 +86,7 @@ def make_proof_lib():
         cell.add(path0, path1, path2, path3, path4, path5)
 
     for scale_width in [True, False]:
-        cell = lib.new_cell(f"RobustPath: scale_width {scale_width}")
+        cell = lib.new_cell(f"RobustPath:scale_width_{scale_width}")
         path0 = gdstk.RobustPath(
             0j,
             [0.1, 0.2],
@@ -109,7 +109,7 @@ def make_proof_lib():
         path5.set_layers(5, 5)
         cell.add(path0, path1, path2, path3, path4, path5)
 
-    ref_cell1 = gdstk.Cell("Reference 1")
+    ref_cell1 = gdstk.Cell("Reference1")
     ref_cell1.add(*gdstk.text("F.", 10, (0, 0)))
     ref_cell1.add(gdstk.Label("LaBeL", (2.4, 8.7), "s"))
     ref_cell1.add(gdstk.FlexPath(8 + 4j, 1, layer=3).arc(2, 0, numpy.pi / 2))
@@ -119,11 +119,11 @@ def make_proof_lib():
         )
     )
 
-    ref_cell2 = gdstk.Cell("Reference 2")
+    ref_cell2 = gdstk.Cell("Reference2")
     ref_cell2.add(*gdstk.text("^", 10, (0, 5), layer=1))
     ref_cell2.add(gdstk.Reference(ref_cell1))
 
-    cell = gdstk.Cell("Original cell")
+    cell = gdstk.Cell("Original_cell")
     cell.add(gdstk.rectangle((-1, -0.5), (1, 0.5), layer=2))
     cell.add(gdstk.Reference(ref_cell2))
     cell.add(gdstk.Reference(ref_cell1, (10, 7), numpy.pi / 4, 0.5, True))

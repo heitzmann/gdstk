@@ -19,7 +19,7 @@ def test_init():
     assert path.datatypes == (0,)
     assert path.tolerance == 1e-2
     assert path.max_evals == 1000
-    assert path.simple_path == False
+    assert not path.simple_path
     assert path.ends == ("flush",)
     assert path.num_paths == 1
     assert path.size == 0
@@ -33,7 +33,7 @@ def test_init():
     assert path.datatypes == (2,)
     assert path.tolerance == 1e-3
     assert path.max_evals == 10
-    assert path.simple_path == True
+    assert path.simple_path
     assert path.ends == ((1, 2),)
 
     path = gdstk.RobustPath(0j, [2, 2], layer=3, datatype=[4, 5])
@@ -79,7 +79,7 @@ def test_transforms(proof_cells):
             path0.copy().rotate(numpy.pi / 2, (2, 1)).translate(0.2, -0.3),
         ]
         assert_same_shape(
-            proof_cells[f"RobustPath: scale_width {scale_width}"].polygons, paths
+            proof_cells[f"RobustPath:scale_width_{scale_width}"].polygons, paths
         )
 
 

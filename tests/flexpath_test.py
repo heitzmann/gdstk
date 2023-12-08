@@ -6,7 +6,6 @@
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 from copy import deepcopy
-import pytest
 import numpy
 import gdstk
 
@@ -20,8 +19,8 @@ def test_init():
     assert path.num_paths == 1
     assert path.size == 1
     assert path.tolerance == 1e-2
-    assert path.simple_path == False
-    assert path.scale_width == True
+    assert not path.simple_path
+    assert path.scale_width
     assert path.joins == ("natural",)
     assert path.ends == ("flush",)
     assert path.bend_radius == (0,)
@@ -37,7 +36,7 @@ def test_init():
     assert path.layers == (1,)
     assert path.datatypes == (2,)
     assert path.tolerance == 1e-3
-    assert path.simple_path == True
+    assert path.simple_path
     assert path.joins == ("round",)
     assert path.ends == ((1, 2),)
     assert path.bend_radius == (0.1,)
@@ -63,7 +62,7 @@ def test_init():
     assert path.datatypes == (4, 5)
     assert path.num_paths == 2
     assert path.bend_function == (None, None)
-    dummy = lambda *args: (0j,)
+    dummy = lambda *args: (0j,)  # noqa E731
     path.set_bend_function(dummy, None)
     assert path.bend_function == (dummy, None)
 
@@ -90,9 +89,7 @@ def test_transforms(proof_cells):
             path0.copy().scale(-2, (-1, 0)),
             path0.copy().rotate(numpy.pi / 2, (2, 1)).translate(0.2, -0.3),
         ]
-        assert_same_shape(
-            proof_cells[f"FlexPath: scale_width {scale_width}"].polygons, paths
-        )
+        assert_same_shape(proof_cells[f"FlexPath:scale_width_{scale_width}"].polygons, paths)
 
 
 def test_points():
@@ -102,29 +99,22 @@ def test_points():
     numpy.testing.assert_array_equal(path.offsets(), [[0], [0], [0], [1]])
     path_spines = path.path_spines()
     assert len(path_spines) == 1
-    numpy.testing.assert_array_equal(
-        path_spines[0], [[0, 0], [0, 10], [10, 10], [11, 0]]
-    )
+    numpy.testing.assert_array_equal(path_spines[0], [[0, 0], [0, 10], [10, 10], [11, 0]])
 
-    path = (
-        gdstk.FlexPath((0j, 10j), [2, 2], 2)
-        .horizontal(10, 2, 1)
-        .vertical(0, 1, [-2, 1])
-    )
+    path = gdstk.FlexPath((0j, 10j), [2, 2], 2).horizontal(10, 2, 1).vertical(0, 1, [-2, 1])
     numpy.testing.assert_array_equal(path.spine(), [[0, 0], [0, 10], [10, 10], [10, 0]])
     numpy.testing.assert_array_equal(path.widths(), [[2, 2], [2, 2], [2, 2], [1, 1]])
-    numpy.testing.assert_array_equal(
-        path.offsets(), [[-1, 1], [-1, 1], [-0.5, 0.5], [-2, 1]]
-    )
+    numpy.testing.assert_array_equal(path.offsets(), [[-1, 1], [-1, 1], [-0.5, 0.5], [-2, 1]])
     path_spines = path.path_spines()
     assert len(path_spines) == 2
+
 
 def test_deepcopy():
     path = gdstk.FlexPath(0j, 2)
     path2 = deepcopy(path)
 
     assert path is not path2
-    
+
     assert path.layers == path2.layers
     assert path.datatypes == path2.datatypes
     assert path.num_paths == path2.num_paths
