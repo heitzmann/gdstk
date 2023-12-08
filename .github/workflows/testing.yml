@@ -7,11 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux-test:
+  linux-macos-test:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, macos-latest-large]
         python-version: ['3.8', '3.11', '3.12']
     name: Test for ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
