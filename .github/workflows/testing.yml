@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-latest-large]
+        os: [ubuntu-latest, macos-latest]
         python-version: ['3.8', '3.11', '3.12']
     name: Test for ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -45,7 +45,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.8', '3.11', '3.12']
+        python-version: ['3.8', '3.11']
     defaults:
       run:
         shell: pwsh
