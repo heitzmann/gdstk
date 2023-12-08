@@ -148,7 +148,7 @@ def test_rw_gds(tmpdir, sample_library):
     assert c.labels[0].anchor == "w"
     assert c.labels[0].rotation == 10
     assert c.labels[0].magnification == 1.5
-    assert c.labels[0].x_reflection == True
+    assert c.labels[0].x_reflection
     assert c.labels[0].layer == 5
     assert c.labels[0].texttype == 6
 
@@ -165,7 +165,7 @@ def test_rw_gds(tmpdir, sample_library):
     assert c.references[0].origin[0] == 0 and c.references[0].origin[1] == 2
     assert c.references[0].rotation == -90
     assert c.references[0].magnification == 2
-    assert c.references[0].x_reflection == True
+    assert c.references[0].x_reflection
 
     c = cells["gl_rw_gds_4"]
     assert len(c.references) == 1
@@ -174,7 +174,7 @@ def test_rw_gds(tmpdir, sample_library):
     assert c.references[0].origin[0] == -2 and c.references[0].origin[1] == -4
     assert c.references[0].rotation == numpy.pi
     assert c.references[0].magnification == 0.5
-    assert c.references[0].x_reflection == True
+    assert c.references[0].x_reflection
     assert c.references[0].repetition.columns == 2
     assert c.references[0].repetition.rows == 3
     assert c.references[0].repetition.v1 == pytest.approx((-2.0, 0.0))
@@ -203,7 +203,7 @@ def test_rw_gds_filter(tmpdir, sample_library):
     assert c.labels[0].anchor == "w"
     assert c.labels[0].rotation == 10
     assert c.labels[0].magnification == 1.5
-    assert c.labels[0].x_reflection == True
+    assert c.labels[0].x_reflection
     assert c.labels[0].layer == 5
     assert c.labels[0].texttype == 6
 
@@ -220,7 +220,7 @@ def test_rw_gds_filter(tmpdir, sample_library):
     assert c.references[0].origin[0] == 0 and c.references[0].origin[1] == 2
     assert c.references[0].rotation == -90
     assert c.references[0].magnification == 2
-    assert c.references[0].x_reflection == True
+    assert c.references[0].x_reflection
 
     c = cells["gl_rw_gds_4"]
     assert len(c.references) == 1
@@ -229,7 +229,7 @@ def test_rw_gds_filter(tmpdir, sample_library):
     assert c.references[0].origin[0] == -2 and c.references[0].origin[1] == -4
     assert c.references[0].rotation == numpy.pi
     assert c.references[0].magnification == 0.5
-    assert c.references[0].x_reflection == True
+    assert c.references[0].x_reflection
     assert c.references[0].repetition.columns == 2
     assert c.references[0].repetition.rows == 3
     assert c.references[0].repetition.v1 == pytest.approx((-2.0, 0.0))
@@ -334,7 +334,7 @@ def test_rw_oas(tmpdir, sample_library):
     assert c.labels[0].anchor == "sw"
     assert c.labels[0].rotation == 0
     assert c.labels[0].magnification == 1
-    assert c.labels[0].x_reflection == False
+    assert not c.labels[0].x_reflection
     assert c.labels[0].layer == 5
     assert c.labels[0].texttype == 6
 
@@ -349,7 +349,7 @@ def test_rw_oas(tmpdir, sample_library):
     assert c.references[0].origin[0] == 0 and c.references[0].origin[1] == 2
     assert c.references[0].rotation == -90
     assert c.references[0].magnification == 2
-    assert c.references[0].x_reflection == True
+    assert c.references[0].x_reflection
 
     c = cells["gl_rw_gds_4"]
     assert len(c.references) == 1
@@ -358,7 +358,7 @@ def test_rw_oas(tmpdir, sample_library):
     assert c.references[0].origin[0] == -2 and c.references[0].origin[1] == -4
     assert c.references[0].rotation == numpy.pi
     assert c.references[0].magnification == 0.5
-    assert c.references[0].x_reflection == True
+    assert c.references[0].x_reflection
     assert c.references[0].repetition.columns == 2
     assert c.references[0].repetition.rows == 3
     assert c.references[0].repetition.v1 == (-2.0, 0.0)

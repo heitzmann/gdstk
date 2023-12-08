@@ -154,7 +154,7 @@ inline void Array<IntVec2>::print(bool all) const {
     printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
     if (all && count > 0) {
         printf(" (%" PRId64 ", %" PRId64 ")", items[0].x, items[0].y);
-        for (uint64_t i = 0; i < count; ++i) {
+        for (uint64_t i = 1; i < count; ++i) {
             printf(" (%" PRId64 ", %" PRId64 ")", items[i].x, items[i].y);
         }
         putchar('\n');
@@ -166,7 +166,7 @@ inline void Array<double>::print(bool all) const {
     printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
     if (all && count > 0) {
         printf(" %lg", items[0]);
-        for (uint64_t i = 0; i < count; ++i) {
+        for (uint64_t i = 1; i < count; ++i) {
             printf(" %lg", items[i]);
         }
         putchar('\n');

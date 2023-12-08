@@ -334,51 +334,58 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
         subj->bounding_box(min, max);
 
         const uint64_t num_cuts = num_points / max_points;
-        const double frac = num_points / (num_cuts + 1.0);
-        Array<double> cuts = {};
-        cuts.ensure_slots(num_cuts);
-        cuts.count = num_cuts;
         bool x_axis;
         double* coords = (double*)allocate(sizeof(double) * num_points);
         if (max.x - min.x > max.y - min.y) {
-            double* x = coords;
-            double* px = x;
-            Vec2* pt = subj->point_array.items;
-            for (uint64_t j = 0; j < num_points; j++) (*px++) = (pt++)->x;
-            sort(x, num_points);
             x_axis = true;
-            px = cuts.items;
-            for (uint64_t j = 0; j < num_cuts; j++) (*px++) = x[(uint64_t)((j + 1.0) * frac + 0.5)];
-        } else {
-            double* y = coords;
-            double* py = y;
+            double* x = coords;
             Vec2* pt = subj->point_array.items;
-            for (uint64_t j = 0; j < num_points; j++) (*py++) = (pt++)->y;
-            sort(y, num_points);
+            for (uint64_t j = 0; j < num_points; j++) (*x++) = (pt++)->x;
+        } else {
             x_axis = false;
-            py = cuts.items;
-            for (uint64_t j = 0; j < num_cuts; j++) (*py++) = y[(uint64_t)((j + 1.0) * frac + 0.5)];
+            double* y = coords;
+            Vec2* pt = subj->point_array.items;
+            for (uint64_t j = 0; j < num_points; j++) (*y++) = (pt++)->y;
+        }
+        sort(coords, num_points);
+        Array<double> interior_coords = {0, 0, coords};
+        while (interior_coords.items[0] == coords[0]) ++interior_coords.items;
+        interior_coords.count = num_points - (interior_coords.items - coords);
+        while (interior_coords.count > 0 &&
+                interior_coords.items[interior_coords.count - 1] == coords[num_points - 1])
+            --interior_coords.count;
+
+        Array<double> cuts = {};
+        if (interior_coords.count == 0) {
+            cuts.append((coords[0] + coords[num_points - 1]) * 0.5);
+        } else if (interior_coords.count <= num_cuts) {
+            cuts.extend(interior_coords);
+        } else {
+            cuts.ensure_slots(num_cuts);
+            const double frac = interior_coords.count / (num_cuts + 1.0);
+            for (uint64_t j = 1; j <= num_cuts; j++)
+                cuts.append(interior_coords[(uint64_t)(j * frac)]);
         }
         free_allocation(coords);
 
         Array<Polygon*>* chopped =
             (Array<Polygon*>*)allocate_clear((cuts.count + 1) * sizeof(Array<Polygon*>));
         slice(*subj, cuts, x_axis, scaling, chopped);
-        cuts.clear();
 
         subj->point_array.clear();
         result.remove_unordered(i);
         free_allocation(subj);
 
         uint64_t total = 0;
-        for (uint64_t j = 0; j <= num_cuts; j++) total += chopped[j].count;
+        for (uint64_t j = 0; j <= cuts.count; j++) total += chopped[j].count;
         result.ensure_slots(total);
 
-        for (uint64_t j = 0; j <= num_cuts; j++) {
+        for (uint64_t j = 0; j <= cuts.count; j++) {
             result.extend(chopped[j]);
             chopped[j].clear();
         }
 
+        cuts.clear();
         free_allocation(chopped);
     }
 

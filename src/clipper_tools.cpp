@@ -301,10 +301,12 @@ ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_a
             clip[0][0].X = clip[0][3].X = pos;
             pos = i < positions.count ? llround(scaling * positions[i]) : bb[1];
             clip[0][1].X = clip[0][2].X = pos;
+            if (clip[0][1].X == clip[0][0].X) continue;
         } else {
             clip[0][0].Y = clip[0][1].Y = pos;
             pos = i < positions.count ? llround(scaling * positions[i]) : bb[3];
             clip[0][2].Y = clip[0][3].Y = pos;
+            if (clip[0][2].Y == clip[0][0].Y) continue;
         }
 
         // NOTE: ioStrictlySimple seems to hang on complex layouts
