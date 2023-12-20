@@ -16,6 +16,7 @@ from setuptools.command.build_ext import build_ext
 
 class CMakeBuilder(build_ext):
     def run(self):
+        darwin = platform.system() == "Darwin"
         root_dir = pathlib.Path().absolute()
         build_dir = pathlib.Path(self.build_temp).absolute() / "cmake_build"
         install_dir = build_dir / "install"
@@ -50,6 +51,7 @@ class CMakeBuilder(build_ext):
         pkgconfig = list(install_dir.glob("**/gdstk.pc"))
         if len(pkgconfig) == 0:
             raise RuntimeError(f"File gdstk.pc not found in cmake install tree: {install_dir}")
+
         with open(pkgconfig[0]) as pkg:
             for line in pkg:
                 if line.startswith("Cflags:"):
@@ -60,6 +62,11 @@ class CMakeBuilder(build_ext):
                             self.extensions[0].extra_compile_args.append(arg)
                 elif line.startswith("Libs:"):
                     for arg in line.split()[1:]:
+                        if darwin and (arg == "-lpython" or arg.endswith("Python.framework")):
+                            # Do not link to python in MacOS, we use the -undefined dynamic_lookup
+                            # linker flag instead.
+                            # See https://blog.tim-smith.us/2015/09/python-extension-modules-os-x/
+                            continue
                         if arg.endswith(".framework"):
                             # MacOS-specific
                             self.extensions[0].extra_link_args.extend(
@@ -78,7 +85,7 @@ class CMakeBuilder(build_ext):
 def loose_version(version_string):
     """Extracted from distutils.version.LooseVersion"""
     version = []
-    for component in re.split(r'(\d+ | [a-z]+ | \.)', version_string, flags=re.VERBOSE):
+    for component in re.split(r"(\d+ | [a-z]+ | \.)", version_string, flags=re.VERBOSE):
         if len(component) == 0 or component == ".":
             continue
         try:
@@ -92,7 +99,15 @@ extra_compile_args = []
 extra_link_args = []
 if platform.system() == "Darwin" and loose_version(platform.release()) >= (17, 7):
     extra_compile_args.extend(["-std=c++11", "-mmacosx-version-min=10.9"])
-    extra_link_args.extend(["-stdlib=libc++", "-mmacosx-version-min=10.9"])
+    extra_link_args.extend(
+        [
+            "-stdlib=libc++",
+            "-mmacosx-version-min=10.9",
+            "-undefined",
+            "dynamic_lookup",
+            "-flat_namespace",
+        ]
+    )
 
 setuptools.setup(
     ext_modules=[
