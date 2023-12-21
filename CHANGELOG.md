@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.9.47 - 2023-12-27
+### Changed
+- `Cell.dependencies` accepts keyword arguments.
+### Fixed
+- Fracturing polygons with few points is more robust.
+- Compilation improvements.
 
 ## 0.9.45 - 2023-10-12
 ### Changed
