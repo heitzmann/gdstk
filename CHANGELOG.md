@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.9.47 - 2023-12-27
+## 0.9.49 - 2023-12-29
+### Fixed
+- Type annotation for `Cell.write_svg`.
+
+## 0.9.48 - 2023-12-21
 ### Changed
 - `Cell.dependencies` accepts keyword arguments.
 ### Fixed
