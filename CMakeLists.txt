@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.14)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 
+set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Target architectures on macOS")
+
 file(READ include/gdstk/gdstk.hpp HEADER_CONTENTS)
 string(REGEX MATCH "GDSTK_VERSION \"([^\"]*)\"" _ ${HEADER_CONTENTS})
 set(GDSTK_VERSION ${CMAKE_MATCH_1})

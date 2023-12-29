@@ -9,7 +9,6 @@
 import numpy
 import pathlib
 import platform
-import re
 import setuptools
 from setuptools.command.build_ext import build_ext
 
@@ -63,12 +62,12 @@ class CMakeBuilder(build_ext):
                 elif line.startswith("Libs:"):
                     for arg in line.split()[1:]:
                         if darwin and (arg == "-lpython" or arg.endswith("Python.framework")):
-                            # Do not link to python in MacOS, we use the -undefined dynamic_lookup
+                            # Do not link to python in macOS, we use the -undefined dynamic_lookup
                             # linker flag instead.
                             # See https://blog.tim-smith.us/2015/09/python-extension-modules-os-x/
                             continue
                         if arg.endswith(".framework"):
-                            # MacOS-specific
+                            # macOS-specific
                             self.extensions[0].extra_link_args.extend(
                                 ["-framework", arg[arg.rfind("/") + 1 : -10]]
                             )
@@ -82,32 +81,11 @@ class CMakeBuilder(build_ext):
         super().run()
 
 
-def loose_version(version_string):
-    """Extracted from distutils.version.LooseVersion"""
-    version = []
-    for component in re.split(r"(\d+ | [a-z]+ | \.)", version_string, flags=re.VERBOSE):
-        if len(component) == 0 or component == ".":
-            continue
-        try:
-            version.append(int(component))
-        except ValueError:
-            version.append(component)
-    return tuple(version)
-
-
 extra_compile_args = []
 extra_link_args = []
-if platform.system() == "Darwin" and loose_version(platform.release()) >= (17, 7):
+if platform.system() == "Darwin":
     extra_compile_args.extend(["-std=c++11", "-mmacosx-version-min=10.9"])
-    extra_link_args.extend(
-        [
-            "-stdlib=libc++",
-            "-mmacosx-version-min=10.9",
-            "-undefined",
-            "dynamic_lookup",
-            "-flat_namespace",
-        ]
-    )
+    extra_link_args.extend(["-undefined", "dynamic_lookup", "-flat_namespace"])
 
 setuptools.setup(
     ext_modules=[
