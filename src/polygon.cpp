@@ -80,6 +80,24 @@ double Polygon::signed_area() const {
     return 0.5 * result;
 }
 
+double Polygon::perimeter() const {
+    if (point_array.count < 2) return 0;
+    
+    double result = 0;
+    Vec2* p = point_array.items;
+    Vec2 v0 = *p++;
+    
+    for (uint64_t num = point_array.count - 1; num > 0; num--) {
+        Vec2 v1 = *p++ - v0;
+        result += v1.length();
+        v0 += v1;
+    }
+
+    if (repetition.type != RepetitionType::None) result *= repetition.get_count();
+
+    return result;
+}
+
 // Based on algorithm 7 from: Kai Hormann, Alexander Agathos, “The point in
 // polygon problem for arbitrary polygons,” Computational Geometry, Volume 20,
 // Issue 3, 2001, Pages 131-144, ISSN 0925-7721.

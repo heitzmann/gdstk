@@ -102,4 +102,6 @@ setuptools.setup(
     include_package_data=True,
     cmdclass={"build_ext": CMakeBuilder},
     zip_safe=False,
+    name="Mabrains_gdstk",
+    version="0.0.1"
 )

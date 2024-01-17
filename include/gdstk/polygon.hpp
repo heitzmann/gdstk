@@ -45,6 +45,9 @@ struct Polygon {
     // Polygon area excluding repetitions with sign indicating orientation
     // (positive for counter clockwise)
     double signed_area() const;
+    
+    // Total polygon perimeter including any repetitions
+    double perimeter() const;
 
     // Check if the points are inside this polygon (points lying on the edges
     // or coinciding with a vertex of the polygon are considered inside).
