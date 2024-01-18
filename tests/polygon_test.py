@@ -34,6 +34,27 @@ def test_area_size():
     numpy.testing.assert_array_equal(poly.points, [[0, 0], [1, 0], [1, 1], [0, 1]])
 
 
+def test_perimeter_size():
+    poly1 = gdstk.Polygon([(0, 0), (2, 0), 2 + 2j, 2j])
+    assert poly1.layer == 0
+    assert poly1.datatype == 0
+    assert poly1.size == 4
+    assert poly1.perimeter() == 8.0
+    numpy.testing.assert_array_equal(poly1.points, [[0, 0], [2, 0], [2, 2], [0, 2]])
+
+    poly2 = gdstk.Polygon([(0, 0), (1, 0), 1 + 1j, 1j], 1, 2)
+    assert poly2.layer == 1
+    assert poly2.datatype == 2
+    assert poly2.size == 4
+    assert poly2.perimeter() == 4.0
+    numpy.testing.assert_array_equal(poly2.points, [[0, 0], [1, 0], [1, 1], [0, 1]])
+
+    poly3 = gdstk.Polygon([(0, 0), (1, 0), 1 + 1j, 1j])
+    assert poly3.size == 4
+    assert poly3.perimeter() == 4.0
+    numpy.testing.assert_array_equal(poly3.points, [[0, 0], [1, 0], [1, 1], [0, 1]])
+
+
 def test_bounding_box():
     poly = gdstk.Polygon([-1 + 0j, -2j, 3 + 0j, 4j])
     assert poly.bounding_box() == ((-1, -2), (3, 4))
@@ -70,6 +91,7 @@ def test_copy():
     assert p2.datatype == 6
     numpy.testing.assert_array_equal(p1.points, points)
     numpy.testing.assert_array_equal(p2.points, points)
+
 
 def test_deepcopy():
     points = [[-1, 0], [0, -2], [3, 0], [0, 4]]

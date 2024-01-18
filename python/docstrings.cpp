@@ -392,6 +392,13 @@ Polygon area.
 Returns:
     Area of the polygon.)!");
 
+PyDoc_STRVAR(polygon_object_perimeter_doc, R"!(perimeter() -> float
+
+Polygon perimeter.
+
+Returns:
+    Perimeter of the polygon.)!");
+
 PyDoc_STRVAR(polygon_object_bounding_box_doc, R"!(bounding_box() -> tuple
 
 Calculate the polygon bounding box.

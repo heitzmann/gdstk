@@ -66,6 +66,11 @@ static PyObject* polygon_object_area(PolygonObject* self, PyObject*) {
     return PyFloat_FromDouble(area);
 }
 
+static PyObject* polygon_object_perimeter(PolygonObject* self, PyObject*) {
+    const double perimeter = self->polygon->perimeter();
+    return PyFloat_FromDouble(perimeter);
+}
+
 static PyObject* polygon_object_bounding_box(PolygonObject* self, PyObject*) {
     Vec2 min, max;
     self->polygon->bounding_box(min, max);
@@ -427,6 +432,7 @@ static PyMethodDef polygon_object_methods[] = {
     {"copy", (PyCFunction)polygon_object_copy, METH_NOARGS, polygon_object_copy_doc},
     {"__deepcopy__", (PyCFunction)polygon_object_deepcopy, METH_VARARGS | METH_KEYWORDS, polygon_object_deepcopy_doc},
     {"area", (PyCFunction)polygon_object_area, METH_NOARGS, polygon_object_area_doc},
+    {"perimeter", (PyCFunction)polygon_object_perimeter, METH_NOARGS, polygon_object_perimeter_doc},
     {"bounding_box", (PyCFunction)polygon_object_bounding_box, METH_NOARGS,
      polygon_object_bounding_box_doc},
     {"contain", (PyCFunction)polygon_object_contain, METH_VARARGS, polygon_object_contain_doc},
