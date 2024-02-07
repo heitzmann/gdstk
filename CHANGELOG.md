@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.50 - 2024-02-07
+### Added
+- `Polygon.perimeter`.
+
 ## 0.9.49 - 2023-12-29
 ### Fixed
 - Type annotation for `Cell.write_svg`.
