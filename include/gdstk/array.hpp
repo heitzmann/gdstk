@@ -27,9 +27,9 @@ namespace gdstk {
 
 template <class T>
 struct Array {
-    uint64_t capacity;  // allocated capacity
-    uint64_t count;     // number of slots used
-    T* items=NULL;      // slots
+    uint64_t capacity = 0;  // allocated capacity
+    uint64_t count = 0;     // number of slots used
+    T* items = NULL;      // slots
 
     T& operator[](uint64_t idx) { return items[idx]; }
     const T& operator[](uint64_t idx) const { return items[idx]; }
