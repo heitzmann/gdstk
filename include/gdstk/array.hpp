@@ -29,7 +29,7 @@ template <class T>
 struct Array {
     uint64_t capacity;  // allocated capacity
     uint64_t count;     // number of slots used
-    T* items=NULL;           // slots
+    T* items=NULL;      // slots
 
     T& operator[](uint64_t idx) { return items[idx]; }
     const T& operator[](uint64_t idx) const { return items[idx]; }
