@@ -1,3 +1,11 @@
+[build-system]
+requires = [
+    "scikit_build_core",
+    "numpy; platform_system=='Darwin'",
+    "oldest-supported-numpy; platform_system!='Darwin'",
+]
+build-backend = "scikit_build_core.build"
+
 [project]
 name = "gdstk"
 version = "0.9.50"
@@ -34,40 +42,14 @@ documentation = "https://heitzmann.github.io/gdstk/"
 repository = "https://github.com/heitzmann/gdstk"
 changelog = "https://github.com/heitzmann/gdstk/blob/main/CHANGELOG.md"
 
+[tool.scikit-build]
+cmake.version = ">=3.26"
+# cmake.build-type = "debug"
+build-dir = "build/{wheel_tag}"
+sdist.reproducible = false
+# package_data={"gdstk": ["*.pyi", "py.typed"]},
+wheel.packages = ["gdstk"]
+install.components = ["_gdstk"]
+
 [tool.black]
 line-length = 100
-
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "numpy; platform_system=='Darwin'",
-    "oldest-supported-numpy; platform_system!='Darwin'",
-]
-
-[tool.tbump]
-
-[[tool.tbump.before_commit]]
-cmd = "git add CHANGELOG.md"
-name = "create & check changelog"
-
-[[tool.tbump.file]]
-src = "pyproject.toml"
-
-[[tool.tbump.file]]
-src = "include/gdstk/gdstk.hpp"
-
-[tool.tbump.git]
-message_template = "Bump to {new_version}"
-tag_template = "v{new_version}"
-
-[tool.tbump.version]
-current = "0.9.50"
-regex = '''
-  (?P<major>\d+)
-  \.
-  (?P<minor>\d+)
-  \.
-  (?P<patch>\d+)
-  '''
-

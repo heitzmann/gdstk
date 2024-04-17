@@ -1,2 +1,2 @@
-from .gdstk import *
-from .gdstk import __version__
+from ._gdstk import *
+from ._gdstk import __version__

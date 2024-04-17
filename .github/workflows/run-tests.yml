@@ -1,10 +1,6 @@
 name: Tests Runner
 
-on: 
-  push:
-    branches: [main]
-  pull_request:
-  workflow_dispatch:
+on: [push, pull_request]
 
 jobs:
   linux-macos-test:
@@ -12,40 +8,50 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ['3.8', '3.11', '3.12']
+        python-version: ['3.8', '3.12']
     name: Test for ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
           cache: 'pip'
       - name: Install dependencies (Linux)
-        run: sudo apt-get install -y libqhull-dev
         if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libqhull-dev
       - name: Install dependencies (MacOS)
-        run: brew install qhull
         if: runner.os == 'macOS'
+        run: |
+          # Temporary fix, see https://github.com/actions/setup-python/issues/577
+          rm /usr/local/bin/2to3* || true
+          rm /usr/local/bin/idle3* || true
+          rm /usr/local/bin/pydoc3* || true
+          rm /usr/local/bin/python3* || true
+          rm /usr/local/bin/python3-config* || true
+          brew update
+          brew install qhull
       - name: Install python dependencies
         run: |
-          pip install --upgrade pip setuptools wheel
           pip install pip-tools pytest
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
       - name: Build and install
-        run: pip install .
+        run: |
+          python -m build -w
+          mv gdstk gdstk_src
+          pip install --no-index --find-links dist gdstk
       - name: Test
-        run: pytest
+        run: python -m pytest
 
   windows-test:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.8', '3.11', '3.12']
+        python-version: ['3.8', '3.12']
     defaults:
       run:
         shell: pwsh
@@ -53,26 +59,31 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
       - uses: ilammy/msvc-dev-cmd@v1
+      - uses: johnwason/vcpkg-action@v6
+        with:
+          manifest-dir: ${{ github.workspace }}
+          triplet: x64-windows-static
+          token: ${{ github.token }}
+          github-binarycache: true
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
       - name: Install build dependencies (pip)
         run: |
-          pip install --upgrade pip setuptools wheel
-          pip install pip-tools pytest ninja conan==1.60
+          python -m pip install --upgrade pip
+          pip install --upgrade pip-tools ninja scikit_build_core pytest
           python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
           pip install -r requirements.txt
-      - name: Install build dependencies (conan)
+      - name: Build and install
         run: |
-          conan install . -s compiler.version=16
-      - name: Build Python ${{ matrix.python-version }}
-        run: python setup.py install --user
+          python -m build -w
+          Rename-Item -Path "gdstk" -NewName "gdstk_src"
+          pip install --no-index --find-links dist gdstk
         env:
           CMAKE_GENERATOR: "Ninja"
-          CMAKE_TOOLCHAIN_FILE: "conan_paths.cmake"
+          CMAKE_TOOLCHAIN_FILE: "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+          SKBUILD_CMAKE_ARGS: "-DVCPKG_TARGET_TRIPLET=x64-windows-static;-DVCPKG_MANIFEST_MODE=OFF"
       - name: Test
-        run: pytest
+        run: python -m pytest

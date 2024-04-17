@@ -14,17 +14,17 @@ clean:
 all: test docs examples
 
 lib:
-	cmake -S . -B build -DCMAKE_INSTALL_PREFIX=build/install
+	cmake -S . -B build -G Ninja -DCMAKE_INSTALL_PREFIX=build -DCMAKE_BUILD_TYPE=Debug
 	cmake --build build --target install
 
 module:
-	python setup.py build $(PYTHON_RELEASE)
+	python -m build -w
 
 docs: module
 	sphinx-build docs docs/_build
 
 test: module
-	pytest
+	python -m pytest
 
 examples: lib
 	cmake --build build --target examples

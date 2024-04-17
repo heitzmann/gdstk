@@ -1949,7 +1949,7 @@ static int gdstk_exec(PyObject* module) {
 static PyModuleDef_Slot gdstk_slots[] = {{Py_mod_exec, (void*)gdstk_exec}, {0, NULL}};
 
 static struct PyModuleDef gdstk_module = {PyModuleDef_HEAD_INIT,
-                                          "gdstk",
+                                          "_gdstk",
                                           gdstk_module_doc,
                                           0,
                                           gdstk_methods,
@@ -1958,7 +1958,7 @@ static struct PyModuleDef gdstk_module = {PyModuleDef_HEAD_INIT,
                                           NULL,
                                           NULL};
 
-PyMODINIT_FUNC PyInit_gdstk(void) {
+PyMODINIT_FUNC PyInit__gdstk(void) {
     PyDateTime_IMPORT;
     PyObject* module = PyModuleDef_Init(&gdstk_module);
     if (!module) {
