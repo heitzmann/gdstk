@@ -3,7 +3,7 @@ graft include
 graft python
 graft src
 graft docs
-graft tests
+graft cmake_modules
 include CHANGELOG.md
 include CMakeLists.txt
 include LICENSE
