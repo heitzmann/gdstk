@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pypa/cibuildwheel@v2.16.2
+      - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_BUILD: "*-manylinux_x86_64 *-manylinux_i686 *-manylinux_aarch64"
           CIBW_SKIP: "cp36-* cp37-* pp*"
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pypa/cibuildwheel@v2.16.2
+      - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_BUILD: "*-manylinux_x86_64 *-manylinux_aarch64"
           CIBW_SKIP: "cp36-* cp37-* pp*"
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pypa/cibuildwheel@v2.16.2
+      - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_BUILD: "*-musllinux_x86_64 *-musllinux_i686 *-musllinux_aarch64"
           CIBW_SKIP: "cp36-* cp37-* pp*"
@@ -81,7 +81,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pypa/cibuildwheel@v2.12.3
+      - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_SKIP: "cp36-* cp37-* pp*"
           CIBW_ARCHS_MACOS: "x86_64 universal2"
