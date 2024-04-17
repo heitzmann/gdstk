@@ -136,6 +136,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install python dependencies
+        run: pip install build
       - name: Build sdist
         run: python -m build -s
       - uses: actions/upload-artifact@v3
