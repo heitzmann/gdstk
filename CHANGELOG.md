@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.51 - 2024-04-17
+### Changed
+- Use scikit-build-core for building, which enables support for Python 3.12 on Windows.
+
 ## 0.9.50 - 2024-02-07
 ### Added
 - `Polygon.perimeter`.

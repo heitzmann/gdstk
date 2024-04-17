@@ -1,9 +1,9 @@
 # GDSTK
 
 [![Boost Software License - Version 1.0](https://img.shields.io/github/license/heitzmann/gdstk.svg)](https://www.boost.org/LICENSE_1_0.txt)
-[![Tests Runner](https://github.com/heitzmann/gdstk/actions/workflows/testing.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/testing.yml)
-[![Publish Docs](https://github.com/heitzmann/gdstk/actions/workflows/docs.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/docs.yml)
-[![PyPI Packages](https://github.com/heitzmann/gdstk/actions/workflows/pypi-packages.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/pypi-packages.yml)
+[![Tests Runner](https://github.com/heitzmann/gdstk/actions/workflows/run-tests.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/run-tests.yml)
+[![Publish Docs](https://github.com/heitzmann/gdstk/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/publish-docs.yml)
+[![Package Builder](https://github.com/heitzmann/gdstk/actions/workflows/publish-packages.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/publish-packages.yml)
 [![Downloads](https://img.shields.io/github/downloads/heitzmann/gdstk/total.svg)](https://github.com/heitzmann/gdstk/releases)
 
 Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII and OASIS files.
@@ -38,7 +38,7 @@ cmake -S . -B build
 cmake --build build --target install
 ```
 
-The library depends on [zlib](https://zlib.net/).
+The library depends on [zlib](https://zlib.net/) and [qhull](http://www.qhull.org/)
 
 ### Python wrapper
 
@@ -62,42 +62,21 @@ pip install --user gdstk
 
 Or download and install the available wheels manually.
 
-#### Conda
-
-Windows users are suggested to install via [Conda](https://www.anaconda.com/) using the available [conda-forge recipe](https://github.com/conda-forge/gdstk-feedstock).
-The recipe works on MacOS and Linux as well.
-
-To install in a new Conda environment:
-
-```sh
-# Create a new conda environment named gdstk
-conda create -n gdstk -c conda-forge --strict-channel-priority
-# Activate the new environment
-conda activate gdstk
-# Install gdstk
-conda install gdstk
-```
-
-To use an existing environment, make sure it is configured to prioritize the conda-forge channel:
-
-```sh
-# Configure the conda-forge channel
-conda config --env --add channels conda-forge
-conda config --env --set channel_priority strict
-# Install gdstk
-conda install gdstk
-```
-
 #### From source
 
-The module must be linked against zlib.
-The included CMakeLists.txt file can be used as a guide.
-
-Installation from source should follow the usual method (there is no need to compile the static library beforehand):
+Installation from source requires the `build` module (plus CMake and Ninja, for faster compilation):
 
 ```sh
-python setup.py install
+pip install --user build
 ```
+
+With that, simply build the wheel package using:
+
+```sh
+python -m build -w
+```
+
+This will create a _dist_ directory containing the compiled _.whl_ package that can be installed with ``pip``.
 
 ## Support
 
