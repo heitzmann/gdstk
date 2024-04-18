@@ -603,13 +603,13 @@ void Cell::remap_tags(const TagMap& map) {
     }
     for (uint64_t i = 0; i < flexpath_array.count; i++) {
         FlexPath* path = flexpath_array[i];
-        for (uint64_t j = 0; i < path->num_elements; j++) {
+        for (uint64_t j = 0; j < path->num_elements; j++) {
             path->elements[j].tag = map.get(path->elements[j].tag);
         }
     }
     for (uint64_t i = 0; i < robustpath_array.count; i++) {
         RobustPath* path = robustpath_array[i];
-        for (uint64_t j = 0; i < path->num_elements; j++) {
+        for (uint64_t j = 0; j < path->num_elements; j++) {
             path->elements[j].tag = map.get(path->elements[j].tag);
         }
     }
