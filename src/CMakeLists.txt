@@ -71,9 +71,11 @@ set(SOURCE_LIST
 
 add_library(gdstk ${SOURCE_LIST} ${HEADER_LIST})
 
+target_compile_features(gdstk PUBLIC cxx_std_11)
+
 set_target_properties(gdstk PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_compile_features(gdstk PUBLIC cxx_std_11)
+set_target_properties(gdstk PROPERTIES PUBLIC_HEADER "${HEADER_LIST}")
 
 target_include_directories(gdstk PUBLIC
     $<BUILD_INTERFACE:${gdstk_SOURCE_DIR}/include>
@@ -99,4 +101,5 @@ source_group(
 install(TARGETS gdstk
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gdstk)
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gdstk
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gdstk)
