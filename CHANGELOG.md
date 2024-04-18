@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.52 - 2024-04-18
+### Fixed
+- Infinite loop in `Cell::remap_tags` (#246, thanks dtzitkas!)
+- Install headers when targeting the C++ library (#245)
+
 ## 0.9.51 - 2024-04-17
 ### Changed
 - Use scikit-build-core for building, which enables support for Python 3.12 on Windows.
