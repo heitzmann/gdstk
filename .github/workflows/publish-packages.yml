@@ -90,7 +90,7 @@ jobs:
             tar -xf v8.0.2.tar.gz &&
             cd qhull-8.0.2 &&
             cmake -DCMAKE_OSX_ARCHITECTURES='x86_64;arm64' -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DBUILD_APPLICATIONS=OFF -S . -B build &&
-            cmake --build build --target install
+            sudo cmake --build build --target install
       - uses: actions/upload-artifact@v3
         with:
           path: ./wheelhouse/*.whl
