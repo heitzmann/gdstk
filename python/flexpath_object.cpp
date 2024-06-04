@@ -1970,7 +1970,8 @@ static PyObject* flexpath_object_delete_gds_property(FlexPathObject* self, PyObj
 
 static PyMethodDef flexpath_object_methods[] = {
     {"copy", (PyCFunction)flexpath_object_copy, METH_NOARGS, flexpath_object_copy_doc},
-    {"__deepcopy__", (PyCFunction)flexpath_object_deepcopy, METH_VARARGS | METH_KEYWORDS, flexpath_object_deepcopy_doc},
+    {"__deepcopy__", (PyCFunction)flexpath_object_deepcopy, METH_VARARGS | METH_KEYWORDS,
+     flexpath_object_deepcopy_doc},
     {"spine", (PyCFunction)flexpath_object_spine, METH_NOARGS, flexpath_object_spine_doc},
     {"path_spines", (PyCFunction)flexpath_object_path_spines, METH_NOARGS,
      flexpath_object_path_spines_doc},
@@ -2293,6 +2294,51 @@ int flexpath_object_set_repetition(FlexPathObject* self, PyObject* arg, void*) {
     return 0;
 }
 
+static PyObject* flexpath_object_get_raith_data(FlexPathObject* self, void*) {
+    RaithDataObject* obj = PyObject_New(RaithDataObject, &raithdata_object_type);
+    obj = (RaithDataObject*)PyObject_Init((PyObject*)obj, &raithdata_object_type);
+    obj->raithdata->copy_from(self->flexpath->raith_data);
+    return (PyObject*)obj;
+}
+
+int flexpath_object_set_raith_data(FlexPathObject* self, PyObject* arg, void*) {
+    if (arg == Py_None) {
+        self->flexpath->raith_data.clear();
+        return 0;
+    }
+    if (!RaithDataObject_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Value must be a RaithData object.");
+        return -1;
+    }
+    RaithDataObject* raith_data_obj = (RaithDataObject*)arg;
+    self->flexpath->raith_data.copy_from(*raith_data_obj->raithdata);
+    return 0;
+}
+
+static PyObject* flexpath_object_get_base_cell_name(FlexPathObject* self, void*) {
+    return PyUnicode_FromString(self->flexpath->base_cell_name);
+}
+
+int flexpath_object_set_base_cell_name(FlexPathObject* self, PyObject* arg, void*) {
+    if (!PyUnicode_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "Name must be a string.");
+        return -1;
+    }
+    Py_ssize_t len = 0;
+    const char* src = PyUnicode_AsUTF8AndSize(arg, &len);
+    if (!src) return -1;
+    if (len <= 0) {
+        PyErr_SetString(PyExc_ValueError, "Empty cell name.");
+        return -1;
+    }
+
+    FlexPath* flexpath = self->flexpath;
+    if (flexpath->base_cell_name) free_allocation(flexpath->base_cell_name);
+    flexpath->base_cell_name = (char*)allocate(++len);
+    memcpy(flexpath->base_cell_name, src, len);
+    return 0;
+}
+
 static PyGetSetDef flexpath_object_getset[] = {
     {"layers", (getter)flexpath_object_get_layers, NULL, flexpath_object_layers_doc, NULL},
     {"datatypes", (getter)flexpath_object_get_datatypes, NULL, flexpath_object_datatypes_doc, NULL},
@@ -2314,4 +2360,8 @@ static PyGetSetDef flexpath_object_getset[] = {
      object_properties_doc, NULL},
     {"repetition", (getter)flexpath_object_get_repetition, (setter)flexpath_object_set_repetition,
      object_repetition_doc, NULL},
+    {"raith_data", (getter)flexpath_object_get_raith_data, (setter)flexpath_object_set_raith_data,
+     NULL, NULL},
+    {"base_cell_name", (getter)flexpath_object_get_base_cell_name,
+     (setter)flexpath_object_set_base_cell_name, NULL, NULL},
     {NULL}};

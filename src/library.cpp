@@ -916,16 +916,17 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
 Library read_gds(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags,
                  ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
-        "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
-        "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
-        "TEXT",      "LAYER",    "DATATYPE",  "WIDTH",      "XY",          "ENDEL",
-        "SNAME",     "COLROW",   "TEXTNODE",  "NODE",       "TEXTTYPE",    "PRESENTATION",
-        "SPACING",   "STRING",   "STRANS",    "MAG",        "ANGLE",       "UINTEGER",
-        "USTRING",   "REFLIBS",  "FONTS",     "PATHTYPE",   "GENERATIONS", "ATTRTABLE",
-        "STYPTABLE", "STRTYPE",  "ELFLAGS",   "ELKEY",      "LINKTYPE",    "LINKKEYS",
-        "NODETYPE",  "PROPATTR", "PROPVALUE", "BOX",        "BOXTYPE",     "PLEX",
-        "BGNEXTN",   "ENDEXTN",  "TAPENUM",   "TAPECODE",   "STRCLASS",    "RESERVED",
-        "FORMAT",    "MASK",     "ENDMASKS",  "LIBDIRSIZE", "SRFNAME",     "LIBSECUR"};
+        "HEADER",       "BGNLIB",      "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
+        "STRNAME",      "ENDSTR",      "BOUNDARY",  "PATH",       "SREF",        "AREF",
+        "TEXT",         "LAYER",       "DATATYPE",  "WIDTH",      "XY",          "ENDEL",
+        "SNAME",        "COLROW",      "TEXTNODE",  "NODE",       "TEXTTYPE",    "PRESENTATION",
+        "SPACING",      "STRING",      "STRANS",    "MAG",        "ANGLE",       "UINTEGER",
+        "USTRING",      "REFLIBS",     "FONTS",     "PATHTYPE",   "GENERATIONS", "ATTRTABLE",
+        "STYPTABLE",    "STRTYPE",     "ELFLAGS",   "ELKEY",      "LINKTYPE",    "LINKKEYS",
+        "NODETYPE",     "PROPATTR",    "PROPVALUE", "BOX",        "BOXTYPE",     "PLEX",
+        "BGNEXTN",      "ENDEXTN",     "TAPENUM",   "TAPECODE",   "STRCLASS",    "RESERVED",
+        "FORMAT",       "MASK",        "ENDMASKS",  "LIBDIRSIZE", "SRFNAME",     "LIBSECUR",
+        "RaithMBMPath", "RaithPXXData"};
 
     Library library = {};
     // One extra char in case we need a 0-terminated string with max count (should never happen, but
@@ -1063,12 +1064,15 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (cell) cell->polygon_array.append(polygon);
                 break;
+            case GdsiiRecord::RaithMBMPath:
             case GdsiiRecord::PATH:
                 path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                 path->num_elements = 1;
                 path->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
                 path->simple_path = true;
                 if (cell) cell->flexpath_array.append(path);
+                break;
+            case GdsiiRecord::RaithPXXData:
                 break;
             case GdsiiRecord::SREF:
             case GdsiiRecord::AREF:
@@ -1191,15 +1195,17 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 reference = NULL;
                 label = NULL;
                 break;
-            case GdsiiRecord::SNAME: {
+            case GdsiiRecord::SNAME:
                 if (reference) {
                     if (str[data_length - 1] == 0) data_length--;
                     reference->name = (char*)allocate(data_length + 1);
                     memcpy(reference->name, str, data_length);
                     reference->name[data_length] = 0;
                     reference->type = ReferenceType::Name;
+                } else if (path) {
+                    path->base_cell_name = str;
                 }
-            } break;
+                break;
             case GdsiiRecord::COLROW:
                 if (reference) {
                     Repetition* repetition = &reference->repetition;

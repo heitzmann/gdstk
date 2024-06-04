@@ -23,6 +23,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #endif
 
 #define CellObject_Check(o) PyObject_TypeCheck((o), &cell_object_type)
+#define RaithDataObject_Check(o) PyObject_TypeCheck((o), &raithdata_object_type)
 #define FlexPathObject_Check(o) PyObject_TypeCheck((o), &flexpath_object_type)
 #define LabelObject_Check(o) PyObject_TypeCheck((o), &label_object_type)
 #define LibraryObject_Check(o) PyObject_TypeCheck((o), &library_object_type)
@@ -119,6 +120,11 @@ struct PolygonObject {
 struct ReferenceObject {
     PyObject_HEAD;
     Reference* reference;
+};
+
+struct RaithDataObject {
+    PyObject_HEAD;
+    RaithData* raithdata;
 };
 
 struct FlexPathObject {
@@ -261,6 +267,46 @@ static PyTypeObject reference_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gds
                                              0,
                                              Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
                                              reference_object_type_doc,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             PyType_GenericNew,
+                                             0,
+                                             0};
+
+static PyTypeObject raithdata_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.RaithData",
+                                             sizeof(RaithDataObject),
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+                                             0,
                                              0,
                                              0,
                                              0,
@@ -746,6 +792,7 @@ static Array<Vec2> custom_bend_function(double radius, double initial_angle, dou
 #include "label_object.cpp"
 #include "library_object.cpp"
 #include "polygon_object.cpp"
+#include "raithdata_object.cpp"
 #include "rawcell_object.cpp"
 #include "reference_object.cpp"
 #include "repetition_object.cpp"
@@ -1870,6 +1917,11 @@ static int gdstk_exec(PyObject* module) {
     reference_object_type.tp_methods = reference_object_methods;
     reference_object_type.tp_getset = reference_object_getset;
     reference_object_type.tp_str = (reprfunc)reference_object_str;
+
+    raithdata_object_type.tp_dealloc = (destructor)raithdata_object_dealloc;
+    raithdata_object_type.tp_init = (initproc)raithdata_object_init;
+    raithdata_object_type.tp_getset = raithdata_object_getset;
+    raithdata_object_type.tp_str = (reprfunc)raithdata_object_str;
 
     flexpath_object_type.tp_dealloc = (destructor)flexpath_object_dealloc;
     flexpath_object_type.tp_init = (initproc)flexpath_object_init;

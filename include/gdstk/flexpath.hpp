@@ -20,6 +20,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "pathcommon.hpp"
 #include "polygon.hpp"
 #include "property.hpp"
+#include "raithdata.hpp"
 #include "repetition.hpp"
 #include "utils.hpp"
 
@@ -75,6 +76,9 @@ struct FlexPath {
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
+
+    RaithData raith_data;
+    char* base_cell_name;
 
     // These are initialization routines to facilitate the creation of new
     // flexpaths.  In versions with argument num_elements_, the elements array

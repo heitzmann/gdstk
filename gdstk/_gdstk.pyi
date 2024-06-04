@@ -140,6 +140,26 @@ class Curve:
     def turn(self, radius: float, angle: float) -> Self: ...
     def vertical(self, y: float | Sequence[float], relative: bool = False) -> Self: ...
 
+class RaithData:
+    dwelltime_selection: int
+    pitch_parallel_to_path: float
+    pitch_perpendicular_to_path: float
+    pitch_scale: float
+    periods: int
+    grating_type: int
+    dots_per_cycle: int    
+    
+    def __init__(
+        self,
+        dwelltime_selection: int,
+        pitch_parallel_to_path: float,
+        pitch_perpendicular_to_path: float,
+        pitch_scale: float,
+        periods: int,
+        grating_type: int,
+        dots_per_cycle: int,
+    ) -> None: ...
+    
 class FlexPath:
     bend_function: tuple[
         Optional[Callable[[float, float, float, float], list[tuple[float, float]]]], ...
@@ -165,6 +185,8 @@ class FlexPath:
     simple_path: bool
     size: int
     tolerance: float
+    raith_data: Optional[RaithData]
+    base_cell_name: Optional[str]
     def __init__(
         self,
         points: tuple[float, float] | complex | Sequence[tuple[float, float] | complex],
