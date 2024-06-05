@@ -1,4 +1,10 @@
-#include "raithdata.hpp"
+#define __STDC_FORMAT_MACROS 1
+#define _USE_MATH_DEFINES
+
+#include <stdint.h>
+#include <stdio.h>
+
+#include <gdstk/raithdata.hpp>
 
 namespace gdstk {
 

@@ -10,35 +10,41 @@ static PyObject* raithdata_object_str(RaithDataObject* self) {
 }
 
 static void raithdata_object_dealloc(RaithDataObject* self) {
-    if (self->raithdata != NULL) {
-        free(self->raithdata);
-        self->raithdata = NULL;
+    if (self->raithdata) {
+        self->raithdata->clear();
+        free_allocation(self->raithdata);
     }
 
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject* kwds) {
-    const char* kwlist[] = {"dwelltime_selection",
-                            "pitch_parallel_to_path",
-                            "pitch_perpendicular_to_path",
-                            "pitch_scale",
-                            "periods",
-                            "grating_type",
-                            "dots_per_cycle",
-                            NULL};
-    int dwelltime_selection = 0;
+    const char* keywords[] = {"dwelltime_selection",
+                              "pitch_parallel_to_path",
+                              "pitch_perpendicular_to_path",
+                              "pitch_scale",
+                              "periods",
+                              "grating_type",
+                              "dots_per_cycle",
+                              NULL};
+    uint64_t dwelltime_selection = 0;
     double pitch_parallel_to_path = 0;
     double pitch_perpendicular_to_path = 0;
     double pitch_scale = 0;
-    int periods = 0;
-    int grating_type = 0;
-    int dots_per_cycle = 0;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|idddiii:RaithData", (char**)kwlist,
+    uint64_t periods = 0;
+    uint64_t grating_type = 0;
+    uint64_t dots_per_cycle = 0;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|idddiii:RaithData", (char**)keywords,
                                      &dwelltime_selection, &pitch_parallel_to_path,
                                      &pitch_perpendicular_to_path, &pitch_scale, &periods,
                                      &grating_type, &dots_per_cycle))
         return -1;
+
+    if (self->raithdata) {
+        self->raithdata->clear();
+    } else {
+        self->raithdata = (RaithData*)allocate_clear(sizeof(RaithData));
+    }
 
     RaithData* raithdata = self->raithdata;
     raithdata->dwelltime_selection = dwelltime_selection;
@@ -48,11 +54,14 @@ static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject
     raithdata->periods = periods;
     raithdata->grating_type = grating_type;
     raithdata->dots_per_cycle = dots_per_cycle;
+    raithdata->owner = self;
     return 0;
 }
 
+static PyMethodDef raithdata_object_methods[] = {{NULL}};
+
 static PyObject* raithdata_object_get_dwelltime_selection(RaithDataObject* self, void*) {
-    return PyLong_FromLong(self->raithdata->dwelltime_selection);
+    return PyLong_FromLongLong(self->raithdata->dwelltime_selection);
 }
 
 int raithdata_object_set_dwelltime_selection(RaithDataObject* self, PyObject* value, void*) {
@@ -108,7 +117,7 @@ int raithdata_object_set_pitch_scale(RaithDataObject* self, PyObject* value, voi
 }
 
 static PyObject* raithdata_object_get_periods(RaithDataObject* self, void*) {
-    return PyLong_FromLong(self->raithdata->periods);
+    return PyLong_FromLongLong(self->raithdata->periods);
 }
 
 int raithdata_object_set_periods(RaithDataObject* self, PyObject* value, void*) {
@@ -121,7 +130,7 @@ int raithdata_object_set_periods(RaithDataObject* self, PyObject* value, void*) 
 }
 
 static PyObject* raithdata_object_get_grating_type(RaithDataObject* self, void*) {
-    return PyLong_FromLong(self->raithdata->grating_type);
+    return PyLong_FromLongLong(self->raithdata->grating_type);
 }
 
 int raithdata_object_set_grating_type(RaithDataObject* self, PyObject* value, void*) {
@@ -134,7 +143,7 @@ int raithdata_object_set_grating_type(RaithDataObject* self, PyObject* value, vo
 }
 
 static PyObject* raithdata_object_get_dots_per_cycle(RaithDataObject* self, void*) {
-    return PyLong_FromLong(self->raithdata->dots_per_cycle);
+    return PyLong_FromLongLong(self->raithdata->dots_per_cycle);
 }
 
 int raithdata_object_set_dots_per_cycle(RaithDataObject* self, PyObject* value, void*) {
@@ -148,17 +157,20 @@ int raithdata_object_set_dots_per_cycle(RaithDataObject* self, PyObject* value, 
 
 static PyGetSetDef raithdata_object_getset[] = {
     {"dwelltime_selection", (getter)raithdata_object_get_dwelltime_selection,
-     (setter)raithdata_object_set_dwelltime_selection, NULL, NULL},
-    {"pitch_parallel_to_path", (getter)raithdata_object_get_pitch_parallel_to_path,
-     (setter)raithdata_object_set_pitch_parallel_to_path, NULL, NULL},
-    {"pitch_perpendicular_to_path", (getter)raithdata_object_get_pitch_perpendicular_to_path,
-     (setter)raithdata_object_set_pitch_perpendicular_to_path, NULL, NULL},
-    {"pitch_scale", (getter)raithdata_object_get_pitch_scale,
-     (setter)raithdata_object_set_pitch_scale, NULL, NULL},
-    {"periods", (getter)raithdata_object_get_periods, (setter)raithdata_object_set_periods, NULL,
+     (setter)raithdata_object_set_dwelltime_selection, raithdata_object_dwelltime_selection_doc,
      NULL},
+    {"pitch_parallel_to_path", (getter)raithdata_object_get_pitch_parallel_to_path,
+     (setter)raithdata_object_set_pitch_parallel_to_path,
+     raithdata_object_pitch_parallel_to_path_doc, NULL},
+    {"pitch_perpendicular_to_path", (getter)raithdata_object_get_pitch_perpendicular_to_path,
+     (setter)raithdata_object_pitch_perpendicular_to_path_doc,
+     raithdata_object_pitch_parallel_to_path_doc, NULL},
+    {"pitch_scale", (getter)raithdata_object_get_pitch_scale,
+     (setter)raithdata_object_set_pitch_scale, raithdata_object_pitch_scale_doc, NULL},
+    {"periods", (getter)raithdata_object_get_periods, (setter)raithdata_object_set_periods,
+     raithdata_object_periods_doc, NULL},
     {"grating_type", (getter)raithdata_object_get_grating_type,
-     (setter)raithdata_object_set_grating_type, NULL, NULL},
+     (setter)raithdata_object_set_grating_type, grating_type_object_type_doc, NULL},
     {"dots_per_cycle", (getter)raithdata_object_get_dots_per_cycle,
-     (setter)raithdata_object_set_dots_per_cycle, NULL, NULL},
-}
+     (setter)raithdata_object_set_dots_per_cycle, dots_per_cycle_object_type_doc, NULL},
+    {NULL}};

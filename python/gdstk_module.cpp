@@ -306,7 +306,7 @@ static PyTypeObject raithdata_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gds
                                              0,
                                              0,
                                              Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-                                             0,
+                                             raithdata_object_type_doc,
                                              0,
                                              0,
                                              0,
@@ -1920,6 +1920,7 @@ static int gdstk_exec(PyObject* module) {
 
     raithdata_object_type.tp_dealloc = (destructor)raithdata_object_dealloc;
     raithdata_object_type.tp_init = (initproc)raithdata_object_init;
+    raithdata_object_type.tp_methods = raithdata_object_methods;
     raithdata_object_type.tp_getset = raithdata_object_getset;
     raithdata_object_type.tp_str = (reprfunc)raithdata_object_str;
 
@@ -1973,14 +1974,14 @@ static int gdstk_exec(PyObject* module) {
     repetition_object_type.tp_str = (reprfunc)repetition_object_str;
 
     char const* names[] = {
-        "Library",   "Cell",       "Polygon", "FlexPath", "RobustPath", "Label",
-        "Reference", "Repetition", "Curve",   "RawCell",  "GdsWriter",
+        "Library", "Cell",      "Polygon",    "RaithData", "FlexPath", "RobustPath",
+        "Label",   "Reference", "Repetition", "Curve",     "RawCell",  "GdsWriter",
     };
     PyTypeObject* types[] = {
-        &library_object_type,   &cell_object_type,       &polygon_object_type,
-        &flexpath_object_type,  &robustpath_object_type, &label_object_type,
-        &reference_object_type, &repetition_object_type, &curve_object_type,
-        &rawcell_object_type,   &gdswriter_object_type,
+        &library_object_type,   &cell_object_type,      &polygon_object_type,
+        &raithdata_object_type, &flexpath_object_type,  &robustpath_object_type,
+        &label_object_type,     &reference_object_type, &repetition_object_type,
+        &curve_object_type,     &rawcell_object_type,   &gdswriter_object_type,
     };
     for (unsigned long i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
         if (PyType_Ready(types[i]) < 0) {

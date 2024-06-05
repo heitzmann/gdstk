@@ -147,8 +147,7 @@ class RaithData:
     pitch_scale: float
     periods: int
     grating_type: int
-    dots_per_cycle: int    
-    
+    dots_per_cycle: int
     def __init__(
         self,
         dwelltime_selection: int,
