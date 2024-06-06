@@ -876,8 +876,6 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
             if (base_cell_name) {
                 fwrite(sname_start, sizeof(uint16_t), COUNT(sname_start), out);
                 fwrite(base_cell_name, 1, len, out);
-            }
-            if (pxxdata_start) {
                 uint64_t pxxdata_total = sizeof(PXXDATA);
                 uint64_t pxx_i0 = 0;
                 while (pxx_i0 < pxxdata_total) {
