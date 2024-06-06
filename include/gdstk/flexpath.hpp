@@ -77,8 +77,8 @@ struct FlexPath {
     // No functions in gdstk namespace should touch this value!
     void* owner;
 
-    RaithData raith_data;
-    char* base_cell_name;
+    RaithData raith_data = {0, 0, 0, 0, 0, 0, 0, NULL};
+    char* base_cell_name = NULL;
 
     // These are initialization routines to facilitate the creation of new
     // flexpaths.  In versions with argument num_elements_, the elements array

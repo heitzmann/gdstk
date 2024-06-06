@@ -4,11 +4,12 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <gdstk/array.hpp>
 #include <gdstk/raithdata.hpp>
 
 namespace gdstk {
 
-void RaithData::copy_from(const RaithData raith_data) {
+void RaithData::copy_from(const RaithData& raith_data) {
     dwelltime_selection = raith_data.dwelltime_selection;
     pitch_parallel_to_path = raith_data.pitch_parallel_to_path;
     pitch_perpendicular_to_path = raith_data.pitch_perpendicular_to_path;
@@ -26,6 +27,9 @@ void RaithData::clear() {
     periods = 0;
     grating_type = 0;
     dots_per_cycle = 0;
+    owner = nullptr;
+
+    memset(this, 0, sizeof(RaithData));
 }
 
 }  // namespace gdstk

@@ -1,8 +1,9 @@
 static PyObject* raithdata_object_str(RaithDataObject* self) {
     char buffer[GDSTK_PRINT_BUFFER_COUNT];
+    snprintf(buffer, COUNT(buffer), "in str");
     snprintf(
         buffer, COUNT(buffer),
-        "RaithData(dwelltime_selection: %d, pitch_parallel_to_path: %lg, pitch_perpendicular_to_path: %lg, pitch_scale: %lg, periods: %d, grating_type: %d, dots_per_cycle: %d)",
+        "RaithData(dwelltime_selection: %ld, pitch_parallel_to_path: %lg, pitch_perpendicular_to_path: %lg, pitch_scale: %lg, periods: %ld, grating_type: %ld, dots_per_cycle: %ld)",
         self->raithdata->dwelltime_selection, self->raithdata->pitch_parallel_to_path,
         self->raithdata->pitch_perpendicular_to_path, self->raithdata->pitch_scale,
         self->raithdata->periods, self->raithdata->grating_type, self->raithdata->dots_per_cycle);
@@ -19,6 +20,8 @@ static void raithdata_object_dealloc(RaithDataObject* self) {
 }
 
 static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject* kwds) {
+    char buffer[GDSTK_PRINT_BUFFER_COUNT];
+    snprintf(buffer, COUNT(buffer), "in init");
     const char* keywords[] = {"dwelltime_selection",
                               "pitch_parallel_to_path",
                               "pitch_perpendicular_to_path",
@@ -40,13 +43,14 @@ static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject
                                      &grating_type, &dots_per_cycle))
         return -1;
 
-    if (self->raithdata) {
-        self->raithdata->clear();
+    RaithData* raithdata = self->raithdata;
+    if (raithdata) {
+        raithdata->clear();
     } else {
         self->raithdata = (RaithData*)allocate_clear(sizeof(RaithData));
+        raithdata = self->raithdata;
     }
 
-    RaithData* raithdata = self->raithdata;
     raithdata->dwelltime_selection = dwelltime_selection;
     raithdata->pitch_parallel_to_path = pitch_parallel_to_path;
     raithdata->pitch_perpendicular_to_path = pitch_perpendicular_to_path;

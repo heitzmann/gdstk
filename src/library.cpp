@@ -1203,7 +1203,10 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     reference->name[data_length] = 0;
                     reference->type = ReferenceType::Name;
                 } else if (path) {
-                    path->base_cell_name = str;
+                    if (str[data_length - 1] == 0) data_length--;
+                    path->base_cell_name = (char*)allocate(data_length + 1);
+                    memcpy(path->base_cell_name, str, data_length);
+                    path->base_cell_name[data_length] = 0;
                 }
                 break;
             case GdsiiRecord::COLROW:

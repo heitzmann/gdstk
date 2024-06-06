@@ -100,6 +100,8 @@ void FlexPath::clear() {
     elements = NULL;
     num_elements = 0;
     repetition.clear();
+    raith_data.clear();
+    base_cell_name = NULL;
     properties_clear(properties);
 }
 
@@ -110,6 +112,8 @@ void FlexPath::copy_from(const FlexPath& path) {
     scale_width = path.scale_width;
     simple_path = path.simple_path;
     num_elements = path.num_elements;
+    raith_data.copy_from(path.raith_data);
+    base_cell_name = path.base_cell_name;
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
 
     FlexPathElement* src = path.elements;

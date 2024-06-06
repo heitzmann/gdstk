@@ -40,6 +40,7 @@ set(HEADER_LIST
     "${gdstk_SOURCE_DIR}/include/gdstk/pathcommon.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/polygon.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/property.hpp"
+    "${gdstk_SOURCE_DIR}/include/gdstk/raithdata.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/rawcell.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/reference.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/repetition.hpp"
@@ -62,6 +63,7 @@ set(SOURCE_LIST
     oasis.cpp
     polygon.cpp
     property.cpp
+    raithdata.cpp
     rawcell.cpp
     reference.cpp
     repetition.cpp

@@ -2316,7 +2316,12 @@ int flexpath_object_set_raith_data(FlexPathObject* self, PyObject* arg, void*) {
 }
 
 static PyObject* flexpath_object_get_base_cell_name(FlexPathObject* self, void*) {
-    return PyUnicode_FromString(self->flexpath->base_cell_name);
+    PyObject* result = PyUnicode_FromString(self->flexpath->base_cell_name);
+    if (!result) {
+        PyErr_SetString(PyExc_TypeError, "Unable to convert value to string.");
+        return NULL;
+    }
+    return result;
 }
 
 int flexpath_object_set_base_cell_name(FlexPathObject* self, PyObject* arg, void*) {
