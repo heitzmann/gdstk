@@ -32,25 +32,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
-#pragma pack(push, 1)
-typedef struct {
-    uint8_t calc_only;
-    uint8_t dwelltime_selection;
-    uint16_t unused;
-    double pitch_parallel_to_path;
-    double pitch_perpendicular_to_path;
-    double pitch_scale;
-    int32_t periods;
-    int32_t grating_type;
-    int32_t dots_per_cycle;
-    int32_t retBasePixelCount;
-    int32_t retPixelCount;
-    double retStageSpeed;
-    double retDwellTime;
-    uint8_t free[190];
-    uint16_t revision;
-} PXXDATA;
-#pragma pack(pop)
 struct ByteArray {
     uint64_t count;
     uint8_t* bytes;
@@ -1106,7 +1087,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     raith_data->dots_per_cycle = pxxdata.dots_per_cycle;
 
                     path->raith_data = *raith_data;
-                                }
+                }
                 break;
             case GdsiiRecord::SREF:
             case GdsiiRecord::AREF:

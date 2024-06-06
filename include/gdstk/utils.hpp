@@ -61,6 +61,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <time.h>
 
 #include "array.hpp"
+#include "raithdata.hpp"
 #include "vec.hpp"
 
 namespace gdstk {
@@ -230,6 +231,28 @@ inline uint64_t hash(const char* key) {
 
 extern FILE* error_logger;
 void set_error_logger(FILE* log);
+
+#pragma pack(push, 1)
+typedef struct {
+    uint8_t calc_only;
+    uint8_t dwelltime_selection;
+    uint16_t unused;
+    double pitch_parallel_to_path;
+    double pitch_perpendicular_to_path;
+    double pitch_scale;
+    int32_t periods;
+    int32_t grating_type;
+    int32_t dots_per_cycle;
+    int32_t ret_base_pixel_count;
+    int32_t ret_pixel_count;
+    double ret_stage_speed;
+    double ret_dwell_time;
+    uint8_t free[190];
+    uint16_t revision;
+} PXXDATA;
+#pragma pack(pop)
+
+PXXDATA convert_to_pxxdata(const RaithData& raith_data);
 
 }  // namespace gdstk
 

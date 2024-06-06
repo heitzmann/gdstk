@@ -813,8 +813,23 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                 end_type = 0;
         }
 
+        uint16_t path_type;
+        if (base_cell_name) {
+            path_type = 0x5A00;
+        } else {
+            path_type = 0x0900;
+        }
+
+        uint64_t len = strlen(base_cell_name);
+        if (len % 2) len++;
+
+        PXXDATA pxxdata = convert_to_pxxdata(raith_data);
+
+        uint8_t serialized_pxxdata[sizeof(PXXDATA)];
+        memcpy(serialized_pxxdata, &pxxdata, sizeof(PXXDATA));
+
         uint16_t buffer_start[] = {4,
-                                   0x0900,
+                                   path_type,
                                    6,
                                    0x0D02,
                                    (uint16_t)get_layer(el->tag),
@@ -826,6 +841,13 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                                    end_type,
                                    8,
                                    0x0F03};
+
+        uint16_t sname_start[] = {(uint16_t)(4 + len), 0x1206};
+        uint16_t pxxdata_start[] = {4, 0x6206};
+
+        big_endian_swap16(sname_start, COUNT(sname_start));
+        big_endian_swap16(pxxdata_start, COUNT(pxxdata_start));
+
         int32_t width =
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
         big_endian_swap16(buffer_start, COUNT(buffer_start));
@@ -851,6 +873,23 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
         for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
             fwrite(&width, sizeof(int32_t), 1, out);
+            if (base_cell_name) {
+                fwrite(sname_start, sizeof(uint16_t), COUNT(sname_start), out);
+                fwrite(base_cell_name, 1, len, out);
+            }
+            if (pxxdata_start) {
+                uint64_t pxxdata_total = sizeof(PXXDATA);
+                uint64_t pxx_i0 = 0;
+                while (pxx_i0 < pxxdata_total) {
+                    uint64_t pxx_i1 = pxxdata_total < pxx_i0 + 8190 ? pxxdata_total : pxx_i0 + 8190;
+                    uint16_t buffer_pxx[] = {(uint16_t)(4 + pxx_i1 - pxx_i0), 0x6206};
+                    big_endian_swap16(buffer_pxx, COUNT(buffer_pxx));
+                    fwrite(buffer_pxx, sizeof(uint16_t), COUNT(buffer_pxx), out);
+                    fwrite(serialized_pxxdata + pxx_i0, 1, pxx_i1 - pxx_i0, out);
+                    pxx_i0 = pxx_i1;
+                }
+            }
+
             if (end_type == 4) {
                 fwrite(buffer_ext1, sizeof(uint16_t), COUNT(buffer_ext1), out);
                 fwrite(ext_size, sizeof(int32_t), 1, out);

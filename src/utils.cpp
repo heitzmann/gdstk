@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <time.h>
 
 #include <gdstk/allocator.hpp>
+#include <gdstk/raithdata.hpp>
 #include <gdstk/utils.hpp>
 #include <gdstk/vec.hpp>
 
@@ -635,8 +636,7 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
 char* double_print(double value, uint32_t precision, char* buffer, size_t buffer_size) {
     uint64_t len = snprintf(buffer, buffer_size, "%.*f", precision, value);
     if (precision) {
-        while (buffer[--len] == '0')
-            ;
+        while (buffer[--len] == '0');
         if (buffer[len] != '.') len++;
         buffer[len] = 0;
     }
@@ -675,6 +675,26 @@ const char* default_svg_label_style(Tag tag) {
     const char* c = default_color(tag);
     memcpy(buffer + 21, c, 6);
     return buffer;
+}
+
+PXXDATA convert_to_pxxdata(const RaithData& raith_data) {
+    PXXDATA pd = {};
+    pd.calc_only = 0;
+    pd.dwelltime_selection = raith_data.dwelltime_selection;
+    pd.unused = 0;
+    pd.pitch_parallel_to_path = raith_data.pitch_parallel_to_path;
+    pd.pitch_perpendicular_to_path = raith_data.pitch_perpendicular_to_path;
+    pd.pitch_scale = raith_data.pitch_scale;
+    pd.periods = raith_data.periods;
+    pd.grating_type = raith_data.grating_type;
+    pd.dots_per_cycle = raith_data.dots_per_cycle;
+    pd.ret_base_pixel_count = 0;
+    pd.ret_pixel_count = 0;
+    pd.ret_stage_speed = 0.0;
+    pd.ret_dwell_time = 0.0;
+    memset(pd.free, 0, sizeof(pd.free));
+    pd.revision = 1;
+    return pd;
 }
 
 }  // namespace gdstk
