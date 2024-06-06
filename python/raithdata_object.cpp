@@ -1,27 +1,20 @@
 static PyObject* raithdata_object_str(RaithDataObject* self) {
     char buffer[GDSTK_PRINT_BUFFER_COUNT];
-    snprintf(buffer, COUNT(buffer), "in str");
     snprintf(
         buffer, COUNT(buffer),
-        "RaithData(dwelltime_selection: %ld, pitch_parallel_to_path: %lg, pitch_perpendicular_to_path: %lg, pitch_scale: %lg, periods: %ld, grating_type: %ld, dots_per_cycle: %ld)",
-        self->raithdata->dwelltime_selection, self->raithdata->pitch_parallel_to_path,
-        self->raithdata->pitch_perpendicular_to_path, self->raithdata->pitch_scale,
-        self->raithdata->periods, self->raithdata->grating_type, self->raithdata->dots_per_cycle);
+        "RaithData(dwelltime_selection: %d, pitch_parallel_to_path: %lg, pitch_perpendicular_to_path: %lg, pitch_scale: %lg, periods: %d, grating_type: %d, dots_per_cycle: %d)",
+        self->raithdata.dwelltime_selection, self->raithdata.pitch_parallel_to_path,
+        self->raithdata.pitch_perpendicular_to_path, self->raithdata.pitch_scale,
+        self->raithdata.periods, self->raithdata.grating_type, self->raithdata.dots_per_cycle);
     return PyUnicode_FromString(buffer);
 }
 
 static void raithdata_object_dealloc(RaithDataObject* self) {
-    if (self->raithdata) {
-        self->raithdata->clear();
-        free_allocation(self->raithdata);
-    }
-
+    self->raithdata.clear();
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject* kwds) {
-    char buffer[GDSTK_PRINT_BUFFER_COUNT];
-    snprintf(buffer, COUNT(buffer), "in init");
     const char* keywords[] = {"dwelltime_selection",
                               "pitch_parallel_to_path",
                               "pitch_perpendicular_to_path",
@@ -30,26 +23,21 @@ static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject
                               "grating_type",
                               "dots_per_cycle",
                               NULL};
-    uint64_t dwelltime_selection = 0;
+    uint8_t dwelltime_selection = 0;
     double pitch_parallel_to_path = 0;
     double pitch_perpendicular_to_path = 0;
     double pitch_scale = 0;
-    uint64_t periods = 0;
-    uint64_t grating_type = 0;
-    uint64_t dots_per_cycle = 0;
+    int32_t periods = 0;
+    int32_t grating_type = 0;
+    int32_t dots_per_cycle = 0;
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|idddiii:RaithData", (char**)keywords,
                                      &dwelltime_selection, &pitch_parallel_to_path,
                                      &pitch_perpendicular_to_path, &pitch_scale, &periods,
                                      &grating_type, &dots_per_cycle))
         return -1;
 
-    RaithData* raithdata = self->raithdata;
-    if (raithdata) {
-        raithdata->clear();
-    } else {
-        self->raithdata = (RaithData*)allocate_clear(sizeof(RaithData));
-        raithdata = self->raithdata;
-    }
+    RaithData* raithdata = &self->raithdata;
+    raithdata->clear();
 
     raithdata->dwelltime_selection = dwelltime_selection;
     raithdata->pitch_parallel_to_path = pitch_parallel_to_path;
@@ -65,7 +53,7 @@ static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject
 static PyMethodDef raithdata_object_methods[] = {{NULL}};
 
 static PyObject* raithdata_object_get_dwelltime_selection(RaithDataObject* self, void*) {
-    return PyLong_FromLongLong(self->raithdata->dwelltime_selection);
+    return PyLong_FromUnsignedLong(self->raithdata.dwelltime_selection);
 }
 
 int raithdata_object_set_dwelltime_selection(RaithDataObject* self, PyObject* value, void*) {
@@ -74,12 +62,12 @@ int raithdata_object_set_dwelltime_selection(RaithDataObject* self, PyObject* va
                         "The dwelltime_selection attribute value must be an integer.");
         return -1;
     }
-    self->raithdata->dwelltime_selection = PyLong_AsLong(value);
+    self->raithdata.dwelltime_selection = PyLong_AsUnsignedLong(value);
     return 0;
 }
 
 static PyObject* raithdata_object_get_pitch_parallel_to_path(RaithDataObject* self, void*) {
-    return PyFloat_FromDouble(self->raithdata->pitch_parallel_to_path);
+    return PyFloat_FromDouble(self->raithdata.pitch_parallel_to_path);
 }
 
 int raithdata_object_set_pitch_parallel_to_path(RaithDataObject* self, PyObject* value, void*) {
@@ -88,12 +76,12 @@ int raithdata_object_set_pitch_parallel_to_path(RaithDataObject* self, PyObject*
                         "The pitch_parallel_to_path attribute value must be a float.");
         return -1;
     }
-    self->raithdata->pitch_parallel_to_path = PyFloat_AsDouble(value);
+    self->raithdata.pitch_parallel_to_path = PyFloat_AsDouble(value);
     return 0;
 }
 
 static PyObject* raithdata_object_get_pitch_perpendicular_to_path(RaithDataObject* self, void*) {
-    return PyFloat_FromDouble(self->raithdata->pitch_perpendicular_to_path);
+    return PyFloat_FromDouble(self->raithdata.pitch_perpendicular_to_path);
 }
 
 int raithdata_object_set_pitch_perpendicular_to_path(RaithDataObject* self, PyObject* value,
@@ -103,12 +91,12 @@ int raithdata_object_set_pitch_perpendicular_to_path(RaithDataObject* self, PyOb
                         "The pitch_perpendicular_to_path attribute value must be a float.");
         return -1;
     }
-    self->raithdata->pitch_perpendicular_to_path = PyFloat_AsDouble(value);
+    self->raithdata.pitch_perpendicular_to_path = PyFloat_AsDouble(value);
     return 0;
 }
 
 static PyObject* raithdata_object_get_pitch_scale(RaithDataObject* self, void*) {
-    return PyFloat_FromDouble(self->raithdata->pitch_scale);
+    return PyFloat_FromDouble(self->raithdata.pitch_scale);
 }
 
 int raithdata_object_set_pitch_scale(RaithDataObject* self, PyObject* value, void*) {
@@ -116,12 +104,12 @@ int raithdata_object_set_pitch_scale(RaithDataObject* self, PyObject* value, voi
         PyErr_SetString(PyExc_TypeError, "The pitch_scale attribute value must be a float.");
         return -1;
     }
-    self->raithdata->pitch_scale = PyFloat_AsDouble(value);
+    self->raithdata.pitch_scale = PyFloat_AsDouble(value);
     return 0;
 }
 
 static PyObject* raithdata_object_get_periods(RaithDataObject* self, void*) {
-    return PyLong_FromLongLong(self->raithdata->periods);
+    return PyLong_FromUnsignedLong(self->raithdata.periods);
 }
 
 int raithdata_object_set_periods(RaithDataObject* self, PyObject* value, void*) {
@@ -129,12 +117,12 @@ int raithdata_object_set_periods(RaithDataObject* self, PyObject* value, void*) 
         PyErr_SetString(PyExc_TypeError, "The periods attribute value must be an integer.");
         return -1;
     }
-    self->raithdata->periods = PyLong_AsLong(value);
+    self->raithdata.periods = PyLong_AsUnsignedLong(value);
     return 0;
 }
 
 static PyObject* raithdata_object_get_grating_type(RaithDataObject* self, void*) {
-    return PyLong_FromLongLong(self->raithdata->grating_type);
+    return PyLong_FromUnsignedLong(self->raithdata.grating_type);
 }
 
 int raithdata_object_set_grating_type(RaithDataObject* self, PyObject* value, void*) {
@@ -142,12 +130,12 @@ int raithdata_object_set_grating_type(RaithDataObject* self, PyObject* value, vo
         PyErr_SetString(PyExc_TypeError, "The grating_type attribute value must be an integer.");
         return -1;
     }
-    self->raithdata->grating_type = PyLong_AsLong(value);
+    self->raithdata.grating_type = PyLong_AsUnsignedLong(value);
     return 0;
 }
 
 static PyObject* raithdata_object_get_dots_per_cycle(RaithDataObject* self, void*) {
-    return PyLong_FromLongLong(self->raithdata->dots_per_cycle);
+    return PyLong_FromUnsignedLong(self->raithdata.dots_per_cycle);
 }
 
 int raithdata_object_set_dots_per_cycle(RaithDataObject* self, PyObject* value, void*) {
@@ -155,7 +143,7 @@ int raithdata_object_set_dots_per_cycle(RaithDataObject* self, PyObject* value, 
         PyErr_SetString(PyExc_TypeError, "The dots_per_cycle attribute value must be an integer.");
         return -1;
     }
-    self->raithdata->dots_per_cycle = PyLong_AsLong(value);
+    self->raithdata.dots_per_cycle = PyLong_AsUnsignedLong(value);
     return 0;
 }
 

@@ -124,7 +124,7 @@ struct ReferenceObject {
 
 struct RaithDataObject {
     PyObject_HEAD;
-    RaithData* raithdata;
+    RaithData raithdata;
 };
 
 struct FlexPathObject {

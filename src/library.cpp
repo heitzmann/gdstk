@@ -32,11 +32,30 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+#pragma pack(push, 1)
+typedef struct {
+    uint8_t calc_only;
+    uint8_t dwelltime_selection;
+    uint16_t unused;
+    double pitch_parallel_to_path;
+    double pitch_perpendicular_to_path;
+    double pitch_scale;
+    int32_t periods;
+    int32_t grating_type;
+    int32_t dots_per_cycle;
+    int32_t retBasePixelCount;
+    int32_t retPixelCount;
+    double retStageSpeed;
+    double retDwellTime;
+    uint8_t free[190];
+    uint16_t revision;
+} PXXDATA;
+#pragma pack(pop)
 struct ByteArray {
     uint64_t count;
     uint8_t* bytes;
     Property* properties;
-};
+};  // namespace gdstk
 
 void Library::print(bool all) const {
     printf("Library <%p> %s, unit %lg, precision %lg, %" PRIu64 " cells, %" PRIu64
@@ -940,6 +959,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     Cell* cell = NULL;
     Polygon* polygon = NULL;
     FlexPath* path = NULL;
+    RaithData* raith_data = NULL;
     Reference* reference = NULL;
     Label* label = NULL;
 
@@ -1073,6 +1093,20 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 if (cell) cell->flexpath_array.append(path);
                 break;
             case GdsiiRecord::RaithPXXData:
+                if (path) {
+                    PXXDATA pxxdata;
+                    memcpy(&pxxdata, buffer + 4, record_length);
+                    raith_data = (RaithData*)allocate_clear(sizeof(RaithData));
+                    raith_data->dwelltime_selection = pxxdata.dwelltime_selection;
+                    raith_data->pitch_parallel_to_path = pxxdata.pitch_parallel_to_path;
+                    raith_data->pitch_perpendicular_to_path = pxxdata.pitch_perpendicular_to_path;
+                    raith_data->pitch_scale = pxxdata.pitch_scale;
+                    raith_data->periods = pxxdata.periods;
+                    raith_data->grating_type = pxxdata.grating_type;
+                    raith_data->dots_per_cycle = pxxdata.dots_per_cycle;
+
+                    path->raith_data = *raith_data;
+                                }
                 break;
             case GdsiiRecord::SREF:
             case GdsiiRecord::AREF:

@@ -2297,7 +2297,7 @@ int flexpath_object_set_repetition(FlexPathObject* self, PyObject* arg, void*) {
 static PyObject* flexpath_object_get_raith_data(FlexPathObject* self, void*) {
     RaithDataObject* obj = PyObject_New(RaithDataObject, &raithdata_object_type);
     obj = (RaithDataObject*)PyObject_Init((PyObject*)obj, &raithdata_object_type);
-    obj->raithdata->copy_from(self->flexpath->raith_data);
+    obj->raithdata.copy_from(self->flexpath->raith_data);
     return (PyObject*)obj;
 }
 
@@ -2311,7 +2311,7 @@ int flexpath_object_set_raith_data(FlexPathObject* self, PyObject* arg, void*) {
         return -1;
     }
     RaithDataObject* raith_data_obj = (RaithDataObject*)arg;
-    self->flexpath->raith_data.copy_from(*raith_data_obj->raithdata);
+    self->flexpath->raith_data.copy_from(raith_data_obj->raithdata);
     return 0;
 }
 
