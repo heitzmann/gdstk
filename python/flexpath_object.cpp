@@ -2303,7 +2303,6 @@ static PyObject* flexpath_object_get_raith_data(FlexPathObject* self, void*) {
 
 int flexpath_object_set_raith_data(FlexPathObject* self, PyObject* arg, void*) {
     if (arg == Py_None) {
-        self->flexpath->raith_data.clear();
         return 0;
     }
     if (!RaithDataObject_Check(arg)) {

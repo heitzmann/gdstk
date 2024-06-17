@@ -249,10 +249,10 @@ typedef struct {
     double ret_dwell_time;
     uint8_t free[190];
     uint16_t revision;
-} PXXDATA;
+} PXXData;
 #pragma pack(pop)
 
-PXXDATA convert_to_pxxdata(const RaithData& raith_data);
+PXXData convert_to_pxxdata(const RaithData& raith_data);
 
 }  // namespace gdstk
 

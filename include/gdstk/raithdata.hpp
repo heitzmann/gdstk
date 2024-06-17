@@ -20,7 +20,6 @@ struct RaithData {
     void* owner;
 
     void copy_from(const RaithData& raith_data);
-    void clear();
 };
 
 }  // namespace gdstk

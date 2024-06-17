@@ -1075,7 +1075,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 break;
             case GdsiiRecord::RaithPXXData:
                 if (path) {
-                    PXXDATA pxxdata;
+                    PXXData pxxdata;
                     memcpy(&pxxdata, buffer + 4, record_length);
                     raith_data = (RaithData*)allocate_clear(sizeof(RaithData));
                     raith_data->dwelltime_selection = pxxdata.dwelltime_selection;

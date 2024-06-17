@@ -10,7 +10,6 @@ static PyObject* raithdata_object_str(RaithDataObject* self) {
 }
 
 static void raithdata_object_dealloc(RaithDataObject* self) {
-    self->raithdata.clear();
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -23,13 +22,14 @@ static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject
                               "grating_type",
                               "dots_per_cycle",
                               NULL};
-    uint8_t dwelltime_selection = 0;
+    unsigned int dwelltime_selection = 0;
     double pitch_parallel_to_path = 0;
     double pitch_perpendicular_to_path = 0;
     double pitch_scale = 0;
-    int32_t periods = 0;
-    int32_t grating_type = 0;
-    int32_t dots_per_cycle = 0;
+    int periods = 0;
+    int grating_type = 0;
+    int dots_per_cycle = 0;
+
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "|idddiii:RaithData", (char**)keywords,
                                      &dwelltime_selection, &pitch_parallel_to_path,
                                      &pitch_perpendicular_to_path, &pitch_scale, &periods,
@@ -37,15 +37,14 @@ static int raithdata_object_init(RaithDataObject* self, PyObject* args, PyObject
         return -1;
 
     RaithData* raithdata = &self->raithdata;
-    raithdata->clear();
 
-    raithdata->dwelltime_selection = dwelltime_selection;
+    raithdata->dwelltime_selection = (uint8_t)dwelltime_selection;
     raithdata->pitch_parallel_to_path = pitch_parallel_to_path;
     raithdata->pitch_perpendicular_to_path = pitch_perpendicular_to_path;
     raithdata->pitch_scale = pitch_scale;
-    raithdata->periods = periods;
-    raithdata->grating_type = grating_type;
-    raithdata->dots_per_cycle = dots_per_cycle;
+    raithdata->periods = (int32_t)periods;
+    raithdata->grating_type = (int32_t)grating_type;
+    raithdata->dots_per_cycle = (int32_t)dots_per_cycle;
     raithdata->owner = self;
     return 0;
 }
@@ -71,12 +70,13 @@ static PyObject* raithdata_object_get_pitch_parallel_to_path(RaithDataObject* se
 }
 
 int raithdata_object_set_pitch_parallel_to_path(RaithDataObject* self, PyObject* value, void*) {
-    if (!PyFloat_Check(value)) {
+    double new_value = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError,
                         "The pitch_parallel_to_path attribute value must be a float.");
         return -1;
     }
-    self->raithdata.pitch_parallel_to_path = PyFloat_AsDouble(value);
+    self->raithdata.pitch_parallel_to_path = new_value;
     return 0;
 }
 
@@ -86,12 +86,13 @@ static PyObject* raithdata_object_get_pitch_perpendicular_to_path(RaithDataObjec
 
 int raithdata_object_set_pitch_perpendicular_to_path(RaithDataObject* self, PyObject* value,
                                                      void*) {
-    if (!PyFloat_Check(value)) {
+    double new_value = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError,
                         "The pitch_perpendicular_to_path attribute value must be a float.");
         return -1;
     }
-    self->raithdata.pitch_perpendicular_to_path = PyFloat_AsDouble(value);
+    self->raithdata.pitch_perpendicular_to_path = new_value;
     return 0;
 }
 
@@ -100,11 +101,12 @@ static PyObject* raithdata_object_get_pitch_scale(RaithDataObject* self, void*) 
 }
 
 int raithdata_object_set_pitch_scale(RaithDataObject* self, PyObject* value, void*) {
-    if (!PyFloat_Check(value)) {
+    double new_value = PyFloat_AsDouble(value);
+    if (PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "The pitch_scale attribute value must be a float.");
         return -1;
     }
-    self->raithdata.pitch_scale = PyFloat_AsDouble(value);
+    self->raithdata.pitch_scale = new_value;
     return 0;
 }
 

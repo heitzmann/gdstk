@@ -100,8 +100,10 @@ void FlexPath::clear() {
     elements = NULL;
     num_elements = 0;
     repetition.clear();
-    raith_data.clear();
-    base_cell_name = NULL;
+    if (base_cell_name) {
+        free_allocation(base_cell_name);
+        base_cell_name = NULL;
+    }
     properties_clear(properties);
 }
 
@@ -113,7 +115,7 @@ void FlexPath::copy_from(const FlexPath& path) {
     simple_path = path.simple_path;
     num_elements = path.num_elements;
     raith_data.copy_from(path.raith_data);
-    base_cell_name = path.base_cell_name;
+    base_cell_name = copy_string(path.base_cell_name, NULL);
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
 
     FlexPathElement* src = path.elements;
@@ -823,10 +825,9 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
         uint64_t len = strlen(base_cell_name);
         if (len % 2) len++;
 
-        PXXDATA pxxdata = convert_to_pxxdata(raith_data);
+        PXXData pxxdata = convert_to_pxxdata(raith_data);
 
-        uint8_t serialized_pxxdata[sizeof(PXXDATA)];
-        memcpy(serialized_pxxdata, &pxxdata, sizeof(PXXDATA));
+        uint8_t* serialized_pxxdata = (uint8_t*)&pxxdata;
 
         uint16_t buffer_start[] = {4,
                                    path_type,
@@ -876,7 +877,7 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
             if (base_cell_name) {
                 fwrite(sname_start, sizeof(uint16_t), COUNT(sname_start), out);
                 fwrite(base_cell_name, 1, len, out);
-                uint64_t pxxdata_total = sizeof(PXXDATA);
+                uint64_t pxxdata_total = sizeof(PXXData);
                 uint64_t pxx_i0 = 0;
                 while (pxx_i0 < pxxdata_total) {
                     uint64_t pxx_i1 = pxxdata_total < pxx_i0 + 8190 ? pxxdata_total : pxx_i0 + 8190;

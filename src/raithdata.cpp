@@ -19,17 +19,4 @@ void RaithData::copy_from(const RaithData& raith_data) {
     dots_per_cycle = raith_data.dots_per_cycle;
 }
 
-void RaithData::clear() {
-    dwelltime_selection = 0;
-    pitch_parallel_to_path = 0;
-    pitch_perpendicular_to_path = 0;
-    pitch_scale = 0;
-    periods = 0;
-    grating_type = 0;
-    dots_per_cycle = 0;
-    owner = nullptr;
-
-    memset(this, 0, sizeof(RaithData));
-}
-
 }  // namespace gdstk

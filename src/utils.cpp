@@ -677,8 +677,8 @@ const char* default_svg_label_style(Tag tag) {
     return buffer;
 }
 
-PXXDATA convert_to_pxxdata(const RaithData& raith_data) {
-    PXXDATA pd = {};
+PXXData convert_to_pxxdata(const RaithData& raith_data) {
+    PXXData pd = {};
     pd.calc_only = 0;
     pd.dwelltime_selection = raith_data.dwelltime_selection;
     pd.unused = 0;
