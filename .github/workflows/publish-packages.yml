@@ -15,7 +15,7 @@ jobs:
       - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_BUILD: "*-manylinux_x86_64 *-manylinux_i686 *-manylinux_aarch64"
-          CIBW_SKIP: "cp36-* cp37-* pp*"
+          CIBW_SKIP: "cp36-* cp37-* cp38-* pp*"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux2014"
           CIBW_MANYLINUX_I686_IMAGE: "manylinux2014"
           CIBW_MANYLINUX_AARCH64_IMAGE: "manylinux2014"
@@ -38,7 +38,7 @@ jobs:
       - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_BUILD: "*-manylinux_x86_64 *-manylinux_aarch64"
-          CIBW_SKIP: "cp36-* cp37-* pp*"
+          CIBW_SKIP: "cp36-* cp37-* cp38-* pp*"
           CIBW_MANYLINUX_X86_64_IMAGE: "manylinux_2_28"
           CIBW_MANYLINUX_I686_IMAGE: "manylinux_2_28"
           CIBW_MANYLINUX_AARCH64_IMAGE: "manylinux_2_28"
@@ -63,7 +63,7 @@ jobs:
       - uses: pypa/cibuildwheel@v2.17.0
         env:
           CIBW_BUILD: "*-musllinux_x86_64 *-musllinux_i686 *-musllinux_aarch64"
-          CIBW_SKIP: "cp36-* cp37-* pp*"
+          CIBW_SKIP: "cp36-* cp37-* cp38-* pp*"
           CIBW_BEFORE_ALL_LINUX: >
             apk update &&
             apk add wget &&
@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pypa/cibuildwheel@v2.17.0
         env:
-          CIBW_SKIP: "cp36-* cp37-* pp*"
+          CIBW_SKIP: "cp36-* cp37-* cp38-* pp*"
           CIBW_ARCHS_MACOS: "x86_64 universal2"
           CIBW_BEFORE_ALL_MACOS: >
             wget https://github.com/qhull/qhull/archive/refs/tags/v8.0.2.tar.gz &&
@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     name: Build wheels for Windows (${{ matrix.python-version }})
     runs-on: windows-latest
     steps:
