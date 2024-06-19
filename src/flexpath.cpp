@@ -827,7 +827,7 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
 
         PXXData pxxdata = convert_to_pxxdata(raith_data);
 
-        uint8_t* serialized_pxxdata = (uint8_t*)&pxxdata;
+        uint16_t* serialized_pxxdata = (uint16_t*)&pxxdata;
 
         uint16_t buffer_start[] = {4,
                                    path_type,
@@ -844,10 +844,7 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                                    0x0F03};
 
         uint16_t sname_start[] = {(uint16_t)(4 + len), 0x1206};
-        uint16_t pxxdata_start[] = {4, 0x6206};
-
         big_endian_swap16(sname_start, COUNT(sname_start));
-        big_endian_swap16(pxxdata_start, COUNT(pxxdata_start));
 
         int32_t width =
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
@@ -877,16 +874,10 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
             if (base_cell_name) {
                 fwrite(sname_start, sizeof(uint16_t), COUNT(sname_start), out);
                 fwrite(base_cell_name, 1, len, out);
-                uint64_t pxxdata_total = sizeof(PXXData);
-                uint64_t pxx_i0 = 0;
-                while (pxx_i0 < pxxdata_total) {
-                    uint64_t pxx_i1 = pxxdata_total < pxx_i0 + 8190 ? pxxdata_total : pxx_i0 + 8190;
-                    uint16_t buffer_pxx[] = {(uint16_t)(4 + pxx_i1 - pxx_i0), 0x6206};
-                    big_endian_swap16(buffer_pxx, COUNT(buffer_pxx));
-                    fwrite(buffer_pxx, sizeof(uint16_t), COUNT(buffer_pxx), out);
-                    fwrite(serialized_pxxdata + pxx_i0, 1, pxx_i1 - pxx_i0, out);
-                    pxx_i0 = pxx_i1;
-                }
+                uint16_t buffer_pxx[] = {(uint16_t)(4 + sizeof(PXXData)), 0x6206};
+                big_endian_swap16(buffer_pxx, COUNT(buffer_pxx));
+                fwrite(buffer_pxx, sizeof(uint16_t), COUNT(buffer_pxx), out);
+                fwrite(serialized_pxxdata, 1, sizeof(PXXData), out);
             }
 
             if (end_type == 4) {
