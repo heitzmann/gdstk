@@ -14,6 +14,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <string.h>
 
+#include <cstddef>
 #include <gdstk/allocator.hpp>
 #include <gdstk/curve.hpp>
 #include <gdstk/flexpath.hpp>
@@ -772,6 +773,27 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
     return ErrorCode::NoError;
 }
 
+void swap_pxxdata_to_little_endian(uint8_t* serialized_data) {
+    little_endian_swap16((uint16_t*)(serialized_data + offsetof(PXXData, unused)), 1);
+
+    little_endian_swap64((uint64_t*)(serialized_data + offsetof(PXXData, pitch_parallel_to_path)),
+                         1);
+    little_endian_swap64(
+        (uint64_t*)(serialized_data + offsetof(PXXData, pitch_perpendicular_to_path)), 1);
+    little_endian_swap64((uint64_t*)(serialized_data + offsetof(PXXData, pitch_scale)), 1);
+
+    little_endian_swap32((uint32_t*)(serialized_data + offsetof(PXXData, periods)), 1);
+    little_endian_swap32((uint32_t*)(serialized_data + offsetof(PXXData, grating_type)), 1);
+    little_endian_swap32((uint32_t*)(serialized_data + offsetof(PXXData, dots_per_cycle)), 1);
+    little_endian_swap32((uint32_t*)(serialized_data + offsetof(PXXData, ret_base_pixel_count)), 1);
+    little_endian_swap32((uint32_t*)(serialized_data + offsetof(PXXData, ret_pixel_count)), 1);
+
+    little_endian_swap64((uint64_t*)(serialized_data + offsetof(PXXData, ret_stage_speed)), 1);
+    little_endian_swap64((uint64_t*)(serialized_data + offsetof(PXXData, ret_dwell_time)), 1);
+
+    little_endian_swap16((uint16_t*)(serialized_data + offsetof(PXXData, revision)), 1);
+}
+
 ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
     ErrorCode error_code = ErrorCode::NoError;
 
@@ -826,8 +848,8 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
         if (len % 2) len++;
 
         PXXData pxxdata = convert_to_pxxdata(raith_data);
-
-        uint16_t* serialized_pxxdata = (uint16_t*)&pxxdata;
+        uint8_t* serialized_pxxdata = (uint8_t*)&pxxdata;
+        swap_pxxdata_to_little_endian(serialized_pxxdata);
 
         uint16_t buffer_start[] = {4,
                                    path_type,
