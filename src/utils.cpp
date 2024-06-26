@@ -562,15 +562,15 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
     if (points.count < 4) {
         result.extend(points);
         return;
-    } else if (points.count > INT_MAX) {
+    } else if (points.count > qh_POINTSmax) {
         Array<Vec2> partial;
-        partial.count = INT_MAX - 1;
+        partial.count = qh_POINTSmax;
         partial.items = points.items;
         Array<Vec2> temp = {};
         convex_hull(partial, temp);
 
-        partial.count = points.count - (INT_MAX - 1);
-        partial.items = points.items + (INT_MAX - 1);
+        partial.count = points.count - qh_POINTSmax;
+        partial.items = points.items + qh_POINTSmax;
         temp.extend(partial);
         convex_hull(temp, result);
         temp.clear();

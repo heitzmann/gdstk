@@ -1,8 +1,7 @@
 [build-system]
 requires = [
     "scikit_build_core",
-    "numpy; platform_system=='Darwin'",
-    "oldest-supported-numpy; platform_system!='Darwin'",
+    "numpy >= 2.0"
 ]
 build-backend = "scikit_build_core.build"
 
@@ -29,10 +28,11 @@ classifiers = [
 ]
 license = {file = "LICENSE"}
 dependencies = [
-    "numpy",
+    "numpy; platform_system=='Darwin'",
+    "oldest-supported-numpy; platform_system!='Darwin'",
     "typing_extensions; python_version < '3.11'"
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [project.optional-dependencies]
 docs = ["sphinx", "sphinx_rtd_theme", "sphinx-inline-tabs", "matplotlib"]

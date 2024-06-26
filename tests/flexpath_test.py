@@ -109,6 +109,25 @@ def test_points():
     assert len(path_spines) == 2
 
 
+def test_path_ends(tmp_path):
+    gdstk.Library().add(
+        gdstk.Cell("Round").add(
+            gdstk.FlexPath(2j, 0.5, ends="round", simple_path=True).turn(
+                5, numpy.pi / 2, width=(0.5, "smooth")
+            )
+        ),
+        gdstk.Cell("Flush").add(
+            gdstk.FlexPath(3j, 0.5, ends="flush", simple_path=True).segment((3, 2))
+        ),
+        gdstk.Cell("Half-width").add(
+            gdstk.FlexPath(4j, 0.1, ends="extended", simple_path=True).segment((1, 4))
+        ),
+        gdstk.Cell("Extended").add(
+            gdstk.FlexPath(5j, 0.1, ends=(0.05, 0.1), simple_path=True).segment((1, 5))
+        ),
+    ).write_gds(tmp_path / "path_ends.gds")
+
+
 def test_deepcopy():
     path = gdstk.FlexPath(0j, 2)
     path2 = deepcopy(path)

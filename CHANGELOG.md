@@ -1,9 +1,14 @@
 # Changelog
 
-## 0.9.51 - 2025-06-06
+## 0.9.53 - 2025-06-06
 ### Added 
 - Raith MBMS Paths as an extension of the GDSII spec.
 - Add more type hints in gdstk.pyi file
+- 
+## 0.9.52 - 2024-04-18
+### Fixed
+- Infinite loop in `Cell::remap_tags` (#246, thanks dtzitkas!)
+- Install headers when targeting the C++ library (#245)
 
 ## 0.9.51 - 2024-04-17
 ### Changed
