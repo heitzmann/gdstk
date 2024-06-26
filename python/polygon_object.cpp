@@ -430,7 +430,8 @@ static PyObject* polygon_object_delete_gds_property(PolygonObject* self, PyObjec
 
 static PyMethodDef polygon_object_methods[] = {
     {"copy", (PyCFunction)polygon_object_copy, METH_NOARGS, polygon_object_copy_doc},
-    {"__deepcopy__", (PyCFunction)polygon_object_deepcopy, METH_VARARGS | METH_KEYWORDS, polygon_object_deepcopy_doc},
+    {"__deepcopy__", (PyCFunction)polygon_object_deepcopy, METH_VARARGS | METH_KEYWORDS,
+     polygon_object_deepcopy_doc},
     {"area", (PyCFunction)polygon_object_area, METH_NOARGS, polygon_object_area_doc},
     {"perimeter", (PyCFunction)polygon_object_perimeter, METH_NOARGS, polygon_object_perimeter_doc},
     {"bounding_box", (PyCFunction)polygon_object_bounding_box, METH_NOARGS,

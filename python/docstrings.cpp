@@ -796,6 +796,24 @@ PyDoc_STRVAR(reference_object_magnification_doc, R"!(Reference magnification.)!"
 
 PyDoc_STRVAR(reference_object_x_reflection_doc, R"!(Reference reflection across the x axis.)!");
 
+// RaithData
+
+PyDoc_STRVAR(raithdata_object_type_doc, R"!(Raith electron beam lithography data.)!");
+
+PyDoc_STRVAR(raithdata_object_dwelltime_selection_doc, R"!(Dwell time selection.)!");
+
+PyDoc_STRVAR(raithdata_object_pitch_parallel_to_path_doc, R"!(Pitch parallel to path.)!");
+
+PyDoc_STRVAR(raithdata_object_pitch_perpendicular_to_path_doc, R"!(Pitch perpendicular to path.)!");
+
+PyDoc_STRVAR(raithdata_object_pitch_scale_doc, R"!(Pitch scale.)!");
+
+PyDoc_STRVAR(raithdata_object_periods_doc, R"!(Number of periods.)!");
+
+PyDoc_STRVAR(grating_type_object_type_doc, R"!(Grating type.)!");
+
+PyDoc_STRVAR(dots_per_cycle_object_type_doc, R"!(Number of dots per cycle.)!");
+
 // FlexPath
 
 PyDoc_STRVAR(
@@ -2353,7 +2371,6 @@ Args:
 Returns:
     Copy of this label.)!");
 
-
 PyDoc_STRVAR(label_object_apply_repetition_doc, R"!(apply_repetition() -> list
 
 Create new labels based on this object's ``repetition`` attribute.
@@ -3272,8 +3289,9 @@ Notes:
     full height ``size``, respectively. For vertical text, characters
     and columns are respectively spaced by 9 / 8 and 1 times ``size``.)!");
 
-PyDoc_STRVAR(contour_function_doc,
-             R"!(contour(data, level=0, length_scale=1, precision=0.01, layer=0, datatype=0) -> list
+PyDoc_STRVAR(
+    contour_function_doc,
+    R"!(contour(data, level=0, length_scale=1, precision=0.01, layer=0, datatype=0) -> list
 
 Extract polygonal contours from 2-d array data at given level.
 
@@ -3351,8 +3369,9 @@ Notes:
     Repetitions are not applied to any elements, except references and
     their contents.)!");
 
-PyDoc_STRVAR(boolean_function_doc,
-             R"!(boolean(operand1, operand2, operation, precision=1e-3, layer=0, datatype=0) -> list
+PyDoc_STRVAR(
+    boolean_function_doc,
+    R"!(boolean(operand1, operand2, operation, precision=1e-3, layer=0, datatype=0) -> list
 
 Execute boolean (clipping) operations between polygons.
 

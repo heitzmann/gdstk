@@ -36,7 +36,7 @@ struct ByteArray {
     uint64_t count;
     uint8_t* bytes;
     Property* properties;
-};
+};  // namespace gdstk
 
 void Library::print(bool all) const {
     printf("Library <%p> %s, unit %lg, precision %lg, %" PRIu64 " cells, %" PRIu64
@@ -916,16 +916,17 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
 Library read_gds(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags,
                  ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
-        "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
-        "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
-        "TEXT",      "LAYER",    "DATATYPE",  "WIDTH",      "XY",          "ENDEL",
-        "SNAME",     "COLROW",   "TEXTNODE",  "NODE",       "TEXTTYPE",    "PRESENTATION",
-        "SPACING",   "STRING",   "STRANS",    "MAG",        "ANGLE",       "UINTEGER",
-        "USTRING",   "REFLIBS",  "FONTS",     "PATHTYPE",   "GENERATIONS", "ATTRTABLE",
-        "STYPTABLE", "STRTYPE",  "ELFLAGS",   "ELKEY",      "LINKTYPE",    "LINKKEYS",
-        "NODETYPE",  "PROPATTR", "PROPVALUE", "BOX",        "BOXTYPE",     "PLEX",
-        "BGNEXTN",   "ENDEXTN",  "TAPENUM",   "TAPECODE",   "STRCLASS",    "RESERVED",
-        "FORMAT",    "MASK",     "ENDMASKS",  "LIBDIRSIZE", "SRFNAME",     "LIBSECUR"};
+        "HEADER",       "BGNLIB",      "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
+        "STRNAME",      "ENDSTR",      "BOUNDARY",  "PATH",       "SREF",        "AREF",
+        "TEXT",         "LAYER",       "DATATYPE",  "WIDTH",      "XY",          "ENDEL",
+        "SNAME",        "COLROW",      "TEXTNODE",  "NODE",       "TEXTTYPE",    "PRESENTATION",
+        "SPACING",      "STRING",      "STRANS",    "MAG",        "ANGLE",       "UINTEGER",
+        "USTRING",      "REFLIBS",     "FONTS",     "PATHTYPE",   "GENERATIONS", "ATTRTABLE",
+        "STYPTABLE",    "STRTYPE",     "ELFLAGS",   "ELKEY",      "LINKTYPE",    "LINKKEYS",
+        "NODETYPE",     "PROPATTR",    "PROPVALUE", "BOX",        "BOXTYPE",     "PLEX",
+        "BGNEXTN",      "ENDEXTN",     "TAPENUM",   "TAPECODE",   "STRCLASS",    "RESERVED",
+        "FORMAT",       "MASK",        "ENDMASKS",  "LIBDIRSIZE", "SRFNAME",     "LIBSECUR",
+        "RaithMBMPath", "RaithPXXData"};
 
     Library library = {};
     // One extra char in case we need a 0-terminated string with max count (should never happen, but
@@ -939,6 +940,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     Cell* cell = NULL;
     Polygon* polygon = NULL;
     FlexPath* path = NULL;
+    RaithData* raith_data = NULL;
     Reference* reference = NULL;
     Label* label = NULL;
 
@@ -1063,12 +1065,29 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 polygon = (Polygon*)allocate_clear(sizeof(Polygon));
                 if (cell) cell->polygon_array.append(polygon);
                 break;
+            case GdsiiRecord::RaithMBMPath:
             case GdsiiRecord::PATH:
                 path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                 path->num_elements = 1;
                 path->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
                 path->simple_path = true;
                 if (cell) cell->flexpath_array.append(path);
+                break;
+            case GdsiiRecord::RaithPXXData:
+                if (path) {
+                    PXXData pxxdata;
+                    memcpy(&pxxdata, buffer + 4, record_length);
+                    raith_data = (RaithData*)allocate_clear(sizeof(RaithData));
+                    raith_data->dwelltime_selection = pxxdata.dwelltime_selection;
+                    raith_data->pitch_parallel_to_path = pxxdata.pitch_parallel_to_path;
+                    raith_data->pitch_perpendicular_to_path = pxxdata.pitch_perpendicular_to_path;
+                    raith_data->pitch_scale = pxxdata.pitch_scale;
+                    raith_data->periods = pxxdata.periods;
+                    raith_data->grating_type = pxxdata.grating_type;
+                    raith_data->dots_per_cycle = pxxdata.dots_per_cycle;
+
+                    path->raith_data = *raith_data;
+                }
                 break;
             case GdsiiRecord::SREF:
             case GdsiiRecord::AREF:
@@ -1191,15 +1210,20 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 reference = NULL;
                 label = NULL;
                 break;
-            case GdsiiRecord::SNAME: {
+            case GdsiiRecord::SNAME:
                 if (reference) {
                     if (str[data_length - 1] == 0) data_length--;
                     reference->name = (char*)allocate(data_length + 1);
                     memcpy(reference->name, str, data_length);
                     reference->name[data_length] = 0;
                     reference->type = ReferenceType::Name;
+                } else if (path) {
+                    if (str[data_length - 1] == 0) data_length--;
+                    path->base_cell_name = (char*)allocate(data_length + 1);
+                    memcpy(path->base_cell_name, str, data_length);
+                    path->base_cell_name[data_length] = 0;
                 }
-            } break;
+                break;
             case GdsiiRecord::COLROW:
                 if (reference) {
                     Repetition* repetition = &reference->repetition;
