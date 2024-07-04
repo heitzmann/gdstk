@@ -133,7 +133,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
             return NULL;
         }
         Polygon** p_item = array.items;
-        for (uint64_t i = 0; i < array.count; i++, p_item++) {
+        for (uint64_t k = 0; k < array.count; k++, p_item++) {
             Polygon* poly = *p_item;
             PyObject* area = PyFloat_FromDouble(poly->area());
             if (!area) {

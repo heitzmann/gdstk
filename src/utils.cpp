@@ -9,8 +9,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define _USE_MATH_DEFINES
 
 #include <assert.h>
-#include <inttypes.h>
-#include <limits.h>
 #include <math.h>
 #include <stdint.h>
 #include <string.h>

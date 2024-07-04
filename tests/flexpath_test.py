@@ -149,3 +149,20 @@ def test_deepcopy():
     path2.set_layers(1)
     assert path.layers == (0,)
     assert path2.layers == (1,)
+
+
+def test_raith_data():
+    path = gdstk.FlexPath(0j, 2)
+    raith_data = path.raith_data
+    assert raith_data is not path.raith_data
+    assert raith_data.base_cell_name is None
+
+    path.raith_data = gdstk.RaithData("CELL", 1, 2, 3, 4, 5, 6, 7)
+    assert path.raith_data.base_cell_name == "CELL"
+    assert path.raith_data.dwelltime_selection == 1
+    assert path.raith_data.pitch_parallel_to_path == 2
+    assert path.raith_data.pitch_perpendicular_to_path == 3
+    assert path.raith_data.pitch_scale == 4
+    assert path.raith_data.periods == 5
+    assert path.raith_data.grating_type == 6
+    assert path.raith_data.dots_per_cycle == 7

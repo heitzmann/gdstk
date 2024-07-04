@@ -23,6 +23,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #endif
 
 #define CellObject_Check(o) PyObject_TypeCheck((o), &cell_object_type)
+#define RaithDataObject_Check(o) PyObject_TypeCheck((o), &raithdata_object_type)
 #define FlexPathObject_Check(o) PyObject_TypeCheck((o), &flexpath_object_type)
 #define LabelObject_Check(o) PyObject_TypeCheck((o), &label_object_type)
 #define LibraryObject_Check(o) PyObject_TypeCheck((o), &library_object_type)
@@ -159,6 +160,11 @@ struct GdsWriterObject {
 struct RepetitionObject {
     PyObject_HEAD;
     Repetition repetition;
+};
+
+struct RaithDataObject {
+    PyObject_HEAD;
+    RaithData raith_data;
 };
 
 static PyTypeObject curve_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.Curve",
@@ -440,6 +446,46 @@ static PyTypeObject repetition_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gd
                                               PyType_GenericNew,
                                               0,
                                               0};
+
+static PyTypeObject raithdata_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.RaithData",
+                                             sizeof(RaithDataObject),
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+                                             raithdata_object_type_doc,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             0,
+                                             PyType_GenericNew,
+                                             0,
+                                             0};
 
 static PyTypeObject cell_object_type = {PyVarObject_HEAD_INIT(NULL, 0) "gdstk.Cell",
                                         sizeof(CellObject),
@@ -746,6 +792,7 @@ static Array<Vec2> custom_bend_function(double radius, double initial_angle, dou
 #include "label_object.cpp"
 #include "library_object.cpp"
 #include "polygon_object.cpp"
+#include "raithdata_object.cpp"
 #include "rawcell_object.cpp"
 #include "reference_object.cpp"
 #include "repetition_object.cpp"
@@ -1871,6 +1918,12 @@ static int gdstk_exec(PyObject* module) {
     reference_object_type.tp_getset = reference_object_getset;
     reference_object_type.tp_str = (reprfunc)reference_object_str;
 
+    raithdata_object_type.tp_dealloc = (destructor)raithdata_object_dealloc;
+    raithdata_object_type.tp_init = (initproc)raithdata_object_init;
+    // raithdata_object_type.tp_methods = raithdata_object_methods;
+    raithdata_object_type.tp_getset = raithdata_object_getset;
+    raithdata_object_type.tp_str = (reprfunc)raithdata_object_str;
+
     flexpath_object_type.tp_dealloc = (destructor)flexpath_object_dealloc;
     flexpath_object_type.tp_init = (initproc)flexpath_object_init;
     flexpath_object_type.tp_methods = flexpath_object_methods;
@@ -1920,16 +1973,14 @@ static int gdstk_exec(PyObject* module) {
     repetition_object_type.tp_getset = repetition_object_getset;
     repetition_object_type.tp_str = (reprfunc)repetition_object_str;
 
-    char const* names[] = {
-        "Library",   "Cell",       "Polygon", "FlexPath", "RobustPath", "Label",
-        "Reference", "Repetition", "Curve",   "RawCell",  "GdsWriter",
-    };
+    char const* names[] = {"Library",    "Cell",       "Polygon", "RaithData",
+                           "FlexPath",   "RobustPath", "Label",   "Reference",
+                           "Repetition", "Curve",      "RawCell", "GdsWriter"};
     PyTypeObject* types[] = {
-        &library_object_type,   &cell_object_type,       &polygon_object_type,
-        &flexpath_object_type,  &robustpath_object_type, &label_object_type,
-        &reference_object_type, &repetition_object_type, &curve_object_type,
-        &rawcell_object_type,   &gdswriter_object_type,
-    };
+        &library_object_type,   &cell_object_type,      &polygon_object_type,
+        &raithdata_object_type, &flexpath_object_type,  &robustpath_object_type,
+        &label_object_type,     &reference_object_type, &repetition_object_type,
+        &curve_object_type,     &rawcell_object_type,   &gdswriter_object_type};
     for (unsigned long i = 0; i < sizeof(types) / sizeof(types[0]); ++i) {
         if (PyType_Ready(types[i]) < 0) {
             Py_DECREF(module);

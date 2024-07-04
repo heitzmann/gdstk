@@ -78,7 +78,9 @@ enum struct GdsiiRecord : uint8_t {
     ENDMASKS = 0X38,
     LIBDIRSIZE = 0X39,
     SRFNAME = 0X3A,
-    LIBSECUR = 0X3B
+    LIBSECUR = 0X3B,
+    RAITHMBMSPATH = 0x5A,
+    RAITHPXXDATA = 0x62,
 };
 
 enum struct GdsiiDataType : uint8_t {

@@ -8,7 +8,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
-#include <float.h>
 #include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
@@ -36,7 +35,7 @@ struct ByteArray {
     uint64_t count;
     uint8_t* bytes;
     Property* properties;
-};
+};  // namespace gdstk
 
 void Library::print(bool all) const {
     printf("Library <%p> %s, unit %lg, precision %lg, %" PRIu64 " cells, %" PRIu64
@@ -961,7 +960,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             break;
         }
 
-        // printf("0x%02X %s (%" PRIu32 " bytes)", buffer[2], gdsii_record_names[buffer[2]],
+        // printf("0x%02X %s (%" PRIu64 " bytes)", buffer[2],
+        //        buffer[2] < COUNT(gdsii_record_names) ? gdsii_record_names[buffer[2]] : "",
         //        record_length);
 
         uint64_t data_length;
@@ -1064,11 +1064,19 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 if (cell) cell->polygon_array.append(polygon);
                 break;
             case GdsiiRecord::PATH:
+            case GdsiiRecord::RAITHMBMSPATH:
                 path = (FlexPath*)allocate_clear(sizeof(FlexPath));
                 path->num_elements = 1;
                 path->elements = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
                 path->simple_path = true;
                 if (cell) cell->flexpath_array.append(path);
+                break;
+            case GdsiiRecord::RAITHPXXDATA:
+                if (path) {
+                    PXXData pxxdata;
+                    memcpy(&pxxdata, buffer + 4, record_length);
+                    path->raith_data.from_pxxdata(pxxdata);
+                }
                 break;
             case GdsiiRecord::SREF:
             case GdsiiRecord::AREF:
@@ -1191,15 +1199,20 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 reference = NULL;
                 label = NULL;
                 break;
-            case GdsiiRecord::SNAME: {
+            case GdsiiRecord::SNAME:
                 if (reference) {
                     if (str[data_length - 1] == 0) data_length--;
                     reference->name = (char*)allocate(data_length + 1);
                     memcpy(reference->name, str, data_length);
                     reference->name[data_length] = 0;
                     reference->type = ReferenceType::Name;
+                } else if (path) {
+                    if (str[data_length - 1] == 0) data_length--;
+                    path->raith_data.base_cell_name = (char*)allocate(data_length + 1);
+                    memcpy(path->raith_data.base_cell_name, str, data_length);
+                    path->raith_data.base_cell_name[data_length] = 0;
                 }
-            } break;
+                break;
             case GdsiiRecord::COLROW:
                 if (reference) {
                     Repetition* repetition = &reference->repetition;

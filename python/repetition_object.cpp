@@ -35,8 +35,7 @@ static PyObject* repetition_object_str(RepetitionObject* self) {
 }
 
 static void repetition_object_dealloc(RepetitionObject* self) {
-    Repetition repetition = self->repetition;
-    repetition.clear();
+    self->repetition.clear();
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

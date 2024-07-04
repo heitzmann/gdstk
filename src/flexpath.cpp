@@ -14,6 +14,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <string.h>
 
+#include <cstddef>
 #include <gdstk/allocator.hpp>
 #include <gdstk/curve.hpp>
 #include <gdstk/flexpath.hpp>
@@ -94,6 +95,7 @@ void FlexPath::print(bool all) const {
 
 void FlexPath::clear() {
     spine.clear();
+    raith_data.clear();
     FlexPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) el->half_width_and_offset.clear();
     free_allocation(elements);
@@ -110,6 +112,7 @@ void FlexPath::copy_from(const FlexPath& path) {
     scale_width = path.scale_width;
     simple_path = path.simple_path;
     num_elements = path.num_elements;
+    raith_data.copy_from(path.raith_data);
     elements = (FlexPathElement*)allocate_clear(num_elements * sizeof(FlexPathElement));
 
     FlexPathElement* src = path.elements;
@@ -809,8 +812,9 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                 end_type = 0;
         }
 
+        uint16_t path_type = raith_data.base_cell_name ? 0x5A00 : 0x0900;
         uint16_t buffer_start[] = {4,
-                                   0x0900,
+                                   path_type,
                                    6,
                                    0x0D02,
                                    (uint16_t)get_layer(el->tag),
@@ -822,6 +826,15 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                                    end_type,
                                    8,
                                    0x0F03};
+
+        PXXData pxxdata = raith_data.to_pxxdata();
+        pxxdata.little_endian_swap();
+
+        uint64_t len = raith_data.base_cell_name ? strlen(raith_data.base_cell_name) : 0;
+        if (len % 2) len++;
+        uint16_t sname_start[] = {(uint16_t)(4 + len), 0x1206};
+        big_endian_swap16(sname_start, COUNT(sname_start));
+
         int32_t width =
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
         big_endian_swap16(buffer_start, COUNT(buffer_start));
@@ -847,6 +860,15 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
         for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
             fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
             fwrite(&width, sizeof(int32_t), 1, out);
+            if (raith_data.base_cell_name) {
+                fwrite(sname_start, sizeof(uint16_t), COUNT(sname_start), out);
+                fwrite(raith_data.base_cell_name, 1, len, out);
+                uint16_t buffer_pxx[] = {(uint16_t)(4 + sizeof(PXXData)), 0x6206};
+                big_endian_swap16(buffer_pxx, COUNT(buffer_pxx));
+                fwrite(buffer_pxx, sizeof(uint16_t), COUNT(buffer_pxx), out);
+                fwrite(&pxxdata, 1, sizeof(PXXData), out);
+            }
+
             if (end_type == 4) {
                 fwrite(buffer_ext1, sizeof(uint16_t), COUNT(buffer_ext1), out);
                 fwrite(ext_size, sizeof(int32_t), 1, out);

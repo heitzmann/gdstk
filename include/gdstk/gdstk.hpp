@@ -40,6 +40,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "oasis.hpp"
 #include "pathcommon.hpp"
 #include "polygon.hpp"
+#include "raithdata.hpp"
 #include "rawcell.hpp"
 #include "reference.hpp"
 #include "repetition.hpp"

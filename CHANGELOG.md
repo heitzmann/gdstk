@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+### Added
+- Support for Raith MBMS path data (thanks Matthew Mckee)
+
 ## 0.9.52 - 2024-04-18
 ### Fixed
 - Infinite loop in `Cell::remap_tags` (#246, thanks dtzitkas!)
