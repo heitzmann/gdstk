@@ -28,8 +28,7 @@ classifiers = [
 ]
 license = {file = "LICENSE"}
 dependencies = [
-    "numpy; platform_system=='Darwin'",
-    "oldest-supported-numpy; platform_system!='Darwin'",
+    "numpy",
     "typing_extensions; python_version < '3.11'"
 ]
 requires-python = ">=3.9"
