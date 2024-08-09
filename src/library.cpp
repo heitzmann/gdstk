@@ -2212,39 +2212,47 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     case 16:
                         v[1].x += modal_geom_dim.x;
                         v[2].y += modal_geom_dim.x;
+                        modal_geom_dim.y = modal_geom_dim.x;
                         break;
                     case 17:
                         v[1] += modal_geom_dim.x;
                         v[2].y += modal_geom_dim.x;
+                        modal_geom_dim.y = modal_geom_dim.x;
                         break;
                     case 18:
                         v[1].x += modal_geom_dim.x;
                         v[2] += modal_geom_dim.x;
+                        modal_geom_dim.y = modal_geom_dim.x;
                         break;
                     case 19:
                         v[0].x += modal_geom_dim.x;
                         v[1] += modal_geom_dim.x;
                         v[2].y += modal_geom_dim.x;
+                        modal_geom_dim.y = modal_geom_dim.x;
                         break;
                     case 20:
                         v[1].x += 2 * modal_geom_dim.y;
                         v[2] += modal_geom_dim.y;
+                        modal_geom_dim.x = 2 * modal_geom_dim.y;
                         break;
                     case 21:
                         v[0].x += modal_geom_dim.y;
                         v[1].x += 2 * modal_geom_dim.y;
                         v[1].y += modal_geom_dim.y;
                         v[2].y += modal_geom_dim.y;
+                        modal_geom_dim.x = 2 * modal_geom_dim.y;
                         break;
                     case 22:
                         v[1] += modal_geom_dim.x;
                         v[2].y += 2 * modal_geom_dim.x;
+                        modal_geom_dim.y = 2 * modal_geom_dim.x;
                         break;
                     case 23:
                         v[0].x += modal_geom_dim.x;
                         v[1].x += modal_geom_dim.x;
                         v[1].y += 2 * modal_geom_dim.x;
                         v[2].y += modal_geom_dim.x;
+                        modal_geom_dim.y = 2 * modal_geom_dim.x;
                         break;
                     case 25:
                         v[2].y = v[3].y = modal_geom_pos.y + modal_geom_dim.x;
