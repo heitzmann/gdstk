@@ -89,7 +89,9 @@ def test_transforms(proof_cells):
             path0.copy().scale(-2, (-1, 0)),
             path0.copy().rotate(numpy.pi / 2, (2, 1)).translate(0.2, -0.3),
         ]
-        assert_same_shape(proof_cells[f"FlexPath:scale_width_{scale_width}"].polygons, paths)
+        assert_same_shape(
+            proof_cells[f"FlexPath:scale_width_{scale_width}"].polygons, paths
+        )
 
 
 def test_points():
@@ -99,12 +101,20 @@ def test_points():
     numpy.testing.assert_array_equal(path.offsets(), [[0], [0], [0], [1]])
     path_spines = path.path_spines()
     assert len(path_spines) == 1
-    numpy.testing.assert_array_equal(path_spines[0], [[0, 0], [0, 10], [10, 10], [11, 0]])
+    numpy.testing.assert_array_equal(
+        path_spines[0], [[0, 0], [0, 10], [10, 10], [11, 0]]
+    )
 
-    path = gdstk.FlexPath((0j, 10j), [2, 2], 2).horizontal(10, 2, 1).vertical(0, 1, [-2, 1])
+    path = (
+        gdstk.FlexPath((0j, 10j), [2, 2], 2)
+        .horizontal(10, 2, 1)
+        .vertical(0, 1, [-2, 1])
+    )
     numpy.testing.assert_array_equal(path.spine(), [[0, 0], [0, 10], [10, 10], [10, 0]])
     numpy.testing.assert_array_equal(path.widths(), [[2, 2], [2, 2], [2, 2], [1, 1]])
-    numpy.testing.assert_array_equal(path.offsets(), [[-1, 1], [-1, 1], [-0.5, 0.5], [-2, 1]])
+    numpy.testing.assert_array_equal(
+        path.offsets(), [[-1, 1], [-1, 1], [-0.5, 0.5], [-2, 1]]
+    )
     path_spines = path.path_spines()
     assert len(path_spines) == 2
 
@@ -154,15 +164,18 @@ def test_deepcopy():
 def test_raith_data():
     path = gdstk.FlexPath(0j, 2)
     raith_data = path.raith_data
-    assert raith_data is not path.raith_data
-    assert raith_data.base_cell_name is None
+    assert raith_data is None
+    raith_data = gdstk.RaithData("CELL", 1, 2, 3, 4, 5, 6, 7)
 
-    path.raith_data = gdstk.RaithData("CELL", 1, 2, 3, 4, 5, 6, 7)
-    assert path.raith_data.base_cell_name == "CELL"
-    assert path.raith_data.dwelltime_selection == 1
-    assert path.raith_data.pitch_parallel_to_path == 2
-    assert path.raith_data.pitch_perpendicular_to_path == 3
-    assert path.raith_data.pitch_scale == 4
-    assert path.raith_data.periods == 5
-    assert path.raith_data.grating_type == 6
-    assert path.raith_data.dots_per_cycle == 7
+    path.raith_data = raith_data
+    path_raith_data = path.raith_data
+    assert path_raith_data is not None
+
+    assert path_raith_data.base_cell_name == "CELL"
+    assert path_raith_data.dwelltime_selection == 1
+    assert path_raith_data.pitch_parallel_to_path == 2
+    assert path_raith_data.pitch_perpendicular_to_path == 3
+    assert path_raith_data.pitch_scale == 4
+    assert path_raith_data.periods == 5
+    assert path_raith_data.grating_type == 6
+    assert path_raith_data.dots_per_cycle == 7

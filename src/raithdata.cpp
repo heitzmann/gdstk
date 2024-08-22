@@ -29,8 +29,7 @@ void RaithData::copy_from(const RaithData& raith_data) {
     grating_type = raith_data.grating_type;
     dots_per_cycle = raith_data.dots_per_cycle;
     dwelltime_selection = raith_data.dwelltime_selection;
-    if (base_cell_name) free_allocation(base_cell_name);
-    if (raith_data.base_cell_name) base_cell_name = copy_string(raith_data.base_cell_name, NULL);
+    base_cell_name = copy_string(raith_data.base_cell_name, NULL);
 }
 
 PXXData RaithData::to_pxxdata(double scaling) {

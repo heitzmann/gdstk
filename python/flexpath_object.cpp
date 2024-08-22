@@ -2315,10 +2315,8 @@ int flexpath_object_set_raith_data(FlexPathObject* self, PyObject* arg, void*) {
         return -1;
     }
     RaithDataObject* raith_data_obj = (RaithDataObject*)arg;
-
     self->flexpath->raith_data.emplace();
     self->flexpath->raith_data->copy_from(raith_data_obj->raith_data);
-
     return 0;
 }
 
