@@ -8,7 +8,8 @@ static PyObject* raithdata_object_str(RaithDataObject* self) {
         ", grating_type=%" PRIu32 ", dots_per_cycle=%" PRIu32 ")",
         raith_data.base_cell_name ? raith_data.base_cell_name : "", raith_data.dwelltime_selection,
         raith_data.pitch_parallel_to_path, raith_data.pitch_perpendicular_to_path,
-        raith_data.pitch_scale, raith_data.periods, raith_data.grating_type, raith_data.dots_per_cycle);
+        raith_data.pitch_scale, raith_data.periods, raith_data.grating_type,
+        raith_data.dots_per_cycle);
     return PyUnicode_FromString(buffer);
 }
 

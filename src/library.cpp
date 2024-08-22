@@ -1075,7 +1075,10 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 if (path) {
                     PXXData pxxdata;
                     memcpy(&pxxdata, buffer + 4, record_length);
-                    path->raith_data.from_pxxdata(pxxdata);
+
+                    RaithData new_raith_data = RaithData::from_pxxdata(pxxdata);
+
+                    path->raith_data = std::move(new_raith_data);
                 }
                 break;
             case GdsiiRecord::SREF:
@@ -1208,9 +1211,12 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     reference->type = ReferenceType::Name;
                 } else if (path) {
                     if (str[data_length - 1] == 0) data_length--;
-                    path->raith_data.base_cell_name = (char*)allocate(data_length + 1);
-                    memcpy(path->raith_data.base_cell_name, str, data_length);
-                    path->raith_data.base_cell_name[data_length] = 0;
+
+                    RaithData& raith_data = path->raith_data.value();
+
+                    raith_data.base_cell_name = (char*)allocate(data_length + 1);
+                    memcpy(raith_data.base_cell_name, str, data_length);
+                    raith_data.base_cell_name[data_length] = 0;
                 }
                 break;
             case GdsiiRecord::COLROW:

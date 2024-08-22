@@ -15,7 +15,7 @@ else:
     from typing_extensions import Self
 
 import numpy
-from numpy.typing import ArrayLike # type: ignore
+from numpy.typing import ArrayLike  # type: ignore
 
 class Cell:
     labels: list[Label]
@@ -25,9 +25,13 @@ class Cell:
     properties: list[list[str | bytes | float]]
     references: list[Reference]
     def __init__(self, name: str) -> None: ...
-    def add(self, *elements: Polygon | FlexPath | RobustPath | Label | Reference) -> Self: ...
+    def add(
+        self, *elements: Polygon | FlexPath | RobustPath | Label | Reference
+    ) -> Self: ...
     def area(self, by_spec: bool = False) -> float | dict[tuple[int, int], float]: ...
-    def bounding_box(self) -> Optional[tuple[tuple[float, float], tuple[float, float]]]: ...
+    def bounding_box(
+        self,
+    ) -> Optional[tuple[tuple[float, float], tuple[float, float]]]: ...
     def convex_hull(self) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
     def copy(
         self,
@@ -72,7 +76,9 @@ class Cell:
         datatype: Optional[int] = None,
     ) -> list[Polygon]: ...
     def get_property(self, name: str) -> Optional[list[list[str | bytes | float]]]: ...
-    def remove(self, *elements: Label | Polygon | RobustPath | FlexPath | Reference) -> Self: ...
+    def remove(
+        self, *elements: Label | Polygon | RobustPath | FlexPath | Reference
+    ) -> Self: ...
     def set_property(
         self, name: str, value: str | bytes | float | Sequence[str | bytes | float]
     ) -> Self: ...
@@ -90,7 +96,9 @@ class Cell:
 
 class Curve:
     tolerance: float
-    def __init__(self, xy: tuple[float, float] | complex, tolerance: float = 0.01) -> None: ...
+    def __init__(
+        self, xy: tuple[float, float] | complex, tolerance: float = 0.01
+    ) -> None: ...
     def arc(
         self,
         radius: float | tuple[float, float],
@@ -108,7 +116,9 @@ class Curve:
     def cubic_smooth(
         self, xy: Sequence[tuple[float, float] | complex], relative: bool = False
     ) -> Self: ...
-    def horizontal(self, x: Sequence[float] | float, relative: bool = False) -> Self: ...
+    def horizontal(
+        self, x: Sequence[float] | float, relative: bool = False
+    ) -> Self: ...
     def interpolation(
         self,
         points: Sequence[tuple[float, float]],
@@ -141,14 +151,22 @@ class Curve:
     def vertical(self, y: float | Sequence[float], relative: bool = False) -> Self: ...
 
 class RaithData:
-    base_cell_name: str
-    dwelltime_selection: int
-    pitch_parallel_to_path: float
-    pitch_perpendicular_to_path: float
-    pitch_scale: float
-    periods: int
-    grating_type: int
-    dots_per_cycle: int
+    @property
+    def base_cell_name(self) -> str: ...
+    @property
+    def dwelltime_selection(self) -> int: ...
+    @property
+    def pitch_parallel_to_path(self) -> float: ...
+    @property
+    def pitch_perpendicular_to_path(self) -> float: ...
+    @property
+    def pitch_scale(self) -> float: ...
+    @property
+    def periods(self) -> int: ...
+    @property
+    def grating_type(self) -> int: ...
+    @property
+    def dots_per_cycle(self) -> int: ...
     def __init__(
         self,
         base_cell_name: str,
@@ -175,7 +193,9 @@ class FlexPath:
     ]
     joins: tuple[
         Literal["natural", "miter", "bevel", "round", "smooth"]
-        | Callable[[float, float, float, float, float, float], list[tuple[float, float]]],
+        | Callable[
+            [float, float, float, float, float, float], list[tuple[float, float]]
+        ],
         ...,
     ]
     layers: tuple[int, ...]
@@ -186,7 +206,7 @@ class FlexPath:
     simple_path: bool
     size: int
     tolerance: float
-    raith_data: RaithData
+    raith_data: Optional[RaithData]
     def __init__(
         self,
         points: tuple[float, float] | complex | Sequence[tuple[float, float] | complex],
@@ -194,28 +214,38 @@ class FlexPath:
         offset: float | Sequence[float] = 0,
         joins: Literal["natural", "miter", "bevel", "round", "smooth"]
         | Callable[
-            [float, float, float, float, float, float], Sequence[tuple[float, float] | complex]
+            [float, float, float, float, float, float],
+            Sequence[tuple[float, float] | complex],
         ]
         | Sequence[
             Literal["natural", "miter", "bevel", "round", "smooth"]
             | Callable[
-                [float, float, float, float, float, float], Sequence[tuple[float, float] | complex]
+                [float, float, float, float, float, float],
+                Sequence[tuple[float, float] | complex],
             ]
         ] = "natural",
         ends: Literal["flush", "extended", "round", "smooth"]
         | tuple[float, float]
-        | Callable[[float, float, float, float], Sequence[tuple[float, float] | complex]]
+        | Callable[
+            [float, float, float, float], Sequence[tuple[float, float] | complex]
+        ]
         | Sequence[
             Literal["flush", "extended", "round", "smooth"]
             | tuple[float, float]
-            | Callable[[float, float, float, float], Sequence[tuple[float, float] | complex]]
+            | Callable[
+                [float, float, float, float], Sequence[tuple[float, float] | complex]
+            ]
         ] = "flush",
         bend_radius: float | Sequence[float] = 0,
         bend_function: Optional[
-            Callable[[float, float, float, float], Sequence[tuple[float, float] | complex]]
+            Callable[
+                [float, float, float, float], Sequence[tuple[float, float] | complex]
+            ]
         ]
         | Sequence[
-            Callable[[float, float, float, float], Sequence[tuple[float, float] | complex]]
+            Callable[
+                [float, float, float, float], Sequence[tuple[float, float] | complex]
+            ]
         ] = None,
         tolerance: float = 1e-2,
         simple_path: bool = False,
@@ -281,7 +311,9 @@ class FlexPath:
         relative: bool = False,
     ) -> Self: ...
     def mirror(
-        self, p1: tuple[float, float] | complex, p2: tuple[float, float] | complex = (0, 0)
+        self,
+        p1: tuple[float, float] | complex,
+        p2: tuple[float, float] | complex = (0, 0),
     ) -> Self: ...
     def offsets(self) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
     def parametric(
@@ -306,8 +338,12 @@ class FlexPath:
         offset: Optional[float] | Sequence[float] = None,
         relative: bool = False,
     ) -> Self: ...
-    def rotate(self, angle: float, center: tuple[float, float] | complex = (0, 0)) -> Self: ...
-    def scale(self, s: float, center: tuple[float, float] | complex = (0, 0)) -> Self: ...
+    def rotate(
+        self, angle: float, center: tuple[float, float] | complex = (0, 0)
+    ) -> Self: ...
+    def scale(
+        self, s: float, center: tuple[float, float] | complex = (0, 0)
+    ) -> Self: ...
     def segment(
         self,
         xy: Sequence[tuple[float, float] | complex] | tuple[float, float] | complex,
@@ -317,7 +353,9 @@ class FlexPath:
     ) -> Self: ...
     def set_bend_function(
         self,
-        functions: Optional[Callable[[float, float, float, float], Sequence[tuple[float, float]]]],
+        functions: Optional[
+            Callable[[float, float, float, float], Sequence[tuple[float, float]]]
+        ],
     ) -> Self: ...
     def set_bend_radius(self, *radii: Optional[float]) -> Self: ...
     def set_datatypes(self, *datatypes: int) -> Self: ...
@@ -332,7 +370,8 @@ class FlexPath:
         self,
         *joins: Literal["natural", "miter", "bevel", "round", "smooth"]
         | Callable[
-            [float, float, float, float, float, float], Sequence[tuple[float, float] | complex]
+            [float, float, float, float, float, float],
+            Sequence[tuple[float, float] | complex],
         ],
     ) -> Self: ...
     def set_layers(self, *layers: int) -> Self: ...
@@ -453,26 +492,39 @@ class Polygon:
     repetition: Repetition
     size: int
     def __init__(
-        self, points: Sequence[tuple[float, float] | complex], layer: int = 0, datatype: int = 0
-    )-> None: ...
+        self,
+        points: Sequence[tuple[float, float] | complex],
+        layer: int = 0,
+        datatype: int = 0,
+    ) -> None: ...
     def apply_repetition(self) -> list[Self]: ...
     def area(self) -> float: ...
     def perimeter(self) -> float: ...
     def bounding_box(self) -> tuple[tuple[float, float], tuple[float, float]]: ...
-    def contain(self, *points: tuple[float, float] | complex) -> bool | tuple[bool, ...]: ...
+    def contain(
+        self, *points: tuple[float, float] | complex
+    ) -> bool | tuple[bool, ...]: ...
     def contain_all(self, *points: tuple[float, float] | complex) -> bool: ...
     def contain_any(self, *points: tuple[float, float] | complex) -> bool: ...
     def copy(self) -> Self: ...
     def delete_gds_property(self, attr: int) -> Self: ...
     def delete_property(self, name: str) -> Self: ...
-    def fillet(self, radius: float | Sequence[float], tolerance: float = 0.01) -> Self: ...
-    def fracture(self, max_points: int = 199, precision: float = 1e-3) -> list[Polygon]: ...
+    def fillet(
+        self, radius: float | Sequence[float], tolerance: float = 0.01
+    ) -> Self: ...
+    def fracture(
+        self, max_points: int = 199, precision: float = 1e-3
+    ) -> list[Polygon]: ...
     def get_gds_property(self, attr: int) -> Optional[str]: ...
     def get_property(self, name: str) -> Optional[list[list[str | bytes | float]]]: ...
     def mirror(
-        self, p1: tuple[float, float] | complex, p2: tuple[float, float] | complex = (0, 0)
+        self,
+        p1: tuple[float, float] | complex,
+        p2: tuple[float, float] | complex = (0, 0),
     ) -> Self: ...
-    def rotate(self, angle: float, center: tuple[float, float] | complex = (0, 0)) -> Self: ...
+    def rotate(
+        self, angle: float, center: tuple[float, float] | complex = (0, 0)
+    ) -> Self: ...
     def scale(
         self, sx: float, sy: float = 0, center: tuple[float, float] | complex = (0, 0)
     ) -> Self: ...
@@ -486,7 +538,7 @@ class Polygon:
         x_reflection: bool = False,
         rotation: float = 0,
         translation: Optional[tuple[float, float] | complex] = None,
-        matrix: Optional[ArrayLike] = None, # type: ignore
+        matrix: Optional[ArrayLike] = None,  # type: ignore
     ) -> Self: ...
     def translate(
         self, dx: float | tuple[float, float] | complex, dy: Optional[float] = None
@@ -495,7 +547,7 @@ class Polygon:
 class RawCell:
     name: str
     size: int
-    def __init__(self, name: str)-> None: ...
+    def __init__(self, name: str) -> None: ...
     def dependencies(self, recursive: bool) -> list[RawCell]: ...
 
 class Reference:
@@ -517,7 +569,7 @@ class Reference:
         columns: int = 1,
         rows: int = 1,
         spacing: Optional[Sequence[float]] = ...,
-    )-> None: ...
+    ) -> None: ...
     def apply_repetition(self) -> list[Self]: ...
     def bounding_box(self) -> tuple[tuple[float, float], tuple[float, float]]: ...
     def convex_hull(self) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
@@ -573,7 +625,7 @@ class Repetition:
         offsets: Optional[Sequence[tuple[float, float] | complex]] = None,
         x_offsets: Optional[Sequence[float]] = None,
         y_offsets: Optional[Sequence[float]] = None,
-    )-> None: ...
+    ) -> None: ...
     def get_offsets(self) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
 
 class RobustPath:
@@ -581,7 +633,9 @@ class RobustPath:
     ends: tuple[
         Literal["flush", "extended", "round", "smooth"]
         | tuple[float, float]
-        | Callable[[float, float, float, float], Sequence[complex | tuple[float, float]]],
+        | Callable[
+            [float, float, float, float], Sequence[complex | tuple[float, float]]
+        ],
         ...,
     ]
     layers: tuple[int, ...]
@@ -601,18 +655,22 @@ class RobustPath:
         ends: Sequence[
             Literal["flush", "extended", "round", "smooth"]
             | tuple[float, float]
-            | Callable[[float, float, float, float], Sequence[complex | tuple[float, float]]]
+            | Callable[
+                [float, float, float, float], Sequence[complex | tuple[float, float]]
+            ]
         ]
         | Literal["flush", "extended", "round", "smooth"]
         | tuple[float, float]
-        | Callable[[float, float, float, float], Sequence[complex | tuple[float, float]]] = "flush",
+        | Callable[
+            [float, float, float, float], Sequence[complex | tuple[float, float]]
+        ] = "flush",
         tolerance: float = 1e-2,
         max_evals: int = 1000,
         simple_path: bool = False,
         scale_width: bool = True,
         layer: int | list[int] = 0,
         datatype: int | list[int] = 0,
-    )->None: ...
+    ) -> None: ...
     def apply_repetition(self) -> list[Self]: ...
     def arc(
         self,
@@ -624,13 +682,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
     ) -> Self: ...
     def bezier(
@@ -640,13 +702,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
@@ -659,13 +725,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
@@ -676,13 +746,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
@@ -690,7 +764,9 @@ class RobustPath:
     def delete_property(self, name: str) -> Self: ...
     def get_gds_property(self, attr: int) -> Optional[str]: ...
     def get_property(self, name: str) -> Optional[list[list[str | bytes | float]]]: ...
-    def gradient(self, u: float, from_below: bool = True) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
+    def gradient(
+        self, u: float, from_below: bool = True
+    ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
     def horizontal(
         self,
         x: float,
@@ -698,13 +774,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
@@ -721,40 +801,56 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = True,
     ) -> Self: ...
     def mirror(
-        self, p1: tuple[float, float] | complex, p2: tuple[float, float] | complex = (0, 0)
+        self,
+        p1: tuple[float, float] | complex,
+        p2: tuple[float, float] | complex = (0, 0),
     ) -> Self: ...
-    def offsets(self, u: float, from_below: bool = True) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
+    def offsets(
+        self, u: float, from_below: bool = True
+    ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
     def parametric(
         self,
         path_function: Callable[[float], tuple[float, float] | complex],
-        path_gradient: Optional[Callable[[float], tuple[float, float] | complex]] = None,
+        path_gradient: Optional[
+            Callable[[float], tuple[float, float] | complex]
+        ] = None,
         width: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = True,
     ) -> Self: ...
     def path_spines(self) -> list[numpy.ndarray[Any, numpy.dtype[numpy.float64]]]: ...
-    def position(self, u: float, from_below: bool = True) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
+    def position(
+        self, u: float, from_below: bool = True
+    ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
     def quadratic(
         self,
         xy: Sequence[tuple[float, float] | complex],
@@ -762,13 +858,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
@@ -779,18 +879,26 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
-    def rotate(self, angle: float, center: tuple[float, float] | complex = (0, 0)) -> Self: ...
-    def scale(self, s: float, center: tuple[float, float] | complex = (0, 0)) -> Self: ...
+    def rotate(
+        self, angle: float, center: tuple[float, float] | complex = (0, 0)
+    ) -> Self: ...
+    def scale(
+        self, s: float, center: tuple[float, float] | complex = (0, 0)
+    ) -> Self: ...
     def segment(
         self,
         xy: tuple[float, float] | complex,
@@ -798,13 +906,17 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
@@ -839,17 +951,23 @@ class RobustPath:
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         offset: Optional[float]
         | tuple[float, Literal["constant", "linear", "smooth"]]
         | Callable[[float], float]
         | Sequence[
-            float | tuple[float, Literal["constant", "linear", "smooth"]] | Callable[[float], float]
+            float
+            | tuple[float, Literal["constant", "linear", "smooth"]]
+            | Callable[[float], float]
         ] = None,
         relative: bool = False,
     ) -> Self: ...
-    def widths(self, u: float, from_below: bool = True) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
+    def widths(
+        self, u: float, from_below: bool = True
+    ) -> numpy.ndarray[Any, numpy.dtype[numpy.float64]]: ...
 
 def all_inside(
     points: Sequence[tuple[float, float] | complex],
@@ -884,7 +1002,7 @@ def boolean(
     datatype: int = 0,
 ) -> list[Polygon]: ...
 def contour(
-    data: ArrayLike, # type: ignore
+    data: ArrayLike,  # type: ignore
     level: int = 0,
     length_scale: float = 1,
     precision: float = 0.01,
@@ -952,7 +1070,9 @@ def read_gds(
     tolerance: float = 0,
     filter: Optional[Iterable[tuple[int, int]]] = None,
 ) -> Library: ...
-def read_oas(infile: str | pathlib.Path, unit: float = 0, tolerance: float = 0) -> Library: ...
+def read_oas(
+    infile: str | pathlib.Path, unit: float = 0, tolerance: float = 0
+) -> Library: ...
 def read_rawcells(infile: str | pathlib.Path) -> dict[str, RawCell]: ...
 def rectangle(
     corner1: tuple[float, float] | complex,

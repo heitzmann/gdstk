@@ -13,6 +13,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <stdint.h>
 
+#include <optional>
+
 #include "array.hpp"
 #include "curve.hpp"
 #include "oasis.hpp"
@@ -73,7 +75,7 @@ struct FlexPath {
     Repetition repetition;
     Property* properties;
 
-    RaithData raith_data;
+    std::optional<RaithData> raith_data;
 
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!

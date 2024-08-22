@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include "utils.hpp"
+
 namespace gdstk {
 
 #pragma pack(push, 1)
@@ -43,8 +45,9 @@ struct RaithData {
 
     void copy_from(const RaithData& raith_data);
 
-    PXXData to_pxxdata() const;
-    void from_pxxdata(PXXData const& pxxdata);
+    PXXData to_pxxdata(double scaling);
+    ErrorCode to_gds(FILE* out, double scaling);
+    static RaithData from_pxxdata(PXXData const& pxxdata);
 };
 
 }  // namespace gdstk
