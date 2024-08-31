@@ -30,15 +30,16 @@ void RaithData::copy_from(const RaithData& raith_data) {
     dots_per_cycle = raith_data.dots_per_cycle;
     dwelltime_selection = raith_data.dwelltime_selection;
     if (base_cell_name) free_allocation(base_cell_name);
+    base_cell_name = NULL;
     if (raith_data.base_cell_name) base_cell_name = copy_string(raith_data.base_cell_name, NULL);
 }
 
-PXXData RaithData::to_pxxdata() const {
+PXXData RaithData::to_pxxdata(double scaling) const {
     PXXData pd{};
     pd.dwelltime_selection = dwelltime_selection;
-    pd.pitch_parallel_to_path = pitch_parallel_to_path;
-    pd.pitch_perpendicular_to_path = pitch_perpendicular_to_path;
-    pd.pitch_scale = pitch_scale;
+    pd.pitch_parallel_to_path = pitch_parallel_to_path * scaling;
+    pd.pitch_perpendicular_to_path = pitch_perpendicular_to_path * scaling;
+    pd.pitch_scale = pitch_scale * scaling;
     pd.periods = periods;
     pd.grating_type = grating_type;
     pd.dots_per_cycle = dots_per_cycle;

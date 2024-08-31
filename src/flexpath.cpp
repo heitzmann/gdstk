@@ -827,7 +827,7 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
                                    8,
                                    0x0F03};
 
-        PXXData pxxdata = raith_data.to_pxxdata();
+        PXXData pxxdata = raith_data.to_pxxdata(scaling);
         pxxdata.little_endian_swap();
 
         uint64_t len = raith_data.base_cell_name ? strlen(raith_data.base_cell_name) : 0;

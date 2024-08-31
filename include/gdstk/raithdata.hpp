@@ -43,7 +43,7 @@ struct RaithData {
 
     void copy_from(const RaithData& raith_data);
 
-    PXXData to_pxxdata() const;
+    PXXData to_pxxdata(double scaling) const;
     void from_pxxdata(PXXData const& pxxdata);
 };
 
