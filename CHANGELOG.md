@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.54 - 2024-08-31
+### Changed
+- Dropped unnecessary dependencies
+### Fixed
+- Trapezoid loading bug in OASIS format
+
 ## 0.9.53 - 2024-07-04
 ### Added
 - Support for Raith MBMS path data (thanks Matthew Mckee).
