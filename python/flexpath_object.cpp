@@ -2297,6 +2297,7 @@ int flexpath_object_set_repetition(FlexPathObject* self, PyObject* arg, void*) {
 static PyObject* flexpath_object_get_raith_data(FlexPathObject* self, void*) {
     RaithDataObject* obj = PyObject_New(RaithDataObject, &raithdata_object_type);
     obj = (RaithDataObject*)PyObject_Init((PyObject*)obj, &raithdata_object_type);
+    obj->raith_data.base_cell_name = NULL;
     obj->raith_data.copy_from(self->flexpath->raith_data);
     return (PyObject*)obj;
 }
