@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.55 - 2024-08-31
+### Fixed
+- Memory bug fix for Raith data
+
 ## 0.9.54 - 2024-08-31
 ### Changed
 - Dropped unnecessary dependencies
