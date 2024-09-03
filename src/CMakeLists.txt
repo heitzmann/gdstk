@@ -84,11 +84,11 @@ target_include_directories(gdstk PUBLIC
     $<BUILD_INTERFACE:${gdstk_SOURCE_DIR}/external>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     ${ZLIB_INCLUDE_DIRS}
-    ${QHULL_INCLUDE_DIRS})
+    ${Qhull_INCLUDE_DIRS})
 
 target_link_libraries(gdstk
     ${ZLIB_LIBRARIES}
-    ${QHULL_LIBRARIES}
+    ${Qhull_LIBRARIES}
     clipper)
 
 if(UNIX)
