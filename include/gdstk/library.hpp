@@ -11,6 +11,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
+#include <string>
+#include <vector>
+
 #include <stdio.h>
 #include <time.h>
 
@@ -30,6 +33,10 @@ struct Library {
     // at https://heitzmann.github.io/gdstk/gettingstarted.html
     double unit;
     double precision;
+
+    //
+    std::vector<std::string> layer_names;
+    std::vector<int>         layer_numbers;
 
     // Cells should be added to (or removed from) the library using these
     // arrays.  Each cell must have a unique name within the library, but Gdstk

@@ -1662,7 +1662,27 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 property_value_table[ref_number] = ByteArray{len, bytes, NULL};
                 next_property = &property_value_table[ref_number].properties;
             } break;
-            case OasisRecord::LAYERNAME_DATA:
+            case OasisRecord::LAYERNAME_DATA: {
+                uint8_t* bytes = oasis_read_string(in, false, len);
+                int layer_number = -1;
+                for (uint32_t i = 2; i > 0; i--) {
+                    uint64_t type = oasis_read_unsigned_integer(in);
+                    if (type > 0) {
+                        if (type == 4) {
+                            oasis_read_unsigned_integer(in);
+                        }
+                        uint64_t u = oasis_read_unsigned_integer(in);
+                        if(i==2) {
+                            layer_number = int(u);
+                        }
+                    }
+                }
+                std::string layer_name{(const char*)bytes, len};
+                library.layer_names.push_back(layer_name);
+                library.layer_numbers.push_back(layer_number);
+                printf("layer_name = %s, layer_number = %d\n", layer_name.c_str(), layer_number);
+                free_allocation(bytes);
+            }   break;
             case OasisRecord::LAYERNAME_TEXT:
                 // Unused record
                 free_allocation(oasis_read_string(in, false, len));
