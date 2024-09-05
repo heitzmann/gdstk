@@ -9,8 +9,8 @@ class gdstkRecipe(ConanFile):
 
     # Optional metadata
     license = "Boost"
-    author = "gdstk colab"
-    url = "add a url"
+    author = "gdstk colab (conanfile by vinci4dai)"
+    url = "https://github.com/Vinci4d/gdstk"
     description = "oasis and gds file parsing"
     topics = ("gds", "oasis")
 
@@ -53,5 +53,5 @@ class gdstkRecipe(ConanFile):
         cmake.install()
 
     def package_info(self):
-        self.cpp_info.libs = ["gdstk"]
+        self.cpp_info.libs = ["gdstk", "clipper"]
 
