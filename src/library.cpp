@@ -1680,7 +1680,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 std::string layer_name{(const char*)bytes, len};
                 library.layer_names.push_back(layer_name);
                 library.layer_numbers.push_back(layer_number);
-                printf("layer_name = %s, layer_number = %d\n", layer_name.c_str(), layer_number);
+                //printf("layer_name = %s, layer_number = %d\n", layer_name.c_str(), layer_number);
                 free_allocation(bytes);
             }   break;
             case OasisRecord::LAYERNAME_TEXT:
