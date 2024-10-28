@@ -431,6 +431,7 @@ void Cell::get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag
                     path->repetition.copy_from(psrc->repetition);
                     path->scale_width = psrc->scale_width;
                     path->simple_path = psrc->simple_path;
+                    path->raith_data.copy_from(psrc->raith_data);
                 }
                 path->num_elements++;
                 path->elements = (FlexPathElement*)reallocate(
