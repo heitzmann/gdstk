@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.56 - 2024-10-28
+### Added
+- Support for Python 3.13.
+### Fixed
+- Copy Raith data in `Cell::get_flexpaths`.
+
 ## 0.9.55 - 2024-08-31
 ### Fixed
 - Memory bug fix for Raith data
