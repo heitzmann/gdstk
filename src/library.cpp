@@ -29,6 +29,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/utils.hpp>
 #include <gdstk/vec.hpp>
 
+bool layername_log = false;
+
 namespace gdstk {
 
 struct ByteArray {
@@ -1348,6 +1350,9 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
 Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
     Library library = {};
 
+    //
+    error_logger = stdout;
+
     OasisStream in = {};
     in.file = fopen(filename, "rb");
     if (in.file == NULL) {
@@ -1664,36 +1669,64 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
             } break;
             case OasisRecord::LAYERNAME_DATA: {
                 uint8_t* bytes = oasis_read_string(in, false, len);
+                if(layername_log) {
+                    std::string layer_name_data{(const char*)bytes, len};
+                    printf("LAYERNAME_DATA: %s", layer_name_data.c_str());
+                }
                 int layer_number = -1;
+                int data_type    = -1;
                 for (uint32_t i = 2; i > 0; i--) {
                     uint64_t type = oasis_read_unsigned_integer(in);
+                    if(layername_log) printf("[type=%d: ", (int)type);
                     if (type > 0) {
                         if (type == 4) {
-                            oasis_read_unsigned_integer(in);
+                            uint64_t d = oasis_read_unsigned_integer(in);
+                            if(layername_log) printf("%i,", (int)d);
                         }
                         uint64_t u = oasis_read_unsigned_integer(in);
+                        if(layername_log) printf("%i,", (int)u);
+                        if(i==1) {
+                            data_type = int(u);
+                        } else
                         if(i==2) {
                             layer_number = int(u);
                         }
                     }
+                    if(layername_log) printf("]");
                 }
+                if(layername_log) printf("\n");
                 std::string layer_name{(const char*)bytes, len};
                 library.layer_names.push_back(layer_name);
                 library.layer_numbers.push_back(layer_number);
-                //printf("layer_name = %s, layer_number = %d\n", layer_name.c_str(), layer_number);
+                library.datatypes.push_back(data_type);
+                if(layername_log) {
+                    printf("layer_name = %s, layer_number = %d\n", layer_name.c_str(), layer_number);
+                }
                 free_allocation(bytes);
             }   break;
-            case OasisRecord::LAYERNAME_TEXT:
+            case OasisRecord::LAYERNAME_TEXT: {
                 // Unused record
-                free_allocation(oasis_read_string(in, false, len));
+                uint8_t * bytes = oasis_read_string(in, false, len);
+                if(layername_log) {
+                    std::string layer_name_text{(const char*)bytes, len};
+                    printf("LAYERNAME_TEXT: %s",layer_name_text.c_str());
+                }
+                free_allocation(bytes);
                 for (uint32_t i = 2; i > 0; i--) {
                     uint64_t type = oasis_read_unsigned_integer(in);
+                    if(layername_log) printf("[type=%d: ", (int)type);
                     if (type > 0) {
-                        if (type == 4) oasis_read_unsigned_integer(in);
-                        oasis_read_unsigned_integer(in);
+                        if (type == 4) {
+                            uint64_t d = oasis_read_unsigned_integer(in);
+                            if(layername_log) printf("%i,", (int)d);
+                        }
+                        uint d = oasis_read_unsigned_integer(in);
+                        if(layername_log) printf("%i,", (int)d);
                     }
+                    if(layername_log) printf("]");
                 }
-                break;
+                if(layername_log) printf("\n");
+            }   break;
             case OasisRecord::CELL_REF_NUM:
             case OasisRecord::CELL: {
                 cell = (Cell*)allocate_clear(sizeof(Cell));

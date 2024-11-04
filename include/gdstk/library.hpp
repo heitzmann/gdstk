@@ -37,6 +37,7 @@ struct Library {
     //
     std::vector<std::string> layer_names;
     std::vector<int>         layer_numbers;
+    std::vector<int>         datatypes;
 
     // Cells should be added to (or removed from) the library using these
     // arrays.  Each cell must have a unique name within the library, but Gdstk
