@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.57 - 2024-11-07
+### Fixed
+- Bug when removing GDSII properties (#276, thanks jatoben).
+
 ## 0.9.56 - 2024-10-28
 ### Added
 - Support for Python 3.13.
