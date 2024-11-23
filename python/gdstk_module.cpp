@@ -51,6 +51,9 @@ static int return_error(ErrorCode error_code) {
         case ErrorCode::NoError:
             return 0;
         // Warnings
+        case ErrorCode::EmptyPath:
+            if (PyErr_WarnEx(PyExc_RuntimeWarning, "Empty path.", 1) != 0) return -1;
+            return 0;
         case ErrorCode::MissingReference:
             if (PyErr_WarnEx(PyExc_RuntimeWarning, "Missing reference.", 1) != 0) return -1;
             return 0;
