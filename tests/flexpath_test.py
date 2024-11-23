@@ -166,3 +166,12 @@ def test_raith_data():
     assert path.raith_data.periods == 5
     assert path.raith_data.grating_type == 6
     assert path.raith_data.dots_per_cycle == 7
+
+
+def test_min_length():
+    lib = gdstk.Library("test")
+    tol = lib.precision / lib.unit
+
+    path = gdstk.FlexPath(((0, 0), (tol, 0)), width=0.01, tolerance=tol)
+    assert path.to_polygons()
+
