@@ -226,7 +226,7 @@ void FlexPath::remove_overlapping_points() {
     const double tol_sq = spine.tolerance * spine.tolerance;
     Array<Vec2>* array = &spine.point_array;
     for (uint64_t i = 1; i < array->count;) {
-        if (((*array)[i] - (*array)[i - 1]).length_sq() <= tol_sq) {
+        if (((*array)[i] - (*array)[i - 1]).length_sq() < tol_sq) {
             array->remove(i);
             FlexPathElement* el = elements;
             for (uint64_t ne = 0; ne < num_elements; ne++, el++)
