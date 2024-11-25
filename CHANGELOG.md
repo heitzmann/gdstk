@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.58 - 2024-11-25
+### Changed
+- Empty paths now give a warning when being converted to polygons or stored in GDSII/OASIS.
+### Fixed
+- Missing paths when vertices were separated exactly by the tolerance (#277)
+
 ## 0.9.57 - 2024-11-07
 ### Fixed
 - Bug when removing GDSII properties (#276, thanks jatoben).
