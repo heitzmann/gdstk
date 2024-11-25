@@ -69,6 +69,7 @@ enum struct ErrorCode {
     NoError = 0,
     // Warnings
     BooleanError,
+    EmptyPath,
     IntersectionNotFound,
     MissingReference,
     UnsupportedRecord,

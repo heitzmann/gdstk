@@ -561,3 +561,35 @@ def test_write_min_length_path(
         source.cells[0].paths[0].spine(),
         rw.cells[0].paths[0].spine(),
     )
+
+
+@pytest.mark.parametrize(
+    "simple_path", (True, False),
+)
+@pytest.mark.parametrize(
+    "write_f",
+    (gdstk.Library.write_oas, gdstk.Library.write_gds),
+)
+def test_empty_path_warning(
+    simple_path: bool,
+    write_f: Callable[[gdstk.Library, Union[str, pathlib.Path]], None],
+    tmp_path: pathlib.Path
+):
+    lib = gdstk.Library("test")
+    tol = lib.precision / lib.unit
+
+    # Simple paths are written to GDS & OASIS with PATH records; non-simple
+    # paths are serialized as polygons.
+    path = gdstk.FlexPath(
+        ((0, 0), (tol / 2, 0)),
+        width=0.01,
+        tolerance=tol,
+        simple_path=simple_path
+    )
+
+    cell = gdstk.Cell("top")
+    cell.add(path)
+    lib.add(cell)
+
+    with pytest.warns(RuntimeWarning, match="Empty path"):
+        write_f(lib, tmp_path / "out")
