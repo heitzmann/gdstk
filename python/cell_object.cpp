@@ -971,7 +971,7 @@ static PyObject* cell_object_remap(CellObject* self, PyObject* args, PyObject* k
 static PyObject* cell_object_dependencies(CellObject* self, PyObject* args, PyObject* kwds) {
     int recursive = 1;
     const char* keywords[] = {"recursive", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "p:dependencies", (char**)keywords, &recursive))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|p:dependencies", (char**)keywords, &recursive))
         return NULL;
 
     Map<Cell*> cell_map = {};
