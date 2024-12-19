@@ -11,7 +11,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
-#define GDSTK_VERSION "0.9.50"
+#define GDSTK_VERSION "0.9.58"
 
 // If GDSTK_CUSTOM_ALLOCATOR is defined, the user must supply implementations
 // for the following dynamic memory management functions:
@@ -40,6 +40,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "oasis.hpp"
 #include "pathcommon.hpp"
 #include "polygon.hpp"
+#include "raithdata.hpp"
 #include "rawcell.hpp"
 #include "reference.hpp"
 #include "repetition.hpp"

@@ -278,7 +278,7 @@ bool remove_gds_property(Property*& properties, uint16_t attribute) {
     }
     Property* property = properties;
     while (property->next &&
-           (!is_gds_property(property->next) || property->value->unsigned_integer != attribute))
+           (!is_gds_property(property->next) || property->next->value->unsigned_integer != attribute))
         property = property->next;
     if (property->next) {
         Property* rem = property->next;

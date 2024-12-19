@@ -1,0 +1,88 @@
+name: Tests Runner
+
+on: [push, pull_request]
+
+jobs:
+  linux-macos-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.9', '3.13']
+    name: Test for ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libqhull-dev
+      - name: Install dependencies (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          # Temporary fix, see https://github.com/actions/setup-python/issues/577
+          rm /usr/local/bin/2to3* || true
+          rm /usr/local/bin/idle3* || true
+          rm /usr/local/bin/pydoc3* || true
+          rm /usr/local/bin/python3* || true
+          rm /usr/local/bin/python3-config* || true
+          brew update
+          brew install qhull
+      - name: Install python dependencies
+        run: |
+          pip install pip-tools pytest
+          python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
+          pip install -r requirements.txt
+      - name: Build and install
+        run: |
+          python -m build -w
+          mv gdstk gdstk_src
+          pip install --no-index --find-links dist gdstk
+      - name: Test
+        run: python -m pytest
+
+  windows-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.13']
+    defaults:
+      run:
+        shell: pwsh
+    name: Test for ${{ matrix.python-version }} on windows-latest
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: johnwason/vcpkg-action@v6
+        with:
+          manifest-dir: ${{ github.workspace }}
+          triplet: x64-windows-static
+          token: ${{ github.token }}
+          github-binarycache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: Install build dependencies (pip)
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade pip-tools ninja scikit_build_core pytest
+          python -m piptools compile --resolver=backtracking -o requirements.txt pyproject.toml
+          pip install -r requirements.txt
+      - name: Build and install
+        run: |
+          python -m build -w
+          Rename-Item -Path "gdstk" -NewName "gdstk_src"
+          pip install --no-index --find-links dist gdstk
+        env:
+          CMAKE_GENERATOR: "Ninja"
+          CMAKE_TOOLCHAIN_FILE: "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+          SKBUILD_CMAKE_ARGS: "-DVCPKG_TARGET_TRIPLET=x64-windows-static;-DVCPKG_MANIFEST_MODE=OFF"
+      - name: Test
+        run: python -m pytest

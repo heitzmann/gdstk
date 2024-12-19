@@ -133,7 +133,7 @@ static PyObject* cell_object_area(CellObject* self, PyObject* args) {
             return NULL;
         }
         Polygon** p_item = array.items;
-        for (uint64_t i = 0; i < array.count; i++, p_item++) {
+        for (uint64_t k = 0; k < array.count; k++, p_item++) {
             Polygon* poly = *p_item;
             PyObject* area = PyFloat_FromDouble(poly->area());
             if (!area) {
@@ -971,7 +971,7 @@ static PyObject* cell_object_remap(CellObject* self, PyObject* args, PyObject* k
 static PyObject* cell_object_dependencies(CellObject* self, PyObject* args, PyObject* kwds) {
     int recursive = 1;
     const char* keywords[] = {"recursive", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "p:dependencies", (char**)keywords, &recursive))
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|p:dependencies", (char**)keywords, &recursive))
         return NULL;
 
     Map<Cell*> cell_map = {};

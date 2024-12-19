@@ -1,5 +1,7 @@
 # Local config
 compile_commands.json
+compile_flags.txt
+local/
 
 ### C++ ###
 # Prerequisites
@@ -96,6 +98,8 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/gdstk
+
 # Generated images
 *.svg
 *.gds

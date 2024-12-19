@@ -56,7 +56,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define FSEEK64 fseek
 #endif
 
-#include <math.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -70,6 +69,7 @@ enum struct ErrorCode {
     NoError = 0,
     // Warnings
     BooleanError,
+    EmptyPath,
     IntersectionNotFound,
     MissingReference,
     UnsupportedRecord,

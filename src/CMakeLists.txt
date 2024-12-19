@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 find_package(ZLIB 1.2.7)
 if(NOT ZLIB_FOUND)
     # Check first for header files
@@ -38,6 +40,7 @@ set(HEADER_LIST
     "${gdstk_SOURCE_DIR}/include/gdstk/pathcommon.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/polygon.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/property.hpp"
+    "${gdstk_SOURCE_DIR}/include/gdstk/raithdata.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/rawcell.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/reference.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/repetition.hpp"
@@ -60,52 +63,45 @@ set(SOURCE_LIST
     oasis.cpp
     polygon.cpp
     property.cpp
+    raithdata.cpp
     rawcell.cpp
     reference.cpp
     repetition.cpp
     robustpath.cpp
     style.cpp
-    utils.cpp
-    ${HEADER_LIST})
+    utils.cpp)
 
-add_library(gdstk ${SOURCE_LIST})
+add_library(gdstk ${SOURCE_LIST} ${HEADER_LIST})
 
 target_compile_features(gdstk PUBLIC cxx_std_11)
 
-set_target_properties(gdstk PROPERTIES
-    POSITION_INDEPENDENT_CODE ON
-    PUBLIC_HEADER "${HEADER_LIST}")
+set_target_properties(gdstk PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-target_include_directories(gdstk PUBLIC "${gdstk_SOURCE_DIR}/include")
-target_include_directories(gdstk PUBLIC "${gdstk_SOURCE_DIR}/external")
-target_include_directories(gdstk PRIVATE ${ZLIB_INCLUDE_DIRS})
-target_include_directories(gdstk PRIVATE ${QHULL_INCLUDE_DIRS})
+set_target_properties(gdstk PROPERTIES PUBLIC_HEADER "${HEADER_LIST}")
 
-target_link_libraries(gdstk clipper)
-set(gdstk_LIBS "-lclipper")
+target_include_directories(gdstk PUBLIC
+    $<BUILD_INTERFACE:${gdstk_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${gdstk_SOURCE_DIR}/external>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    ${ZLIB_INCLUDE_DIRS}
+    ${QHULL_INCLUDE_DIRS})
+
+target_link_libraries(gdstk
+    ${ZLIB_LIBRARIES}
+    ${QHULL_LIBRARIES}
+    clipper)
 
 if(UNIX)
-    set(gdstk_LIBS "${gdstk_LIBS} -lm")
+    target_link_libraries(gdstk m)
 endif(UNIX)
-
-target_link_libraries(gdstk ${ZLIB_LIBRARIES})
-foreach(IT ${ZLIB_LIBRARIES})
-    set(gdstk_LIBS "${gdstk_LIBS} ${IT}")
-endforeach()
-
-target_link_libraries(gdstk ${QHULL_LIBRARIES})
-foreach(IT ${QHULL_LIBRARIES})
-    set(gdstk_LIBS "${gdstk_LIBS} ${IT}")
-endforeach()
-
-set(PKGCONF_LIBS ${gdstk_LIBS} PARENT_SCOPE)
 
 source_group(
     TREE "${PROJECT_SOURCE_DIR}/include"
     PREFIX "Header Files"
     FILES ${HEADER_LIST})
 
-include(GNUInstallDirs)
 install(TARGETS gdstk
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gdstk
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/gdstk)

@@ -1,5 +1,49 @@
 # Changelog
 
+## 0.9.58 - 2024-11-25
+### Changed
+- Empty paths now give a warning when being converted to polygons or stored in GDSII/OASIS.
+### Fixed
+- Missing paths when vertices were separated exactly by the tolerance (#277)
+
+## 0.9.57 - 2024-11-07
+### Fixed
+- Bug when removing GDSII properties (#276, thanks jatoben).
+
+## 0.9.56 - 2024-10-28
+### Added
+- Support for Python 3.13.
+### Fixed
+- Copy Raith data in `Cell::get_flexpaths`.
+
+## 0.9.55 - 2024-08-31
+### Fixed
+- Memory bug fix for Raith data
+
+## 0.9.54 - 2024-08-31
+### Changed
+- Dropped unnecessary dependencies
+### Fixed
+- Trapezoid loading bug in OASIS format
+
+## 0.9.53 - 2024-07-04
+### Added
+- Support for Raith MBMS path data (thanks Matthew Mckee).
+- Support for numpy 2.0
+### Changed
+- Dropped support for python 3.8
+### Fixed
+- Qhull maximal number of points.
+
+## 0.9.52 - 2024-04-18
+### Fixed
+- Infinite loop in `Cell::remap_tags` (#246, thanks dtzitkas!)
+- Install headers when targeting the C++ library (#245)
+
+## 0.9.51 - 2024-04-17
+### Changed
+- Use scikit-build-core for building, which enables support for Python 3.12 on Windows.
+
 ## 0.9.50 - 2024-02-07
 ### Added
 - `Polygon.perimeter`.

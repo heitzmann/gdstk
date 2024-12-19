@@ -5,11 +5,14 @@
 # Boost Software License - Version 1.0.  See the accompanying
 # LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
-from datetime import datetime
 import hashlib
 import pathlib
-import pytest
+from datetime import datetime
+from typing import Callable, Union
+
 import numpy
+import pytest
+
 import gdstk
 
 
@@ -532,3 +535,61 @@ def test_roundtrip_path_ends(tmpdir: pathlib.Path):
         assert (
             path.ends == gds_path.ends and path.ends == oas_path.ends
         ), f"expected: {path.ends}, gds: {gds_path.ends}, oas: {oas_path.ends}"
+
+
+@pytest.mark.parametrize(
+    "write_f, read_f",
+    (
+        (gdstk.Library.write_oas, gdstk.read_oas),
+        (gdstk.Library.write_gds, gdstk.read_gds),
+    ),
+)
+def test_write_min_length_path(
+    write_f: Callable[[gdstk.Library, Union[str, pathlib.Path]], None],
+    read_f: Callable[Union[str, pathlib.Path], gdstk.Library],
+    tmp_path: pathlib.Path
+):
+    source = gdstk.read_oas(pathlib.Path(__file__).parent / "min_length_path.oas")
+    assert source.cells[0].paths
+
+    rw_path = tmp_path / "out"
+    write_f(source, rw_path)
+    rw = read_f(rw_path)
+    assert rw.cells[0].paths
+
+    assert numpy.array_equal(
+        source.cells[0].paths[0].spine(),
+        rw.cells[0].paths[0].spine(),
+    )
+
+
+@pytest.mark.parametrize(
+    "simple_path", (True, False),
+)
+@pytest.mark.parametrize(
+    "write_f",
+    (gdstk.Library.write_oas, gdstk.Library.write_gds),
+)
+def test_empty_path_warning(
+    simple_path: bool,
+    write_f: Callable[[gdstk.Library, Union[str, pathlib.Path]], None],
+    tmp_path: pathlib.Path
+):
+    lib = gdstk.Library("test")
+    tol = lib.precision / lib.unit
+
+    # Simple paths are written to GDS & OASIS with PATH records; non-simple
+    # paths are serialized as polygons.
+    path = gdstk.FlexPath(
+        ((0, 0), (tol / 2, 0)),
+        width=0.01,
+        tolerance=tol,
+        simple_path=simple_path
+    )
+
+    cell = gdstk.Cell("top")
+    cell.add(path)
+    lib.add(cell)
+
+    with pytest.warns(RuntimeWarning, match="Empty path"):
+        write_f(lib, tmp_path / "out")
