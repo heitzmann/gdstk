@@ -364,36 +364,38 @@ void Cell::copy_from(const Cell& cell, const char* new_name, bool deep_copy) {
 
 void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
                         Tag tag, Array<Polygon*>& result) const {
+    std::set<Tag> filters;
+    if (filter) filters.insert(tag);
+    get_polygons(apply_repetitions, include_paths, depth, filter ? &filters : nullptr, result);
+}
+
+void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+                        std::set<Tag>* _tags, Array<Polygon*>& result) const {
     uint64_t start = result.count;
 
-    if (filter) {
-        for (uint64_t i = 0; i < polygon_array.count; i++) {
-            Polygon* psrc = polygon_array[i];
-            if (psrc->tag != tag) continue;
-            Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-            poly->copy_from(*psrc);
-            result.append(poly);
+    for (uint64_t i = 0; i < polygon_array.count; i++) {
+        Polygon* psrc = polygon_array[i];
+        bool load = true;
+        if (_tags) {
+            load = _tags->find(psrc->tag) != _tags->end();
         }
-    } else {
-        result.ensure_slots(polygon_array.count);
-        for (uint64_t i = 0; i < polygon_array.count; i++) {
-            Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
-            poly->copy_from(*polygon_array[i]);
-            result.append_unsafe(poly);
-        }
+        if (!load) continue;
+        Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
+        poly->copy_from(*psrc);
+        result.append(poly);
     }
 
     if (include_paths) {
         FlexPath** flexpath = flexpath_array.items;
         for (uint64_t i = 0; i < flexpath_array.count; i++, flexpath++) {
             // NOTE: return ErrorCode ignored here
-            (*flexpath)->to_polygons(filter, tag, result);
+            (*flexpath)->to_polygons(_tags, result);
         }
 
         RobustPath** robustpath = robustpath_array.items;
         for (uint64_t i = 0; i < robustpath_array.count; i++, robustpath++) {
             // NOTE: return ErrorCode ignored here
-            (*robustpath)->to_polygons(filter, tag, result);
+            (*robustpath)->to_polygons(_tags, result);
         }
     }
 
@@ -408,7 +410,7 @@ void Cell::get_polygons(bool apply_repetitions, bool include_paths, int64_t dept
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
             (*ref)->get_polygons(apply_repetitions, include_paths, depth > 0 ? depth - 1 : -1,
-                                 filter, tag, result);
+                                 _tags, result);
         }
     }
 }
@@ -576,6 +578,37 @@ void Cell::get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag ta
         Reference** ref = reference_array.items;
         for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
             (*ref)->get_labels(apply_repetitions, depth > 0 ? depth - 1 : -1, filter, tag, result);
+        }
+    }
+}
+
+void Cell::get_labels(bool apply_repetitions, int64_t depth, std::set<Tag>* _tags,
+                      Array<Label*>& result) const {
+    uint64_t start = result.count;
+
+    for (uint64_t i = 0; i < label_array.count; i++) {
+        Label* lsrc = label_array[i];
+        bool load = true;
+        if (_tags) {
+            load = _tags->find(lsrc->tag) != _tags->end();
+        }
+        if (!load) continue;
+        Label* label = (Label*)allocate_clear(sizeof(Label));
+        label->copy_from(*lsrc);
+        result.append(label);
+    }
+
+    if (apply_repetitions) {
+        uint64_t finish = result.count;
+        for (uint64_t i = start; i < finish; i++) {
+            result[i]->apply_repetition(result);
+        }
+    }
+
+    if (depth != 0) {
+        Reference** ref = reference_array.items;
+        for (uint64_t i = 0; i < reference_array.count; i++, ref++) {
+            (*ref)->get_labels(apply_repetitions, depth > 0 ? depth - 1 : -1, _tags, result);
         }
     }
 }
