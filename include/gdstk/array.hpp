@@ -27,13 +27,68 @@ namespace gdstk {
 
 template <class T>
 struct Array {
-    uint64_t capacity = 0;  // allocated capacity
-    uint64_t count = 0;     // number of slots used
-    T* items = NULL;      // slots
+    uint64_t capacity;  // allocated capacity
+    uint64_t count;     // number of slots used
+    T* items = nullptr; // slots
 
     T& operator[](uint64_t idx) { return items[idx]; }
     const T& operator[](uint64_t idx) const { return items[idx]; }
 
+    ~Array() {
+        clear();
+    }
+    Array() {
+        capacity    = 0;
+        count       = 0;
+        items       = nullptr;
+    }
+    Array(const Array<T>& _array) {
+        capacity = 0;
+        count = 0;
+        items           = nullptr;
+        copy_from(_array);
+    }
+
+    Array(Array<T>&& _array) {
+        capacity        = _array.capacity;
+        count           = _array.count;
+        items           = _array.items;
+        _array.items    = nullptr;
+        _array.capacity = 0;
+        _array.count    = 0;
+    }
+    
+    template<typename Number>
+    Array(Number _capacity, Number _count, T* _item) {
+        capacity    = 0;
+        count       = 0;
+        ensure_slots((std::max)((uint64_t)_capacity,(uint64_t)_count));
+        if (_count == 1) {
+            items[0] = *_item;
+        }
+        else {
+            for (Number i = 0; i < _count; i++) {
+                items[i] = _item[i];
+            }
+        }
+    }
+    Array<T>& operator = (Array<T>&& _array) {
+        if (this == &_array)return *this;
+        clear();
+        capacity        = _array.capacity;
+        count           = _array.count;
+        items           = _array.items;
+        _array.items    = nullptr;
+        _array.capacity = 0;
+        _array.count    = 0;
+        return *this;
+    }
+
+    Array<T>& operator = (const Array<T>& _array) {
+        if (this == &_array)return *this;
+        copy_from(_array);
+        return *this;
+    }
     void print(bool all) const {
         printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
         if (all && count > 0) {
@@ -45,10 +100,13 @@ struct Array {
         }
     }
 
-    void clear() {
-        if (items) free_allocation(items);
-        items = NULL;
-        capacity = 0;
+    void clear(bool deallocate = true) {
+        if (deallocate)
+        {
+            if (items) free_allocation(items);
+            items = NULL;
+            capacity = 0;
+        }
         count = 0;
     }
 
@@ -126,6 +184,14 @@ struct Array {
 
     // The instance should be zeroed before copy_from
     void copy_from(const Array<T>& src) {
+        if (capacity > src.count && src.count>0) {
+            //enought capacity to just copy
+            count = src.count;
+            memcpy(items, src.items, sizeof(T) * count);
+            return;
+        }
+        // need to re allocate 
+        clear();
         capacity = src.count;
         count = src.count;
         if (count > 0) {

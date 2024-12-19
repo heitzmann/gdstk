@@ -5,9 +5,6 @@ Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
 
-#define __STDC_FORMAT_MACROS 1
-#define _USE_MATH_DEFINES
-
 #include <float.h>
 #include <math.h>
 #include <stdint.h>
@@ -20,6 +17,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/rawcell.hpp>
 #include <gdstk/reference.hpp>
 #include <gdstk/utils.hpp>
+#include <gdstk/repetition.hpp>
+#include <set>
 
 namespace gdstk {
 
@@ -198,7 +197,7 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 
     Array<Vec2> offsets = {};
     repetition.get_offsets(offsets);
-    repetition.clear();
+    //repetition.clear(); do not clear to allow multiple iterations on the reference
 
     // Skip first offset (0, 0)
     double* offset_p = (double*)(offsets.items + 1);
@@ -208,6 +207,7 @@ void Reference::apply_repetition(Array<Reference*>& result) {
         reference->copy_from(*this);
         reference->origin.x += *offset_p++;
         reference->origin.y += *offset_p++;
+        reference->repetition.clear();
         result.append_unsafe(reference);
     }
 
@@ -218,12 +218,20 @@ void Reference::apply_repetition(Array<Reference*>& result) {
 // Depth is passed as-is to Cell::get_polygons, where it is inspected and applied.
 void Reference::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
                              Tag tag, Array<Polygon*>& result) const {
+
+    std::set<Tag> filters;
+    if (filter)filters.insert(tag);
+    get_polygons(apply_repetitions, include_paths, depth, filter ? &filters : nullptr, result);
+}
+
+void Reference::get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+    std::set<Tag>* _tags, Array<Polygon*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Polygon*> array = {};
-    cell->get_polygons(apply_repetitions, include_paths, depth, filter, tag, array);
+    cell->get_polygons(apply_repetitions, include_paths, depth, _tags, array);
 
-    Vec2 zero = {0, 0};
+    Vec2 zero = { 0, 0 };
     Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
@@ -330,16 +338,24 @@ void Reference::get_robustpaths(bool apply_repetitions, int64_t depth, bool filt
 
 void Reference::get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
                            Array<Label*>& result) const {
+    std::set<Tag> filters;
+    if (filter)filters.insert(tag);
+    get_labels(apply_repetitions, depth, filter ? &filters : nullptr, result);
+}
+
+void Reference::get_labels(bool apply_repetitions, int64_t depth, std::set<Tag>*_tags,
+    Array<Label*>& result) const {
     if (type != ReferenceType::Cell) return;
 
     Array<Label*> array = {};
-    cell->get_labels(apply_repetitions, depth, filter, tag, array);
+    cell->get_labels(apply_repetitions, depth, _tags, array);
 
-    Vec2 zero = {0, 0};
+    Vec2 zero = { 0, 0 };
     Array<Vec2> offsets = {};
     if (repetition.type != RepetitionType::None) {
         repetition.get_offsets(offsets);
-    } else {
+    }
+    else {
         offsets.count = 1;
         offsets.items = &zero;
     }

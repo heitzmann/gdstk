@@ -13,6 +13,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <stdint.h>
 #include <string.h>
+#include <set>
 
 #include "array.hpp"
 #include "curve.hpp"
@@ -107,6 +108,47 @@ struct SubPath {
         };
     };
 
+        SubPath(SubPathType _type) {
+#ifdef linux
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+        memset(this, 0, sizeof(SubPath));
+        type = _type;
+
+#ifdef linux
+#pragma GCC diagnostic pop
+#endif
+    }
+
+    SubPath(const SubPath& _subpath) {
+#ifdef linux
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+        memcpy(this, &_subpath, sizeof(SubPath) - sizeof(Array<Vec2>));
+        ctrl = _subpath.ctrl;
+
+#ifdef linux
+#pragma GCC diagnostic pop
+#endif
+    }
+
+    SubPath& operator=(const SubPath& _subpath) {
+#ifdef linux
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
+#endif
+        if (this == &_subpath) return *this;
+        memcpy(this, &_subpath, sizeof(SubPath) - sizeof(Array<Vec2>));
+        ctrl = _subpath.ctrl;
+        return *this;
+#ifdef linux
+#pragma GCC diagnostic pop
+#endif
+    }
+
+    ~SubPath() {}
     void print() const;
     Vec2 gradient(double u, const double* trafo) const;
     Vec2 eval(double u, const double* trafo) const;
@@ -267,6 +309,7 @@ struct RobustPath {
     // Overlapping points are removed from the path before any processing is
     // executed.
     ErrorCode to_polygons(bool filter, Tag tag, Array<Polygon*>& result) const;
+    ErrorCode to_polygons(const std::set<Tag>* _tags, Array<Polygon*>& result) const;
 
     // These functions output the polygon in the GDSII, OASIS and SVG formats.
     // They are not supposed to be called by the user.  Because fracturing

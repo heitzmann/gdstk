@@ -44,16 +44,31 @@ void Repetition::print() const {
     }
 }
 
-void Repetition::clear() {
-    if (type == RepetitionType::Explicit) {
-        offsets.clear();
-    } else if (type == RepetitionType::ExplicitX || type == RepetitionType::ExplicitY) {
-        coords.clear();
+void Repetition::clear(bool deallocate) {
+    if (deallocate)
+    {
+        if (type == RepetitionType::Explicit) {
+            offsets.clear();
+        }
+        else if (type == RepetitionType::ExplicitX || type == RepetitionType::ExplicitY) {
+            coords.clear();
+        }
+        memset(this, 0, sizeof(Repetition));
     }
-    memset(this, 0, sizeof(Repetition));
+    else
+    {
+        offsets.clear(deallocate);
+        coords.clear(deallocate);
+        type = RepetitionType::None;
+        columns = 0;
+        rows = 0;
+        memset(&spacing, 0, sizeof(Vec2));
+        memset(&v1, 0, sizeof(Vec2));
+        memset(&v2, 0, sizeof(Vec2));
+    }
 }
 
-void Repetition::copy_from(const Repetition repetition) {
+void Repetition::copy_from(const Repetition& repetition) {
     type = repetition.type;
     switch (type) {
         case RepetitionType::Rectangular:
