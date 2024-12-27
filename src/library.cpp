@@ -2712,7 +2712,7 @@ Library read_oas(const char* filename, double unit,
                     }
                 }
                 if (info & 0x04) {
-                    oasis_read_repetition(in, factor, modal_repetition);
+                    oasis_skip_repetition(in);
                 }
                 if (error_logger) fputs("[GDSTK] Record type XGEOMETRY ignored.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::UnsupportedRecord;
@@ -2805,6 +2805,7 @@ CLEANUP:
 
     modal_repetition.clear();
     modal_polygon_points.clear();
+	modal_trapezoid_points.clear();
     modal_path_points.clear();
 
     unfinished_property_name.clear();
