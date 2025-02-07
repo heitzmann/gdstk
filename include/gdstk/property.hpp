@@ -75,7 +75,7 @@ void set_property(Property*& properties, const char* name, const uint8_t* bytes,
 
 // Overwrite properties with the same attribute number. The NULL byte is
 // included in the property value.
-void set_gds_property(Property*& properties, uint16_t attribute, const char* value);
+void set_gds_property(Property*& properties, uint16_t attribute, const char* value, uint64_t count);
 
 uint64_t remove_property(Property*& properties, const char* name, bool all_occurences);
 bool remove_gds_property(Property*& properties, uint16_t attribute);

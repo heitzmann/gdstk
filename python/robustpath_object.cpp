@@ -1827,8 +1827,10 @@ static PyObject* robustpath_object_delete_property(RobustPathObject* self, PyObj
 static PyObject* robustpath_object_set_gds_property(RobustPathObject* self, PyObject* args) {
     uint16_t attribute;
     char* value;
-    if (!PyArg_ParseTuple(args, "Hs:set_gds_property", &attribute, &value)) return NULL;
-    set_gds_property(self->robustpath->properties, attribute, value);
+    Py_ssize_t count;
+    if (!PyArg_ParseTuple(args, "Hs#:set_gds_property", &attribute, &value, &count)) return NULL;
+    if (count >= 0)
+        set_gds_property(self->robustpath->properties, attribute, value, (uint64_t)count);
     Py_INCREF(self);
     return (PyObject*)self;
 }
@@ -1841,7 +1843,13 @@ static PyObject* robustpath_object_get_gds_property(RobustPathObject* self, PyOb
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyUnicode_FromString((char*)value->bytes);
+    PyObject* result = PyUnicode_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->count);
+    if (PyErr_Occurred()) {
+        Py_XDECREF(result);
+        PyErr_Clear();
+        result = PyBytes_FromStringAndSize((char*)value->bytes, (Py_ssize_t)value->count);
+    }
+    return result;
 }
 
 static PyObject* robustpath_object_delete_gds_property(RobustPathObject* self, PyObject* args) {
@@ -1854,7 +1862,8 @@ static PyObject* robustpath_object_delete_gds_property(RobustPathObject* self, P
 
 static PyMethodDef robustpath_object_methods[] = {
     {"copy", (PyCFunction)robustpath_object_copy, METH_NOARGS, robustpath_object_copy_doc},
-    {"__deepcopy__", (PyCFunction)robustpath_object_deepcopy, METH_VARARGS | METH_KEYWORDS, robustpath_object_deepcopy_doc},
+    {"__deepcopy__", (PyCFunction)robustpath_object_deepcopy, METH_VARARGS | METH_KEYWORDS,
+     robustpath_object_deepcopy_doc},
     {"spine", (PyCFunction)robustpath_object_spine, METH_NOARGS, robustpath_object_spine_doc},
     {"path_spines", (PyCFunction)robustpath_object_path_spines, METH_NOARGS,
      robustpath_object_path_spines_doc},

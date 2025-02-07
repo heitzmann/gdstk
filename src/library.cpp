@@ -1283,13 +1283,13 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             case GdsiiRecord::PROPVALUE:
                 if (str[data_length - 1] != 0) str[data_length++] = 0;
                 if (polygon) {
-                    set_gds_property(polygon->properties, key, str);
+                    set_gds_property(polygon->properties, key, str, data_length);
                 } else if (path) {
-                    set_gds_property(path->properties, key, str);
+                    set_gds_property(path->properties, key, str, data_length);
                 } else if (reference) {
-                    set_gds_property(reference->properties, key, str);
+                    set_gds_property(reference->properties, key, str, data_length);
                 } else if (label) {
-                    set_gds_property(label->properties, key, str);
+                    set_gds_property(label->properties, key, str, data_length);
                 }
                 break;
             case GdsiiRecord::BGNEXTN:
