@@ -18,6 +18,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "map.hpp"
 #include "repetition.hpp"
 #include "utils.hpp"
+#include "label.hpp"
 
 namespace gdstk {
 
@@ -166,15 +167,25 @@ struct OasisState {
 
 ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in);
 
+ErrorCode oasis_skip(size_t size, size_t count, OasisStream& in);
+
 size_t oasis_write(const void* buffer, size_t size, size_t count, OasisStream& out);
 
 int oasis_putc(int c, OasisStream& out);
 
 uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& len);
 
+void oasis_read_string2(OasisStream& in, Label* dest, uint64_t capacity, uint64_t& count);
+
+ErrorCode oasis_skip_string(OasisStream& in);
+
 uint64_t oasis_read_unsigned_integer(OasisStream& in);
 
+ErrorCode oasis_skip_unsigned_integer(OasisStream& in);
+
 int64_t oasis_read_integer(OasisStream& in);
+
+ErrorCode oasis_skip_integer(OasisStream& in);
 
 inline int64_t oasis_read_1delta(OasisStream& in) { return oasis_read_integer(in); };
 
@@ -184,7 +195,11 @@ void oasis_read_3delta(OasisStream& in, int64_t& x, int64_t& y);
 
 void oasis_read_gdelta(OasisStream& in, int64_t& x, int64_t& y);
 
+ErrorCode oasis_skip_gdelta(OasisStream& in);
+
 double oasis_read_real_by_type(OasisStream& in, OasisDataType type);
+
+ErrorCode oasis_skip_real_by_type(OasisStream& in, OasisDataType type);
 
 inline double oasis_read_real(OasisStream& in) {
     OasisDataType type;
@@ -197,7 +212,11 @@ inline double oasis_read_real(OasisStream& in) {
 // be an implicit extra delta for Manhattan types).
 uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Array<Vec2>& result);
 
+ErrorCode oasis_skip_point_list(OasisStream& in);
+
 void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetition);
+
+ErrorCode oasis_skip_repetition(OasisStream& in);
 
 void oasis_write_unsigned_integer(OasisStream& out, uint64_t value);
 
@@ -223,7 +242,7 @@ void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double s
                             bool closed);
 
 // This should only be called with repetition.get_count() > 1
-void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling);
+void oasis_write_repetition(OasisStream& out, const Repetition &repetition, double scaling);
 
 }  // namespace gdstk
 
