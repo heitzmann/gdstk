@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.9.59 - 2025-02-11
 ### Fixed
 - Treat string properties as binary byte arrays in OASIS.
 
