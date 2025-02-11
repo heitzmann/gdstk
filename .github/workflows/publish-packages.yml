@@ -26,9 +26,10 @@ jobs:
             cd qhull-8.0.2 &&
             cmake -S . -B build &&
             cmake --build build --target install
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
+          name: artifact-manylinux2014
 
   build_manylinux_2_28:
     name: Build wheels on manylinux_2_28
@@ -51,9 +52,10 @@ jobs:
             cd qhull-8.0.2 &&
             cmake -S . -B build &&
             cmake --build build --target install
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
+          name: artifact-manylinux_2_28
 
   build_musllinux:
     name: Build wheels on musllinux
@@ -72,9 +74,10 @@ jobs:
             cd qhull-8.0.2 &&
             cmake -S . -B build &&
             cmake --build build --target install
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
+          name: artifact-musllinux
 
   build_macos:
     name: Build wheels on MacOS
@@ -91,9 +94,10 @@ jobs:
             cd qhull-8.0.2 &&
             cmake -DCMAKE_OSX_ARCHITECTURES='x86_64;arm64' -DBUILD_SHARED_LIBS=OFF -DBUILD_STATIC_LIBS=ON -DBUILD_APPLICATIONS=OFF -S . -B build &&
             sudo cmake --build build --target install
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
+          name: artifact-macos
 
   build_windows:
     strategy:
@@ -127,9 +131,10 @@ jobs:
           CMAKE_GENERATOR: "Ninja"
           CMAKE_TOOLCHAIN_FILE: "${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake"
           SKBUILD_CMAKE_ARGS: "-DVCPKG_TARGET_TRIPLET=x64-windows-static;-DVCPKG_MANIFEST_MODE=OFF"
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*.whl
+          name: artifact-windows-${{ matrix.python-version }}
 
   build_sdist:
     name: Build source distribution
@@ -140,21 +145,26 @@ jobs:
         run: pip install build
       - name: Build sdist
         run: python -m build -s
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: dist/*.tar.gz
+          name: artifact-sdist
 
   upload_pypi:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     name: Upload wheel to PyPI
     needs: [build_manylinux2014, build_manylinux_2_28, build_musllinux, build_macos, build_windows]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      id-token: write
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
-          name: artifact
           path: dist
-      - uses: pypa/gh-action-pypi-publish@v1.8.5
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
+          verbose: true
