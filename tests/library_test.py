@@ -462,6 +462,28 @@ def test_layers_and_types(sample_library):
     lt = sample_library.layers_and_texttypes()
     assert lt == {(5, 6)}
 
+def test_large_layer_number(tmpdir):
+    c1 = gdstk.Cell("c1")
+    c1.add(gdstk.rectangle((0, -1), (1, 2), 50000, 0))
+
+    c1.add(gdstk.rectangle((1, 1), (10, 10), 2, 1))
+    c1.add(gdstk.rectangle((2, 2), (10, 10), 60100, 0))
+    c1.add(gdstk.rectangle((3, 3), (10, 10), 100000, 0))
+
+
+    lib = gdstk.Library()
+    lib.add(c1)
+
+    fname = str(tmpdir.join("test_large_layer_num.gds"))
+    lib.write_gds(fname)
+
+    lib2 = gdstk.read_gds(fname)
+
+    assert (50000,0) in lib2.layers_and_datatypes()
+    assert (60100,0) in lib2.layers_and_datatypes()
+    assert (100000,0) in lib2.layers_and_datatypes()
+    assert (2,1) in lib2.layers_and_datatypes()
+
 
 def test_rename_cell():
     c1 = gdstk.Cell("C1")

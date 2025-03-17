@@ -930,8 +930,10 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     // One extra char in case we need a 0-terminated string with max count (should never happen, but
     // it doesn't hurt to be prepared).
     uint8_t buffer[65537];
+    uint16_t* udata16 = (uint16_t*)(buffer + 4);
     int16_t* data16 = (int16_t*)(buffer + 4);
     int32_t* data32 = (int32_t*)(buffer + 4);
+    uint32_t* udata32 = (uint32_t*)(buffer + 4);
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     char* str = (char*)(buffer + 4);
 
@@ -944,6 +946,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     double factor = 1;
     double width = 0;
     int16_t key = 0;
+
+    uint32_t ll_load = 0; // Layer to write
 
     FILE* in = fopen(filename, "rb");
     if (in == NULL) {
@@ -965,7 +969,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
         //        record_length);
 
         uint64_t data_length;
-        switch ((GdsiiDataType)buffer[3]) {
+        GdsiiDataType data_type = (GdsiiDataType)buffer[3];
+        switch (data_type) {
             case GdsiiDataType::BitArray:
             case GdsiiDataType::TwoByteSignedInteger:
                 data_length = (record_length - 4) / 2;
@@ -1090,19 +1095,30 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 if (cell) cell->label_array.append(label);
                 break;
             case GdsiiRecord::LAYER:
-                if (polygon)
-                    set_layer(polygon->tag, data16[0]);
+                if (polygon){
+                    ll_load = (uint32_t)(buffer[5] << 8) + buffer[4];// + buffer[5]<<8 + buffer[6]<<16 + buffer[7]<<24;
+                    // ll_load = (uint32_t)(buffer[6]<<8);
+                    if (data_type == GdsiiDataType::FourByteSignedInteger)
+                    {
+                        set_layer(polygon->tag, udata32[0]);
+                    } else {
+                        set_layer(polygon->tag, udata16[0]);
+                    }
+                    
+                    
+                    // set_layer(polygon->tag, ll_load);
+                }
                 else if (path)
-                    set_layer(path->elements[0].tag, data16[0]);
+                    set_layer(path->elements[0].tag, ((uint16_t*)data16)[0]);
                 else if (label)
-                    set_layer(label->tag, data16[0]);
+                    set_layer(label->tag, ((uint16_t*)data16)[0]);
                 break;
             case GdsiiRecord::DATATYPE:
             case GdsiiRecord::BOXTYPE:
                 if (polygon)
-                    set_type(polygon->tag, data16[0]);
+                    set_type(polygon->tag, ((uint16_t*)data16)[0]);
                 else if (path)
-                    set_type(path->elements[0].tag, data16[0]);
+                    set_type(path->elements[0].tag, ((uint16_t*)data16)[0]);
                 break;
             case GdsiiRecord::WIDTH:
                 if (data32[0] < 0) {
