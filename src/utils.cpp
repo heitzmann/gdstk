@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <time.h>
 
 #include <gdstk/allocator.hpp>
+#include <gdstk/gdsii.hpp>
 #include <gdstk/utils.hpp>
 #include <gdstk/vec.hpp>
 
@@ -26,6 +27,36 @@ namespace gdstk {
 FILE* error_logger = stderr;
 
 void set_error_logger(FILE* log) { error_logger = log; }
+
+void tag_to_gds(FILE* out, Tag tag, GdsiiRecord type_record) {
+    uint32_t layer = get_layer(tag);
+    if (layer > UINT16_MAX) {
+        uint16_t buffer_start[] = {8, 0x0D03};
+        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        big_endian_swap32(&layer, 1);
+        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+        fwrite(&layer, sizeof(uint32_t), 1, out);
+    } else {
+        uint16_t buffer_start[] = {6, 0x0D02, (uint16_t)layer};
+        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+    }
+
+    uint32_t type = get_type(tag);
+    if (type > UINT16_MAX) {
+        uint16_t buffer_start[] = {8, 0x03};
+        buffer_start[1] |= (uint16_t)type_record << 8;
+        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        big_endian_swap32(&type, 1);
+        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+        fwrite(&type, sizeof(uint32_t), 1, out);
+    } else {
+        uint16_t buffer_start[] = {6, 0x02, (uint16_t)type};
+        buffer_start[1] |= (uint16_t)type_record << 8;
+        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+    }
+}
 
 char* copy_string(const char* str, uint64_t* len) {
     uint64_t size = 1 + strlen(str);
@@ -633,8 +664,7 @@ void convex_hull(const Array<Vec2> points, Array<Vec2>& result) {
 char* double_print(double value, uint32_t precision, char* buffer, size_t buffer_size) {
     uint64_t len = snprintf(buffer, buffer_size, "%.*f", precision, value);
     if (precision) {
-        while (buffer[--len] == '0')
-            ;
+        while (buffer[--len] == '0');
         if (buffer[len] != '.') len++;
         buffer[len] = 0;
     }

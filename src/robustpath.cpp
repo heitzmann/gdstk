@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include <gdstk/allocator.hpp>
 #include <gdstk/curve.hpp>
+#include <gdstk/gdsii.hpp>
 #include <gdstk/robustpath.hpp>
 #include <gdstk/utils.hpp>
 
@@ -1535,22 +1536,12 @@ ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
                 end_type = 0;
         }
 
-        uint16_t buffer_start[] = {4,
-                                   0x0900,
-                                   6,
-                                   0x0D02,
-                                   (uint16_t)get_layer(el->tag),
-                                   6,
-                                   0x0E02,
-                                   (uint16_t)get_type(el->tag),
-                                   6,
-                                   0x2102,
-                                   end_type,
-                                   8,
-                                   0x0F03};
+        uint16_t buffer0[] = {4, 0x0900};
+        uint16_t buffer1[] = {6, 0x2102, end_type, 8, 0x0F03};
         int32_t width_ = (scale_width ? 1 : -1) *
                          (int32_t)lround(interp(el->width_array[0], 0) * width_scale * scaling);
-        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        big_endian_swap16(buffer0, COUNT(buffer0));
+        big_endian_swap16(buffer1, COUNT(buffer1));
         big_endian_swap32((uint32_t *)&width_, 1);
 
         uint16_t buffer_ext1[] = {8, 0x3003};
@@ -1572,7 +1563,9 @@ ErrorCode RobustPath::to_gds(FILE *out, double scaling) const {
 
         double *offset_p = (double *)offsets.items;
         for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
-            fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+            fwrite(buffer0, sizeof(uint16_t), COUNT(buffer0), out);
+            tag_to_gds(out, el->tag, GdsiiRecord::DATATYPE);
+            fwrite(buffer1, sizeof(uint16_t), COUNT(buffer1), out);
             fwrite(&width_, sizeof(int32_t), 1, out);
             if (end_type == 4) {
                 fwrite(buffer_ext1, sizeof(uint16_t), COUNT(buffer_ext1), out);

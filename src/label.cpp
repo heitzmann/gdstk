@@ -104,18 +104,10 @@ void Label::apply_repetition(Array<Label*>& result) {
 
 ErrorCode Label::to_gds(FILE* out, double scaling) const {
     ErrorCode error_code = ErrorCode::NoError;
-    uint16_t buffer_start[] = {4,
-                               0x0C00,
-                               6,
-                               0x0D02,
-                               (uint16_t)get_layer(tag),
-                               6,
-                               0x1602,
-                               (uint16_t)get_type(tag),
-                               6,
-                               0x1701,
-                               (uint16_t)anchor};
-    big_endian_swap16(buffer_start, COUNT(buffer_start));
+    uint16_t buffer0[] = {4, 0x0C00};
+    uint16_t buffer1[] = {6, 0x1701, (uint16_t)anchor};
+    big_endian_swap16(buffer0, COUNT(buffer0));
+    big_endian_swap16(buffer1, COUNT(buffer1));
 
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -163,7 +155,9 @@ ErrorCode Label::to_gds(FILE* out, double scaling) const {
 
     Vec2* offset_p = offsets.items;
     for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--, offset_p++) {
-        fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+        fwrite(buffer0, sizeof(uint16_t), COUNT(buffer0), out);
+        tag_to_gds(out, tag, GdsiiRecord::TEXTTYPE);
+        fwrite(buffer1, sizeof(uint16_t), COUNT(buffer1), out);
 
         if (transform_) {
             fwrite(buffer_flags, sizeof(uint16_t), COUNT(buffer_flags), out);

@@ -99,6 +99,9 @@ inline uint32_t get_type(Tag tag) { return (uint32_t)(tag >> 32); };
 inline void set_layer(Tag& tag, uint32_t layer) { tag = make_tag(layer, get_type(tag)); };
 inline void set_type(Tag& tag, uint32_t type) { tag = make_tag(get_layer(tag), type); };
 
+enum struct GdsiiRecord : uint8_t;
+void tag_to_gds(FILE* out, Tag tag, GdsiiRecord type_record);
+
 // Argument between 0 and 1, plus user data
 typedef double (*ParametricDouble)(double, void*);
 

@@ -17,6 +17,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <cstddef>
 #include <gdstk/allocator.hpp>
 #include <gdstk/curve.hpp>
+#include <gdstk/gdsii.hpp>
 #include <gdstk/flexpath.hpp>
 #include <gdstk/utils.hpp>
 
@@ -813,19 +814,8 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
         }
 
         uint16_t path_type = raith_data.base_cell_name ? 0x5A00 : 0x0900;
-        uint16_t buffer_start[] = {4,
-                                   path_type,
-                                   6,
-                                   0x0D02,
-                                   (uint16_t)get_layer(el->tag),
-                                   6,
-                                   0x0E02,
-                                   (uint16_t)get_type(el->tag),
-                                   6,
-                                   0x2102,
-                                   end_type,
-                                   8,
-                                   0x0F03};
+        uint16_t buffer0[] = {4, path_type};
+        uint16_t buffer1[] = {6, 0x2102, end_type, 8, 0x0F03};
 
         PXXData pxxdata = raith_data.to_pxxdata(scaling);
         pxxdata.little_endian_swap();
@@ -837,7 +827,8 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
 
         int32_t width =
             (scale_width ? 1 : -1) * (int32_t)lround(2 * el->half_width_and_offset[0].u * scaling);
-        big_endian_swap16(buffer_start, COUNT(buffer_start));
+        big_endian_swap16(buffer0, COUNT(buffer0));
+        big_endian_swap16(buffer1, COUNT(buffer1));
         big_endian_swap32((uint32_t*)&width, 1);
 
         uint16_t buffer_ext1[] = {8, 0x3003};
@@ -858,7 +849,9 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
 
         double* offset_p = (double*)offsets.items;
         for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
-            fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+            fwrite(buffer0, sizeof(uint16_t), COUNT(buffer0), out);
+            tag_to_gds(out, el->tag, GdsiiRecord::DATATYPE);
+            fwrite(buffer1, sizeof(uint16_t), COUNT(buffer1), out);
             fwrite(&width, sizeof(int32_t), 1, out);
             if (raith_data.base_cell_name) {
                 fwrite(sname_start, sizeof(uint16_t), COUNT(sname_start), out);

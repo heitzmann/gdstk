@@ -13,11 +13,11 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 #include <gdstk/allocator.hpp>
 #include <gdstk/clipper_tools.hpp>
 #include <gdstk/font.hpp>
+#include <gdstk/gdsii.hpp>
 #include <gdstk/polygon.hpp>
 #include <gdstk/repetition.hpp>
 #include <gdstk/sort.hpp>
@@ -91,12 +91,10 @@ double Polygon::perimeter() const {
         result += v1.length();
         v0 += v1;
     }
-    result += (point_array.items[0] - point_array.items[point_array.count-1]).length();
+    result += (point_array.items[0] - point_array.items[point_array.count - 1]).length();
     if (repetition.type != RepetitionType::None) result *= repetition.get_count();
     return result;
 }
-
-
 
 // Based on algorithm 7 from: Kai Hormann, Alexander Agathos, “The point in
 // polygon problem for arbitrary polygons,” Computational Geometry, Volume 20,
@@ -370,7 +368,7 @@ void Polygon::fracture(uint64_t max_points, double precision, Array<Polygon*>& r
         while (interior_coords.items[0] == coords[0]) ++interior_coords.items;
         interior_coords.count = num_points - (interior_coords.items - coords);
         while (interior_coords.count > 0 &&
-                interior_coords.items[interior_coords.count - 1] == coords[num_points - 1])
+               interior_coords.items[interior_coords.count - 1] == coords[num_points - 1])
             --interior_coords.count;
 
         Array<double> cuts = {};
@@ -440,8 +438,7 @@ ErrorCode Polygon::to_gds(FILE* out, double scaling) const {
     ErrorCode error_code = ErrorCode::NoError;
     if (point_array.count < 3) return error_code;
 
-    uint16_t buffer_start[] = {
-        4, 0x0800, 6, 0x0D02, (uint16_t)get_layer(tag), 6, 0x0E02, (uint16_t)get_type(tag)};
+    uint16_t buffer_start[] = {4, 0x0800};
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_start, COUNT(buffer_start));
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -470,6 +467,7 @@ ErrorCode Polygon::to_gds(FILE* out, double scaling) const {
     double* offset_p = (double*)offsets.items;
     for (uint64_t offset_count = offsets.count; offset_count > 0; offset_count--) {
         fwrite(buffer_start, sizeof(uint16_t), COUNT(buffer_start), out);
+        tag_to_gds(out, tag, GdsiiRecord::DATATYPE);
 
         double offset_x = *offset_p++;
         double offset_y = *offset_p++;
