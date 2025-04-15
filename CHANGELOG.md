@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.60 - 2025-04-15
+### Fixed
+- Added support to 32-bit layers and datatypes.
+
 ## 0.9.59 - 2025-02-11
 ### Fixed
 - Treat string properties as binary byte arrays in OASIS.
