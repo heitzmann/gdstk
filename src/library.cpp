@@ -1170,8 +1170,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     reference->origin = origin;
                     if (reference->repetition.type != RepetitionType::None) {
                         Repetition* repetition = &reference->repetition;
-                        Int32_t anyhiddenreps = data[3] | data[4]
-                        if (reference->rotation == 0 && !reference->x_reflection && !anyhiddenreps) {
+                        if (reference->rotation == 0 && !reference->x_reflection &&
+                                data32[3] == 0  && data32[4] == 0) {
                             repetition->spacing.x =
                                 (factor * data32[2] - origin.x) / repetition->columns;
                             repetition->spacing.y =
