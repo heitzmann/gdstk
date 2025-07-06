@@ -336,13 +336,13 @@ ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* time
                                0x0258,
                                28,
                                0x0102,
-                               (uint16_t)(timestamp->tm_year + 1900),
+                               (uint16_t)(timestamp->tm_year),
                                (uint16_t)(timestamp->tm_mon + 1),
                                (uint16_t)timestamp->tm_mday,
                                (uint16_t)timestamp->tm_hour,
                                (uint16_t)timestamp->tm_min,
                                (uint16_t)timestamp->tm_sec,
-                               (uint16_t)(timestamp->tm_year + 1900),
+                               (uint16_t)(timestamp->tm_year),
                                (uint16_t)(timestamp->tm_mon + 1),
                                (uint16_t)timestamp->tm_mday,
                                (uint16_t)timestamp->tm_hour,
@@ -2615,7 +2615,7 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
     FILE* inout = NULL;
 
     if (new_timestamp) {
-        new_tm_buffer[0] = new_timestamp->tm_year + 1900;
+        new_tm_buffer[0] = new_timestamp->tm_year;
         new_tm_buffer[1] = new_timestamp->tm_mon + 1;
         new_tm_buffer[2] = new_timestamp->tm_mday;
         new_tm_buffer[3] = new_timestamp->tm_hour;
@@ -2651,7 +2651,7 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
                 return result;
             }
             big_endian_swap16(data16, 6);
-            result.tm_year = data16[0] - 1900;
+            result.tm_year = data16[0];
             result.tm_mon = data16[1] - 1;
             result.tm_mday = data16[2];
             result.tm_hour = data16[3];
