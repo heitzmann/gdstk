@@ -12,6 +12,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define _USE_MATH_DEFINES
 
 #include <stdint.h>
+#include <set>
 
 #include "array.hpp"
 #include "curve.hpp"
@@ -153,6 +154,7 @@ struct FlexPath {
     // Overlapping points are removed from the path before any processing is
     // executed.
     ErrorCode to_polygons(bool filter, Tag tag, Array<Polygon*>& result);
+    ErrorCode to_polygons(const std::set<Tag>* _tags, Array<Polygon*>& result);
 
     // Calculate the center of an element of this path and append the resulting
     // curve to result.

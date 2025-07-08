@@ -28,6 +28,32 @@ struct Polygon {
     Array<Vec2> point_array;
     Repetition repetition;
     Property* properties;
+
+    Polygon() { properties = nullptr; }
+    Polygon& operator=(Polygon&& _p) {
+        if (this == &_p) return *this;
+        point_array.clear();
+        repetition.clear();
+        if (properties) {
+            properties_clear(properties);
+        }
+        tag = _p.tag;
+        point_array = std::move(_p.point_array);
+        repetition = std::move(_p.repetition);
+        properties = _p.properties;
+        _p.properties = nullptr;
+        return *this;
+    }
+
+    Polygon(Polygon&& _p) {
+        tag = _p.tag;
+        point_array = std::move(_p.point_array);
+        repetition = std::move(_p.repetition);
+        properties = _p.properties;
+        _p.properties = nullptr;
+    }
+    ~Polygon() { clear(); }
+
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
     void* owner;
