@@ -974,7 +974,7 @@ void oasis_write_repetition(OasisStream& out, const Repetition repetition, doubl
                 Vec2* v1 = v0 + 1;
                 oasis_write_gdelta(out, (int64_t)llround(v0->x * scaling),
                                    (int64_t)llround(v0->y * scaling));
-                for (uint64_t i = repetition.coords.count - 1; i > 0; --i, ++v0, ++v1) {
+                for (uint64_t i = repetition.offsets.count - 1; i > 0; --i, ++v0, ++v1) {
                     oasis_write_gdelta(out, (int64_t)llround((v1->x - v0->x) * scaling),
                                        (int64_t)llround((v1->y - v0->y) * scaling));
                 }
