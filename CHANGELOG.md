@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.61 - 2025-08-28
+### Added
+- Support for non-standard repetition vectors in GDSII (#293, #299, thanks svollenweider, WesYu).
+### Fixed
+- Bug in OASIS output when using explicit repetitions (#307, thanks RedFalsh).
+- Time stamp format in GDSII (#308, thanks albachten).
+
 ## 0.9.60 - 2025-04-15
 ### Fixed
 - Added support to 32-bit layers and datatypes.
