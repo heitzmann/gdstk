@@ -56,13 +56,66 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define FSEEK64 fseek
 #endif
 
+#include <math.h>
 #include <stdint.h>
+#include <string>
 #include <time.h>
 
 #include "array.hpp"
 #include "vec.hpp"
 
+struct gzFile_s;
+typedef struct gzFile_s* gzFile;
+
 namespace gdstk {
+
+bool endsWithIgnoreCase(const std::string& str, const std::string& suffix);
+
+class FileWrapper {
+public:
+    virtual ~FileWrapper() {}
+    virtual bool Open(const char* filename, const char* mode) = 0;
+    virtual void Close() = 0;
+    virtual bool IsEOF() = 0;
+    virtual size_t Read(void* buffer, size_t elementSizeBytes, size_t elementCount) = 0;
+    virtual size_t Write(const void* buffer, size_t elementSizeBytes, size_t elementCount) = 0;
+    virtual size_t PRead(void* buffer, size_t numBytes, size_t offset) = 0;
+    virtual size_t Tell() = 0;
+    virtual size_t Seek(long int offset, int origin) = 0;
+    virtual int Error() = 0;
+};
+
+class FileWrapperStd : public FileWrapper {
+public:
+    FileWrapperStd();
+    bool Open(const char* filename, const char* mode);
+    void Close();
+    bool IsEOF();
+    size_t Read(void* buffer, size_t elementSizeBytes, size_t elementCount);
+    size_t Write(const void* buffer, size_t elementSizeBytes, size_t elementCount);
+    size_t PRead(void* buffer, size_t numBytes, size_t offset);
+    size_t Tell();
+    size_t Seek(long int offset, int origin);
+    int Error();
+protected:
+    FILE* file;
+};
+
+class FileWrapperGZlib : public FileWrapper {
+public:
+    FileWrapperGZlib();
+	bool Open(const char* filename, const char* mode);
+    void Close();
+	bool IsEOF();
+	size_t Read(void* buffer, size_t elementSizeBytes, size_t elementCount);
+    size_t Write(const void* buffer, size_t elementSizeBytes, size_t elementCount);
+    size_t PRead(void* buffer, size_t numBytes, size_t offset);
+    size_t Tell();
+    size_t Seek(long int offset, int origin);
+	int Error();
+protected:
+    gzFile file;
+};
 
 // Error codes
 enum struct ErrorCode {
@@ -86,6 +139,28 @@ enum struct ErrorCode {
     InsufficientMemory,
     ZlibError,
 };
+
+inline std::string error_code_str(const ErrorCode _err) {
+    switch (_err) {
+    case ErrorCode::NoError: return "NoError";
+    case ErrorCode::BooleanError: return "BooleanError";
+    case ErrorCode::IntersectionNotFound: return "IntersectionNotFound";
+    case ErrorCode::MissingReference: return "MissingReference";
+    case ErrorCode::UnsupportedRecord: return "UnsupportedRecord";
+    case ErrorCode::UnofficialSpecification: return "UnofficialSpecification";
+    case ErrorCode::InvalidRepetition: return "InvalidRepetition";
+    case ErrorCode::Overflow: return "Overflow";
+    case ErrorCode::ChecksumError: return "ChecksumError";
+    case ErrorCode::OutputFileOpenError: return "OutputFileOpenError";
+    case ErrorCode::InputFileOpenError: return "InputFileOpenError";
+    case ErrorCode::InputFileError: return "InputFileError";
+    case ErrorCode::FileError: return "FileError";
+    case ErrorCode::InvalidFile: return "InvalidFile";
+    case ErrorCode::InsufficientMemory: return "InsufficientMemory";
+    case ErrorCode::ZlibError: return "ZlibError";
+    }
+    return "unknown";
+}
 
 // Tag encapsulates layer and data (text) type.  The implementation details
 // might change in the future.  The only guarantee is that a zeroed Tag

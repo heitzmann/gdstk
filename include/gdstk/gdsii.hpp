@@ -100,7 +100,7 @@ double gdsii_real_to_double(uint64_t real);
 // Read a record and swaps only first 2 bytes (record length).  The size of the
 // buffer must be passed in buffer_count.  On return, the record length
 // (including header) is returned in buffer_count.
-ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count);
+ErrorCode gdsii_read_record(FileWrapper* in, uint8_t* buffer, uint64_t& buffer_count);
 
 }  // namespace gdstk
 

@@ -42,6 +42,27 @@ ErrorCode oasis_read(void* buffer, size_t size, size_t count, OasisStream& in) {
     return in.error_code;
 }
 
+ErrorCode oasis_skip(size_t size, size_t count, OasisStream& in) {
+    if (in.data) {
+        uint64_t total = size * count;
+        in.cursor += total;
+        if (in.cursor >= in.data + in.data_size) {
+            if (in.cursor > in.data + in.data_size) {
+                if (error_logger)
+                    fputs("[GDSTK] Error seeking compressed data in file.\n", error_logger);
+                in.error_code = ErrorCode::InputFileError;
+            }
+            free_allocation(in.data);
+            in.data = NULL;
+        }
+    }
+    else if (fseek(in.file, long(size * count), SEEK_CUR)) {
+        if (error_logger) fputs("[GDSTK] Error seeking OASIS file.\n", error_logger);
+        in.error_code = ErrorCode::InputFileError;
+    }
+    return in.error_code;
+}
+
 static uint8_t oasis_peek(OasisStream& in) {
     uint8_t byte;
     if (in.data) {
@@ -130,6 +151,37 @@ uint64_t oasis_read_unsigned_integer(OasisStream& in) {
     return result;
 }
 
+ErrorCode oasis_skip_unsigned_integer(OasisStream& in) {
+    ErrorCode result = ErrorCode::NoError;
+    uint8_t byte;
+
+    if ((result = oasis_read(&byte, 1, 1, in)) != ErrorCode::NoError) return result;
+
+    uint8_t num_bits = 7;
+    while (byte & 0x80) {
+        if (oasis_read(&byte, 1, 1, in) != ErrorCode::NoError) return result;
+        num_bits += 7;
+    }
+    return result;
+}
+
+void oasis_read_string2(OasisStream& in, Label* dest, uint64_t& capacity, uint64_t& count) {
+    count = oasis_read_unsigned_integer(in);
+    dest->text[0] = '\0';
+
+    if (count + 1 > capacity) {
+        dest->text = (char*)reallocate(dest->text, count + 1);
+        capacity = count + 1;
+    }
+
+    if (oasis_read(dest->text, 1, count, in) != ErrorCode::NoError) {
+        dest->text[0] = '\0';
+        count = (uint64_t)-1;
+        return;
+    }
+    dest->text[count++] = 0;
+}
+
 uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64_t& count) {
     uint8_t* bytes;
     count = oasis_read_unsigned_integer(in);
@@ -143,7 +195,7 @@ uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64
     if (oasis_read(bytes, 1, count, in) != ErrorCode::NoError) {
         free_allocation(bytes);
         bytes = NULL;
-        count = -1;
+        count = (uint64_t)-1;
     }
     if (append_terminating_null) {
         bytes[count++] = 0;
@@ -158,6 +210,13 @@ uint8_t* oasis_read_string(OasisStream& in, bool append_terminating_null, uint64
     // puts("]");
 
     return bytes;
+}
+
+ErrorCode oasis_skip_string(OasisStream& in)
+{
+    uint64_t count;
+    count = oasis_read_unsigned_integer(in);
+    return oasis_skip(1, count, in);
 }
 
 static uint8_t oasis_read_int_internal(OasisStream& in, uint8_t skip_bits, int64_t& result) {
@@ -182,10 +241,34 @@ static uint8_t oasis_read_int_internal(OasisStream& in, uint8_t skip_bits, int64
     return bits;
 }
 
+static ErrorCode oasis_skip_int_internal(OasisStream& in, uint8_t skip_bits) {
+    ErrorCode result = ErrorCode::NoError;
+    uint8_t byte;
+    if ((result = oasis_read(&byte, 1, 1, in)) != ErrorCode::NoError) return result;
+
+    uint8_t num_bits = 7 - skip_bits;
+    while (byte & 0x80) {
+        if ((result = oasis_read(&byte, 1, 1, in)) != ErrorCode::NoError) return result;
+        if (num_bits > 56 && (byte >> (63 - num_bits)) > 0) {
+            result = ErrorCode::Overflow;
+            if (error_logger)
+                fputs("[GDSTK] Integer above maximal limit found. Clipping.\n", error_logger);
+            if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::Overflow;
+            return result;
+        }
+        num_bits += 7;
+    }
+    return result;
+}
+
 int64_t oasis_read_integer(OasisStream& in) {
     int64_t value;
     if (oasis_read_int_internal(in, 1, value) > 0) return -value;
     return value;
+}
+
+ErrorCode oasis_skip_integer(OasisStream& in) {
+    return oasis_skip_int_internal(in, 1);
 }
 
 void oasis_read_2delta(OasisStream& in, int64_t& x, int64_t& y) {
@@ -249,6 +332,21 @@ void oasis_read_3delta(OasisStream& in, int64_t& x, int64_t& y) {
     }
 }
 
+ErrorCode oasis_skip_gdelta(OasisStream& in)
+{
+    ErrorCode result = ErrorCode::NoError;
+    uint8_t bits = oasis_peek(in);
+    if (in.error_code != ErrorCode::NoError) return in.error_code;
+
+    if ((bits & 0x01) == 0) {
+        oasis_skip_int_internal(in, 4);
+    }
+    else {
+        oasis_skip_int_internal(in, 2);
+        oasis_skip_int_internal(in, 1);
+    }
+    return result;
+}
 void oasis_read_gdelta(OasisStream& in, int64_t& x, int64_t& y) {
     uint8_t bits = oasis_peek(in);
     if (in.error_code != ErrorCode::NoError) return;
@@ -331,6 +429,85 @@ double oasis_read_real_by_type(OasisStream& in, OasisDataType type) {
             if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
     }
     return 0;
+}
+
+ErrorCode oasis_skip_real_by_type(OasisStream& in, OasisDataType type) {
+    ErrorCode result;
+    switch ((OasisDataType)type) {
+    case OasisDataType::RealPositiveInteger:
+        return oasis_skip_unsigned_integer(in);
+    case OasisDataType::RealNegativeInteger:
+        return oasis_skip_unsigned_integer(in);
+    case OasisDataType::RealPositiveReciprocal:
+        return oasis_skip_unsigned_integer(in);
+    case OasisDataType::RealNegativeReciprocal:
+        return oasis_skip_unsigned_integer(in);
+    case OasisDataType::RealPositiveRatio: {
+        if ((result = oasis_skip_unsigned_integer(in)) != ErrorCode::NoError) return result;
+        return oasis_skip_unsigned_integer(in);
+    }
+    case OasisDataType::RealNegativeRatio: {
+        if ((result = oasis_skip_unsigned_integer(in)) != ErrorCode::NoError) return result;
+        return oasis_skip_unsigned_integer(in);
+    }
+    case OasisDataType::RealFloat: {
+        return oasis_skip(sizeof(float), 1, in);
+    }
+    case OasisDataType::RealDouble: {
+        return oasis_skip(sizeof(double), 1, in);
+    }
+    default:
+        result = ErrorCode::InvalidFile;
+        if (error_logger) fputs("[GDSTK] Unable to determine real value.\n", error_logger);
+        if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
+        return result;
+    }
+}
+
+ErrorCode oasis_skip_point_list(OasisStream& in)
+{
+    ErrorCode result = ErrorCode::NoError;
+
+    uint8_t byte;
+    if ((result = oasis_read(&byte, 1, 1, in)) != ErrorCode::NoError) return result;
+
+    uint64_t num = oasis_read_unsigned_integer(in);
+    if (in.error_code != ErrorCode::NoError) return in.error_code;
+
+    switch ((OasisPointList)byte) {
+    case OasisPointList::ManhattanHorizontalFirst:
+    case OasisPointList::ManhattanVerticalFirst: {
+        for (uint64_t i = num; i > 0; i--) {
+            oasis_skip_integer(in);
+        }
+    } break;
+    case OasisPointList::Manhattan: {
+        for (uint64_t i = num; i > 0; i--) {
+            oasis_skip_int_internal(in, 2);
+        }
+    } break;
+    case OasisPointList::Octangular: {
+        for (uint64_t i = num; i > 0; i--) {
+            oasis_skip_int_internal(in, 3);
+        }
+    } break;
+    case OasisPointList::General: {
+        for (uint64_t i = num; i > 0; i--) {
+            oasis_skip_gdelta(in);
+        }
+    } break;
+    case OasisPointList::Relative: {
+        for (uint64_t i = num; i > 0; i--) {
+            oasis_skip_gdelta(in);
+        }
+    } break;
+    default:
+        result = ErrorCode::InvalidFile;
+        if (error_logger) fputs("[GDSTK] Point list type not supported.\n", error_logger);
+        if (in.error_code == ErrorCode::NoError) in.error_code = ErrorCode::InvalidFile;
+        return result;
+    }
+    return result;
 }
 
 uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Array<Vec2>& result) {
@@ -430,6 +607,74 @@ uint64_t oasis_read_point_list(OasisStream& in, double scaling, bool closed, Arr
     return num;
 }
 
+ErrorCode oasis_skip_repetition(OasisStream& in)
+{
+    uint8_t type;
+    ErrorCode result = ErrorCode::NoError;
+
+    if ((result = oasis_read(&type, 1, 1, in)) != ErrorCode::NoError) return result;
+
+    if (type == 0) return result;
+
+    switch (type) {
+    case 1: {
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_unsigned_integer(in);
+    } break;
+    case 2: {
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_unsigned_integer(in);
+    } break;
+    case 3: {
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_unsigned_integer(in);
+    } break;
+    case 4:
+    case 5: {
+        uint64_t count = 1 + oasis_read_unsigned_integer(in);
+        if (type == 5) {
+            oasis_skip_unsigned_integer(in);
+        }
+        for (; count > 0; count--) {
+            oasis_skip_unsigned_integer(in);
+        }
+    } break;
+    case 6:
+    case 7: {
+        uint64_t count = 1 + oasis_read_unsigned_integer(in);
+        if (type == 7) {
+            oasis_skip_unsigned_integer(in);
+        }
+        for (; count > 0; count--) {
+            oasis_skip_unsigned_integer(in);
+        }
+    } break;
+    case 8: {
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_gdelta(in);
+        oasis_skip_gdelta(in);
+    } break;
+    case 9: {
+        oasis_skip_unsigned_integer(in);
+        oasis_skip_gdelta(in);
+    } break;
+    case 10:
+    case 11: {
+        uint64_t count = 1 + oasis_read_unsigned_integer(in);
+        if (type == 11) {
+            oasis_skip_unsigned_integer(in);
+        }
+        for (; count > 0; count--) {
+            oasis_skip_gdelta(in);
+        }
+    } break;
+    }
+    return result;
+}
+
 void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetition) {
     uint8_t type;
 
@@ -437,7 +682,7 @@ void oasis_read_repetition(OasisStream& in, double scaling, Repetition& repetiti
 
     if (type == 0) return;
 
-    repetition.clear();
+    repetition.clear(false);
 
     switch (type) {
         case 1: {
@@ -870,7 +1115,7 @@ void oasis_write_point_list(OasisStream& out, const Array<Vec2> points, double s
     scaled_points.clear();
 }
 
-void oasis_write_repetition(OasisStream& out, const Repetition repetition, double scaling) {
+void oasis_write_repetition(OasisStream& out, const Repetition &repetition, double scaling) {
     switch (repetition.type) {
         case RepetitionType::Rectangular: {
             if (repetition.columns > 1 && repetition.rows > 1) {
