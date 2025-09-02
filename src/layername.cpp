@@ -18,6 +18,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/oasis.hpp>
 #include <gdstk/layername.hpp>
 #include <gdstk/utils.hpp>
+// #include "layername.hpp"
 
 namespace gdstk {
 
@@ -97,7 +98,7 @@ namespace gdstk {
 //                   }
 
 
-void layernames_clear(LayerName*& layer_names){
+void layernames_clear(LayerName*& layer_names) {
     while (layer_names){
         free_allocation(layer_names->name);
         free_allocation(layer_names->LayerInterval);
@@ -190,3 +191,4 @@ ErrorCode layernames_to_oas(const Property* properties, OasisStream& out, OasisS
 }
 
 }  // namespace gdstk
+

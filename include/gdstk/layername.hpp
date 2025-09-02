@@ -68,10 +68,10 @@ void set_textlayername(LayerName*& layer_names, const char* name, Interval layer
 // all occourences is set
 void remove_layername(LayerName*& layer_names, const char* name, bool all_occurences);
 
-void layernames_clear(Layername*& layer_names);
 LayerName* get_mapped_layers(LayerName* layer_names, const char* name);
 
 
+void layernames_clear(LayerName*& layer_names);
 
 // These functions output the properties in the OASIS format.  They
 // are not supposed to be called by the user.
