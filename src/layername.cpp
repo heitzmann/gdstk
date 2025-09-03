@@ -109,83 +109,34 @@ void layernames_clear(LayerName*& layer_names) {
     }
 }
 
-
-ErrorCode layernames_to_oas(const Property* properties, OasisStream& out, OasisState& state) {
+// need to rewrite to work with layer map
+ErrorCode layernames_to_oas(const LayerName* layer_names, OasisStream& out, OasisState& state) {
     // needs full rewrite
-    while (properties) {
-        uint8_t info = 0x06;
-        // if (is_gds_property(properties)) info |= 0x01;
-
-        uint64_t value_count = 0;
-        for (PropertyValue* value = properties->value; value; value = value->next) value_count++;
-        if (value_count > 14) {
-            info |= 0xF0;
-        } else {
-            info |= (uint8_t)(value_count & 0x0F) << 4;
+    while (layer_names) {
+        oasis_write_integer(out,(uint8_t)layer_names->type);
+        size_t name_length = strlen(layer_names->name); 
+        oasis_write_unsigned_integer(out, (uint64_t)name_length);
+        oasis_write(layer_names->name, 1, name_length, out);
+        
+        // write layertype interval
+        oasis_putc((uint8_t)layer_names->LayerInterval->type, out);
+        if (layer_names->LayerInterval->type == OasisInterval::Bounded) {
+            oasis_write_unsigned_integer(out, layer_names->LayerInterval->bound_a);
+            oasis_write_unsigned_integer(out, layer_names->LayerInterval->bound_b);
+        } else if (layer_names->LayerInterval->type != OasisInterval::AllValues) {
+            oasis_write_unsigned_integer(out, layer_names->LayerInterval->bound);
         }
 
-        oasis_putc((int)OasisRecord::PROPERTY, out);
-        oasis_putc(info, out);
-
-        uint64_t index;
-        if (state.property_name_map.has_key(properties->name)) {
-            index = state.property_name_map.get(properties->name);
-        } else {
-            index = state.property_name_map.count;
-            state.property_name_map.set(properties->name, index);
+        oasis_putc((uint8_t)layer_names->TypeInterval->type, out);
+        if (layer_names->TypeInterval->type == OasisInterval::Bounded) {
+            oasis_write_unsigned_integer(out, layer_names->TypeInterval->bound_a);
+            oasis_write_unsigned_integer(out, layer_names->TypeInterval->bound_b);
+        } else if (layer_names->TypeInterval->type != OasisInterval::AllValues) {
+            oasis_write_unsigned_integer(out, layer_names->TypeInterval->bound);
         }
-        oasis_write_unsigned_integer(out, index);
-
-        if (value_count > 14) {
-            oasis_write_unsigned_integer(out, value_count);
-        }
-
-        for (PropertyValue* value = properties->value; value; value = value->next) {
-            switch (value->type) {
-                case PropertyType::Real:
-                    oasis_write_real(out, value->real);
-                    break;
-                case PropertyType::UnsignedInteger:
-                    oasis_putc(8, out);
-                    oasis_write_unsigned_integer(out, value->unsigned_integer);
-                    break;
-                case PropertyType::Integer:
-                    oasis_putc(9, out);
-                    oasis_write_integer(out, value->integer);
-                    break;
-                case PropertyType::String: {
-                    bool space = false;
-                    bool binary = false;
-                    uint8_t* byte = value->bytes;
-                    for (uint64_t i = value->count; i > 0; i--, byte++) {
-                        if (*byte < 0x20 || *byte > 0x7E) {
-                            binary = true;
-                            break;
-                        } else if (*byte == 0x20) {
-                            space = true;
-                        }
-                    }
-                    if (binary) {
-                        oasis_putc(14, out);
-                    } else if (space) {
-                        oasis_putc(13, out);
-                    } else {
-                        oasis_putc(15, out);
-                    }
-                    for (index = 0; index < state.property_value_array.count; index++) {
-                        PropertyValue* it = state.property_value_array[index];
-                        if (it->count == value->count &&
-                            memcmp(it->bytes, value->bytes, it->count) == 0)
-                            break;
-                    }
-                    if (index == state.property_value_array.count)
-                        state.property_value_array.append(value);
-                    oasis_write_unsigned_integer(out, index);
-                }
-            }
-        }
-
-        properties = properties->next;
+        
+        layer_names = layer_names->next;
+        
     }
     return ErrorCode::NoError;
 }

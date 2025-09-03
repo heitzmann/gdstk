@@ -15,6 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 
 #include "utils.hpp"
+#include "oasis.hpp"
 
 namespace gdstk {
 
@@ -24,14 +25,13 @@ struct OasisState;
 // based roughly on property.hpp, please see that file for someone who knows what they're doing
 
 // the spec lists tag types 11 and 12 which are representing layer and textlayer data respectively
-enum struct LayerNameType { Layer, Text };
-
-// there are 5 bound types, unbounded means all values match
-enum struct IntervalType { Unbounded, ZeroToBound, BoundToInf, Single, BoundToBound };
-
+enum struct LayerNameType : uint8_t { 
+    DATA = static_cast<uint8_t>(OasisRecord::LAYERNAME_DATA),
+    TEXT = static_cast<uint8_t>(OasisRecord::LAYERNAME_TEXT),
+};
 // only bound type index 4 (bound to bound) requires two bound values
 struct Interval {
-    IntervalType type;
+    OasisInterval type;
     union {
         uint64_t bound;
         struct {
