@@ -95,8 +95,82 @@ namespace gdstk {
 // void set_layername(LayerName*& layer_names, const char* name, Interval layertype, Interval datatype){
 //     LayerName
 
-//                   }
 
+
+void set_layername(LayerName*& layer_names, const char* name, uint64_t layertype, uint64_t datatype) {
+    Interval* layertype_interval = (Interval*)allocate_clear(sizeof(Interval)); 
+    layertype_interval->type = OasisInterval::SingleValue;
+    layertype_interval->bound = layertype;
+    Interval* datatype_interval = (Interval*)allocate_clear(sizeof(Interval));
+    datatype_interval->type = OasisInterval::SingleValue;
+    datatype_interval->bound = datatype;
+    set_layername(layer_names, name, layertype_interval, datatype_interval);
+}
+void set_textlayername(LayerName*& layer_names, const char* name, uint64_t layertype, uint64_t datatype) {
+    Interval* layertype_interval;
+    layertype_interval->type = OasisInterval::SingleValue;
+    layertype_interval->bound = layertype;
+    Interval* datatype_interval;
+    datatype_interval->type = OasisInterval::SingleValue;
+    datatype_interval->bound = datatype;
+    set_textlayername(layer_names, name, layertype_interval, datatype_interval);
+}
+
+void set_layername(LayerName*& layer_names, const char* name, Interval* layertype, Interval* datatype) {
+    LayerName* ln = (LayerName*)allocate_clear(sizeof(LayerName));
+    ln->type = LayerNameType::DATA;
+    ln->name = copy_string(name, NULL);
+    ln->LayerInterval = layertype;
+    ln->TypeInterval = datatype;
+    ln->next = layer_names;
+    layer_names = ln;
+}
+void set_textlayername(LayerName*& layer_names, const char* name, Interval* layertype, Interval* datatype) {
+    LayerName* ln = (LayerName*)allocate_clear(sizeof(LayerName));
+    ln->type = LayerNameType::TEXT;
+    ln->name = copy_string(name, NULL);
+    ln->LayerInterval = layertype;
+    ln->TypeInterval = datatype;
+    ln->next = layer_names;
+    layer_names = ln;
+}
+
+void remove_layername(LayerName*& layer_names, const char* target_name, bool all_occurences) {
+    if (layer_names == NULL) return;
+    LayerName* current = layer_names;
+    LayerName* previous = NULL;
+    while (current) {
+        if (strcmp(current->name, target_name) == 0) {
+            
+            if (previous) {
+                previous->next = current->next;
+            } else {
+                layer_names = current->next; // Update head if needed
+            }
+            free_allocation(current->name);
+            free_allocation(current->LayerInterval);
+            free_allocation(current->TypeInterval);
+            LayerName* to_delete = current;
+            current = current->next; // Move to next before deleting
+            free_allocation(to_delete);
+            if (!all_occurences) {
+                return; // Exit if only the first occurrence should be removed
+            }
+        } else {
+            previous = current;
+            current = current->next;
+        }
+    }
+}
+// this is suspect as it only returns the first match
+// I may have to create a new data structure to hold multiple matches
+LayerName* get_mapped_layers(LayerName* layer_names, const char* name) {
+    while (layer_names && strcmp(layer_names->name, name) != 0) layer_names = layer_names->next;
+    return layer_names;
+}
+
+// LayerName* get_names_from_layers(LayerName* layer_names, uint64_t layertype, uint64_t datatype) 
+    
 
 void layernames_clear(LayerName*& layer_names) {
     while (layer_names){
@@ -109,9 +183,8 @@ void layernames_clear(LayerName*& layer_names) {
     }
 }
 
-// need to rewrite to work with layer map
+
 ErrorCode layernames_to_oas(const LayerName* layer_names, OasisStream& out, OasisState& state) {
-    // needs full rewrite
     while (layer_names) {
         oasis_write_integer(out,(uint8_t)layer_names->type);
         size_t name_length = strlen(layer_names->name); 

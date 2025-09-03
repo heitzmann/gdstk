@@ -15,7 +15,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 
 #include "utils.hpp"
-#include "oasis.hpp"
+// #include "oasis.hpp"
 
 namespace gdstk {
 
@@ -60,8 +60,8 @@ struct LayerName {
 // name.
 void set_layername(LayerName*& layer_names, const char* name, uint64_t layertype, uint64_t datatype);
 void set_textlayername(LayerName*& layer_names, const char* name, uint64_t layertype, uint64_t datatype);
-void set_layername(LayerName*& layer_names, const char* name, Interval layertype, Interval datatype);
-void set_textlayername(LayerName*& layer_names, const char* name, Interval layertype, Interval datatype);
+void set_layername(LayerName*& layer_names, const char* name, Interval* layertype, Interval* datatype);
+void set_textlayername(LayerName*& layer_names, const char* name, Interval* layertype, Interval* datatype);
 // Still thinking about how to deal with bounds that aren't type 3
 
 // removes first instance of layername present in the linked list or all occourances if
@@ -70,6 +70,7 @@ void remove_layername(LayerName*& layer_names, const char* name, bool all_occure
 
 LayerName* get_mapped_layers(LayerName* layer_names, const char* name);
 
+LayerName* get_names_from_layers(LayerName* layer_names, uint64_t layertype, uint64_t datatype);
 
 void layernames_clear(LayerName*& layer_names);
 
