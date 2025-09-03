@@ -107,10 +107,10 @@ void set_layername(LayerName*& layer_names, const char* name, uint64_t layertype
     set_layername(layer_names, name, layertype_interval, datatype_interval);
 }
 void set_textlayername(LayerName*& layer_names, const char* name, uint64_t layertype, uint64_t datatype) {
-    Interval* layertype_interval;
+    Interval* layertype_interval = (Interval*)allocate_clear(sizeof(Interval)); 
     layertype_interval->type = OasisInterval::SingleValue;
     layertype_interval->bound = layertype;
-    Interval* datatype_interval;
+    Interval* datatype_interval = (Interval*)allocate_clear(sizeof(Interval));
     datatype_interval->type = OasisInterval::SingleValue;
     datatype_interval->bound = datatype;
     set_textlayername(layer_names, name, layertype_interval, datatype_interval);
