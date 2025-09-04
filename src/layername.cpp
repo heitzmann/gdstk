@@ -169,8 +169,84 @@ LayerName* get_mapped_layers(LayerName* layer_names, const char* name) {
     return layer_names;
 }
 
-// LayerName* get_names_from_layers(LayerName* layer_names, uint64_t layertype, uint64_t datatype) 
+bool layername_contains_layer_and_type(const LayerName* layer_name, uint64_t layertype, uint64_t datatype) {
+    bool matches = false;
     
+
+    // Check layertype
+    switch (layer_name->LayerInterval->type) {
+        case OasisInterval::AllValues:
+            matches = true;
+            break;
+        case OasisInterval::UpperBound:
+            matches = (layertype <= layer_name->LayerInterval->bound);
+            break;
+        case OasisInterval::LowerBound:
+            matches = (layertype >= layer_name->LayerInterval->bound);
+            break;  
+        case OasisInterval::SingleValue:
+            matches = (layer_name->LayerInterval->bound == layertype);
+            break;
+        case OasisInterval::Bounded:
+            matches = (layertype >= layer_name->LayerInterval->bound_a &&
+                                    layertype <= layer_name->LayerInterval->bound_b);
+            break;
+    }
+    if (matches == false) {
+        return false;
+    }
+    switch (layer_name->TypeInterval->type) {
+        case OasisInterval::AllValues:
+            matches = true;
+            break;
+        case OasisInterval::UpperBound:
+            matches = (datatype <= layer_name->TypeInterval->bound);
+            break;
+        case OasisInterval::LowerBound:
+            matches = (datatype >= layer_name->TypeInterval->bound);
+            break;  
+        case OasisInterval::SingleValue:
+            matches = (layer_name->TypeInterval->bound == datatype);
+            break;
+        case OasisInterval::Bounded:
+            matches = (layertype >= layer_name->TypeInterval->bound_a &&
+                        layertype <= layer_name->TypeInterval->bound_b);
+            break;
+    }
+    return matches;
+}
+
+LayerName* get_names_from_layers(LayerName* layer_names, uint64_t layertype, uint64_t datatype) {
+    LayerName* result_head = NULL;
+    LayerName* result_tail = NULL;
+
+    while (layer_names) {
+        // this might not need a deep copy since it just returning a result 
+        // the dealocaiton might be messy though
+        if (layername_contains_layer_and_type(layer_names, layertype, datatype)) {
+            // Create a new LayerName node for the result list
+            LayerName* new_node = (LayerName*)allocate_clear(sizeof(LayerName));
+            new_node->type = layer_names->type;
+            new_node->name = copy_string(layer_names->name, NULL);
+            new_node->LayerInterval = (Interval*)allocate_clear(sizeof(Interval));
+            *(new_node->LayerInterval) = *(layer_names->LayerInterval); // Deep copy
+            new_node->TypeInterval = (Interval*)allocate_clear(sizeof(Interval));
+            *(new_node->TypeInterval) = *(layer_names->TypeInterval); // Deep copy
+            new_node->next = NULL;
+
+            // Append to the result list
+            if (result_tail) {
+                result_tail->next = new_node;
+                result_tail = new_node;
+            } else {
+                result_head = new_node;
+                result_tail = new_node;
+            }
+        }
+    }
+    return result_head;
+}
+        
 
 void layernames_clear(LayerName*& layer_names) {
     while (layer_names){
