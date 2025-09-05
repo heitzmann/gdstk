@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.hpp"
 #include "cell.hpp"
+#include "layername.hpp"
 
 namespace gdstk {
 
@@ -38,6 +39,8 @@ struct Library {
     Array<RawCell*> rawcell_array;
 
     Property* properties;
+    
+    LayerName* layer_names;
 
     // Used by the python interface to store the associated PyObject* (if any).
     // No functions in gdstk namespace should touch this value!
@@ -57,6 +60,7 @@ struct Library {
         cell_array.clear();
         rawcell_array.clear();
         properties_clear(properties);
+        layernames_clear(layer_names);
     }
 
     // Clear and free the memory of the whole library (this should be used with
