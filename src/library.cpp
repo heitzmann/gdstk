@@ -442,7 +442,10 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     state.scaling = unit / precision;
     oasis_write_real(out, 1e-6 / precision);
     oasis_putc(1, out);  // flag indicating that table-offsets will be stored in the END record
-
+    
+    uint64_t layer_name_offset = layer_names ? ftell(out.file) : 0;
+    layernames_to_oasis(layer_names,out,state)
+    
     if (state.config_flags & OASIS_CONFIG_PROPERTY_TOP_LEVEL) {
         remove_property(properties, s_top_level_property_name, true);
         Array<Cell*> top_cells = {};
@@ -881,7 +884,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     oasis_putc(1, out);
     oasis_write_unsigned_integer(out, prop_string_offset);
     oasis_putc(1, out);
-    oasis_putc(0, out);  // LAYERNAME table
+    oasis_write_unsigned_integer(out, layer_name_offset);  // LAYERNAME table
     oasis_putc(1, out);
     oasis_putc(0, out);  // XNAME table
 
