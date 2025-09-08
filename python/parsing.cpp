@@ -633,3 +633,81 @@ static PyObject* build_tag_set(const Set<Tag>& tags) {
     }
     return result;
 }
+
+// not sure if range or slcie is better, using range since you can use the 
+// in keword with it to determine membership
+PyObject* create_range_object(long start, long stop, long step) {
+    // Import the built-in "range" type
+    
+    PyObject* range_func = PyObject_GetAttrString(PyEval_GetBuiltins(), "range");
+    if (!range_func || !PyCallable_Check(range_func)) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not find built-in 'range'");
+        Py_XDECREF(range_func);
+        return NULL;
+    }
+
+    // Call range(start, stop, step)
+    PyObject* range_args = Py_BuildValue("(lll)", start, stop, step);
+    PyObject* range_obj = PyObject_CallObject(range_func, range_args);
+
+    // Cleanup
+    Py_DECREF(range_func);
+    Py_DECREF(range_args);
+
+    return range_obj;  // May be nullptr if call failed
+}
+
+static PyObject* build_layer_interval(const Interval* interval){
+
+    if (interval == NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "Invalid interval.");
+        return NULL;
+    }
+    if (interval->type == OasisInterval::AllValues){
+        return create_range_object(0,65536,1);
+    } else if (interval->type == OasisInterval::UpperBound){
+        return create_range_object(0,interval->bound,1);
+    } else if (interval->type == OasisInterval::LowerBound){
+        return create_range_object(interval->bound,65536,1);
+    } else if (interval->type == OasisInterval::SingleValue){
+        return create_range_object(interval->bound,interval->bound+1,1);
+    } else if (interval->type == OasisInterval::Bounded){
+        return create_range_object(interval->bound_a,interval->bound_b+1,1);
+    } else {
+        PyErr_SetString(PyExc_RuntimeError, "Unknown interval type.");
+        return NULL;
+    }
+}
+
+
+
+static PyObject* build_layername_list(const LayerName* layer_names) {
+    PyObject* result = PyList_New(NULL);
+    if (!result) {
+        PyErr_SetString(PyExc_RuntimeError, "Unable to create dict object.");
+        return NULL;
+    }
+    while(layer_names){
+        PyObject* entry = PyTuple_New(3);
+        if (!entry) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to create (name, layer, type) tuple.");
+            Py_DECREF(result);
+            return NULL;
+        }
+        // this might need to be a byte string instead of unicode
+        PyTuple_SET_ITEM(entry, 0, PyUnicode_FromString(layer_names->name));
+        PyTuple_SET_ITEM(entry, 1, build_layer_interval(&layer_names->layer));
+        PyTuple_SET_ITEM(entry, 2, build_layer_interval(&layer_names->datatype));
+        if (PyList_Append(result, entry) < 0) {
+            PyErr_SetString(PyExc_RuntimeError, "Unable to add item to list.");
+            Py_DECREF(entry);
+            Py_DECREF(result);
+            return NULL;
+        }
+        Py_DECREF(entry);
+        layer_names = layer_names->next;
+    }
+    return result;
+}
+
+    

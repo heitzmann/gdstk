@@ -334,6 +334,11 @@ static PyObject* library_object_layers_and_texttypes(LibraryObject* self, PyObje
     return result;
 }
 
+static PyObject* library_object_layer_datatype_names(LibraryObject* self, PyObject*) {
+    PyObject* result = build_layername_list(tags);
+    return result;
+}
+
 static PyObject* library_object_remap(LibraryObject* self, PyObject* args, PyObject* kwds) {
     PyObject* py_map = NULL;
     const char* keywords[] = {"layer_type_map", NULL};
@@ -492,6 +497,8 @@ static PyMethodDef library_object_methods[] = {
      library_object_layers_and_datatypes_doc},
     {"layers_and_texttypes", (PyCFunction)library_object_layers_and_texttypes, METH_NOARGS,
      library_object_layers_and_texttypes_doc},
+    {"layer_datatype_names", (PyCFunction)library_object_layer_datatype_names, METH_NOARGS,
+     library_object_layer_datatype_names_doc},
     {"remap", (PyCFunction)library_object_remap, METH_VARARGS | METH_KEYWORDS,
      library_object_remap_doc},
     {"write_gds", (PyCFunction)library_object_write_gds, METH_VARARGS | METH_KEYWORDS,
