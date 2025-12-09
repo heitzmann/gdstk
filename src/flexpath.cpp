@@ -651,10 +651,16 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
 
 ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& result) {
     const Array<Vec2> spine_points = spine.point_array;
-    const BendType bend_type = el->bend_type;
-    const double bend_radius = el->bend_radius;
     const double* path_half_widths = (double*)el->half_width_and_offset.items;
     const double* path_offsets = ((double*)el->half_width_and_offset.items) + 1;
+
+    if (spine_points.count == 1) {
+        Vec2 spine_normal = {0.0, 1.0};
+        Vec2 p0 = spine_points[0] + spine_normal * path_offsets[2 * 0];
+        result.append(p0);
+        return ErrorCode::NoError;
+    }
+
     Vec2 spine_normal = (spine_points[1] - spine_points[0]).ortho();
     spine_normal.normalize();
     Vec2 p0 = spine_points[0] + spine_normal * path_offsets[2 * 0];
@@ -665,6 +671,8 @@ ErrorCode FlexPath::element_center(const FlexPathElement* el, Array<Vec2>& resul
     result.append(p0);
 
     if (spine_points.count > 2) {
+        const BendType bend_type = el->bend_type;
+        const double bend_radius = el->bend_radius;
         Curve arc_curve = {};
         arc_curve.tolerance = spine.tolerance;
         spine_normal = (spine_points[2] - spine_points[1]).ortho();
@@ -775,7 +783,7 @@ ErrorCode FlexPath::to_gds(FILE* out, double scaling) {
 
     remove_overlapping_points();
 
-    if (spine.point_array.count < 2) return ErrorCode::EmptyPath;
+    if (spine.point_array.count == 0) return ErrorCode::EmptyPath;
 
     uint16_t buffer_end[] = {4, 0x1100};
     big_endian_swap16(buffer_end, COUNT(buffer_end));
@@ -911,7 +919,7 @@ ErrorCode FlexPath::to_oas(OasisStream& out, OasisState& state) {
 
     remove_overlapping_points();
 
-    if (spine.point_array.count < 2) return ErrorCode::EmptyPath;
+    if (spine.point_array.count == 0) return ErrorCode::EmptyPath;
 
     bool has_repetition = repetition.get_count() > 1;
 

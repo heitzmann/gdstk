@@ -613,5 +613,8 @@ def test_empty_path_warning(
     cell.add(path)
     lib.add(cell)
 
-    with pytest.warns(RuntimeWarning, match="Empty path"):
+    if simple_path:
         write_f(lib, tmp_path / "out")
+    else:
+        with pytest.warns(RuntimeWarning, match="Empty path"):
+            write_f(lib, tmp_path / "out")
