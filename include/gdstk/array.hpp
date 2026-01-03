@@ -38,7 +38,7 @@ struct Array {
         printf("Array <%p>, count %" PRIu64 "/%" PRIu64 "\n", this, count, capacity);
         if (all && count > 0) {
             printf("<%p>", (void*)items[0]);
-            for (uint64_t i = 0; i < count; ++i) {
+            for (uint64_t i = 1; i < count; ++i) {
                 printf(" <%p>", (void*)items[i]);
             }
             putchar('\n');

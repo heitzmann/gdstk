@@ -151,7 +151,7 @@ bool Polygon::contain_all(const Array<Vec2>& points) const {
     bounding_box(min, max);
     for (uint64_t i = 0; i < points.count; i++) {
         Vec2 point = points[i];
-        if (point.x < min.x || point.x > max.x || point.y < min.y || point.x > max.x) return false;
+        if (point.x < min.x || point.x > max.x || point.y < min.y || point.y > max.y) return false;
     }
     for (uint64_t i = 0; i < points.count; i++) {
         if (!contain(points[i])) return false;
@@ -164,7 +164,7 @@ bool Polygon::contain_any(const Array<Vec2>& points) const {
     bounding_box(min, max);
     for (uint64_t i = 0; i < points.count; i++) {
         Vec2 point = points[i];
-        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.x <= max.x &&
+        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y &&
             contain(point))
             return true;
     }
@@ -1676,7 +1676,7 @@ void inside(const Array<Vec2>& points, const Array<Polygon*>& polygons, bool* re
     for (uint64_t i = 0; i < points.count; i++) {
         Vec2 point = points[i];
         result[i] = false;
-        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.x <= max.x) {
+        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
             for (uint64_t j = 0; j < polygons.count; j++) {
                 if (polygons[j]->contain(point)) {
                     result[i] = true;
@@ -1700,7 +1700,7 @@ bool all_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons) {
     }
     for (uint64_t i = 0; i < points.count; i++) {
         Vec2 point = points[i];
-        if (point.x < min.x || point.x > max.x || point.y < min.y || point.x > max.x) return false;
+        if (point.x < min.x || point.x > max.x || point.y < min.y || point.y > max.y) return false;
     }
     for (uint64_t i = 0; i < points.count; i++) {
         Vec2 point = points[i];
@@ -1729,7 +1729,7 @@ bool any_inside(const Array<Vec2>& points, const Array<Polygon*>& polygons) {
     }
     for (uint64_t i = 0; i < points.count; i++) {
         Vec2 point = points[i];
-        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.x <= max.x) {
+        if (point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y) {
             for (uint64_t j = 0; j < polygons.count; j++) {
                 if (polygons[j]->contain(point)) return true;
             }
