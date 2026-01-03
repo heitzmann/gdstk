@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.62 - 2026-01-03
+### Added
+- Support for exporting empty flexpaths to GDSII/OASIS.
+### Fixed
+- Bug in point-in-polygon checks.
+- Array printing.
+
 ## 0.9.61 - 2025-08-28
 ### Added
 - Support for non-standard repetition vectors in GDSII (#293, #299, thanks svollenweider, WesYu).
