@@ -72,5 +72,6 @@ file.
    gdstk.read_rawcells
    gdstk.gds_units
    gdstk.gds_info
+   gdstk.gds_timestamp
    gdstk.oas_precision
    gdstk.oas_validate
