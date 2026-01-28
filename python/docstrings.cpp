@@ -2910,6 +2910,9 @@ PyDoc_STRVAR(library_object_layers_and_texttypes_doc, R"!(layers_and_texttypes()
 
 Return a set of tuples with the layer and text types in the library.)!");
 
+PyDoc_STRVAR(library_object_layer_datatype_names_doc, R"!(layer_datatype_names() -> list
+Return a list of tuples with name, layer range and datatype ranges library.)!");
+
 PyDoc_STRVAR(library_object_remap_doc, R"!(remap(layer_type_map) -> self
 
 Remap layers and data/text types for all elements in this library.
