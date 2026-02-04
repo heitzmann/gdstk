@@ -45,10 +45,26 @@ void Polygon::clear() {
 }
 
 void Polygon::copy_from(const Polygon& polygon) {
-    tag = polygon.tag;
-    point_array.copy_from(polygon.point_array);
-    repetition.copy_from(polygon.repetition);
-    properties = properties_copy(polygon.properties);
+    
+    if (point_array.capacity >= polygon.point_array.capacity) {
+        repetition.clear(false);
+        properties_clear(properties);
+
+        point_array.count   = polygon.point_array.count;
+        memcpy(point_array.items, polygon.point_array.items, sizeof(Vec2) * point_array.count);
+
+        tag                 = polygon.tag;
+        repetition.copy_from(polygon.repetition);
+        properties          = properties_copy(polygon.properties);
+    }
+    else {
+        clear();
+        point_array.copy_from(polygon.point_array);
+        tag                 = polygon.tag;
+        repetition.copy_from(polygon.repetition);
+        properties          = properties_copy(polygon.properties);
+    }
+    
 }
 
 double Polygon::area() const {
@@ -418,7 +434,7 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
 
     Array<Vec2> offsets = {};
     repetition.get_offsets(offsets);
-    repetition.clear();
+    // repetition.clear(); do not clear to allow for multiple iteration on the polygon
 
     // Skip first offset (0, 0)
     Vec2* offset_p = offsets.items + 1;
@@ -427,6 +443,7 @@ void Polygon::apply_repetition(Array<Polygon*>& result) {
         Polygon* poly = (Polygon*)allocate_clear(sizeof(Polygon));
         poly->copy_from(*this);
         poly->translate(*offset_p++);
+        poly->repetition.clear();
         result.append_unsafe(poly);
     }
 
@@ -1004,6 +1021,7 @@ ErrorCode Polygon::to_svg(FILE* out, double scaling, uint32_t precision) const {
 
 Polygon rectangle(const Vec2 corner1, const Vec2 corner2, Tag tag) {
     Polygon result = {};
+    memset(&result, 0, sizeof(Polygon));
     result.tag = tag;
     result.point_array.ensure_slots(4);
     result.point_array.count = 4;

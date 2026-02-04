@@ -20,6 +20,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/gdsii.hpp>
 #include <gdstk/flexpath.hpp>
 #include <gdstk/utils.hpp>
+#include <gdstk/repetition.hpp>
+#include <set>
 
 namespace gdstk {
 
@@ -239,6 +241,17 @@ void FlexPath::remove_overlapping_points() {
 }
 
 ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
+    std::set<Tag> tags;
+    if (filter) {
+        tags.insert(tag);
+        return to_polygons(&tags, result);
+    }
+    else {
+        return to_polygons(nullptr , result);
+    }
+}
+
+ErrorCode FlexPath::to_polygons(const std::set<Tag> *_tags, Array<Polygon*>& result) {
     remove_overlapping_points();
     if (spine.point_array.count < 2) return ErrorCode::EmptyPath;
 
@@ -247,7 +260,11 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
 
     FlexPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-        if (filter && el->tag != tag) continue;
+        bool load = true;
+        if (_tags) {
+            load = _tags->find(el->tag) != _tags->end();
+        }
+        if (!load) continue;
 
         const double* half_widths = (double*)el->half_width_and_offset.items;
         const double* offsets = half_widths + 1;
@@ -303,7 +320,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                 double angles[2] = {(cap_l - p1_l).angle(), (p1_r - cap_r).angle()};
                 Vec2 tension[2] = {Vec2{1, 1}, Vec2{1, 1}};
                 right_curve.interpolation(point_array, angles, angle_constraints, tension, 1, 1,
-                                          false, false);
+                    false, false);
             } else if (el->end_type == EndType::Function) {
                 Vec2 dir_l = cap_l - (p1 + n0 * half_widths[2 * 1]);
                 dir_l.normalize();
@@ -389,8 +406,8 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                     const double len_prev = len_next;
                     len_next = (p_next - p).length();
                     len_factor = (fabs(sum_t.x) > fabs(sum_t.y))
-                                     ? bend_dir * (n0.x - n1.x) / sum_t.x
-                                     : bend_dir * (n0.y - n1.y) / sum_t.y;
+                        ? bend_dir * (n0.x - n1.x) / sum_t.x
+                        : bend_dir * (n0.y - n1.y) / sum_t.y;
                     center_radius = bend_radius - bend_dir * offsets[2 * i];
                     const double len_required = len_factor * center_radius;
                     if (len_required > len_prev || len_required > len_next ||
@@ -499,7 +516,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                             double final_angle = (-n1).angle();
                             if (final_angle < initial_angle) final_angle += 2 * M_PI;
                             right_curve.arc(half_widths[2 * i], half_widths[2 * i], initial_angle,
-                                            final_angle, 0);
+                                final_angle, 0);
                         } else if (join_type == JoinType::Smooth) {
                             right_curve.append(r1);
                             Array<Vec2> point_array = {};
@@ -509,11 +526,11 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                             double angles[2] = {tr0.angle(), tr1.angle()};
                             Vec2 tension[2] = {Vec2{1, 1}, Vec2{1, 1}};
                             right_curve.interpolation(point_array, angles, angle_constraints,
-                                                      tension, 1, 1, false, false);
+                                tension, 1, 1, false, false);
                         } else if (join_type == JoinType::Function) {
                             Array<Vec2> point_array =
                                 (*el->join_function)(r1, tr0, r2, tr1, p, half_widths[2 * i] * 2,
-                                                     el->join_function_data);
+                                    el->join_function_data);
                             right_curve.segment(point_array, false);
                             point_array.clear();
                         }
@@ -552,7 +569,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                             double final_angle = n1.angle();
                             if (final_angle > initial_angle) final_angle -= 2 * M_PI;
                             left_curve.arc(half_widths[2 * i], half_widths[2 * i], initial_angle,
-                                           final_angle, 0);
+                                final_angle, 0);
                         } else if (join_type == JoinType::Smooth) {
                             left_curve.append(l1);
                             Array<Vec2> point_array = {};
@@ -562,11 +579,11 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                             double angles[2] = {tl0.angle(), tl1.angle()};
                             Vec2 tension[2] = {Vec2{1, 1}, Vec2{1, 1}};
                             left_curve.interpolation(point_array, angles, angle_constraints,
-                                                     tension, 1, 1, false, false);
+                                tension, 1, 1, false, false);
                         } else if (join_type == JoinType::Function) {
                             Array<Vec2> point_array =
                                 (*el->join_function)(l1, tl0, l2, tl1, p, half_widths[2 * i] * 2,
-                                                     el->join_function_data);
+                                    el->join_function_data);
                             left_curve.segment(point_array, false);
                             point_array.clear();
                         }
@@ -589,8 +606,8 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                 if (half_widths[2 * (last)] != 0) left_curve.append(cap_r);
             } else if (el->end_type == EndType::HalfWidth || el->end_type == EndType::Extended) {
                 const double extension = el->end_type == EndType::Extended
-                                             ? el->end_extensions.v
-                                             : half_widths[2 * (last)];
+                    ? el->end_extensions.v
+                    : half_widths[2 * (last)];
                 if (extension > 0) left_curve.append(cap_l);
                 left_curve.append(cap_l + extension * t0);
                 if (half_widths[2 * (last)] != 0) left_curve.append(cap_r + extension * t0);
@@ -611,7 +628,7 @@ ErrorCode FlexPath::to_polygons(bool filter, Tag tag, Array<Polygon*>& result) {
                 double angles[2] = {(cap_l - p0_l).angle(), (p0_r - cap_r).angle()};
                 Vec2 tension[2] = {Vec2{1, 1}, Vec2{1, 1}};
                 left_curve.interpolation(point_array, angles, angle_constraints, tension, 1, 1,
-                                         false, false);
+                    false, false);
             } else if (el->end_type == EndType::Function) {
                 Vec2 dir_r = cap_r - (p0 - n0 * half_widths[2 * (last - 1)]);
                 dir_r.normalize();

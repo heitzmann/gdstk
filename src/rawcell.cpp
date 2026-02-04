@@ -45,7 +45,8 @@ void RawCell::clear() {
     if (source) {
         source->uses--;
         if (source->uses == 0) {
-            fclose(source->file);
+            source->file->Close();
+            delete source->file;
             free_allocation(source);
         }
         source = NULL;
@@ -83,7 +84,8 @@ ErrorCode RawCell::to_gds(FILE* out) {
         }
         source->uses--;
         if (source->uses == 0) {
-            fclose(source->file);
+            source->file->Close();
+            delete source->file;
             free_allocation(source);
         }
         source = NULL;
@@ -99,10 +101,13 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
 
     RawSource* source = (RawSource*)allocate(sizeof(RawSource));
     source->uses = 0;
-    source->file = fopen(filename, "rb");
-    if (source->file == NULL) {
+    source->file = endsWithIgnoreCase(filename, ".gds.gz")
+                          ? (FileWrapper*)(new FileWrapperGZlib())
+                          : (FileWrapper*)(new FileWrapperStd());
+    if (!source->file->Open(filename, "rb")) {
         if (error_logger) fputs("[GDSTK] Unable to open input GDSII file.\n", error_logger);
         if (error_code) *error_code = ErrorCode::InputFileOpenError;
+        delete source->file;
         return result;
     }
 
@@ -141,7 +146,8 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
                     }
                 }
                 if (source->uses == 0) {
-                    fclose(source->file);
+                    source->file->Close();
+                    delete source->file;
                     free_allocation(source);
                 }
                 return result;
@@ -150,7 +156,7 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
                 rawcell = (RawCell*)allocate_clear(sizeof(RawCell));
                 rawcell->source = source;
                 source->uses++;
-                rawcell->offset = ftell(source->file) - record_length;
+                rawcell->offset = source->file->Tell() - record_length;
                 rawcell->size = record_length;
                 break;
             case 0x06:  // STRNAME
@@ -196,7 +202,8 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
         }
         rawcell->clear();
     }
-    fclose(source->file);
+    source->file->Close();
+    delete source->file;
     free_allocation(source);
     result.clear();
     if (error_logger) fprintf(error_logger, "[GDSTK] Invalid GDSII file %s.\n", filename);

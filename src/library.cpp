@@ -14,6 +14,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <stdio.h>
 #include <string.h>
 #include <zlib.h>
+#include <float.h>
 
 #include <gdstk/allocator.hpp>
 #include <gdstk/cell.hpp>
@@ -913,7 +914,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
 }
 
 Library read_gds(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags,
-                 ErrorCode* error_code) {
+                const Set<Tag>* label_tags, ErrorCode* error_code) {
     const char* gdsii_record_names[] = {
         "HEADER",    "BGNLIB",   "LIBNAME",   "UNITS",      "ENDLIB",      "BGNSTR",
         "STRNAME",   "ENDSTR",   "BOUNDARY",  "PATH",       "SREF",        "AREF",
@@ -947,8 +948,9 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     double width = 0;
     int16_t key = 0;
 
-    FILE* in = fopen(filename, "rb");
-    if (in == NULL) {
+    FileWrapper* in = endsWithIgnoreCase(filename, ".gds.gz") ? (FileWrapper*)(new FileWrapperGZlib()) : (FileWrapper*)(new FileWrapperStd());
+
+    if (!in->Open(filename, "rb")) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
         if (error_code) *error_code = ErrorCode::InputFileOpenError;
         return library;
@@ -1046,7 +1048,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                     }
                 }
                 map.clear();
-                fclose(in);
+                in->Close();
+                delete in;
                 return library;
             } break;
             case GdsiiRecord::BGNSTR:
@@ -1337,7 +1340,8 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
             // case GdsiiRecord::UINTEGER:
             // case GdsiiRecord::USTRING:
             // case GdsiiRecord::REFLIBS:
-            // case GdsiiRecord::FONTS:
+            case GdsiiRecord::FONTS:
+                break;
             // case GdsiiRecord::GENERATIONS:
             // case GdsiiRecord::ATTRTABLE:
             // case GdsiiRecord::STYPTABLE:
@@ -1372,12 +1376,27 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     }
 
     library.free_all();
-    fclose(in);
+    in->Close();
+    delete in;
     return Library{};
 }
 
-// TODO: verify modal variables are correctly updated
 Library read_oas(const char* filename, double unit, double tolerance, ErrorCode* error_code) {
+    return read_oas(filename, unit, tolerance, NULL, NULL, error_code);
+}
+
+// TODO: verify modal variables are correctly updated
+Library read_oas(const char* filename, double unit, double tolerance, const Set<Tag>* shape_tags, const Set<Tag>* label_tags, ErrorCode* error_code) {
+    return read_oas(filename, unit, tolerance, shape_tags, label_tags, error_code, 0, 0);
+}
+
+Library read_oas(const char* filename, double unit,
+        double tolerance,
+        const Set<Tag>*shape_tags,
+        const Set<Tag>*label_tags,
+        ErrorCode * error_code,
+        Tag fub_tag, double min_fub_dimension)
+{
     Library library = {};
 
     OasisStream in = {};
@@ -1439,12 +1458,22 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     Vec2 modal_text_pos = {0, 0};
     Vec2 modal_geom_pos = {0, 0};
     Vec2 modal_geom_dim = {0, 0};
-    Repetition modal_repetition = {RepetitionType::None};
-    Label* modal_text_string = NULL;
+    Repetition modal_repetition = { RepetitionType::None,  };
+    memset(&modal_repetition, 0, sizeof(Repetition));
+    modal_repetition.offsets.ensure_slots(5000000);
+    modal_repetition.coords.ensure_slots(5000000);
+    Label* modal_text_string = (Label*)allocate_clear(sizeof(Label));
+    uint64_t modal_text_string_capacity = 256;
+    modal_text_string->text = (char*)malloc(modal_text_string_capacity);
+    void* modal_text_owner = NULL;
+    bool use_modal_text_string = false;
+    bool use_modal_text_owner = false;
     Reference* modal_placement_cell = NULL;
     Array<Vec2> modal_polygon_points = {};
     modal_polygon_points.append(Vec2{0, 0});
+    modal_polygon_points.ensure_slots(64);
     Array<Vec2> modal_path_points = {};
+    modal_path_points.ensure_slots(64);
     modal_path_points.append(Vec2{0, 0});
     double modal_path_halfwidth = 0;
     Vec2 modal_path_extensions = {0, 0};
@@ -1452,6 +1481,9 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     double modal_circle_radius = 0;
     Property* modal_property = NULL;
     PropertyValue* modal_property_value_list = NULL;
+    Array<Vec2> modal_trapezoid_points = {};
+    modal_trapezoid_points.ensure_slots(4);
+    modal_trapezoid_points.count = 4;
 
     Property** next_property = &library.properties;
 
@@ -1505,7 +1537,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     //                                     "CBLOCK"};
 
     OasisRecord record;
-    while ((error_code == NULL || *error_code == ErrorCode::NoError) &&
+    while ((error_code == NULL || *error_code < ErrorCode::ChecksumError) &&
            oasis_read(&record, 1, 1, in) == ErrorCode::NoError) {
         // DEBUG_PRINT("Record [%02u] %s\n", (uint8_t)record,
         //             (uint8_t)record < COUNT(oasis_record_names)
@@ -1697,12 +1729,12 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
             case OasisRecord::LAYERNAME_DATA:
             case OasisRecord::LAYERNAME_TEXT:
                 // Unused record
-                free_allocation(oasis_read_string(in, false, len));
+                oasis_skip_string(in);
                 for (uint32_t i = 2; i > 0; i--) {
                     uint64_t type = oasis_read_unsigned_integer(in);
                     if (type > 0) {
-                        if (type == 4) oasis_read_unsigned_integer(in);
-                        oasis_read_unsigned_integer(in);
+                        if (type == 4) oasis_skip_unsigned_integer(in);
+                        oasis_skip_unsigned_integer(in);
                     }
                 }
                 break;
@@ -1803,43 +1835,40 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 }
             } break;
             case OasisRecord::TEXT: {
-                Label* label = (Label*)allocate_clear(sizeof(Label));
-                label->magnification = 1;
-                label->anchor = Anchor::SW;
-                cell->label_array.append(label);
-                next_property = &label->properties;
+                Tag temp_tag = 0;
+                //label->anchor = Anchor::SW;
+
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x40) {
                     // Explicit text
                     if (info & 0x20) {
                         // Reference number: use owner to temporarily store it
-                        label->owner = (void*)oasis_read_unsigned_integer(in);
-                    } else {
-                        label->text = (char*)oasis_read_string(in, true, len);
+                        modal_text_owner = (void*)oasis_read_unsigned_integer(in);
+                        use_modal_text_owner = true;
+                        use_modal_text_string = false;
                     }
-                    modal_text_string = label;
-                } else {
-                    // Use modal_text_string
-                    if (modal_text_string->text == NULL) {
-                        label->owner = modal_text_string->owner;
-                    } else {
-                        label->text = copy_string(modal_text_string->text, NULL);
+                    else {
+                        oasis_read_string2(in, modal_text_string, modal_text_string_capacity, len);
+                        use_modal_text_owner = false;
+                        use_modal_text_string = true;
                     }
                 }
                 if (info & 0x01) {
                     modal_textlayer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_layer(label->tag, modal_textlayer);
+                set_layer(temp_tag, modal_textlayer);
                 if (info & 0x02) {
                     modal_texttype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_type(label->tag, modal_texttype);
+                set_type(temp_tag, modal_texttype);
+                bool keep_label = !(label_tags && !label_tags->has_value(temp_tag));
                 if (info & 0x10) {
                     double x = factor * oasis_read_integer(in);
                     if (modal_absolute_pos) {
                         modal_text_pos.x = x;
-                    } else {
+                    }
+                    else {
                         modal_text_pos.x += x;
                     }
                 }
@@ -1847,28 +1876,50 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     double y = factor * oasis_read_integer(in);
                     if (modal_absolute_pos) {
                         modal_text_pos.y = y;
-                    } else {
+                    }
+                    else {
                         modal_text_pos.y += y;
                     }
                 }
-                label->origin = modal_text_pos;
+                Label* label = NULL;
+                if (keep_label)
+                {
+                    label = (Label*)allocate_clear(sizeof(Label));
+                    next_property = &label->properties;
+                    label->magnification = 1;
+                    label->tag = temp_tag;
+                    label->origin = modal_text_pos;
+                    if (use_modal_text_owner) label->owner = modal_text_owner;
+                    else if (use_modal_text_string) {
+                        label->text = (char*)malloc(strlen(modal_text_string->text + 1));
+                        strcpy(label->text, modal_text_string->text);
+                    }
+                    cell->label_array.append(label);
+                }
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    label->repetition.copy_from(modal_repetition);
+                    if (keep_label)
+                    {
+                        if (modal_repetition.get_count() > 0) {
+                            label->repetition.copy_from(modal_repetition);
+                        }
+                    }
                 }
             } break;
             case OasisRecord::RECTANGLE: {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                cell->polygon_array.append(polygon);
-                next_property = &polygon->properties;
                 uint8_t info;
+                Tag temp_tag = 0;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
+                set_layer(temp_tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
+                set_type(temp_tag, modal_datatype);
+                bool keep_rectangle = !(shape_tags && !shape_tags->has_value(temp_tag));
+
                 if (info & 0x40) {
                     modal_geom_dim.x = factor * oasis_read_unsigned_integer(in);
                 }
@@ -1893,32 +1944,66 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         modal_geom_pos.y += y;
                     }
                 }
-                *polygon = rectangle(modal_geom_pos, modal_geom_pos + modal_geom_dim,
-                                     make_tag(modal_layer, modal_datatype));
+                if (fub_tag > 0 && temp_tag == fub_tag && modal_geom_dim.x < min_fub_dimension && modal_geom_dim.y < min_fub_dimension)
+                {
+					// Skip FUBs that are too small
+					keep_rectangle = false;
+				}
+                Polygon* polygon = NULL;
+                if (keep_rectangle)
+                {
+                    polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+                    *polygon = rectangle(modal_geom_pos, modal_geom_pos + modal_geom_dim, temp_tag);
+                }
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    polygon->repetition.copy_from(modal_repetition);
+                    if (keep_rectangle)
+                        polygon->repetition.copy_from(modal_repetition);
+                }
+                if (keep_rectangle)
+                {
+                    next_property = &polygon->properties;
+                    cell->polygon_array.append(polygon);
+                }
+                else
+                {
+                    next_property = NULL;
                 }
             } break;
             case OasisRecord::POLYGON: {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                cell->polygon_array.append(polygon);
-                next_property = &polygon->properties;
                 uint8_t info;
+                Tag temp_tag = 0;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_layer(polygon->tag, modal_layer);
+                set_layer(temp_tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_type(polygon->tag, modal_datatype);
+                set_type(temp_tag, modal_datatype);
+                bool keep_polygon = !(shape_tags && !shape_tags->has_value(temp_tag));
+
                 if (info & 0x20) {
                     modal_polygon_points.count = 1;
                     oasis_read_point_list(in, factor, true, modal_polygon_points);
                 }
-                polygon->point_array.copy_from(modal_polygon_points);
+                if (fub_tag > 0 && temp_tag == fub_tag)
+                {
+                    double min_x = DBL_MAX;
+                    double max_x = -DBL_MAX;
+                    double min_y = DBL_MAX;
+                    double max_y = -DBL_MAX;
+                    for (int i = 0; i < modal_polygon_points.count; i++)
+					{
+						min_x = std::min(min_x, modal_polygon_points[i].x);
+						max_x = std::max(max_x, modal_polygon_points[i].x);
+						min_y = std::min(min_y, modal_polygon_points[i].y);
+						max_y = std::max(max_y, modal_polygon_points[i].y);
+					}
+                    if (max_x - min_x < min_fub_dimension && max_y - min_y < min_fub_dimension)
+                        keep_polygon = false; // Skip FUBs that are too small
+                }
                 if (info & 0x10) {
                     double x = factor * oasis_read_integer(in);
                     if (modal_absolute_pos) {
@@ -1935,72 +2020,70 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         modal_geom_pos.y += y;
                     }
                 }
-                Vec2* v = polygon->point_array.items;
-                for (uint64_t i = polygon->point_array.count; i > 0; i--) {
-                    *v++ += modal_geom_pos;
+                Polygon* polygon = NULL;
+                if (keep_polygon)
+                {
+                    polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+                    polygon->tag = temp_tag;
+                    next_property = &polygon->properties;
                 }
+                else
+                    next_property = NULL;
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    polygon->repetition.copy_from(modal_repetition);
+                    if (keep_polygon)
+                        polygon->repetition.copy_from(modal_repetition);
+                }
+                if (keep_polygon)
+                {
+                    polygon->point_array.copy_from(modal_polygon_points);
+                    Vec2* v = polygon->point_array.items;
+                    for (uint64_t i = polygon->point_array.count; i > 0; i--) {
+                        *v++ += modal_geom_pos;
+                    }
+                    cell->polygon_array.append(polygon);
                 }
             } break;
             case OasisRecord::PATH: {
-                FlexPath* path = (FlexPath*)allocate_clear(sizeof(FlexPath));
-                FlexPathElement* element =
-                    (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
-                cell->flexpath_array.append(path);
-                next_property = &path->properties;
-                path->spine.tolerance = tolerance;
-                path->elements = element;
-                path->num_elements = 1;
-                path->simple_path = true;
-                path->scale_width = true;
+                Tag temp_tag = 0;
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_layer(element->tag, modal_layer);
+                set_layer(temp_tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_type(element->tag, modal_datatype);
+                set_type(temp_tag, modal_datatype);
+                bool keep_path = !(shape_tags && !shape_tags->has_value(temp_tag));
+
                 if (info & 0x40) {
                     modal_path_halfwidth = factor * oasis_read_unsigned_integer(in);
                 }
-                element->half_width_and_offset.append(Vec2{modal_path_halfwidth, 0});
                 if (info & 0x80) {
                     uint8_t extension_scheme;
                     oasis_read(&extension_scheme, 1, 1, in);
                     switch (extension_scheme & 0x0c) {
-                        case 0x04:
-                            modal_path_extensions.u = 0;
-                            break;
-                        case 0x08:
-                            modal_path_extensions.u = modal_path_halfwidth;
-                            break;
-                        case 0x0c:
-                            modal_path_extensions.u = factor * oasis_read_integer(in);
+                    case 0x04:
+                        modal_path_extensions.u = 0;
+                        break;
+                    case 0x08:
+                        modal_path_extensions.u = modal_path_halfwidth;
+                        break;
+                    case 0x0c:
+                        modal_path_extensions.u = factor * oasis_read_integer(in);
                     }
                     switch (extension_scheme & 0x03) {
-                        case 0x01:
-                            modal_path_extensions.v = 0;
-                            break;
-                        case 0x02:
-                            modal_path_extensions.v = modal_path_halfwidth;
-                            break;
-                        case 0x03:
-                            modal_path_extensions.v = factor * oasis_read_integer(in);
+                    case 0x01:
+                        modal_path_extensions.v = 0;
+                        break;
+                    case 0x02:
+                        modal_path_extensions.v = modal_path_halfwidth;
+                        break;
+                    case 0x03:
+                        modal_path_extensions.v = factor * oasis_read_integer(in);
                     }
-                }
-                if (modal_path_extensions.u == 0 && modal_path_extensions.v == 0) {
-                    element->end_type = EndType::Flush;
-                } else if (modal_path_extensions.u == modal_path_halfwidth &&
-                           modal_path_extensions.v == modal_path_halfwidth) {
-                    element->end_type = EndType::HalfWidth;
-                } else {
-                    element->end_type = EndType::Extended;
-                    element->end_extensions = modal_path_extensions;
                 }
                 if (info & 0x20) {
                     modal_path_points.count = 1;
@@ -2022,31 +2105,66 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         modal_geom_pos.y += y;
                     }
                 }
-                path->spine.append(modal_geom_pos);
-                const Array<Vec2> skip_first = {0, modal_path_points.count - 1,
-                                                modal_path_points.items + 1};
-                path->segment(skip_first, NULL, NULL, true);
+                FlexPath* path = NULL;
+                FlexPathElement* element = NULL;
+                if (keep_path)
+                {
+                    path = (FlexPath*)allocate_clear(sizeof(FlexPath));
+                    element = (FlexPathElement*)allocate_clear(sizeof(FlexPathElement));
+                    path->spine.tolerance = tolerance;
+                    path->elements = element;
+                    path->num_elements = 1;
+                    path->simple_path = true;
+                    path->scale_width = true;
+                    element->tag = temp_tag;
+                    next_property = &path->properties;
+                    element->half_width_and_offset.append(Vec2{ modal_path_halfwidth, 0 });
+                    if (modal_path_extensions.u == 0 && modal_path_extensions.v == 0) {
+                        element->end_type = EndType::Flush;
+                    }
+                    else if (modal_path_extensions.u == modal_path_halfwidth &&
+                        modal_path_extensions.v == modal_path_halfwidth) {
+                        element->end_type = EndType::HalfWidth;
+                    }
+                    else {
+                        element->end_type = EndType::Extended;
+                        element->end_extensions = modal_path_extensions;
+                    }
+                    path->spine.append(modal_geom_pos);
+                    const Array<Vec2> skip_first = {(uint64_t)0, modal_path_points.count - 1,
+                                                    modal_path_points.items + 1};
+                    path->segment(skip_first, NULL, NULL, true);
+                }
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    path->repetition.copy_from(modal_repetition);
+                    if (keep_path)
+                        path->repetition.copy_from(modal_repetition);
+                }
+                if (keep_path)
+                {
+                    cell->flexpath_array.append(path);
+                }
+                else
+                {
+                    next_property = NULL;
                 }
             } break;
             case OasisRecord::TRAPEZOID_AB:
             case OasisRecord::TRAPEZOID_A:
             case OasisRecord::TRAPEZOID_B: {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                cell->polygon_array.append(polygon);
-                next_property = &polygon->properties;
+                Tag temp_tag = 0;
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_layer(polygon->tag, modal_layer);
+                set_layer(temp_tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_type(polygon->tag, modal_datatype);
+                set_type(temp_tag, modal_datatype);
+                bool keep_polygon = !(shape_tags && !shape_tags->has_value(temp_tag));
+
                 if (info & 0x40) {
                     modal_geom_dim.x = factor * oasis_read_unsigned_integer(in);
                 }
@@ -2080,9 +2198,8 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         modal_geom_pos.y += y;
                     }
                 }
-                Array<Vec2>* point_array = &polygon->point_array;
-                point_array->ensure_slots(4);
-                point_array->count = 4;
+                Array<Vec2>* point_array = &modal_trapezoid_points;
+                modal_trapezoid_points.count = 4;
                 Vec2* r = point_array->items;
                 Vec2* s = r + 1;
                 Vec2* q = s + 1;
@@ -2122,25 +2239,58 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         s->x = q->x - delta_b;
                     }
                 }
+                if (fub_tag > 0 && temp_tag == fub_tag)
+                {
+                    double min_x = DBL_MAX;
+                    double max_x = -DBL_MAX;
+                    double min_y = DBL_MAX;
+                    double max_y = -DBL_MAX;
+                    for (int i = 0; i < modal_trapezoid_points.count; i++)
+                    {
+                        min_x = std::min(min_x, modal_trapezoid_points[i].x);
+                        max_x = std::max(max_x, modal_trapezoid_points[i].x);
+                        min_y = std::min(min_y, modal_trapezoid_points[i].y);
+                        max_y = std::max(max_y, modal_trapezoid_points[i].y);
+                    }
+                    if (max_x - min_x < min_fub_dimension && max_y - min_y < min_fub_dimension)
+                        keep_polygon = false; // Skip FUBs that are too small
+                }
+                Polygon* polygon = NULL;
+                if (keep_polygon)
+                {
+                    polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+                    polygon->tag = temp_tag;
+                    next_property = &polygon->properties;
+                    polygon->point_array.copy_from(modal_trapezoid_points);
+                }
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    polygon->repetition.copy_from(modal_repetition);
+                    if (keep_polygon)
+                        polygon->repetition.copy_from(modal_repetition);
                 }
+                if (keep_polygon)
+                {
+					cell->polygon_array.append(polygon);
+				}
+				else
+				{
+					next_property = NULL;
+				}
             } break;
             case OasisRecord::CTRAPEZOID: {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                cell->polygon_array.append(polygon);
-                next_property = &polygon->properties;
+                Tag temp_tag = 0;
                 uint8_t info;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_layer(polygon->tag, modal_layer);
+                set_layer(temp_tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                set_type(polygon->tag, modal_datatype);
+                set_type(temp_tag, modal_datatype);
+                bool keep_polygon = !(shape_tags && !shape_tags->has_value(temp_tag));
+
                 if (info & 0x80) {
                     oasis_read(&modal_ctrapezoid_type, 1, 1, in);
                 }
@@ -2166,10 +2316,9 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         modal_geom_pos.y += y;
                     }
                 }
-                Array<Vec2>* point_array = &polygon->point_array;
+                Array<Vec2>* point_array = &modal_trapezoid_points;
                 Vec2* v;
                 if (modal_ctrapezoid_type > 15 && modal_ctrapezoid_type < 24) {
-                    point_array->ensure_slots(3);
                     point_array->count = 3;
                     v = point_array->items;
                     v[0] = modal_geom_pos;
@@ -2185,131 +2334,169 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     v[3] = modal_geom_pos + Vec2{0, modal_geom_dim.y};
                 }
                 switch (modal_ctrapezoid_type) {
-                    case 0:
-                        v[2].x -= modal_geom_dim.y;
-                        break;
-                    case 1:
-                        v[1].x -= modal_geom_dim.y;
-                        break;
-                    case 2:
-                        v[3].x += modal_geom_dim.y;
-                        break;
-                    case 3:
-                        v[0].x += modal_geom_dim.y;
-                        break;
-                    case 4:
-                        v[2].x -= modal_geom_dim.y;
-                        v[3].x += modal_geom_dim.y;
-                        break;
-                    case 5:
-                        v[0].x += modal_geom_dim.y;
-                        v[1].x -= modal_geom_dim.y;
-                        break;
-                    case 6:
-                        v[1].x -= modal_geom_dim.y;
-                        v[3].x += modal_geom_dim.y;
-                        break;
-                    case 7:
-                        v[0].x += modal_geom_dim.y;
-                        v[2].x -= modal_geom_dim.y;
-                        break;
-                    case 8:
-                        v[2].y -= modal_geom_dim.x;
-                        break;
-                    case 9:
-                        v[3].y -= modal_geom_dim.x;
-                        break;
-                    case 10:
-                        v[1].y += modal_geom_dim.x;
-                        break;
-                    case 11:
-                        v[0].y += modal_geom_dim.x;
-                        break;
-                    case 12:
-                        v[1].y += modal_geom_dim.x;
-                        v[2].y -= modal_geom_dim.x;
-                        break;
-                    case 13:
-                        v[0].y += modal_geom_dim.x;
-                        v[3].y -= modal_geom_dim.x;
-                        break;
-                    case 14:
-                        v[1].y += modal_geom_dim.x;
-                        v[3].y -= modal_geom_dim.x;
-                        break;
-                    case 15:
-                        v[0].y += modal_geom_dim.x;
-                        v[2].y -= modal_geom_dim.x;
-                        break;
-                    case 16:
-                        v[1].x += modal_geom_dim.x;
-                        v[2].y += modal_geom_dim.x;
+                case 0:
+                    v[2].x -= modal_geom_dim.y;
+                    break;
+                case 1:
+                    v[1].x -= modal_geom_dim.y;
+                    break;
+                case 2:
+                    v[3].x += modal_geom_dim.y;
+                    break;
+                case 3:
+                    v[0].x += modal_geom_dim.y;
+                    break;
+                case 4:
+                    v[2].x -= modal_geom_dim.y;
+                    v[3].x += modal_geom_dim.y;
+                    break;
+                case 5:
+                    v[0].x += modal_geom_dim.y;
+                    v[1].x -= modal_geom_dim.y;
+                    break;
+                case 6:
+                    v[1].x -= modal_geom_dim.y;
+                    v[3].x += modal_geom_dim.y;
+                    break;
+                case 7:
+                    v[0].x += modal_geom_dim.y;
+                    v[2].x -= modal_geom_dim.y;
+                    break;
+                case 8:
+                    v[2].y -= modal_geom_dim.x;
+                    break;
+                case 9:
+                    v[3].y -= modal_geom_dim.x;
+                    break;
+                case 10:
+                    v[1].y += modal_geom_dim.x;
+                    break;
+                case 11:
+                    v[0].y += modal_geom_dim.x;
+                    break;
+                case 12:
+                    v[1].y += modal_geom_dim.x;
+                    v[2].y -= modal_geom_dim.x;
+                    break;
+                case 13:
+                    v[0].y += modal_geom_dim.x;
+                    v[3].y -= modal_geom_dim.x;
+                    break;
+                case 14:
+                    v[1].y += modal_geom_dim.x;
+                    v[3].y -= modal_geom_dim.x;
+                    break;
+                case 15:
+                    v[0].y += modal_geom_dim.x;
+                    v[2].y -= modal_geom_dim.x;
+                    break;
+                case 16:
+                    v[1].x += modal_geom_dim.x;
+                    v[2].y += modal_geom_dim.x;
                         modal_geom_dim.y = modal_geom_dim.x;
-                        break;
-                    case 17:
-                        v[1] += modal_geom_dim.x;
-                        v[2].y += modal_geom_dim.x;
+                    break;
+                case 17:
+                    v[1] += modal_geom_dim.x;
+                    v[2].y += modal_geom_dim.x;
                         modal_geom_dim.y = modal_geom_dim.x;
-                        break;
-                    case 18:
-                        v[1].x += modal_geom_dim.x;
-                        v[2] += modal_geom_dim.x;
+                    break;
+                case 18:
+                    v[1].x += modal_geom_dim.x;
+                    v[2] += modal_geom_dim.x;
                         modal_geom_dim.y = modal_geom_dim.x;
-                        break;
-                    case 19:
-                        v[0].x += modal_geom_dim.x;
-                        v[1] += modal_geom_dim.x;
-                        v[2].y += modal_geom_dim.x;
+                    break;
+                case 19:
+                    v[0].x += modal_geom_dim.x;
+                    v[1] += modal_geom_dim.x;
+                    v[2].y += modal_geom_dim.x;
                         modal_geom_dim.y = modal_geom_dim.x;
-                        break;
-                    case 20:
-                        v[1].x += 2 * modal_geom_dim.y;
-                        v[2] += modal_geom_dim.y;
+                    break;
+                case 20:
+                    v[1].x += 2 * modal_geom_dim.y;
+                    v[2] += modal_geom_dim.y;
                         modal_geom_dim.x = 2 * modal_geom_dim.y;
-                        break;
-                    case 21:
-                        v[0].x += modal_geom_dim.y;
-                        v[1].x += 2 * modal_geom_dim.y;
-                        v[1].y += modal_geom_dim.y;
-                        v[2].y += modal_geom_dim.y;
+                    break;
+                case 21:
+                    v[0].x += modal_geom_dim.y;
+                    v[1].x += 2 * modal_geom_dim.y;
+                    v[1].y += modal_geom_dim.y;
+                    v[2].y += modal_geom_dim.y;
                         modal_geom_dim.x = 2 * modal_geom_dim.y;
-                        break;
-                    case 22:
-                        v[1] += modal_geom_dim.x;
-                        v[2].y += 2 * modal_geom_dim.x;
+                    break;
+                case 22:
+                    v[1] += modal_geom_dim.x;
+                    v[2].y += 2 * modal_geom_dim.x;
                         modal_geom_dim.y = 2 * modal_geom_dim.x;
-                        break;
-                    case 23:
-                        v[0].x += modal_geom_dim.x;
-                        v[1].x += modal_geom_dim.x;
-                        v[1].y += 2 * modal_geom_dim.x;
-                        v[2].y += modal_geom_dim.x;
+                    break;
+                case 23:
+                    v[0].x += modal_geom_dim.x;
+                    v[1].x += modal_geom_dim.x;
+                    v[1].y += 2 * modal_geom_dim.x;
+                    v[2].y += modal_geom_dim.x;
                         modal_geom_dim.y = 2 * modal_geom_dim.x;
-                        break;
-                    case 25:
-                        v[2].y = v[3].y = modal_geom_pos.y + modal_geom_dim.x;
-                        break;
+                    break;
+                case 25:
+                    v[2].y = v[3].y = modal_geom_pos.y + modal_geom_dim.x;
+                    break;
+                }
+                if (fub_tag > 0 && temp_tag == fub_tag)
+                {
+                    double min_x = DBL_MAX;
+                    double max_x = -DBL_MAX;
+                    double min_y = DBL_MAX;
+                    double max_y = -DBL_MAX;
+                    for (int i = 0; i < modal_trapezoid_points.count; i++)
+                    {
+                        min_x = std::min(min_x, modal_trapezoid_points[i].x);
+                        max_x = std::max(max_x, modal_trapezoid_points[i].x);
+                        min_y = std::min(min_y, modal_trapezoid_points[i].y);
+                        max_y = std::max(max_y, modal_trapezoid_points[i].y);
+                    }
+                    if (max_x - min_x < min_fub_dimension && max_y - min_y < min_fub_dimension)
+                        keep_polygon = false; // Skip FUBs that are too small
+                }
+                Polygon* polygon = NULL;
+                if (keep_polygon)
+                {
+                    polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+                    polygon->tag = temp_tag;
+                    next_property = &polygon->properties;
+                    polygon->point_array.copy_from(modal_trapezoid_points);
                 }
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    polygon->repetition.copy_from(modal_repetition);
+                    if (keep_polygon)
+                        polygon->repetition.copy_from(modal_repetition);
+                }
+                if (keep_polygon)
+                {
+                    cell->polygon_array.append(polygon);
+                }
+                else
+                {
+                    next_property = NULL;
                 }
             } break;
             case OasisRecord::CIRCLE: {
-                Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
-                cell->polygon_array.append(polygon);
-                next_property = &polygon->properties;
                 uint8_t info;
+                Tag temp_tag = 0;
                 oasis_read(&info, 1, 1, in);
                 if (info & 0x01) {
                     modal_layer = (uint32_t)oasis_read_unsigned_integer(in);
                 }
+                set_layer(temp_tag, modal_layer);
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
+                set_type(temp_tag, modal_datatype);
+                bool keep_circle = !(shape_tags && !shape_tags->has_value(temp_tag));
+
                 if (info & 0x20) {
                     modal_circle_radius = factor * oasis_read_unsigned_integer(in);
                 }
+                if (fub_tag > 0 && temp_tag == fub_tag && (2 * modal_circle_radius) < min_fub_dimension)
+					keep_circle = false; // Skip FUBs that are too small
+
                 if (info & 0x10) {
                     double x = factor * oasis_read_integer(in);
                     if (modal_absolute_pos) {
@@ -2326,73 +2513,90 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                         modal_geom_pos.y += y;
                     }
                 }
-                *polygon = ellipse(modal_geom_pos, modal_circle_radius, modal_circle_radius, 0, 0,
-                                   0, 0, tolerance, make_tag(modal_layer, modal_datatype));
+                Polygon* polygon = NULL;
+                if (keep_circle)
+				{
+					polygon = (Polygon*)allocate_clear(sizeof(Polygon));
+                    *polygon = ellipse(modal_geom_pos, modal_circle_radius, modal_circle_radius, 0, 0,
+                        0, 0, tolerance, temp_tag);
+					next_property = &polygon->properties;
+				}
                 if (info & 0x04) {
                     oasis_read_repetition(in, factor, modal_repetition);
-                    polygon->repetition.copy_from(modal_repetition);
+                    if (keep_circle)
+                        polygon->repetition.copy_from(modal_repetition);
+                }
+                if (keep_circle)
+                {
+                    cell->polygon_array.append(polygon);
+                }
+                else
+                {
+                    next_property = NULL;
                 }
             } break;
             case OasisRecord::PROPERTY:
             case OasisRecord::LAST_PROPERTY: {
-                Property* property = (Property*)allocate_clear(sizeof(Property));
-                *next_property = property;
-                next_property = &property->next;
-                uint8_t info;
-                if (record == OasisRecord::LAST_PROPERTY) {
-                    info = 0x08;
+                if (next_property)
+                {
+                    Property* property = (Property*)allocate_clear(sizeof(Property));
+                    *next_property = property;
+                    next_property = &property->next;
+                    uint8_t info;
+                    if (record == OasisRecord::LAST_PROPERTY) {
+                        info = 0x08;
                 } else {
-                    oasis_read(&info, 1, 1, in);
-                }
-                if (info & 0x04) {
-                    // Explicit name
-                    if (info & 0x02) {
-                        // Reference number
-                        property->name = (char*)oasis_read_unsigned_integer(in);
-                        unfinished_property_name.append(property);
-                        modal_property_unfinished = true;
-                    } else {
-                        property->name = (char*)oasis_read_string(in, true, len);
-                        modal_property_unfinished = false;
+                        oasis_read(&info, 1, 1, in);
                     }
-                    modal_property = property;
-                } else {
-                    // Use modal variable
-                    if (modal_property_unfinished) {
-                        property->name = modal_property->name;
-                        unfinished_property_name.append(property);
+                    if (info & 0x04) {
+                        // Explicit name
+                        if (info & 0x02) {
+                            // Reference number
+                            property->name = (char*)oasis_read_unsigned_integer(in);
+                            unfinished_property_name.append(property);
+                            modal_property_unfinished = true;
                     } else {
-                        property->name = copy_string(modal_property->name, NULL);
-                    }
-                }
-                if (info & 0x08) {
-                    // Use modal value list
-                    property->value = property_values_copy(modal_property_value_list);
-                    PropertyValue* src = modal_property_value_list;
-                    PropertyValue* dst = property->value;
-                    while (src) {
-                        if (src->type == PropertyType::UnsignedInteger &&
-                            unfinished_property_value.contains(src)) {
-                            unfinished_property_value.append(dst);
+                            property->name = (char*)oasis_read_string(in, true, len);
+                            modal_property_unfinished = false;
                         }
-                        src = src->next;
-                        dst = dst->next;
-                    }
+                        modal_property = property;
                 } else {
-                    // Explicit value list
-                    uint64_t num_values = info >> 4;
-                    if (num_values == 15) {
-                        num_values = oasis_read_unsigned_integer(in);
+                        // Use modal variable
+                        if (modal_property_unfinished) {
+                            property->name = modal_property->name;
+                            unfinished_property_name.append(property);
+                    } else {
+                            property->name = copy_string(modal_property->name, NULL);
+                        }
                     }
-                    PropertyValue** next = &property->value;
-                    for (; num_values > 0; num_values--) {
-                        PropertyValue* property_value =
-                            (PropertyValue*)allocate_clear(sizeof(PropertyValue));
-                        *next = property_value;
-                        next = &property_value->next;
-                        OasisDataType data_type;
-                        oasis_read(&data_type, 1, 1, in);
-                        switch (data_type) {
+                    if (info & 0x08) {
+                        // Use modal value list
+                        property->value = property_values_copy(modal_property_value_list);
+                        PropertyValue* src = modal_property_value_list;
+                        PropertyValue* dst = property->value;
+                        while (src) {
+                            if (src->type == PropertyType::UnsignedInteger &&
+                                unfinished_property_value.contains(src)) {
+                                unfinished_property_value.append(dst);
+                            }
+                            src = src->next;
+                            dst = dst->next;
+                        }
+                } else {
+                        // Explicit value list
+                        uint64_t num_values = info >> 4;
+                        if (num_values == 15) {
+                            num_values = oasis_read_unsigned_integer(in);
+                        }
+                        PropertyValue** next = &property->value;
+                        for (; num_values > 0; num_values--) {
+                            PropertyValue* property_value =
+                                (PropertyValue*)allocate_clear(sizeof(PropertyValue));
+                            *next = property_value;
+                            next = &property_value->next;
+                            OasisDataType data_type;
+                            oasis_read(&data_type, 1, 1, in);
+                            switch (data_type) {
                             case OasisDataType::RealPositiveInteger:
                             case OasisDataType::RealNegativeInteger:
                             case OasisDataType::RealPositiveReciprocal:
@@ -2426,27 +2630,89 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                                 property_value->unsigned_integer = oasis_read_unsigned_integer(in);
                                 unfinished_property_value.append(property_value);
                             } break;
+                            }
+                        }
+                        modal_property_value_list = property->value;
+                    }
+                }
+                else //No property to keep
+                {
+                    uint8_t info;
+                    if (record == OasisRecord::LAST_PROPERTY) {
+                        info = 0x08;
+                    }
+                    else {
+                        oasis_read(&info, 1, 1, in);
+                    }
+                    if (info & 0x04) {
+                        // Explicit name
+                        if (info & 0x02) {
+                            // Reference number
+                            oasis_skip_unsigned_integer(in);
+                            modal_property_unfinished = true;
+                        }
+                        else {
+                            oasis_skip_string(in);
+                            modal_property_unfinished = false;
                         }
                     }
-                    modal_property_value_list = property->value;
+                    if (!(info & 0x08)) {
+                        // Explicit value list
+                        uint64_t num_values = info >> 4;
+                        if (num_values == 15) {
+                            num_values = oasis_read_unsigned_integer(in);
+                        }
+                        for (; num_values > 0; num_values--) {
+                            OasisDataType data_type;
+                            oasis_read(&data_type, 1, 1, in);
+                            switch (data_type) {
+                            case OasisDataType::RealPositiveInteger:
+                            case OasisDataType::RealNegativeInteger:
+                            case OasisDataType::RealPositiveReciprocal:
+                            case OasisDataType::RealNegativeReciprocal:
+                            case OasisDataType::RealPositiveRatio:
+                            case OasisDataType::RealNegativeRatio:
+                            case OasisDataType::RealFloat:
+                            case OasisDataType::RealDouble: {
+                                oasis_skip_real_by_type(in, data_type);
+                            } break;
+                            case OasisDataType::UnsignedInteger: {
+                                oasis_skip_unsigned_integer(in);
+                            } break;
+                            case OasisDataType::SignedInteger: {
+                                oasis_skip_integer(in);
+                            } break;
+                            case OasisDataType::AString:
+                            case OasisDataType::BString:
+                            case OasisDataType::NString: {
+                                oasis_skip_string(in);
+                            } break;
+                            case OasisDataType::ReferenceA:
+                            case OasisDataType::ReferenceB:
+                            case OasisDataType::ReferenceN: {
+                                oasis_skip_unsigned_integer(in);
+                            } break;
+                            }
+                        }
+                    }
                 }
             } break;
             case OasisRecord::XNAME_IMPLICIT: {
-                oasis_read_unsigned_integer(in);
-                free_allocation(oasis_read_string(in, false, len));
+                oasis_skip_unsigned_integer(in);
+                oasis_skip_string(in);
                 if (error_logger) fputs("[GDSTK] Record type XNAME ignored.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
             case OasisRecord::XNAME: {
-                oasis_read_unsigned_integer(in);
-                free_allocation(oasis_read_string(in, false, len));
-                oasis_read_unsigned_integer(in);
+                oasis_skip_unsigned_integer(in);
+                oasis_skip_string(in);
+                oasis_skip_unsigned_integer(in);
                 if (error_logger) fputs("[GDSTK] Record type XNAME ignored.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
             case OasisRecord::XELEMENT: {
-                oasis_read_unsigned_integer(in);
-                free_allocation(oasis_read_string(in, false, len));
+                oasis_skip_unsigned_integer(in);
+                oasis_skip_string(in);
                 if (error_logger) fputs("[GDSTK] Record type XELEMENT ignored.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::UnsupportedRecord;
             } break;
@@ -2460,7 +2726,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                 if (info & 0x02) {
                     modal_datatype = (uint32_t)oasis_read_unsigned_integer(in);
                 }
-                free_allocation(oasis_read_string(in, false, len));
+                oasis_skip_string(in);
                 if (info & 0x10) {
                     double x = factor * oasis_read_integer(in);
                     if (modal_absolute_pos) {
@@ -2478,7 +2744,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
                     }
                 }
                 if (info & 0x04) {
-                    oasis_read_repetition(in, factor, modal_repetition);
+                    oasis_skip_repetition(in);
                 }
                 if (error_logger) fputs("[GDSTK] Record type XGEOMETRY ignored.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::UnsupportedRecord;
@@ -2571,6 +2837,7 @@ CLEANUP:
 
     modal_repetition.clear();
     modal_polygon_points.clear();
+	modal_trapezoid_points.clear();
     modal_path_points.clear();
 
     unfinished_property_name.clear();
@@ -2582,9 +2849,11 @@ CLEANUP:
 ErrorCode gds_units(const char* filename, double& unit, double& precision) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
-    FILE* in = fopen(filename, "rb");
-    if (in == NULL) {
+    FileWrapper* in = endsWithIgnoreCase(filename, ".gds.gz") ? (FileWrapper*)(new FileWrapperGZlib()) : (FileWrapper*)(new FileWrapperStd());
+
+    if (!in->Open(filename, "rb")) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
+        delete in;
         return ErrorCode::InputFileOpenError;
     }
 
@@ -2592,18 +2861,21 @@ ErrorCode gds_units(const char* filename, double& unit, double& precision) {
         uint64_t record_length = COUNT(buffer);
         ErrorCode error_code = gdsii_read_record(in, buffer, record_length);
         if (error_code != ErrorCode::NoError) {
-            fclose(in);
+            in->Close();
+            delete in;
             return error_code;
         }
         if ((GdsiiRecord)buffer[2] == GdsiiRecord::UNITS) {
             big_endian_swap64(data64, 2);
             precision = gdsii_real_to_double(data64[1]);
             unit = precision / gdsii_real_to_double(data64[0]);
-            fclose(in);
+            in->Close();
+            delete in;
             return ErrorCode::NoError;
         }
     }
-    fclose(in);
+    in->Close();
+    delete in;
     fputs("[GDSTK] GDSII file missing units definition.\n", stderr);
     return ErrorCode::InvalidFile;
 }
@@ -2613,7 +2885,7 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
     uint8_t buffer[65537];
     uint16_t* data16 = (uint16_t*)(buffer + 4);
     uint16_t new_tm_buffer[12];
-    FILE* inout = NULL;
+    FileWrapper* inout = endsWithIgnoreCase(filename, ".gds.gz") ? (FileWrapper*)(new FileWrapperGZlib()) : (FileWrapper*)(new FileWrapperStd());
 
     if (new_timestamp) {
         new_tm_buffer[0] = new_timestamp->tm_year;
@@ -2624,14 +2896,17 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
         new_tm_buffer[5] = new_timestamp->tm_sec;
         big_endian_swap16(new_tm_buffer, 6);
         memcpy(new_tm_buffer + 6, new_tm_buffer, 6 * sizeof(uint16_t));
-        inout = fopen(filename, "r+b");
+        if (!inout->Open(filename, "r+b")) {
+            if (error_logger) fputs("[GDSTK] Unable to open GDSII file.\n", error_logger);
+            if (error_code) *error_code = ErrorCode::InputFileOpenError;
+            return result;
+        }
     } else {
-        inout = fopen(filename, "rb");
-    }
-    if (inout == NULL) {
-        if (error_logger) fputs("[GDSTK] Unable to open GDSII file.\n", error_logger);
-        if (error_code) *error_code = ErrorCode::InputFileOpenError;
-        return result;
+        if (!inout->Open(filename, "rb")) {
+            if (error_logger) fputs("[GDSTK] Unable to open GDSII file.\n", error_logger);
+            if (error_code) *error_code = ErrorCode::InputFileOpenError;
+            return result;
+        }
     }
 
     while (true) {
@@ -2639,14 +2914,16 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
         ErrorCode err = gdsii_read_record(inout, buffer, record_length);
         if (err != ErrorCode::NoError) {
             if (error_code) *error_code = err;
-            fclose(inout);
+            inout->Close();
+            delete inout;
             return result;
         }
 
         GdsiiRecord record = (GdsiiRecord)buffer[2];
         if (record == GdsiiRecord::BGNLIB) {
             if (record_length != 28) {
-                fclose(inout);
+                inout->Close();
+                delete inout;
                 if (error_logger) fputs("[GDSTK] Invalid or corrupted GDSII file.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 return result;
@@ -2659,37 +2936,42 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
             result.tm_min = data16[4];
             result.tm_sec = data16[5];
             if (!new_timestamp) {
-                fclose(inout);
+                inout->Close();
+                delete inout;
                 return result;
             }
-            if (FSEEK64(inout, -24, SEEK_CUR) != 0) {
-                fclose(inout);
+            if ((inout->Seek(-24, SEEK_CUR)) != 0) {
+                inout->Close();
+                delete inout;
                 if (error_logger)
                     fputs("[GDSTK] Unable to rewrite library timestamp.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::FileError;
                 return result;
             }
-            fwrite(new_tm_buffer, sizeof(uint16_t), 12, inout);
+            inout->Write(new_tm_buffer, sizeof(uint16_t), 12);
         } else if (record == GdsiiRecord::BGNSTR && new_timestamp) {
             if (record_length != 28) {
-                fclose(inout);
+                inout->Close();
+                delete inout;
                 if (error_logger) fputs("[GDSTK] Invalid or corrupted GDSII file.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::InvalidFile;
                 return result;
             }
-            if (FSEEK64(inout, -24, SEEK_CUR) != 0) {
-                fclose(inout);
+            if (inout->Seek(-24, SEEK_CUR) != 0) {
+                inout->Close();
+                delete inout;
                 if (error_logger)
                     fputs("[GDSTK] Unable to rewrite cell timestamp.\n", error_logger);
                 if (error_code) *error_code = ErrorCode::FileError;
                 return result;
             }
-            fwrite(new_tm_buffer, sizeof(uint16_t), 12, inout);
+            inout->Write(new_tm_buffer, sizeof(uint16_t), 12);
         } else if (record == GdsiiRecord::ENDLIB) {
             break;
         }
     }
-    fclose(inout);
+    inout->Close();
+    delete inout;
     return result;
 }
 
@@ -2702,9 +2984,11 @@ ErrorCode gds_info(const char* filename, LibraryInfo& info) {
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     char* str = (char*)(buffer + 4);
 
-    FILE* in = fopen(filename, "rb");
-    if (in == NULL) {
+    FileWrapper* in = endsWithIgnoreCase(filename, ".gds.gz") ? (FileWrapper*)(new FileWrapperGZlib()) : (FileWrapper*)(new FileWrapperStd());
+
+    if (!in->Open(filename, "rb")) {
         if (error_logger) fputs("[GDSTK] Unable to open GDSII file for input.\n", error_logger);
+        delete in;
         return ErrorCode::InputFileOpenError;
     }
 
@@ -2715,14 +2999,16 @@ ErrorCode gds_info(const char* filename, LibraryInfo& info) {
         uint64_t record_length = COUNT(buffer);
         ErrorCode err = gdsii_read_record(in, buffer, record_length);
         if (err != ErrorCode::NoError) {
-            fclose(in);
+            in->Close();
+            delete in;
             return err;
         }
 
         uint64_t data_length;
         switch ((GdsiiRecord)(buffer[2])) {
             case GdsiiRecord::ENDLIB:
-                fclose(in);
+                in->Close();
+                delete in;
                 return error;
                 break;
             case GdsiiRecord::STRNAME: {
@@ -2953,6 +3239,9 @@ bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_co
     }
 
     return true;
+}
+Library read_gds2(const char* filename, double unit, double tolerance,  ErrorCode* error_code) {
+    return read_gds(filename, unit, tolerance,nullptr, nullptr,error_code);
 }
 
 }  // namespace gdstk

@@ -19,6 +19,8 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/gdsii.hpp>
 #include <gdstk/robustpath.hpp>
 #include <gdstk/utils.hpp>
+#include <gdstk/repetition.hpp>
+#include <set>
 
 namespace gdstk {
 
@@ -1271,13 +1273,28 @@ ErrorCode RobustPath::spine(Array<Vec2> &result) const {
 }
 
 ErrorCode RobustPath::to_polygons(bool filter, Tag tag, Array<Polygon *> &result) const {
+    std::set<Tag> tags;
+    if (filter) {
+        tags.insert(tag);
+        return to_polygons(&tags, result);
+    }
+    else {
+        return to_polygons(nullptr, result);
+    }
+}
+
+ErrorCode RobustPath::to_polygons(const std::set<Tag> *_tags, Array<Polygon*>& result) const {
     ErrorCode error_code = ErrorCode::NoError;
     if (num_elements == 0 || subpath_array.count == 0) return error_code;
 
     const double tolerance_sq = tolerance * tolerance;
-    RobustPathElement *el = elements;
+    RobustPathElement* el = elements;
     for (uint64_t ne = 0; ne < num_elements; ne++, el++) {
-        if (filter && el->tag != tag) continue;
+        bool load = true;
+        if (_tags) {
+            load = _tags->find(el->tag) != _tags->end();
+        }
+        if (!load) continue;
 
         Array<Vec2> left_side = {};
         Array<Vec2> right_side = {};
@@ -1325,7 +1342,7 @@ ErrorCode RobustPath::to_polygons(bool filter, Tag tag, Array<Polygon *> &result
                 double angles[2] = {(-grad_l).angle(), grad_r.angle()};
                 Vec2 tension[2] = {Vec2{1, 1}, Vec2{1, 1}};
                 initial_cap.interpolation(point_array, angles, angle_constraints, tension, 1, 1,
-                                          false, false);
+                    false, false);
             } else if (el->end_type == EndType::Function) {
                 Vec2 dir_l =
                     -left_gradient(subpath_array[0], el->offset_array[0], el->width_array[0], 0);
@@ -1393,9 +1410,9 @@ ErrorCode RobustPath::to_polygons(bool filter, Tag tag, Array<Polygon *> &result
         {  // End cap
             const uint64_t last = subpath_array.count - 1;
             const Vec2 cap_l = left_position(subpath_array[last], el->offset_array[last],
-                                             el->width_array[last], 1);
+                el->width_array[last], 1);
             const Vec2 cap_r = right_position(subpath_array[last], el->offset_array[last],
-                                              el->width_array[last], 1);
+                el->width_array[last], 1);
             if (el->end_type == EndType::Flush) {
                 final_cap.append(cap_r);
                 if ((cap_l - cap_r).length_sq() > tolerance_sq) final_cap.append(cap_l);
@@ -1423,18 +1440,18 @@ ErrorCode RobustPath::to_polygons(bool filter, Tag tag, Array<Polygon *> &result
                 point_array.count = 1;
                 bool angle_constraints[2] = {true, true};
                 const Vec2 grad_l = left_gradient(subpath_array[last], el->offset_array[last],
-                                                  el->width_array[last], 1);
+                    el->width_array[last], 1);
                 const Vec2 grad_r = right_gradient(subpath_array[last], el->offset_array[last],
-                                                   el->width_array[last], 1);
+                    el->width_array[last], 1);
                 double angles[2] = {grad_r.angle(), (-grad_l).angle()};
                 Vec2 tension[2] = {Vec2{1, 1}, Vec2{1, 1}};
                 final_cap.interpolation(point_array, angles, angle_constraints, tension, 1, 1,
-                                        false, false);
+                    false, false);
             } else if (el->end_type == EndType::Function) {
                 Vec2 dir_l = -left_gradient(subpath_array[last], el->offset_array[last],
-                                            el->width_array[last], 1);
+                    el->width_array[last], 1);
                 Vec2 dir_r = right_gradient(subpath_array[last], el->offset_array[last],
-                                            el->width_array[last], 1);
+                    el->width_array[last], 1);
                 dir_l.normalize();
                 dir_r.normalize();
                 Array<Vec2> point_array =

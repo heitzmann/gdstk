@@ -25,6 +25,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "set.hpp"
 #include "style.hpp"
 #include "tagmap.hpp"
+#include <set>
 
 namespace gdstk {
 
@@ -139,6 +140,8 @@ struct Cell {
     // is true, only polygons with the indicated tag are appended.
     void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth, bool filter,
                       Tag tag, Array<Polygon*>& result) const;
+    void get_polygons(bool apply_repetitions, bool include_paths, int64_t depth,
+                            std::set<Tag>* _tags, Array<Polygon*>& result) const;
 
     // Similar to get_polygons, but for paths and labels.
     void get_flexpaths(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
@@ -147,7 +150,8 @@ struct Cell {
                          Array<RobustPath*>& result) const;
     void get_labels(bool apply_repetitions, int64_t depth, bool filter, Tag tag,
                     Array<Label*>& result) const;
-
+    void get_labels(bool apply_repetitions, int64_t depth, std::set<Tag>* _tags,
+                    Array<Label*>& result) const;
     // Insert all dependencies in result.  Dependencies are cells that appear
     // in this cell's references. If recursive, include the whole dependency
     // tree (dependencies of dependencies).

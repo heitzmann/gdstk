@@ -40,22 +40,22 @@ double gdsii_real_to_double(uint64_t real) {
     return (real & 0x8000000000000000) ? -result : result;
 }
 
-ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
+ErrorCode gdsii_read_record(FileWrapper* in, uint8_t* buffer, uint64_t& buffer_count) {
     if (buffer_count < 4) {
         if (error_logger) fputs("[GDSTK] Insufficient memory in buffer.\n", error_logger);
         return ErrorCode::InsufficientMemory;
     }
-    uint64_t read_length = fread(buffer, 1, 4, in);
+    uint64_t read_length = in->Read(buffer, 1, 4);
     if (read_length < 4) {
         DEBUG_PRINT("Read bytes (expected 4): %" PRIu64 "\n", read_length);
-        if (feof(in) != 0) {
+        if (in->IsEOF()) {
             if (error_logger)
                 fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n",
                       error_logger);
         } else {
             if (error_logger)
                 fprintf(error_logger, "[GDSTK] Unable to read input file. Error number %d\n.",
-                        ferror(in));
+                        in->Error());
         }
         buffer_count = read_length;
         return ErrorCode::InputFileError;
@@ -76,19 +76,19 @@ ErrorCode gdsii_read_record(FILE* in, uint8_t* buffer, uint64_t& buffer_count) {
         buffer_count = read_length;
         return ErrorCode::InsufficientMemory;
     }
-    read_length = fread(buffer + 4, 1, record_length - 4, in);
+    read_length = in->Read(buffer + 4, 1, record_length - 4);
     buffer_count = 4 + read_length;
     if (read_length < record_length - 4) {
         DEBUG_PRINT("Read bytes (expected %" PRIu32 "): %" PRIu64 "\n", record_length - 4,
                     read_length);
-        if (feof(in) != 0) {
+        if (in->IsEOF()) {
             if (error_logger)
                 fputs("[GDSTK] Unable to read input file. End of file reached unexpectedly.\n",
                       error_logger);
         } else {
             if (error_logger)
                 fprintf(error_logger, "[GDSTK] Unable to read input file. Error number %d\n.",
-                        ferror(in));
+                        in->Error());
         }
         return ErrorCode::InputFileError;
     }

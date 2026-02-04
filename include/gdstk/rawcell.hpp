@@ -25,19 +25,13 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 namespace gdstk {
 
 struct RawSource {
-    FILE* file;
+    FileWrapper* file;
     uint32_t uses;
 
     // Read num_bytes into buffer from fd starting at offset
     int64_t offset_read(void* buffer, uint64_t num_bytes, uint64_t offset) const {
-#ifdef _WIN32
-        // The POSIX version (pread) does not change the file cursor, this
-        // does.  Furthermore, this is not thread-safe!
-        FSEEK64(file, offset, SEEK_SET);
-        return fread(buffer, 1, num_bytes, file);
-#else
-        return pread(fileno(file), buffer, num_bytes, offset);
-#endif
+    file->Seek(offset, SEEK_SET);
+    return file->Read(buffer, 1, num_bytes);
     };
 };
 
