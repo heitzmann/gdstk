@@ -18,6 +18,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/allocator.hpp>
 #include <gdstk/cell.hpp>
 #include <gdstk/flexpath.hpp>
+#include <gdstk/layername.hpp>
 #include <gdstk/gdsii.hpp>
 #include <gdstk/label.hpp>
 #include <gdstk/library.hpp>
@@ -865,6 +866,9 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
         oasis_write(value->bytes, 1, value->count, out);
     }
 
+    uint64_t layer_name_offset = layer_names.count > 0 ? ftell(out.file) : 0;
+    layernames_to_oas(layer_names, out);
+
     oasis_putc((int)OasisRecord::END, out);
 
     // END (1) + table-offsets (?) + b-string length (2) + padding + validation (1 or 5) = 256
@@ -881,7 +885,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     oasis_putc(1, out);
     oasis_write_unsigned_integer(out, prop_string_offset);
     oasis_putc(1, out);
-    oasis_putc(0, out);  // LAYERNAME table
+    oasis_write_unsigned_integer(out, layer_name_offset);  // LAYERNAME table
     oasis_putc(1, out);
     oasis_putc(0, out);  // XNAME table
 
@@ -1696,15 +1700,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
             } break;
             case OasisRecord::LAYERNAME_DATA:
             case OasisRecord::LAYERNAME_TEXT:
-                // Unused record
-                free_allocation(oasis_read_string(in, false, len));
-                for (uint32_t i = 2; i > 0; i--) {
-                    uint64_t type = oasis_read_unsigned_integer(in);
-                    if (type > 0) {
-                        if (type == 4) oasis_read_unsigned_integer(in);
-                        oasis_read_unsigned_integer(in);
-                    }
-                }
+                layername_from_oas(record, in, library.layer_names);
                 break;
             case OasisRecord::CELL_REF_NUM:
             case OasisRecord::CELL: {

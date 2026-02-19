@@ -35,6 +35,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include "gdsii.hpp"
 #include "gdswriter.hpp"
 #include "label.hpp"
+#include "layername.hpp"
 #include "library.hpp"
 #include "map.hpp"
 #include "oasis.hpp"
