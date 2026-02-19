@@ -598,6 +598,111 @@ int library_object_set_properties(LibraryObject* self, PyObject* arg, void*) {
     return parse_properties(self->library->properties, arg);
 }
 
+// Build a Python dict {(layer, datatype): (data_name, text_name)} from the
+// library's Array<LayerName>.  Only SingleValue intervals produce entries;
+// interval-based records are skipped in the dict view.
+static PyObject* library_object_get_layer_names(LibraryObject* self, void*) {
+    Array<LayerName>& lns = self->library->layer_names;
+    PyObject* result = PyDict_New();
+    if (!result) return NULL;
+
+    for (uint64_t i = 0; i < lns.count; i++) {
+        const LayerName& ln = lns[i];
+        if (ln.layer_interval.type != OasisInterval::SingleValue ||
+            ln.type_interval.type != OasisInterval::SingleValue)
+            continue;
+
+        uint32_t layer = ln.layer_interval.bound_a;
+        uint32_t dtype = ln.type_interval.bound_a;
+        PyObject* key = Py_BuildValue("(II)", (unsigned int)layer, (unsigned int)dtype);
+        if (!key) { Py_DECREF(result); return NULL; }
+
+        // Check if key already exists
+        PyObject* existing = PyDict_GetItem(result, key);  // borrowed ref
+        const char* data_str = "";
+        const char* text_str = "";
+        if (existing) {
+            // Merge: keep existing strings, overwrite the one matching this type
+            PyObject* s0 = PyTuple_GET_ITEM(existing, 0);
+            PyObject* s1 = PyTuple_GET_ITEM(existing, 1);
+            data_str = PyUnicode_AsUTF8(s0);
+            text_str = PyUnicode_AsUTF8(s1);
+        }
+        const char* new_data = (ln.type == LayerNameType::DATA) ? ln.name : data_str;
+        const char* new_text = (ln.type == LayerNameType::TEXT) ? ln.name : text_str;
+
+        PyObject* val = Py_BuildValue("(ss)", new_data, new_text);
+        if (!val) { Py_DECREF(key); Py_DECREF(result); return NULL; }
+        PyDict_SetItem(result, key, val);
+        Py_DECREF(key);
+        Py_DECREF(val);
+    }
+    return result;
+}
+
+// Accept a Python dict {(int, int): (str, str)} and rebuild the library's
+// layer_names array.  Each dict entry produces up to two LayerName records:
+// one LAYERNAME_DATA and one LAYERNAME_TEXT (skipped if the string is empty).
+static int library_object_set_layer_names(LibraryObject* self, PyObject* arg, void*) {
+    if (!PyDict_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError,
+                        "layer_names must be a dict of {(layer, datatype): (data_name, text_name)}");
+        return -1;
+    }
+
+    Library* library = self->library;
+    layernames_clear(library->layer_names);
+
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(arg, &pos, &key, &value)) {
+        if (!PyTuple_Check(key) || PyTuple_GET_SIZE(key) != 2) {
+            PyErr_SetString(PyExc_TypeError, "Dict keys must be (layer, datatype) tuples.");
+            return -1;
+        }
+        if (!PyTuple_Check(value) || PyTuple_GET_SIZE(value) != 2) {
+            PyErr_SetString(PyExc_TypeError,
+                            "Dict values must be (data_name, text_name) tuples of strings.");
+            return -1;
+        }
+
+        unsigned int layer = 0, dtype = 0;
+        if (!PyArg_ParseTuple(key, "II", &layer, &dtype)) return -1;
+
+        const char* data_name = NULL;
+        const char* text_name = NULL;
+        PyObject* py_data = PyTuple_GET_ITEM(value, 0);
+        PyObject* py_text = PyTuple_GET_ITEM(value, 1);
+
+        if (py_data != Py_None) {
+            data_name = PyUnicode_AsUTF8(py_data);
+            if (!data_name) return -1;
+        }
+        if (py_text != Py_None) {
+            text_name = PyUnicode_AsUTF8(py_text);
+            if (!text_name) return -1;
+        }
+
+        if (data_name && data_name[0] != '\0') {
+            LayerName ln = {};
+            ln.type = LayerNameType::DATA;
+            ln.name = copy_string(data_name, NULL);
+            ln.layer_interval = {OasisInterval::SingleValue, (uint64_t)layer, 0};
+            ln.type_interval = {OasisInterval::SingleValue, (uint64_t)dtype, 0};
+            library->layer_names.append(ln);
+        }
+        if (text_name && text_name[0] != '\0') {
+            LayerName ln = {};
+            ln.type = LayerNameType::TEXT;
+            ln.name = copy_string(text_name, NULL);
+            ln.layer_interval = {OasisInterval::SingleValue, (uint64_t)layer, 0};
+            ln.type_interval = {OasisInterval::SingleValue, (uint64_t)dtype, 0};
+            library->layer_names.append(ln);
+        }
+    }
+    return 0;
+}
+
 static PyGetSetDef library_object_getset[] = {
     {"name", (getter)library_object_get_name, (setter)library_object_set_name,
      library_object_name_doc, NULL},
@@ -606,6 +711,8 @@ static PyGetSetDef library_object_getset[] = {
     {"precision", (getter)library_object_get_precision, (setter)library_object_set_precision,
      library_object_precision_doc, NULL},
     {"cells", (getter)library_object_get_cells, NULL, library_object_cells_doc, NULL},
+    {"layer_names", (getter)library_object_get_layer_names,
+     (setter)library_object_set_layer_names, library_object_layer_names_doc, NULL},
     {"properties", (getter)library_object_get_properties, (setter)library_object_set_properties,
      object_properties_doc, NULL},
     {NULL}};

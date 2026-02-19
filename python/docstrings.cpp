@@ -2971,6 +2971,27 @@ PyDoc_STRVAR(library_object_cells_doc, R"!(List of library cells.
 Notes:
     This attribute is read-only.)!");
 
+PyDoc_STRVAR(library_object_layer_names_doc, R"!(OASIS layer name mappings.
+
+Dictionary mapping ``(layer, datatype)`` integer tuples to
+``(data_name, text_name)`` string tuples.  ``data_name`` is the
+name associated with geometry layers (LAYERNAME_DATA, record 11) and
+``text_name`` is the name associated with text layers (LAYERNAME_TEXT,
+record 12).  Either string may be empty if that mapping is absent.
+
+This attribute is read from OASIS files by :func:`gdstk.read_oas` and
+written to OASIS files by :meth:`Library.write_oas`.
+
+Example::
+
+    >>> lib.layer_names = {(1, 0): ("M1_DRAW", "M1_TEXT"),
+    ...                    (2, 0): ("M2_DRAW", "")}
+    >>> lib.write_oas("output.oas")
+    >>> lib2 = gdstk.read_oas("output.oas")
+    >>> lib2.layer_names
+    {(1, 0): ('M1_DRAW', 'M1_TEXT'), (2, 0): ('M2_DRAW', '')}
+)!");
+
 // GdsWriter
 
 PyDoc_STRVAR(

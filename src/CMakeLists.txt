@@ -34,6 +34,7 @@ set(HEADER_LIST
     "${gdstk_SOURCE_DIR}/include/gdstk/gdstk.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/gdswriter.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/label.hpp"
+    "${gdstk_SOURCE_DIR}/include/gdstk/layername.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/library.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/map.hpp"
     "${gdstk_SOURCE_DIR}/include/gdstk/oasis.hpp"
@@ -59,6 +60,7 @@ set(SOURCE_LIST
     flexpath.cpp
     gdsii.cpp
     label.cpp
+    layername.cpp
     library.cpp
     oasis.cpp
     polygon.cpp

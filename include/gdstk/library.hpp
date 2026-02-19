@@ -16,6 +16,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #include "array.hpp"
 #include "cell.hpp"
+#include "layername.hpp"
 
 namespace gdstk {
 
@@ -37,6 +38,11 @@ struct Library {
     Array<Cell*> cell_array;
     Array<RawCell*> rawcell_array;
 
+    // OASIS LAYERNAME records mapping (layer,datatype) or (textlayer,texttype)
+    // ranges to human-readable names (OASIS spec section 19).  Populated by
+    // read_oas and written by write_oas.
+    Array<LayerName> layer_names;
+
     Property* properties;
 
     // Used by the python interface to store the associated PyObject* (if any).
@@ -56,6 +62,7 @@ struct Library {
         name = NULL;
         cell_array.clear();
         rawcell_array.clear();
+        layernames_clear(layer_names);
         properties_clear(properties);
     }
 
