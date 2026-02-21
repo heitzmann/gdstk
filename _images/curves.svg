@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="190.909091" viewBox="-13.636364 -177.272727 300 190.909091">
+<defs>
+<style type="text/css">
+.l0d0 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+</style>
+</defs>
+<rect x="-13.636364" y="-177.272727" width="300" height="190.909091" fill="none" stroke="none"/>
+<g id="curves" transform="scale(1 -1)">
+<polygon id="0x55f11bf88470" class="l0d0" points="0,0 54.545455,0 109.090909,54.545455 109.090909,109.090909 0,109.090909"/>
+<polygon id="0x55f11bf6b4d0" class="l0d0" points="163.636364,54.545455 218.181818,54.545455 272.727273,109.090909 272.727273,163.636364 163.636364,163.636364"/>
+</g>
+</svg>

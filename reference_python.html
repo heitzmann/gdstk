@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python API Reference &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a12e3537"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/tabs.js?v=3ee01567"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="gdstk.Polygon" href="geometry/gdstk.Polygon.html" />
+    <link rel="prev" title="How-Tos" href="how-tos.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#geometry-construction">Geometry Construction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.Polygon.html">gdstk.Polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.Curve.html">gdstk.Curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.FlexPath.html">gdstk.FlexPath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.RobustPath.html">gdstk.RobustPath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.Repetition.html">gdstk.Repetition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.rectangle.html">gdstk.rectangle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.cross.html">gdstk.cross</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.regular_polygon.html">gdstk.regular_polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.ellipse.html">gdstk.ellipse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.racetrack.html">gdstk.racetrack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.text.html">gdstk.text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.contour.html">gdstk.contour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.offset.html">gdstk.offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.boolean.html">gdstk.boolean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.slice.html">gdstk.slice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.inside.html">gdstk.inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.all_inside.html">gdstk.all_inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="geometry/gdstk.any_inside.html">gdstk.any_inside</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#library-organization">Library Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.Label.html">gdstk.Label</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.Reference.html">gdstk.Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.Cell.html">gdstk.Cell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.RawCell.html">gdstk.RawCell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.Library.html">gdstk.Library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.GdsWriter.html">gdstk.GdsWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.read_gds.html">gdstk.read_gds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.read_oas.html">gdstk.read_oas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.read_rawcells.html">gdstk.read_rawcells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.gds_units.html">gdstk.gds_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.gds_info.html">gdstk.gds_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.gds_timestamp.html">gdstk.gds_timestamp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.oas_precision.html">gdstk.oas_precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library/gdstk.oas_validate.html">gdstk.oas_validate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="python-api-reference">
+<h1>Python API Reference<a class="headerlink" href="#python-api-reference" title="Link to this heading"></a></h1>
+<section id="geometry-construction">
+<h2>Geometry Construction<a class="headerlink" href="#geometry-construction" title="Link to this heading"></a></h2>
+<p>Classes and functions for construction and manipulation of geometric objects.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.Polygon.html#gdstk.Polygon" title="gdstk.Polygon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Polygon</span></code></a>(points[, layer, datatype])</p></td>
+<td><p>Polygonal geometric object.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.Curve.html#gdstk.Curve" title="gdstk.Curve"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Curve</span></code></a>(xy[, tolerance])</p></td>
+<td><p>Curve object for construction of complex polygons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.FlexPath.html#gdstk.FlexPath" title="gdstk.FlexPath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.FlexPath</span></code></a>(points, width[, offset, ...])</p></td>
+<td><p>Flexible path creation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.RobustPath.html#gdstk.RobustPath" title="gdstk.RobustPath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.RobustPath</span></code></a>(initial_point, width[, ...])</p></td>
+<td><p>Robust path creation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.Repetition.html#gdstk.Repetition" title="gdstk.Repetition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Repetition</span></code></a>([columns, rows, spacing, ...])</p></td>
+<td><p>Repetition object that creates multiple identical elements.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.rectangle.html#gdstk.rectangle" title="gdstk.rectangle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.rectangle</span></code></a>(corner1, corner2[, layer, ...])</p></td>
+<td><p>Create a rectangle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.cross.html#gdstk.cross" title="gdstk.cross"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.cross</span></code></a>(center, full_size, arm_width[, ...])</p></td>
+<td><p>Create a cross shape.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.regular_polygon.html#gdstk.regular_polygon" title="gdstk.regular_polygon"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.regular_polygon</span></code></a>(center, side_length, sides)</p></td>
+<td><p>Create a regular polygon.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.ellipse.html#gdstk.ellipse" title="gdstk.ellipse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.ellipse</span></code></a>(center, radius[, ...])</p></td>
+<td><p>Create an ellipse, circle, slice or ring.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.racetrack.html#gdstk.racetrack" title="gdstk.racetrack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.racetrack</span></code></a>(center, straight_length, radius)</p></td>
+<td><p>Create a racetrack shape.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.text.html#gdstk.text" title="gdstk.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.text</span></code></a>(text, size, position[, vertical, ...])</p></td>
+<td><p>Create polygonal text.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.contour.html#gdstk.contour" title="gdstk.contour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.contour</span></code></a>(data[, level, length_scale, ...])</p></td>
+<td><p>Extract polygonal contours from 2-d array data at given level.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.offset.html#gdstk.offset" title="gdstk.offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.offset</span></code></a>(polygons, distance[, join, ...])</p></td>
+<td><p>Dilate or erode polygons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.boolean.html#gdstk.boolean" title="gdstk.boolean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.boolean</span></code></a>(operand1, operand2, operation)</p></td>
+<td><p>Execute boolean (clipping) operations between polygons.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.slice.html#gdstk.slice" title="gdstk.slice"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.slice</span></code></a>(polygons, position, axis[, ...])</p></td>
+<td><p>Slice polygons along x and y axes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.inside.html#gdstk.inside" title="gdstk.inside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.inside</span></code></a>(points, polygons)</p></td>
+<td><p>Check whether each point is inside the set of polygons.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="geometry/gdstk.all_inside.html#gdstk.all_inside" title="gdstk.all_inside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.all_inside</span></code></a>(points, polygons)</p></td>
+<td><p>Check whether all points are inside the set of polygons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="geometry/gdstk.any_inside.html#gdstk.any_inside" title="gdstk.any_inside"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.any_inside</span></code></a>(points, polygons)</p></td>
+<td><p>Check whether any of the points are inside the set of polygons.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="library-organization">
+<h2>Library Organization<a class="headerlink" href="#library-organization" title="Link to this heading"></a></h2>
+<p>Classes and functions used to create and organize the library in a GDSII/OASIS
+file.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.Label.html#gdstk.Label" title="gdstk.Label"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Label</span></code></a>(text, origin[, anchor, ...])</p></td>
+<td><p>Text objects with out geometrical information.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.Reference.html#gdstk.Reference" title="gdstk.Reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Reference</span></code></a>(cell[, origin, rotation, ...])</p></td>
+<td><p>Reference to another cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.Cell.html#gdstk.Cell" title="gdstk.Cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Cell</span></code></a>(name)</p></td>
+<td><p>Cell structure.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.RawCell.html#gdstk.RawCell" title="gdstk.RawCell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.RawCell</span></code></a>(name)</p></td>
+<td><p>A Cell structure that is stored in binary GDSII format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.Library.html#gdstk.Library" title="gdstk.Library"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.Library</span></code></a>([name, unit, precision])</p></td>
+<td><p>GDSII/OASIS library.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.GdsWriter.html#gdstk.GdsWriter" title="gdstk.GdsWriter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.GdsWriter</span></code></a>(outfile[, name, unit, ...])</p></td>
+<td><p>Multi-step GDSII stream file writer.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.read_gds.html#gdstk.read_gds" title="gdstk.read_gds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.read_gds</span></code></a>(infile[, unit, tolerance, filter])</p></td>
+<td><p>Import a library from a GDSII stream file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.read_oas.html#gdstk.read_oas" title="gdstk.read_oas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.read_oas</span></code></a>(infile[, unit, tolerance])</p></td>
+<td><p>Import a library from an OASIS stream file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.read_rawcells.html#gdstk.read_rawcells" title="gdstk.read_rawcells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.read_rawcells</span></code></a>(infile)</p></td>
+<td><p>Load cells form a GDSII file without decoding them.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.gds_units.html#gdstk.gds_units" title="gdstk.gds_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.gds_units</span></code></a>(infile)</p></td>
+<td><p>Read the unit and precision of a GDSII file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.gds_info.html#gdstk.gds_info" title="gdstk.gds_info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.gds_info</span></code></a>(infile)</p></td>
+<td><p>Gather information from a GDSII file without loading the geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.gds_timestamp.html#gdstk.gds_timestamp" title="gdstk.gds_timestamp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.gds_timestamp</span></code></a>(filename[, timestamp])</p></td>
+<td><p>Get and set the timestamp of a GDSII file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="library/gdstk.oas_precision.html#gdstk.oas_precision" title="gdstk.oas_precision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.oas_precision</span></code></a>(infile)</p></td>
+<td><p>Read the precision of an OASIS file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="library/gdstk.oas_validate.html#gdstk.oas_validate" title="gdstk.oas_validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gdstk.oas_validate</span></code></a>(infile)</p></td>
+<td><p>Check the validation signature of an OASIS file, if any.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="how-tos.html" class="btn btn-neutral float-left" title="How-Tos" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="geometry/gdstk.Polygon.html" class="btn btn-neutral float-right" title="gdstk.Polygon" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>curve.h &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="flexpath.h" href="flexpath.html" />
+    <link rel="prev" title="clipper_tools.h" href="clipper_tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_cpp.html#header-files">Header files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">array.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cell.html">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="font.html">font.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdsii.html">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="oasis.html">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="repetition.html">repetition.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="robustpath.html">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="style.html">style.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_cpp.html">C++ Reference</a></li>
+      <li class="breadcrumb-item active">curve.h</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="curve-h">
+<h1>curve.h<a class="headerlink" href="#curve-h" title="Link to this heading"></a></h1>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">struct</span><span class="w"> </span><span class="nc">CurveInstruction</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="n">command</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">number</span><span class="p">;</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="c1">// Curves can used to build complex shapes by concatenating straight or curved</span>
+<span class="c1">// sections.  Once complete, their point_array can be used to create a polygon.</span>
+<span class="c1">// They are also used to build the FlexPath spine.</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">Curve</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Before appending any section to a curve, it must contain at least 1</span>
+<span class="w">    </span><span class="c1">// point in its point_array</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">point_array</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Tolerance for approximating curved sections with straight lines</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Used internally.  Keep record of the last Bézier control point, which is</span>
+<span class="w">    </span><span class="c1">// used for smooth continuations.</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="n">last_ctrl</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Used by the python interface to store the associated PyObject* (if any).</span>
+<span class="w">    </span><span class="c1">// No functions in gdstk namespace should touch this value!</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">owner</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">all</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Point array must be in a valid state before initialization</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">initial_position</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">point_array</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">initial_position</span><span class="p">);</span>
+<span class="w">        </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tolerance_</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// This curve instance must be zeroed before copy_from</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">copy_from</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Curve</span><span class="o">&amp;</span><span class="w"> </span><span class="n">curve</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">point_array</span><span class="p">.</span><span class="n">copy_from</span><span class="p">(</span><span class="n">curve</span><span class="p">.</span><span class="n">point_array</span><span class="p">);</span>
+<span class="w">        </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curve</span><span class="p">.</span><span class="n">tolerance</span><span class="p">;</span>
+<span class="w">        </span><span class="n">last_ctrl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curve</span><span class="p">.</span><span class="n">last_ctrl</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">point_array</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">append</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">point_array</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">append_unsafe</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">point_array</span><span class="p">.</span><span class="n">append_unsafe</span><span class="p">(</span><span class="n">v</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">index</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">point_array</span><span class="p">.</span><span class="n">remove</span><span class="p">(</span><span class="n">index</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">ensure_slots</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">free_slots</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">point_array</span><span class="p">.</span><span class="n">ensure_slots</span><span class="p">(</span><span class="n">free_slots</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// A curve is considered closed if the distance between the first and last</span>
+<span class="w">    </span><span class="c1">// points is less then of equal to tolerance</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="nf">closed</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">point_array</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">point_array</span><span class="p">[</span><span class="n">point_array</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">];</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">v</span><span class="p">.</span><span class="n">length_sq</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">tolerance</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tolerance</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// In the following functions, the flag relative indicates whether the</span>
+<span class="w">    </span><span class="c1">// points are given relative to the last point in the curve.  If multiple</span>
+<span class="w">    </span><span class="c1">// coordinates are used, all coordinates are relative to the same reference</span>
+<span class="w">    </span><span class="c1">// (last curve point at the time of execution)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">horizontal</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">coord_x</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">horizontal</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">coord_x</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">vertical</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">coord_y</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">vertical</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">coord_y</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">segment</span><span class="p">(</span><span class="n">Vec2</span><span class="w"> </span><span class="n">end_point</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">segment</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Every 3 points define a cubic Bézier section with 2 control points</span>
+<span class="w">    </span><span class="c1">// followed by the section end point (starting point being the current last</span>
+<span class="w">    </span><span class="c1">// point of the curve)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">cubic</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Every 2 points define a cubic Bézier section with 1 control point</span>
+<span class="w">    </span><span class="c1">// followed by the section end point (starting point being the current last</span>
+<span class="w">    </span><span class="c1">// point of the curve and the first control calculated from the previous</span>
+<span class="w">    </span><span class="c1">// curve section for continuity)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">cubic_smooth</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Every 2 points define a quadratic Bézier section with 1 control point</span>
+<span class="w">    </span><span class="c1">// followed by the section end point (starting point being the current last</span>
+<span class="w">    </span><span class="c1">// point of the curve)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">quadratic</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Quadratic Bézier section with control point calculated from the previous</span>
+<span class="w">    </span><span class="c1">// curve section for continuity</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">quadratic_smooth</span><span class="p">(</span><span class="n">Vec2</span><span class="w"> </span><span class="n">end_point</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Every point is used as the end point of a quadratic Bézier section (the</span>
+<span class="w">    </span><span class="c1">// control point is calculated from the previous curve section for</span>
+<span class="w">    </span><span class="c1">// continuity)</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">quadratic_smooth</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Single Bézier section defined by any number of control points</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">bezier</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Create a smooth interpolation curve through points using cubic Bézier</span>
+<span class="w">    </span><span class="c1">// sections.  The angle at any point i can be constrained to the value</span>
+<span class="w">    </span><span class="c1">// angles[i] if angle_constraints[i] is true.  The tension array controls</span>
+<span class="w">    </span><span class="c1">// the input and output tensions of the curve at each point (the input at</span>
+<span class="w">    </span><span class="c1">// the first point and output at the last point are only meaningful for</span>
+<span class="w">    </span><span class="c1">// closed curves).  Because the first point of the interpolation is the</span>
+<span class="w">    </span><span class="c1">// last point in the curve, the lengths of the arrays angles,</span>
+<span class="w">    </span><span class="c1">// angle_constraints, and tension must be points.count + 1.  No argument</span>
+<span class="w">    </span><span class="c1">// can be NULL.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">interpolation</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">angles</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">*</span><span class="w"> </span><span class="n">angle_constraints</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">Vec2</span><span class="o">*</span><span class="w"> </span><span class="n">tension</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_curl</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">final_curl</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">cycle</span><span class="p">,</span>
+<span class="w">                       </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Add an elliptical arc to the curve. Argument rotation is used to rotate</span>
+<span class="w">    </span><span class="c1">// the axes of the ellipse.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">arc</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radius_x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">radius_y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_angle</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">final_angle</span><span class="p">,</span>
+<span class="w">             </span><span class="kt">double</span><span class="w"> </span><span class="n">rotation</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Add a parametric curve section to the curve.  If relative is true,</span>
+<span class="w">    </span><span class="c1">// curve_function(0, data) should be (0, 0) for the curve to be continuous.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">parametric</span><span class="p">(</span><span class="n">ParametricVec2</span><span class="w"> </span><span class="n">curve_function</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Short-hand function for appending several sections at once.  Array items</span>
+<span class="w">    </span><span class="c1">// must be formed by a series of instruction characters followed by the</span>
+<span class="w">    </span><span class="c1">// correct number of arguments for that instruction.  Instruction</span>
+<span class="w">    </span><span class="c1">// characters and arguments are:</span>
+<span class="w">    </span><span class="c1">// - Line segment:            &#39;L&#39;, x, y</span>
+<span class="w">    </span><span class="c1">// - Horizontal segment:      &#39;H&#39;, x</span>
+<span class="w">    </span><span class="c1">// - Vertical segment:        &#39;V&#39;, y</span>
+<span class="w">    </span><span class="c1">// - Cubic Bézier:            &#39;C&#39;, x0, y0, x1, y1, x2, y2</span>
+<span class="w">    </span><span class="c1">// - Smooth cubic Bézier:     &#39;S&#39;, x0, y0, x1, y1</span>
+<span class="w">    </span><span class="c1">// - Quadratic Bézier:        &#39;Q&#39;, x0, y0, x1, y1</span>
+<span class="w">    </span><span class="c1">// - Smooth quadratic Bézier: &#39;T&#39;, x, y</span>
+<span class="w">    </span><span class="c1">// - Elliptical arc:          &#39;E&#39;, rad0, rad1, angle0, angle1, rotation</span>
+<span class="w">    </span><span class="c1">// - Circular arc:            &#39;A&#39;, radius, angle0, angle1</span>
+<span class="w">    </span><span class="c1">// - Circular turn:           &#39;a&#39;, radius, angle</span>
+<span class="w">    </span><span class="c1">// Coordinates in instructions L, H, V, C, S, Q and T are absolute.  Lower</span>
+<span class="w">    </span><span class="c1">// case versions of those instructions can be used for relative coordinates</span>
+<span class="w">    </span><span class="c1">// (in this case, each section will be relative to the previous).  Return</span>
+<span class="w">    </span><span class="c1">// the number of items processed.  If n &lt; count, item n could not be</span>
+<span class="w">    </span><span class="c1">// parsed.</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="nf">commands</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">CurveInstruction</span><span class="o">*</span><span class="w"> </span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Add a circular arc to the curve ensuring continuity.  Positive</span>
+<span class="w">    </span><span class="c1">// (negative) angles create counter-clockwise (clockwise) turns.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">turn</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radius</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">direction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">point_array</span><span class="p">[</span><span class="n">point_array</span><span class="p">.</span><span class="n">count</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">last_ctrl</span><span class="p">;</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_angle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">direction</span><span class="p">.</span><span class="n">angle</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">angle</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mf">-0.5</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">M_PI</span><span class="p">);</span>
+<span class="w">        </span><span class="n">arc</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span><span class="w"> </span><span class="n">radius</span><span class="p">,</span><span class="w"> </span><span class="n">initial_angle</span><span class="p">,</span><span class="w"> </span><span class="n">initial_angle</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">   </span><span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">append_cubic</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p3</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">append_quad</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">append_bezier</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ctrl</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="clipper_tools.html" class="btn btn-neutral float-left" title="clipper_tools.h" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="flexpath.html" class="btn btn-neutral float-right" title="flexpath.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

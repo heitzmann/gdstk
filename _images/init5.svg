@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="196.995708" viewBox="-95.571596 -189.211861 300 196.995708">
+<defs>
+<style type="text/css">
+.l0d0 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+</style>
+<g id="F_CELL">
+<polygon id="0x559a38478b70" class="l0d0" points="17.55755,17.55755 17.55755,52.672649 35.115099,52.672649 35.115099,58.525166 17.55755,58.525166 17.55755,76.082716 40.967616,76.082716 40.967616,81.935232 5.852517,81.935232 5.852517,17.55755"/>
+</g>
+</defs>
+<rect x="-95.571596" y="-189.211861" width="300" height="196.995708" fill="none" stroke="none"/>
+<g id="init" transform="scale(1 -1)">
+<use transform="translate(0 0) rotate(90)" xlink:href="#F_CELL"/>
+<use transform="translate(0 0)" xlink:href="#F_CELL"/>
+<use transform="translate(0 93.640265)" xlink:href="#F_CELL"/>
+<use transform="translate(74.912212 0)" xlink:href="#F_CELL"/>
+<use transform="translate(74.912212 93.640265)" xlink:href="#F_CELL"/>
+<use transform="translate(149.824425 0)" xlink:href="#F_CELL"/>
+<use transform="translate(149.824425 93.640265)" xlink:href="#F_CELL"/>
+</g>
+</svg>

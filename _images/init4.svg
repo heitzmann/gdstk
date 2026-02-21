@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="163.636364" viewBox="-150 -81.818182 300 163.636364">
+<defs>
+<style type="text/css">
+.l0d1 {fill:none;stroke:black;stroke-dasharray:8,8;}
+.l0t0 {stroke: none; fill: #F38400;}
+</style>
+</defs>
+<rect x="-150" y="-81.818182" width="300" height="163.636364" fill="none" stroke="none"/>
+<g id="init" transform="scale(1 -1)">
+<polygon id="0x5586e8e029b0" class="l0d1" points="-136.363636,-68.181818 136.363636,-68.181818 136.363636,68.181818 -136.363636,68.181818"/>
+<text id="0x5586e8dcec40" class="l0t0" text-anchor="middle" dominant-baseline="central" transform="translate(0 0) rotate(30) scale(1 -1)">Center</text>
+<text id="0x5586e8dc27e0" class="l0t0" text-anchor="middle" dominant-baseline="text-before-edge" transform="translate(0 68.181818) scale(1 -1)">North</text>
+<text id="0x5586e8dbd370" class="l0t0" text-anchor="middle" dominant-baseline="text-after-edge" transform="translate(0 -68.181818) scale(1 -1)">South</text>
+<text id="0x5586e8e1fea0" class="l0t0" text-anchor="end" dominant-baseline="central" transform="translate(136.363636 0) scale(1 -1)">East</text>
+<text id="0x5586e8e32200" class="l0t0" text-anchor="start" dominant-baseline="central" transform="translate(-136.363636 0) scale(1 -1)">West</text>
+<text id="0x5586e8e55390" class="l0t0" text-anchor="end" dominant-baseline="text-before-edge" transform="translate(136.363636 68.181818) scale(1 -1)">Northeast</text>
+<text id="0x5586e8ddbfb0" class="l0t0" text-anchor="end" dominant-baseline="text-after-edge" transform="translate(136.363636 -68.181818) scale(1 -1)">Southeast</text>
+<text id="0x5586e8e31ef0" class="l0t0" text-anchor="start" dominant-baseline="text-before-edge" transform="translate(-136.363636 68.181818) scale(1 -1)">Northwest</text>
+<text id="0x5586e8e2ee50" class="l0t0" text-anchor="start" dominant-baseline="text-after-edge" transform="translate(-136.363636 -68.181818) scale(1 -1)">Southwest</text>
+</g>
+</svg>

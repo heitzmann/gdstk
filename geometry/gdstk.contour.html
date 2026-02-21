@@ -1,0 +1,176 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdstk.contour &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.offset" href="gdstk.offset.html" />
+    <link rel="prev" title="gdstk.text" href="gdstk.text.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_python.html">Python API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_python.html#geometry-construction">Geometry Construction</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Polygon.html">gdstk.Polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Curve.html">gdstk.Curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.FlexPath.html">gdstk.FlexPath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.RobustPath.html">gdstk.RobustPath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Repetition.html">gdstk.Repetition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.rectangle.html">gdstk.rectangle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.cross.html">gdstk.cross</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.regular_polygon.html">gdstk.regular_polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.ellipse.html">gdstk.ellipse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.racetrack.html">gdstk.racetrack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.text.html">gdstk.text</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdstk.contour</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gdstk.contour"><code class="docutils literal notranslate"><span class="pre">contour()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.offset.html">gdstk.offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.boolean.html">gdstk.boolean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.slice.html">gdstk.slice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.inside.html">gdstk.inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.all_inside.html">gdstk.all_inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.any_inside.html">gdstk.any_inside</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_python.html#library-organization">Library Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_python.html">Python API Reference</a></li>
+      <li class="breadcrumb-item active">gdstk.contour</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdstk-contour">
+<h1>gdstk.contour<a class="headerlink" href="#gdstk-contour" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="gdstk.contour">
+<span class="sig-prename descclassname"><span class="pre">gdstk.</span></span><span class="sig-name descname"><span class="pre">contour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.contour" title="Link to this definition"></a></dt>
+<dd><p>Extract polygonal contours from 2-d array data at given level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>array-like</em><em>[</em><em>M</em><em>]</em><em>[</em><em>N</em><em>]</em>) – 2-dimensional array with shape <cite>(M, N)</cite>.</p></li>
+<li><p><strong>level</strong> – Polygons are created representing the regions where <cite>data</cite> is
+at least <cite>level</cite>.</p></li>
+<li><p><strong>length_scale</strong> – Distance between neighboring elements in <cite>data</cite>.</p></li>
+<li><p><strong>precision</strong> – Desired precision for rounding vertex coordinates.</p></li>
+<li><p><strong>layer</strong> – layer number assigned to the resulting polygons.</p></li>
+<li><p><strong>datatype</strong> – data type number assigned to the resulting polygons.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of <a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon" title="gdstk.Polygon"><code class="xref py py-class docutils literal notranslate"><span class="pre">gdstk.Polygon</span></code></a>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mf">0.5</span><span class="p">:</span><span class="mf">1.5</span><span class="p">:</span><span class="mi">128</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">255</span><span class="n">j</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="o">-</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">y</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">contours</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">127</span><span class="p">,</span> <span class="mf">0.01</span> <span class="o">/</span> <span class="mi">127</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rect</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/contour.svg" class="align-center" src="../_images/contour.svg" />
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The length scale for the polygons is one element of <cite>data</cite>, i.e.,
+the full region represented by <cite>data</cite> represents a rectangular area
+of <cite>lenght_scale * (N - 1)</cite> × <cite>length_scale * (M - 1)</cite>.  Argument
+<cite>precision</cite> is understood in this length scale.</p>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gdstk.text.html" class="btn btn-neutral float-left" title="gdstk.text" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.offset.html" class="btn btn-neutral float-right" title="gdstk.offset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

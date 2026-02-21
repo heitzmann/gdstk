@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="190.909091" viewBox="-150 -95.454545 300 190.909091">
+<defs>
+<style type="text/css">
+.l0d7 {stroke: #B3446C; fill: #B3446C; fill-opacity: 0.5;}
+.l2d3 {stroke: #A1CAF1; fill: #A1CAF1; fill-opacity: 0.5;}
+.l1d3 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+</style>
+</defs>
+<rect x="-150" y="-95.454545" width="300" height="190.909091" fill="none" stroke="none"/>
+<g id="layer_and_datatype" transform="scale(1 -1)">
+<polygon id="0x55f11bd71d60" class="l1d3" points="-81.818182,-81.818182 81.818182,-81.818182 81.818182,81.818182 -81.818182,81.818182"/>
+<polygon id="0x55f11bc10680" class="l2d3" points="-136.363636,-81.818182 -81.818182,-81.818182 -81.818182,81.818182 -136.363636,81.818182"/>
+<polygon id="0x55f11bf6b4d0" class="l2d3" points="136.363636,-81.818182 81.818182,-81.818182 81.818182,81.818182 136.363636,81.818182"/>
+<polygon id="0x55f11bffd380" class="l0d7" points="27.272727,-47.237749 54.545455,-0 27.272727,47.237749 -27.272727,47.237749 -54.545455,0 -27.272727,-47.237749"/>
+</g>
+</svg>

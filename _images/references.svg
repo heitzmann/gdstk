@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="219.786096" viewBox="-13.636364 -206.149733 300 219.786096">
+<defs>
+<style type="text/css">
+.l0d7 {stroke: #B3446C; fill: #B3446C; fill-opacity: 0.5;}
+.l2d3 {stroke: #A1CAF1; fill: #A1CAF1; fill-opacity: 0.5;}
+.l0d0 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+.l1d3 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+</style>
+<g id="CONTACT">
+<polygon id="0x55f11bd71d60" class="l1d3" points="-48.128342,-48.128342 48.128342,-48.128342 48.128342,48.128342 -48.128342,48.128342"/>
+<polygon id="0x55f11bc10680" class="l2d3" points="-80.213904,-48.128342 -48.128342,-48.128342 -48.128342,48.128342 -80.213904,48.128342"/>
+<polygon id="0x55f11bf6b4d0" class="l2d3" points="80.213904,-48.128342 48.128342,-48.128342 48.128342,48.128342 80.213904,48.128342"/>
+<polygon id="0x55f11bffd380" class="l0d7" points="16.042781,-27.786911 32.085561,-0 16.042781,27.786911 -16.042781,27.786911 -32.085561,0 -16.042781,-27.786911"/>
+</g>
+<g id="DEVICE">
+<polygon id="0x55f11be23020" class="l0d0" points="0,0 80.213904,0 80.213904,80.213904 0,80.213904 0,0 32.085561,32.085561 32.085561,48.128342 48.128342,48.128342 48.128342,32.085561 32.085561,32.085561"/>
+<use transform="translate(56.149733 16.042781) scale(0.25)" xlink:href="#CONTACT"/>
+<use transform="translate(16.042781 56.149733) rotate(90) scale(0.25)" xlink:href="#CONTACT"/>
+</g>
+</defs>
+<rect x="-13.636364" y="-206.149733" width="300" height="219.786096" fill="none" stroke="none"/>
+<g id="references" transform="scale(1 -1)">
+<use transform="translate(0 0)" xlink:href="#DEVICE"/>
+<use transform="translate(0 112.299465)" xlink:href="#DEVICE"/>
+<use transform="translate(96.256684 0)" xlink:href="#DEVICE"/>
+<use transform="translate(96.256684 112.299465)" xlink:href="#DEVICE"/>
+<use transform="translate(192.513369 0)" xlink:href="#DEVICE"/>
+<use transform="translate(192.513369 112.299465)" xlink:href="#DEVICE"/>
+</g>
+</svg>

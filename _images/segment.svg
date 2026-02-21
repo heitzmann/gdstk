@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="300" viewBox="-150 -150 300 300">
+<defs>
+<style type="text/css">
+.l0d0 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+</style>
+</defs>
+<rect x="-150" y="-150" width="300" height="300" fill="none" stroke="none"/>
+<g id="segment" transform="scale(1 -1)">
+<polygon id="0x56358e283610" class="l0d0" points="136.363636,0 0,136.363636 0,0 -136.363636,0 -136.363636,-136.363636 136.363636,-136.363636"/>
+</g>
+</svg>

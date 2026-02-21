@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>robustpath.h &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="style.h" href="style.html" />
+    <link rel="prev" title="repetition.h" href="repetition.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_cpp.html#header-files">Header files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">array.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cell.html">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="curve.html">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="font.html">font.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdsii.html">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="oasis.html">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="repetition.html">repetition.h</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="style.html">style.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_cpp.html">C++ Reference</a></li>
+      <li class="breadcrumb-item active">robustpath.h</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="robustpath-h">
+<h1>robustpath.h<a class="headerlink" href="#robustpath-h" title="Link to this heading"></a></h1>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Robustpaths are similar to flexpaths in that they only hold a spine, that</span>
+<span class="c1">// represents the main shape of the desired path, plus any number of elements</span>
+<span class="c1">// that add widths and offsets on top of that spine to build the actual paths.</span>
+<span class="c1">// The main difference from flexpaths is that, unlike those, the spine for</span>
+<span class="c1">// robustpaths is represented by an array of parametric curves (subpaths),</span>
+<span class="c1">// instead of an open polygonal curve.  Similarly, width and offset changes</span>
+<span class="c1">// along the path are represented parametrically by interpolation functions.</span>
+<span class="c1">// These properties make the process of finding the polygonal representation of</span>
+<span class="c1">// robustpaths more numerically robust, but also more computationally</span>
+<span class="c1">// intensive.</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">InterpolationType</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Constant</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">  </span><span class="c1">// Step-change in join region</span>
+<span class="w">    </span><span class="n">Linear</span><span class="p">,</span><span class="w">        </span><span class="c1">// LERP from past value to new</span>
+<span class="w">    </span><span class="n">Smooth</span><span class="p">,</span><span class="w">        </span><span class="c1">// SERP from past value to new</span>
+<span class="w">    </span><span class="n">Parametric</span><span class="w">     </span><span class="c1">// Uses function(…)</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Interpolation</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">InterpolationType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">;</span><span class="w">  </span><span class="c1">// Constant</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w">       </span><span class="c1">// Linear or smooth interpolation</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_value</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">final_value</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">ParametricDouble</span><span class="w"> </span><span class="n">function</span><span class="p">;</span><span class="w">  </span><span class="c1">// Parametric</span>
+<span class="w">            </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w">                 </span><span class="c1">// User data</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">SubPathType</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Segment</span><span class="p">,</span><span class="w">    </span><span class="c1">// straight line segment</span>
+<span class="w">    </span><span class="n">Arc</span><span class="p">,</span><span class="w">        </span><span class="c1">// elliptical arc</span>
+<span class="w">    </span><span class="n">Bezier</span><span class="p">,</span><span class="w">     </span><span class="c1">// general Bézier</span>
+<span class="w">    </span><span class="n">Bezier2</span><span class="p">,</span><span class="w">    </span><span class="c1">// quadratic Bézier</span>
+<span class="w">    </span><span class="n">Bezier3</span><span class="p">,</span><span class="w">    </span><span class="c1">// cubic Bézier</span>
+<span class="w">    </span><span class="n">Parametric</span><span class="w">  </span><span class="c1">// general parametric function</span>
+<span class="p">};</span>
+
+<span class="c1">// Subpaths are not supposed to be created directly by the user, but through</span>
+<span class="c1">// the construction functions of the RobustPath class instead.</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">SubPath</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">SubPathType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// Segment</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">begin</span><span class="p">;</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">end</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// Arc</span>
+<span class="w">            </span><span class="c1">// x = path.radius_x * cos(path.angle_i);</span>
+<span class="w">            </span><span class="c1">// y = path.radius_y * sin(path.angle_i);</span>
+<span class="w">            </span><span class="c1">// center = arc_start - Vec2{x * cos_rot - y * sin_rot, x * sin_rot + y * cos_rot};</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">center</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">radius_x</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">radius_y</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">angle_i</span><span class="p">;</span><span class="w">  </span><span class="c1">// initial_angle - rotation;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">angle_f</span><span class="p">;</span><span class="w">  </span><span class="c1">// final_angle - rotation;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">cos_rot</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">double</span><span class="w"> </span><span class="n">sin_rot</span><span class="p">;</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="c1">// Bezier2, Bezier3</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">;</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">;</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">;</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p3</span><span class="p">;</span><span class="w">  </span><span class="c1">// Not used for Bezier2</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">        </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ctrl</span><span class="p">;</span><span class="w">  </span><span class="c1">// Bezier</span>
+<span class="w">        </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span><span class="w">           </span><span class="c1">// Parametric</span>
+<span class="w">            </span><span class="n">ParametricVec2</span><span class="w"> </span><span class="n">path_function</span><span class="p">;</span>
+<span class="w">            </span><span class="n">ParametricVec2</span><span class="w"> </span><span class="n">path_gradient</span><span class="p">;</span>
+<span class="w">            </span><span class="n">Vec2</span><span class="w"> </span><span class="n">reference</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">func_data</span><span class="p">;</span>
+<span class="w">            </span><span class="k">union</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">grad_data</span><span class="p">;</span>
+<span class="w">                </span><span class="kt">double</span><span class="w"> </span><span class="n">step</span><span class="p">;</span>
+<span class="w">            </span><span class="p">};</span>
+<span class="w">        </span><span class="p">};</span>
+<span class="w">    </span><span class="p">};</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">print</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">gradient</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">trafo</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">trafo</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">RobustPathElement</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// These arrays should have the same count as subpath_array</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Interpolation</span><span class="o">&gt;</span><span class="w"> </span><span class="n">width_array</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Interpolation</span><span class="o">&gt;</span><span class="w"> </span><span class="n">offset_array</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Both end_width and end_offset should be initialized to the initial path</span>
+<span class="w">    </span><span class="c1">// width and offset.  After that they will hold the last values used in the</span>
+<span class="w">    </span><span class="c1">// construction functions.</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">end_width</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">end_offset</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">EndType</span><span class="w"> </span><span class="n">end_type</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="n">end_extensions</span><span class="p">;</span>
+<span class="w">    </span><span class="n">EndFunction</span><span class="w"> </span><span class="n">end_function</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">end_function_data</span><span class="p">;</span><span class="w">  </span><span class="c1">// User data for end_function</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">RobustPath</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Last point on the path.  It should be initialized to the path origin on</span>
+<span class="w">    </span><span class="c1">// the creation of a new path.</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="n">end_point</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">SubPath</span><span class="o">&gt;</span><span class="w"> </span><span class="n">subpath_array</span><span class="p">;</span><span class="w">  </span><span class="c1">// Path spine</span>
+
+<span class="w">    </span><span class="n">RobustPathElement</span><span class="o">*</span><span class="w"> </span><span class="n">elements</span><span class="p">;</span><span class="w">  </span><span class="c1">// Array with count num_elements</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">num_elements</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Numeric tolerance for intersection finding and curve approximation</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">max_evals</span><span class="p">;</span><span class="w">   </span><span class="c1">// Maximal number of evaluations per function</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">width_scale</span><span class="p">;</span><span class="w">   </span><span class="c1">// Width scale accumulated from path transforms</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">offset_scale</span><span class="p">;</span><span class="w">  </span><span class="c1">// Offset scale accumulated from path transforms</span>
+
+<span class="w">    </span><span class="c1">// Transformation matrix for this path.  It should be initialized to the</span>
+<span class="w">    </span><span class="c1">// identity {1, 0, 0, 0, 1, 0}, unless you have a reason not to.  It</span>
+<span class="w">    </span><span class="c1">// transforms a point (x, y) to (xt, yt) with:</span>
+<span class="w">    </span><span class="c1">//   xt = x * trafo[0] + y * trafo[1] + trafo[2]</span>
+<span class="w">    </span><span class="c1">//   yt = x * trafo[3] + y * trafo[4] + trafo[5]</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">trafo</span><span class="p">[</span><span class="mi">6</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// If simple_path is true, all elements will be treated as if they have</span>
+<span class="w">    </span><span class="c1">// constant widths (using the first elements in their respective</span>
+<span class="w">    </span><span class="c1">// half_width_and_offset arrays) and saved as paths, not polygonal</span>
+<span class="w">    </span><span class="c1">// boundaries.</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">simple_path</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Flag indicating whether the width of the path elements should be scaled</span>
+<span class="w">    </span><span class="c1">// when scaling the path (manually or through references).</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">scale_width</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">Repetition</span><span class="w"> </span><span class="n">repetition</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Property</span><span class="o">*</span><span class="w"> </span><span class="n">properties</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Used by the python interface to store the associated PyObject* (if any).</span>
+<span class="w">    </span><span class="c1">// No functions in gdstk namespace should touch this value!</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">owner</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// These are initialization routines to facilitate the creation of new</span>
+<span class="w">    </span><span class="c1">// robustpaths.  In versions with argument num_elements_, the elements</span>
+<span class="w">    </span><span class="c1">// array will be dynamically allocated (and num_elements properly set).</span>
+<span class="w">    </span><span class="c1">// Otherwise, num_elements and elements are expected to be already</span>
+<span class="w">    </span><span class="c1">// allocated and set.  Arguments width, offset and tag can be single values</span>
+<span class="w">    </span><span class="c1">// (which are applied to all elements) or arrays with count num_elements,</span>
+<span class="w">    </span><span class="c1">// one value for each path element.  Argument separation is the desired</span>
+<span class="w">    </span><span class="c1">// distance between adjacent elements.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">initial_position</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance_</span><span class="p">,</span>
+<span class="w">              </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">max_evals_</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">initial_position</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">              </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance_</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">max_evals_</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Tag</span><span class="o">*</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">initial_position</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">num_elements_</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">separation</span><span class="p">,</span>
+<span class="w">              </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance_</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">max_evals_</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">initial_position</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">num_elements_</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span>
+<span class="w">              </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance_</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">max_evals_</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Tag</span><span class="o">*</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">all</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// This path instance must be zeroed before copy_from</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">copy_from</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">RobustPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">path</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">translate</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">v</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">scale</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">scale</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">center</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">mirror</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">center</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Transformations are applied in the order of arguments, starting with</span>
+<span class="w">    </span><span class="c1">// magnification and translating by origin at the end.  This is equivalent</span>
+<span class="w">    </span><span class="c1">// to the transformation defined by a Reference with the same arguments.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">magnification</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">x_reflection</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">rotation</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">origin</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Append the copies of this path defined by its repetition to result.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">apply_repetition</span><span class="p">(</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">RobustPath</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// These functions are equivalent to those for curves (curve.h), with the</span>
+<span class="w">    </span><span class="c1">// addition of width and offset, which can be NULL (no width or offset</span>
+<span class="w">    </span><span class="c1">// changes) or arrays with count num_elements.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">horizontal</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">coord_x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                    </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">vertical</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">coord_y</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                  </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">segment</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">end_point</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                 </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">cubic</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point3</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span>
+<span class="w">               </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">cubic_smooth</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point3</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span>
+<span class="w">                      </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">quadratic</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span>
+<span class="w">                   </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">quadratic_smooth</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">point2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span>
+<span class="w">                          </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">bezier</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">point_array</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span>
+<span class="w">                </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">interpolation</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">point_array</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">angles</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">*</span><span class="w"> </span><span class="n">angle_constraints</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">Vec2</span><span class="o">*</span><span class="w"> </span><span class="n">tension</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_curl</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">final_curl</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">cycle</span><span class="p">,</span>
+<span class="w">                       </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">arc</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radius_x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">radius_y</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_angle</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">final_angle</span><span class="p">,</span>
+<span class="w">             </span><span class="kt">double</span><span class="w"> </span><span class="n">rotation</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">turn</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radius</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">parametric</span><span class="p">(</span><span class="n">ParametricVec2</span><span class="w"> </span><span class="n">curve_function</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">func_data</span><span class="p">,</span><span class="w"> </span><span class="n">ParametricVec2</span><span class="w"> </span><span class="n">curve_gradient</span><span class="p">,</span>
+<span class="w">                    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">grad_data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                    </span><span class="kt">bool</span><span class="w"> </span><span class="n">relative</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="nf">commands</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">CurveInstruction</span><span class="o">*</span><span class="w"> </span><span class="n">items</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// These functions retrieve the position and gradient of the path spine at</span>
+<span class="w">    </span><span class="c1">// parametric value u, in which 0 &lt;= u &lt;= path.subpath_array.count.  For</span>
+<span class="w">    </span><span class="c1">// integer values of u, uses the end position of the previous subpath or</span>
+<span class="w">    </span><span class="c1">// the initial position of the next depending on whether from_below is true</span>
+<span class="w">    </span><span class="c1">// or false, respectively.  Note that this functions does not calculate</span>
+<span class="w">    </span><span class="c1">// intersections, it evaluates a single subpath.</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">position</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">from_below</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">gradient</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">from_below</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// These functions are similar to the ones above, except they retrieve the</span>
+<span class="w">    </span><span class="c1">// width and offset of all path elements at the desired parametric value.</span>
+<span class="w">    </span><span class="c1">// The results are written to the result array, which must have count at</span>
+<span class="w">    </span><span class="c1">// least path.num_elements.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">width</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">from_below</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">offset</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">from_below</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Calculate the polygonal spine of this path and append the resulting</span>
+<span class="w">    </span><span class="c1">// curve to result.</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">spine</span><span class="p">(</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Calculate the center of an element of this path and append the resulting</span>
+<span class="w">    </span><span class="c1">// curve to result.</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">element_center</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">RobustPathElement</span><span class="o">*</span><span class="w"> </span><span class="n">el</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Append the polygonal representation of this path to result.  If filter</span>
+<span class="w">    </span><span class="c1">// is true, only elements with the indicated tag are processed.</span>
+<span class="w">    </span><span class="c1">// Overlapping points are removed from the path before any processing is</span>
+<span class="w">    </span><span class="c1">// executed.</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">to_polygons</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Polygon</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// These functions output the polygon in the GDSII, OASIS and SVG formats.</span>
+<span class="w">    </span><span class="c1">// They are not supposed to be called by the user.  Because fracturing</span>
+<span class="w">    </span><span class="c1">// occurs at cell_to_gds, the polygons must be checked there and, if</span>
+<span class="w">    </span><span class="c1">// needed, fractured.  Therefore, to_gds should be used only when</span>
+<span class="w">    </span><span class="c1">// simple_path == true to produce true GDSII path elements.  The same is</span>
+<span class="w">    </span><span class="c1">// valid for to_oas, even though no fracturing ever occurs for OASIS files.</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">to_gds</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">to_oas</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">OasisState</span><span class="o">&amp;</span><span class="w"> </span><span class="n">state</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">to_svg</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">precision</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">   </span><span class="k">private</span><span class="o">:</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">simple_scale</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">scale</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">simple_rotate</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">x_reflection</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">fill_widths_and_offsets</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">*</span><span class="w"> </span><span class="n">offset</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">spine_intersection</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub1</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span>
+<span class="w">                                 </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u1</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">center_intersection</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset0</span><span class="p">,</span>
+<span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset1</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span>
+<span class="w">                                  </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u1</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">left_intersection</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset0</span><span class="p">,</span>
+<span class="w">                                </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub1</span><span class="p">,</span>
+<span class="w">                                </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width1</span><span class="p">,</span>
+<span class="w">                                </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u1</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">right_intersection</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset0</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">sub1</span><span class="p">,</span>
+<span class="w">                                 </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width1</span><span class="p">,</span>
+<span class="w">                                 </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u1</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">spine_position</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">spine_gradient</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">center_position</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">center_gradient</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">left_position</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                       </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">left_gradient</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                       </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">right_position</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                        </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="nf">right_gradient</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                        </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">spine_points</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u1</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">center_points</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u1</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">left_points</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u1</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">right_points</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SubPath</span><span class="o">&amp;</span><span class="w"> </span><span class="n">subpath</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">offset</span><span class="p">,</span>
+<span class="w">                      </span><span class="k">const</span><span class="w"> </span><span class="n">Interpolation</span><span class="o">&amp;</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">u1</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="repetition.html" class="btn btn-neutral float-left" title="repetition.h" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="style.html" class="btn btn-neutral float-right" title="style.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

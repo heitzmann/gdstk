@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="72.727273" viewBox="-13.636364 -36.363636 300 72.727273">
+<defs>
+<style type="text/css">
+.l1d0 {stroke: #A1CAF1; fill: #A1CAF1; fill-opacity: 0.5;}
+.l0d0 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+</style>
+<g id="Grating 1">
+<polygon id="0x5581e2717550" class="l1d0" points="-22.727273,0 22.727273,0 22.727273,3.181818 -22.727273,3.181818"/>
+<polygon id="0x5581e271bae0" class="l1d0" points="-22.727273,6.363636 22.727273,6.363636 22.727273,9.545455 -22.727273,9.545455"/>
+<polygon id="0x5581e27287e0" class="l1d0" points="-22.727273,12.727273 22.727273,12.727273 22.727273,15.909091 -22.727273,15.909091"/>
+<polygon id="0x5581e273aed0" class="l1d0" points="-22.727273,19.090909 22.727273,19.090909 22.727273,22.272727 -22.727273,22.272727"/>
+<polygon id="0x5581e2747170" class="l1d0" points="-22.727273,25.454545 22.727273,25.454545 22.727273,28.636364 -22.727273,28.636364"/>
+</g>
+<g id="Grating 2">
+<polygon id="0x5581e2798d00" class="l1d0" points="-22.727273,0 22.727273,0 22.727273,2.727273 -22.727273,2.727273"/>
+<polygon id="0x5581e27c9b00" class="l1d0" points="-22.727273,5.454545 22.727273,5.454545 22.727273,8.181818 -22.727273,8.181818"/>
+<polygon id="0x5581e272dbd0" class="l1d0" points="-22.727273,10.909091 22.727273,10.909091 22.727273,13.636364 -22.727273,13.636364"/>
+<polygon id="0x5581e278c1c0" class="l1d0" points="-22.727273,16.363636 22.727273,16.363636 22.727273,19.090909 -22.727273,19.090909"/>
+<polygon id="0x5581e24a8fc0" class="l1d0" points="-22.727273,21.818182 22.727273,21.818182 22.727273,24.545455 -22.727273,24.545455"/>
+<polygon id="0x5581e2759820" class="l1d0" points="-22.727273,27.272727 22.727273,27.272727 22.727273,30 -22.727273,30"/>
+</g>
+</defs>
+<rect x="-13.636364" y="-36.363636" width="300" height="72.727273" fill="none" stroke="none"/>
+<g id="parametric_cell" transform="scale(1 -1)">
+<polygon id="0x5581e2490c00" class="l0d0" points="0,-18.181818 272.727273,-18.181818 272.727273,18.181818 0,18.181818"/>
+<use transform="translate(36.363636 0) rotate(90)" xlink:href="#Grating 1"/>
+<use transform="translate(236.363636 0) rotate(-90)" xlink:href="#Grating 2"/>
+</g>
+</svg>

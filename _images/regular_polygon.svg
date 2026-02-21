@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="300" height="288.99146" viewBox="-79.97543 -223.758045 300 288.99146">
+<defs>
+<style type="text/css">
+.l1d0 {stroke: #A1CAF1; fill: #A1CAF1; fill-opacity: 0.5;}
+.l0d0 {stroke: #F38400; fill: #F38400; fill-opacity: 0.5;}
+.l3d0 {stroke: #C2B280; fill: #C2B280; fill-opacity: 0.5;}
+.l2d0 {stroke: #BE0032; fill: #BE0032; fill-opacity: 0.5;}
+</style>
+</defs>
+<rect x="-79.97543" y="-223.758045" width="300" height="288.99146" fill="none" stroke="none"/>
+<g id="regular_polygon" transform="scale(1 -1)">
+<polygon id="0x5573106915f0" class="l0d0" points="66.339066,-38.300878 0,76.601756 -66.339066,-38.300878"/>
+<polygon id="0x55731068f2d0" class="l1d0" points="199.017199,-51.597052 199.017199,51.597052 95.823096,51.597052 95.823096,-51.597052"/>
+<polygon id="0x5573106deb30" class="l2d0" points="36.855037,96.693541 59.632702,166.795987 0,210.121681 -59.632702,166.795987 -36.855037,96.693541"/>
+<polygon id="0x5573106de0d0" class="l3d0" points="176.904177,96.35231 206.388206,147.420147 176.904177,198.487984 117.936118,198.487984 88.452088,147.420147 117.936118,96.35231"/>
+</g>
+</svg>

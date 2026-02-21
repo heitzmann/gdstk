@@ -1,0 +1,732 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdstk.Cell &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.RawCell" href="gdstk.RawCell.html" />
+    <link rel="prev" title="gdstk.Reference" href="gdstk.Reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_python.html">Python API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_python.html#geometry-construction">Geometry Construction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_python.html#library-organization">Library Organization</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Label.html">gdstk.Label</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Reference.html">gdstk.Reference</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdstk.Cell</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gdstk.Cell"><code class="docutils literal notranslate"><span class="pre">Cell</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.add"><code class="docutils literal notranslate"><span class="pre">Cell.add()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.area"><code class="docutils literal notranslate"><span class="pre">Cell.area()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.bounding_box"><code class="docutils literal notranslate"><span class="pre">Cell.bounding_box()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.convex_hull"><code class="docutils literal notranslate"><span class="pre">Cell.convex_hull()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.copy"><code class="docutils literal notranslate"><span class="pre">Cell.copy()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.delete_property"><code class="docutils literal notranslate"><span class="pre">Cell.delete_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.dependencies"><code class="docutils literal notranslate"><span class="pre">Cell.dependencies()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.filter"><code class="docutils literal notranslate"><span class="pre">Cell.filter()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.flatten"><code class="docutils literal notranslate"><span class="pre">Cell.flatten()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.get_labels"><code class="docutils literal notranslate"><span class="pre">Cell.get_labels()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.get_paths"><code class="docutils literal notranslate"><span class="pre">Cell.get_paths()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.get_polygons"><code class="docutils literal notranslate"><span class="pre">Cell.get_polygons()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.get_property"><code class="docutils literal notranslate"><span class="pre">Cell.get_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.labels"><code class="docutils literal notranslate"><span class="pre">Cell.labels</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.name"><code class="docutils literal notranslate"><span class="pre">Cell.name</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.paths"><code class="docutils literal notranslate"><span class="pre">Cell.paths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.polygons"><code class="docutils literal notranslate"><span class="pre">Cell.polygons</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.properties"><code class="docutils literal notranslate"><span class="pre">Cell.properties</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.references"><code class="docutils literal notranslate"><span class="pre">Cell.references</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.remap"><code class="docutils literal notranslate"><span class="pre">Cell.remap()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.remove"><code class="docutils literal notranslate"><span class="pre">Cell.remove()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.set_property"><code class="docutils literal notranslate"><span class="pre">Cell.set_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Cell.write_svg"><code class="docutils literal notranslate"><span class="pre">Cell.write_svg()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.RawCell.html">gdstk.RawCell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Library.html">gdstk.Library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.GdsWriter.html">gdstk.GdsWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_gds.html">gdstk.read_gds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_oas.html">gdstk.read_oas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_rawcells.html">gdstk.read_rawcells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_units.html">gdstk.gds_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_info.html">gdstk.gds_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_timestamp.html">gdstk.gds_timestamp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.oas_precision.html">gdstk.oas_precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.oas_validate.html">gdstk.oas_validate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_python.html">Python API Reference</a></li>
+      <li class="breadcrumb-item active">gdstk.Cell</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdstk-cell">
+<h1>gdstk.Cell<a class="headerlink" href="#gdstk-cell" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gdstk.Cell">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gdstk.</span></span><span class="sig-name descname"><span class="pre">Cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gdstk.Cell" title="Link to this definition"></a></dt>
+<dd><p>Cell structure.</p>
+<p>A cell is a fundamental structure in the layout. It stores the
+geometry, labels and references that make up the final layout. A single
+library can contain any number of independent cells, which can,
+themselves, contain references to other cells in the form of
+<a class="reference internal" href="gdstk.Reference.html#gdstk.Reference" title="gdstk.Reference"><code class="xref py py-class docutils literal notranslate"><span class="pre">gdstk.Reference</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Cell name. It must be ASCII encoded and unique within a
+library.</p>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.add" title="gdstk.Cell.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(*elements)</p></td>
+<td><p>Add polygons, paths, labels and references to this cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.area" title="gdstk.Cell.area"><code class="xref py py-obj docutils literal notranslate"><span class="pre">area</span></code></a>([by_spec])</p></td>
+<td><p>Calculate the area of this cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.bounding_box" title="gdstk.Cell.bounding_box"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bounding_box</span></code></a>()</p></td>
+<td><p>Calculate the cell bounding box.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.convex_hull" title="gdstk.Cell.convex_hull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convex_hull</span></code></a>()</p></td>
+<td><p>Calculate the convex hull of the cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.copy" title="gdstk.Cell.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>(name[, translation, rotation, ...])</p></td>
+<td><p>Create a copy of this cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.delete_property" title="gdstk.Cell.delete_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_property</span></code></a>(name)</p></td>
+<td><p>Delete the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.dependencies" title="gdstk.Cell.dependencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dependencies</span></code></a>([recursive])</p></td>
+<td><p>List of cells and raw cells that are referenced by this cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.filter" title="gdstk.Cell.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a>(spec[, remove, polygons, paths, labels])</p></td>
+<td><p>Remove elements from this cell based on their layer and data/text type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.flatten" title="gdstk.Cell.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a>([apply_repetitions])</p></td>
+<td><p>Transform all references into polygons, paths and labels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.get_labels" title="gdstk.Cell.get_labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_labels</span></code></a>([apply_repetitions, depth, ...])</p></td>
+<td><p>Return a copy of all labels in the cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.get_paths" title="gdstk.Cell.get_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_paths</span></code></a>([apply_repetitions, depth, layer, ...])</p></td>
+<td><p>Return a copy of all paths in the cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.get_polygons" title="gdstk.Cell.get_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_polygons</span></code></a>([apply_repetitions, ...])</p></td>
+<td><p>Return a copy of all polygons in the cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.get_property" title="gdstk.Cell.get_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_property</span></code></a>(name)</p></td>
+<td><p>Return the values of the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.remap" title="gdstk.Cell.remap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap</span></code></a>(layer_type_map)</p></td>
+<td><p>Remap layers and data/text types for all elements in this cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.remove" title="gdstk.Cell.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a>(*elements)</p></td>
+<td><p>Remove polygons, paths, labels and references from this cell.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.set_property" title="gdstk.Cell.set_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_property</span></code></a>(name, value)</p></td>
+<td><p>Set a property for this element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.write_svg" title="gdstk.Cell.write_svg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_svg</span></code></a>(outfile[, scaling, precision, ...])</p></td>
+<td><p>Export this cell to an SVG image file.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.labels" title="gdstk.Cell.labels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">labels</span></code></a></p></td>
+<td><p>List of cell labels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.name" title="gdstk.Cell.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
+<td><p>Cell name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.paths" title="gdstk.Cell.paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">paths</span></code></a></p></td>
+<td><p>List of cell paths.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.polygons" title="gdstk.Cell.polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">polygons</span></code></a></p></td>
+<td><p>List of cell polygons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Cell.properties" title="gdstk.Cell.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">properties</span></code></a></p></td>
+<td><p>Properties of this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Cell.references" title="gdstk.Cell.references"><code class="xref py py-obj docutils literal notranslate"><span class="pre">references</span></code></a></p></td>
+<td><p>List of cell references.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.add" title="Link to this definition"></a></dt>
+<dd><p>Add polygons, paths, labels and references to this cell.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.area">
+<span class="sig-name descname"><span class="pre">area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span> <span class="pre">or</span> <span class="pre">dictionary</span></span></span><a class="headerlink" href="#gdstk.Cell.area" title="Link to this definition"></a></dt>
+<dd><p>Calculate the area of this cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>by_spec</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return a dictionary with keys
+<code class="docutils literal notranslate"><span class="pre">(layer,</span> <span class="pre">datatype)</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Area of the geometry in this cell, optionally indexed by layer and
+data type.</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This operation can be slow because all paths and references are
+included in the computation.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.bounding_box">
+<span class="sig-name descname"><span class="pre">bounding_box</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span> <span class="pre">or</span> <span class="pre">None</span></span></span><a class="headerlink" href="#gdstk.Cell.bounding_box" title="Link to this definition"></a></dt>
+<dd><p>Calculate the cell bounding box.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The lower-left and upper-right corners of the bounding box of the
+cell: <code class="docutils literal notranslate"><span class="pre">((min_x,</span> <span class="pre">min_y),</span> <span class="pre">(max_x,</span> <span class="pre">max_y))</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">polygons</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;F_CELL&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">polygons</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ang</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array_ref</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="n">f_cell</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="n">ang</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array_ref</span><span class="o">.</span><span class="n">repetition</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Repetition</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">v1</span><span class="o">=</span><span class="mi">8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">ang</span><span class="p">),</span> <span class="n">v2</span><span class="o">=</span><span class="mi">10</span><span class="n">j</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">ang</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">FlexPath</span><span class="p">([(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>                      <span class="n">simple_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">main_cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;MAIN&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">main_cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">array_ref</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bbox</span> <span class="o">=</span> <span class="n">main_cell</span><span class="o">.</span><span class="n">bounding_box</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
+<span class="go">((-12.816310409006173, -5.707106781186548),</span>
+<span class="go"> (11.313708498984761, 27.66555281392367))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_bb</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="o">*</span><span class="n">bbox</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/bounding_box1.svg" class="align-center" src="../_images/bounding_box1.svg" />
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This operation can be slow because all paths and references are
+included in the computation.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.convex_hull">
+<span class="sig-name descname"><span class="pre">convex_hull</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.Cell.convex_hull" title="Link to this definition"></a></dt>
+<dd><p>Calculate the convex hull of the cell.</p>
+<p>The convex hull is the smallest convex polygon that contains all
+elements of the cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Vertices of the convex hull.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">polygons</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;F&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;F_CELL&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f_cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">polygons</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ang</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array_ref</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="n">f_cell</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="n">ang</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">array_ref</span><span class="o">.</span><span class="n">repetition</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Repetition</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">v1</span><span class="o">=</span><span class="mi">8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">ang</span><span class="p">),</span> <span class="n">v2</span><span class="o">=</span><span class="mi">10</span><span class="n">j</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">ang</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">FlexPath</span><span class="p">([(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>                      <span class="n">simple_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">main_cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;MAIN&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">main_cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">array_ref</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hull</span> <span class="o">=</span> <span class="n">main_cell</span><span class="o">.</span><span class="n">convex_hull</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_hull</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">hull</span><span class="p">,</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/convex_hull.svg" class="align-center" src="../_images/convex_hull.svg" />
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This operation can be slow because all paths and references are
+included in the computation.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">translation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_reflection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deep_copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#gdstk.Cell" title="gdstk.Cell"><span class="pre">gdstk.Cell</span></a></span></span><a class="headerlink" href="#gdstk.Cell.copy" title="Link to this definition"></a></dt>
+<dd><p>Create a copy of this cell.</p>
+<p>A transformation can be applied to the contents of the new cell. They
+follow the same order as reference transformations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the new cell.</p></li>
+<li><p><strong>translation</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Amount to translate the
+cell contents.</p></li>
+<li><p><strong>rotation</strong> – Rotation angle (in radians).</p></li>
+<li><p><strong>magnification</strong> – Scaling factor.</p></li>
+<li><p><strong>x_reflection</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the geometry is reflected across the
+horizontal axis before rotation.</p></li>
+<li><p><strong>deep_copy</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, new elements (polygons, paths, references,
+and labels) are also created for the copied cell. If any
+transformation is applied, this value is always <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Copy of this cell.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.delete_property">
+<span class="sig-name descname"><span class="pre">delete_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.delete_property" title="Link to this definition"></a></dt>
+<dd><p>Delete the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.dependencies">
+<span class="sig-name descname"><span class="pre">dependencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recursive</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Cell.dependencies" title="Link to this definition"></a></dt>
+<dd><p>List of cells and raw cells that are referenced by this cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>recursive</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, includes all dependencies recursively.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.filter">
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polygons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.filter" title="Link to this definition"></a></dt>
+<dd><p>Remove elements from this cell based on their layer and data/text type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>spec</strong> (<em>iterable</em><em> of </em><em>tuples</em>) – Tuples of (layer, data/text type) to
+remove or to keep in the cell.</p></li>
+<li><p><strong>remove</strong> – If <cite>True</cite>, shapes whose layer and type specification are in
+<cite>spec</cite> will be removed from the cell.  If <cite>False</cite>, only those
+shapes will be kept, while others will be removed.</p></li>
+<li><p><strong>polygons</strong> – Whether to filter the cell’s polygons.</p></li>
+<li><p><strong>paths</strong> – Whether to filter the cell’s paths.</p></li>
+<li><p><strong>labels</strong> – Whether to filter the cell’s labels.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Remove all elements in layer 3, type 10:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">filter</span><span class="p">([(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)],</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Remove all elements except for those on layer 5, type 2:</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">filter</span><span class="p">([(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.flatten">
+<span class="sig-name descname"><span class="pre">flatten</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.flatten" title="Link to this definition"></a></dt>
+<dd><p>Transform all references into polygons, paths and labels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>apply_repetitions</strong> – Define whether repetitions should be flattened
+for polygons, paths and labels (reference repetitions are always
+applied).</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">poly1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s1">&#39;CELL_1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">poly1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span> <span class="n">layer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Reference</span><span class="p">(</span><span class="n">cell1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ref</span><span class="o">.</span><span class="n">repetition</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Repetition</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>                                  <span class="n">spacing</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s1">&#39;CELL_2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell2</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">poly2</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cell2</span><span class="o">.</span><span class="n">polygons</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell2</span><span class="o">.</span><span class="n">references</span><span class="p">),</span>
+<span class="gp">... </span>      <span class="nb">len</span><span class="p">(</span><span class="n">cell2</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+<span class="go">1 1 1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell2</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cell2</span><span class="o">.</span><span class="n">polygons</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell2</span><span class="o">.</span><span class="n">references</span><span class="p">),</span>
+<span class="gp">... </span>      <span class="nb">len</span><span class="p">(</span><span class="n">cell2</span><span class="o">.</span><span class="n">dependencies</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+<span class="go">5 0 0</span>
+</pre></div>
+</div>
+<img alt="../_images/flatten.svg" class="align-center" src="../_images/flatten.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.get_labels">
+<span class="sig-name descname"><span class="pre">get_labels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texttype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Cell.get_labels" title="Link to this definition"></a></dt>
+<dd><p>Return a copy of all labels in the cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>apply_repetitions</strong> – Define whether repetitions should be applied in
+the created labels.</p></li>
+<li><p><strong>depth</strong> – If non negative, indicates the number of reference levels
+processed recursively.  A value of 0 will result in no references
+being visited.  A value of <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) or a negative
+integer will include all reference levels below the cell.</p></li>
+<li><p><strong>layer</strong> – If set, only labels in the defined layer and text type are
+returned.</p></li>
+<li><p><strong>texttype</strong> – If set, only labels in the defined layer and text type
+are returned.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">layer</span></code> and <code class="docutils literal notranslate"><span class="pre">texttype</span></code> must both be set to integers
+for the filtering to be executed.  If either one is <code class="docutils literal notranslate"><span class="pre">None</span></code> they
+are both ignored.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.get_paths">
+<span class="sig-name descname"><span class="pre">get_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Cell.get_paths" title="Link to this definition"></a></dt>
+<dd><p>Return a copy of all paths in the cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>apply_repetitions</strong> – Define whether repetitions should be applied in
+the created paths.</p></li>
+<li><p><strong>depth</strong> – If non negative, indicates the number of reference levels
+processed recursively.  A value of 0 will result in no references
+being visited.  A value of <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) or a negative
+integer will include all reference levels below the cell.</p></li>
+<li><p><strong>layer</strong> – If set, only paths in the defined layer and data type are
+returned.</p></li>
+<li><p><strong>datatype</strong> – If set, only paths in the defined layer and data type are
+returned.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">layer</span></code> and <code class="docutils literal notranslate"><span class="pre">datatype</span></code> must both be set to integers
+for the filtering to be executed.  If either one is <code class="docutils literal notranslate"><span class="pre">None</span></code> they
+are both ignored.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.get_polygons">
+<span class="sig-name descname"><span class="pre">get_polygons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">apply_repetitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Cell.get_polygons" title="Link to this definition"></a></dt>
+<dd><p>Return a copy of all polygons in the cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>apply_repetitions</strong> – Define whether repetitions should be applied in
+the created polygons.</p></li>
+<li><p><strong>include_paths</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, polygonal representation of paths are
+also included in the result.</p></li>
+<li><p><strong>depth</strong> – If non negative, indicates the number of reference levels
+processed recursively.  A value of 0 will result in no references
+being visited.  A value of <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default) or a negative
+integer will include all reference levels below the cell.</p></li>
+<li><p><strong>layer</strong> – If set, only polygons in the defined layer and data type are
+returned.</p></li>
+<li><p><strong>datatype</strong> – If set, only polygons in the defined layer and data type
+are returned.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">layer</span></code> and <code class="docutils literal notranslate"><span class="pre">datatype</span></code> must both be set to integers
+for the filtering to be executed.  If either one is <code class="docutils literal notranslate"><span class="pre">None</span></code> they
+are both ignored.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.get_property">
+<span class="sig-name descname"><span class="pre">get_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Cell.get_property" title="Link to this definition"></a></dt>
+<dd><p>Return the values of the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of property values. If no property is found,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Cell.labels">
+<span class="sig-name descname"><span class="pre">labels</span></span><a class="headerlink" href="#gdstk.Cell.labels" title="Link to this definition"></a></dt>
+<dd><p>List of cell labels.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Cell.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#gdstk.Cell.name" title="Link to this definition"></a></dt>
+<dd><p>Cell name.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Cell.paths">
+<span class="sig-name descname"><span class="pre">paths</span></span><a class="headerlink" href="#gdstk.Cell.paths" title="Link to this definition"></a></dt>
+<dd><p>List of cell paths.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Cell.polygons">
+<span class="sig-name descname"><span class="pre">polygons</span></span><a class="headerlink" href="#gdstk.Cell.polygons" title="Link to this definition"></a></dt>
+<dd><p>List of cell polygons.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Cell.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#gdstk.Cell.properties" title="Link to this definition"></a></dt>
+<dd><p>Properties of this element.</p>
+<p>Properties are represented as a list of lists, each containing the
+property name followed by its values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Cell.references">
+<span class="sig-name descname"><span class="pre">references</span></span><a class="headerlink" href="#gdstk.Cell.references" title="Link to this definition"></a></dt>
+<dd><p>List of cell references.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.remap">
+<span class="sig-name descname"><span class="pre">remap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_type_map</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.remap" title="Link to this definition"></a></dt>
+<dd><p>Remap layers and data/text types for all elements in this cell.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer_type_map</strong> – Dictionary mapping existing (layer, type) tuples to
+desired (layer, type) tuples.</p>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>References in this cell are <em>not</em> affected. To remap those, loop
+over them with <cite>get_dependencies</cite>.  To remap a whole libarry, use
+<cite>Library.remap</cite>.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.remove" title="Link to this definition"></a></dt>
+<dd><p>Remove polygons, paths, labels and references from this cell.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">polygons</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;Filter dots</span><span class="se">\n</span><span class="s2">in i and j!&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;FILTERED&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">*</span><span class="n">polygons</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dots</span> <span class="o">=</span> <span class="p">[</span><span class="n">poly</span> <span class="k">for</span> <span class="n">poly</span> <span class="ow">in</span> <span class="n">cell</span><span class="o">.</span><span class="n">polygons</span> <span class="k">if</span> <span class="n">poly</span><span class="o">.</span><span class="n">area</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="o">*</span><span class="n">dots</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/remove.svg" class="align-center" src="../_images/remove.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.set_property">
+<span class="sig-name descname"><span class="pre">set_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.set_property" title="Link to this definition"></a></dt>
+<dd><p>Set a property for this element.</p>
+<p>The property name does not have to be unique. Multiple properties can
+have the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Property name.</p></li>
+<li><p><strong>value</strong> (<em>str</em><em>, </em><em>bytes</em><em>, </em><em>number</em><em>, or </em><em>sequence</em><em> of </em><em>those</em>) – Values associated
+with the property.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>These properties can be used to associate custom metadata with an
+element, but general properties are not supported by GDSII files,
+only OASIS.  Use the specific methods to access GDSII properties.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Cell.write_svg">
+<span class="sig-name descname"><span class="pre">write_svg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_style</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#222222'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pad</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'5%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Cell.write_svg" title="Link to this definition"></a></dt>
+<dd><p>Export this cell to an SVG image file. Colors and attributes must follow
+SVG specification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outfile</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – Name of the output file.</p></li>
+<li><p><strong>scaling</strong> – Scaling factor for the whole geometry.</p></li>
+<li><p><strong>precision</strong> (<em>positive integer</em>) – Maximum number of digits for
+coordinates after scaling.</p></li>
+<li><p><strong>shape_style</strong> (<em>dict</em>) – SVG attributes for each layer and data type.</p></li>
+<li><p><strong>label_style</strong> (<em>dict</em>) – SVG attributes for each layer and text type.</p></li>
+<li><p><strong>background</strong> (<em>str</em>) – Image background color.</p></li>
+<li><p><strong>pad</strong> (<em>number</em><em>, </em><em>str</em>) – Viewport margin around the image content. It can
+be specified as an absolute dimension or a percentage of the
+largest image dimension.</p></li>
+<li><p><strong>sort_function</strong> (<em>callable</em>) – If set, the polygons on each cell will be
+sorted according to this function.  It must accept 2 polygons and
+return <code class="docutils literal notranslate"><span class="pre">True</span></code> if the first one is below the second.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Labels in referenced cells will be affected by the the reference
+transformation, including magnification.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># (layer, datatype) = (0, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">ellipse</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># (layer, datatype) = (1, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poly2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">ellipse</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">layer</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">texttype</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Example&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">layer</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">texttype</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;SVG&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">poly1</span><span class="p">,</span> <span class="n">poly2</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">write_svg</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="s2">&quot;example.svg&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">background</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">shape_style</span><span class="o">=</span><span class="p">{(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="p">{</span><span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="s2">&quot;stroke&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="s2">&quot;stroke-dasharray&quot;</span><span class="p">:</span> <span class="s2">&quot;8,8&quot;</span><span class="p">}},</span>
+<span class="gp">... </span>    <span class="n">label_style</span><span class="o">=</span><span class="p">{(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="p">{</span><span class="s2">&quot;fill&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="s2">&quot;stroke&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="s2">&quot;font-size&quot;</span><span class="p">:</span> <span class="s2">&quot;32px&quot;</span><span class="p">}},</span>
+<span class="gp">... </span>    <span class="n">pad</span><span class="o">=</span><span class="s2">&quot;5%&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">sort_function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">:</span> <span class="n">p1</span><span class="o">.</span><span class="n">layer</span> <span class="o">&lt;</span> <span class="n">p2</span><span class="o">.</span><span class="n">layer</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/write_svg.svg" class="align-center" src="../_images/write_svg.svg" />
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gdstk.Reference.html" class="btn btn-neutral float-left" title="gdstk.Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.RawCell.html" class="btn btn-neutral float-right" title="gdstk.RawCell" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

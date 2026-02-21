@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdsii.h &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.h" href="gdstk.html" />
+    <link rel="prev" title="font.h" href="font.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_cpp.html#header-files">Header files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">array.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cell.html">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="curve.html">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="font.html">font.h</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="oasis.html">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="repetition.html">repetition.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="robustpath.html">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="style.html">style.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_cpp.html">C++ Reference</a></li>
+      <li class="breadcrumb-item active">gdsii.h</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdsii-h">
+<h1>gdsii.h<a class="headerlink" href="#gdsii-h" title="Link to this heading"></a></h1>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">GdsiiRecord</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">HEADER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X00</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BGNLIB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X01</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LIBNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X02</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UNITS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X03</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ENDLIB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X04</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BGNSTR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X05</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STRNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X06</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ENDSTR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X07</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BOUNDARY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X08</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X09</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SREF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X0A</span><span class="p">,</span>
+<span class="w">    </span><span class="n">AREF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X0B</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TEXT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X0C</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LAYER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X0D</span><span class="p">,</span>
+<span class="w">    </span><span class="n">DATATYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X0E</span><span class="p">,</span>
+<span class="w">    </span><span class="n">WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X0F</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X10</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ENDEL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X11</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X12</span><span class="p">,</span>
+<span class="w">    </span><span class="n">COLROW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X13</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TEXTNODE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X14</span><span class="p">,</span>
+<span class="w">    </span><span class="n">NODE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X15</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TEXTTYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X16</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PRESENTATION</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X17</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SPACING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X18</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STRING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X19</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STRANS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X1A</span><span class="p">,</span>
+<span class="w">    </span><span class="n">MAG</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X1B</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ANGLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X1C</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UINTEGER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X1D</span><span class="p">,</span>
+<span class="w">    </span><span class="n">USTRING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X1E</span><span class="p">,</span>
+<span class="w">    </span><span class="n">REFLIBS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X1F</span><span class="p">,</span>
+<span class="w">    </span><span class="n">FONTS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X20</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PATHTYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X21</span><span class="p">,</span>
+<span class="w">    </span><span class="n">GENERATIONS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X22</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ATTRTABLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X23</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STYPTABLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X24</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STRTYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X25</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ELFLAGS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X26</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ELKEY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X27</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LINKTYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X28</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LINKKEYS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X29</span><span class="p">,</span>
+<span class="w">    </span><span class="n">NODETYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X2A</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPATTR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X2B</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPVALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X2C</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BOX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X2D</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BOXTYPE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X2E</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PLEX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X2F</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BGNEXTN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X30</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ENDEXTN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X31</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TAPENUM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X32</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TAPECODE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X33</span><span class="p">,</span>
+<span class="w">    </span><span class="n">STRCLASS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X34</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RESERVED</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X35</span><span class="p">,</span>
+<span class="w">    </span><span class="n">FORMAT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X36</span><span class="p">,</span>
+<span class="w">    </span><span class="n">MASK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X37</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ENDMASKS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X38</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LIBDIRSIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X39</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SRFNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X3A</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LIBSECUR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0X3B</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RAITHMBMSPATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x5A</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RAITHPXXDATA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x62</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">GdsiiDataType</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NoData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">BitArray</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TwoByteSignedInteger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">FourByteSignedInteger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="n">FourByteReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="n">EightByteReal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="n">AsciiString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span>
+<span class="p">};</span>
+
+<span class="kt">uint64_t</span><span class="w"> </span><span class="nf">gdsii_real_from_double</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+
+<span class="kt">double</span><span class="w"> </span><span class="nf">gdsii_real_to_double</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">real</span><span class="p">);</span>
+
+<span class="c1">// Read a record and swaps only first 2 bytes (record length).  The size of the</span>
+<span class="c1">// buffer must be passed in buffer_count.  On return, the record length</span>
+<span class="c1">// (including header) is returned in buffer_count.</span>
+<span class="n">ErrorCode</span><span class="w"> </span><span class="nf">gdsii_read_record</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">buffer_count</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="font.html" class="btn btn-neutral float-left" title="font.h" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.html" class="btn btn-neutral float-right" title="gdstk.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

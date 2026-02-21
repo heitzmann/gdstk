@@ -1,0 +1,539 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdstk.Library &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.GdsWriter" href="gdstk.GdsWriter.html" />
+    <link rel="prev" title="gdstk.RawCell" href="gdstk.RawCell.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_python.html">Python API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_python.html#geometry-construction">Geometry Construction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_python.html#library-organization">Library Organization</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Label.html">gdstk.Label</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Reference.html">gdstk.Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Cell.html">gdstk.Cell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.RawCell.html">gdstk.RawCell</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdstk.Library</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gdstk.Library"><code class="docutils literal notranslate"><span class="pre">Library</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.add"><code class="docutils literal notranslate"><span class="pre">Library.add()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.cells"><code class="docutils literal notranslate"><span class="pre">Library.cells</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.delete_property"><code class="docutils literal notranslate"><span class="pre">Library.delete_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.get_property"><code class="docutils literal notranslate"><span class="pre">Library.get_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.layer_names"><code class="docutils literal notranslate"><span class="pre">Library.layer_names</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.layers_and_datatypes"><code class="docutils literal notranslate"><span class="pre">Library.layers_and_datatypes()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.layers_and_texttypes"><code class="docutils literal notranslate"><span class="pre">Library.layers_and_texttypes()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.name"><code class="docutils literal notranslate"><span class="pre">Library.name</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.new_cell"><code class="docutils literal notranslate"><span class="pre">Library.new_cell()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.precision"><code class="docutils literal notranslate"><span class="pre">Library.precision</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.properties"><code class="docutils literal notranslate"><span class="pre">Library.properties</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.remap"><code class="docutils literal notranslate"><span class="pre">Library.remap()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.remove"><code class="docutils literal notranslate"><span class="pre">Library.remove()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.rename_cell"><code class="docutils literal notranslate"><span class="pre">Library.rename_cell()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.replace"><code class="docutils literal notranslate"><span class="pre">Library.replace()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.set_property"><code class="docutils literal notranslate"><span class="pre">Library.set_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.top_level"><code class="docutils literal notranslate"><span class="pre">Library.top_level()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.unit"><code class="docutils literal notranslate"><span class="pre">Library.unit</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.write_gds"><code class="docutils literal notranslate"><span class="pre">Library.write_gds()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Library.write_oas"><code class="docutils literal notranslate"><span class="pre">Library.write_oas()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.GdsWriter.html">gdstk.GdsWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_gds.html">gdstk.read_gds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_oas.html">gdstk.read_oas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_rawcells.html">gdstk.read_rawcells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_units.html">gdstk.gds_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_info.html">gdstk.gds_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_timestamp.html">gdstk.gds_timestamp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.oas_precision.html">gdstk.oas_precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.oas_validate.html">gdstk.oas_validate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_python.html">Python API Reference</a></li>
+      <li class="breadcrumb-item active">gdstk.Library</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdstk-library">
+<h1>gdstk.Library<a class="headerlink" href="#gdstk-library" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gdstk.Library">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gdstk.</span></span><span class="sig-name descname"><span class="pre">Library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'library'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-9</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gdstk.Library" title="Link to this definition"></a></dt>
+<dd><p>GDSII/OASIS library.</p>
+<p>The library is a container for multiple cells which keeps track of the
+units used to generate the design.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Library name.</p></li>
+<li><p><strong>unit</strong> – User units in meters.</p></li>
+<li><p><strong>precision</strong> – Desired precision to store the units once written to a
+GDSII/OASIS file.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">read_gds</span><span class="p">(</span><span class="s2">&quot;filename.gds&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">num_cells</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lib</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">lib</span><span class="p">[</span><span class="s2">&quot;CELL_NAME&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Although cells can be accessed by name this is not a cached
+operation.  If many queries are expected, using a cell dictionary
+is more efficient, for example:
+&gt;&gt;&gt; cells = {c.name for c in lib.cells}
+&gt;&gt;&gt; cells[“CELL_NAME”]</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../gettingstarted.html#about-units"><span class="std std-ref">A Note About Units</span></a></p>
+</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.add" title="gdstk.Library.add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add</span></code></a>(*cells)</p></td>
+<td><p>Add cells to this library.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.delete_property" title="gdstk.Library.delete_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_property</span></code></a>(name)</p></td>
+<td><p>Delete the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.get_property" title="gdstk.Library.get_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_property</span></code></a>(name)</p></td>
+<td><p>Return the values of the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.layers_and_datatypes" title="gdstk.Library.layers_and_datatypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layers_and_datatypes</span></code></a>()</p></td>
+<td><p>Return a set of tuples with the layer and data types in the library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.layers_and_texttypes" title="gdstk.Library.layers_and_texttypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layers_and_texttypes</span></code></a>()</p></td>
+<td><p>Return a set of tuples with the layer and text types in the library.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.new_cell" title="gdstk.Library.new_cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">new_cell</span></code></a>(name)</p></td>
+<td><p>Create a new cell and add it to this library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.remap" title="gdstk.Library.remap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remap</span></code></a>(layer_type_map)</p></td>
+<td><p>Remap layers and data/text types for all elements in this library.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.remove" title="gdstk.Library.remove"><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove</span></code></a>(*cells)</p></td>
+<td><p>Remove cells from this library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.rename_cell" title="gdstk.Library.rename_cell"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_cell</span></code></a>(old_name, new_name)</p></td>
+<td><p>Rename a cell in this library, updating any references that use the old name with the new one.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.replace" title="gdstk.Library.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>(*cells)</p></td>
+<td><p>Add cells to this library, replacing any cells with the same name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.set_property" title="gdstk.Library.set_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_property</span></code></a>(name, value)</p></td>
+<td><p>Set a property for this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.top_level" title="gdstk.Library.top_level"><code class="xref py py-obj docutils literal notranslate"><span class="pre">top_level</span></code></a>()</p></td>
+<td><p>Return the top-level cells in the library.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.write_gds" title="gdstk.Library.write_gds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_gds</span></code></a>(outfile[, max_points, timestamp])</p></td>
+<td><p>Save this library to a GDSII file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.write_oas" title="gdstk.Library.write_oas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_oas</span></code></a>(outfile[, compression_level, ...])</p></td>
+<td><p>Save this library to an OASIS file.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.cells" title="gdstk.Library.cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cells</span></code></a></p></td>
+<td><p>List of library cells.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.layer_names" title="gdstk.Library.layer_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer_names</span></code></a></p></td>
+<td><p>OASIS layer name mappings.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.name" title="gdstk.Library.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
+<td><p>Library name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.precision" title="gdstk.Library.precision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision</span></code></a></p></td>
+<td><p>Library precision.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Library.properties" title="gdstk.Library.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">properties</span></code></a></p></td>
+<td><p>Properties of this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Library.unit" title="gdstk.Library.unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unit</span></code></a></p></td>
+<td><p>Library unit.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cells</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.add" title="Link to this definition"></a></dt>
+<dd><p>Add cells to this library.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;MAIN&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">polygon</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This method does not check whether cell names are duplicated in the
+library.  If duplicates are found in the library, the resulting file
+will be invalid.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.Library.replace" title="gdstk.Library.replace"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.Library.replace()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Library.cells">
+<span class="sig-name descname"><span class="pre">cells</span></span><a class="headerlink" href="#gdstk.Library.cells" title="Link to this definition"></a></dt>
+<dd><p>List of library cells.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.delete_property">
+<span class="sig-name descname"><span class="pre">delete_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.delete_property" title="Link to this definition"></a></dt>
+<dd><p>Delete the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.get_property">
+<span class="sig-name descname"><span class="pre">get_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Library.get_property" title="Link to this definition"></a></dt>
+<dd><p>Return the values of the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of property values. If no property is found,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Library.layer_names">
+<span class="sig-name descname"><span class="pre">layer_names</span></span><a class="headerlink" href="#gdstk.Library.layer_names" title="Link to this definition"></a></dt>
+<dd><p>OASIS layer name mappings.</p>
+<p>Dictionary mapping <code class="docutils literal notranslate"><span class="pre">(layer,</span> <span class="pre">datatype)</span></code> integer tuples to
+<code class="docutils literal notranslate"><span class="pre">(data_name,</span> <span class="pre">text_name)</span></code> string tuples.  <code class="docutils literal notranslate"><span class="pre">data_name</span></code> is the
+name associated with geometry layers (LAYERNAME_DATA, record 11) and
+<code class="docutils literal notranslate"><span class="pre">text_name</span></code> is the name associated with text layers (LAYERNAME_TEXT,
+record 12).  Either string may be empty if that mapping is absent.</p>
+<p>This attribute is read from OASIS files by <a class="reference internal" href="gdstk.read_oas.html#gdstk.read_oas" title="gdstk.read_oas"><code class="xref py py-func docutils literal notranslate"><span class="pre">gdstk.read_oas()</span></code></a> and
+written to OASIS files by <a class="reference internal" href="#gdstk.Library.write_oas" title="gdstk.Library.write_oas"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Library.write_oas()</span></code></a>.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span><span class="o">.</span><span class="n">layer_names</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="p">(</span><span class="s2">&quot;M1_DRAW&quot;</span><span class="p">,</span> <span class="s2">&quot;M1_TEXT&quot;</span><span class="p">),</span>
+<span class="gp">... </span>                   <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span> <span class="p">(</span><span class="s2">&quot;M2_DRAW&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span><span class="o">.</span><span class="n">write_oas</span><span class="p">(</span><span class="s2">&quot;output.oas&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">read_oas</span><span class="p">(</span><span class="s2">&quot;output.oas&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib2</span><span class="o">.</span><span class="n">layer_names</span>
+<span class="go">{(1, 0): (&#39;M1_DRAW&#39;, &#39;M1_TEXT&#39;), (2, 0): (&#39;M2_DRAW&#39;, &#39;&#39;)}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.layers_and_datatypes">
+<span class="sig-name descname"><span class="pre">layers_and_datatypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#gdstk.Library.layers_and_datatypes" title="Link to this definition"></a></dt>
+<dd><p>Return a set of tuples with the layer and data types in the library.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.layers_and_texttypes">
+<span class="sig-name descname"><span class="pre">layers_and_texttypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span></span></span><a class="headerlink" href="#gdstk.Library.layers_and_texttypes" title="Link to this definition"></a></dt>
+<dd><p>Return a set of tuples with the layer and text types in the library.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Library.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#gdstk.Library.name" title="Link to this definition"></a></dt>
+<dd><p>Library name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.new_cell">
+<span class="sig-name descname"><span class="pre">new_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="gdstk.Cell.html#gdstk.Cell" title="gdstk.Cell"><span class="pre">gdstk.Cell</span></a></span></span><a class="headerlink" href="#gdstk.Library.new_cell" title="Link to this definition"></a></dt>
+<dd><p>Create a new cell and add it to this library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the new cell.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Library</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">new_cell</span><span class="p">(</span><span class="s2">&quot;MAIN&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">polygon</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Library.precision">
+<span class="sig-name descname"><span class="pre">precision</span></span><a class="headerlink" href="#gdstk.Library.precision" title="Link to this definition"></a></dt>
+<dd><p>Library precision.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Library.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#gdstk.Library.properties" title="Link to this definition"></a></dt>
+<dd><p>Properties of this element.</p>
+<p>Properties are represented as a list of lists, each containing the
+property name followed by its values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.remap">
+<span class="sig-name descname"><span class="pre">remap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_type_map</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.remap" title="Link to this definition"></a></dt>
+<dd><p>Remap layers and data/text types for all elements in this library.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layer_type_map</strong> – Dictionary mapping existing (layer, type) tuples to
+desired (layer, type) tuples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.remove">
+<span class="sig-name descname"><span class="pre">remove</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cells</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.remove" title="Link to this definition"></a></dt>
+<dd><p>Remove cells from this library.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.rename_cell">
+<span class="sig-name descname"><span class="pre">rename_cell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.rename_cell" title="Link to this definition"></a></dt>
+<dd><p>Rename a cell in this library, updating any references that use the old
+name with the new one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_name</strong> (<em>str</em><em> or </em><a class="reference internal" href="gdstk.Cell.html#gdstk.Cell" title="gdstk.Cell"><em>Cell</em></a>) – Cell or name of the cell to be renamed.</p></li>
+<li><p><strong>new_name</strong> (<em>str</em>) – New cell name.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">cells</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.replace" title="Link to this definition"></a></dt>
+<dd><p>Add cells to this library, replacing any cells with the same name.</p>
+<p>References to any removed cells are also replaced with the new cell.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">rectangle</span><span class="p">((</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">10</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Cell</span><span class="p">(</span><span class="s2">&quot;Alignment Mark&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cell</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">polygon</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">read_gds</span><span class="p">(</span><span class="s2">&quot;layout.gds&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lib</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.set_property">
+<span class="sig-name descname"><span class="pre">set_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Library.set_property" title="Link to this definition"></a></dt>
+<dd><p>Set a property for this element.</p>
+<p>The property name does not have to be unique. Multiple properties can
+have the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Property name.</p></li>
+<li><p><strong>value</strong> (<em>str</em><em>, </em><em>bytes</em><em>, </em><em>number</em><em>, or </em><em>sequence</em><em> of </em><em>those</em>) – Values associated
+with the property.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>These properties can be used to associate custom metadata with an
+element, but general properties are not supported by GDSII files,
+only OASIS.  Use the specific methods to access GDSII properties.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.top_level">
+<span class="sig-name descname"><span class="pre">top_level</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Library.top_level" title="Link to this definition"></a></dt>
+<dd><p>Return the top-level cells in the library.</p>
+<p>Top-level cells are cells that do not appear as dependency of any other
+cells in the library.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Library.unit">
+<span class="sig-name descname"><span class="pre">unit</span></span><a class="headerlink" href="#gdstk.Library.unit" title="Link to this definition"></a></dt>
+<dd><p>Library unit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.write_gds">
+<span class="sig-name descname"><span class="pre">write_gds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">199</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#gdstk.Library.write_gds" title="Link to this definition"></a></dt>
+<dd><p>Save this library to a GDSII file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outfile</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – Name of the output file.</p></li>
+<li><p><strong>max_points</strong> – Maximal number of vertices per polygon. Polygons with
+more vertices that this are automatically fractured.</p></li>
+<li><p><strong>timestamp</strong> (<em>datetime object</em>) – Timestamp to be stored in the GDSII
+file. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, the current time is used.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../gettingstarted.html#getting-started"><span class="std std-ref">Getting Started</span></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Library.write_oas">
+<span class="sig-name descname"><span class="pre">write_oas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_rectangles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">detect_trapezoids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">circletolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">standard_properties</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#gdstk.Library.write_oas" title="Link to this definition"></a></dt>
+<dd><p>Save this library to an OASIS file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>outfile</strong> (<em>str</em><em> or </em><em>pathlib.Path</em>) – Name of the output file.</p></li>
+<li><p><strong>compression_level</strong> – Level of compression for cells (between 0 and 9).
+Setting to 0 will disable cell compression, 1 gives the best speed
+and 9, the best compression.</p></li>
+<li><p><strong>detect_rectangles</strong> – Store rectangles in compressed format.</p></li>
+<li><p><strong>detect_trapezoids</strong> – Store trapezoids in compressed format.</p></li>
+<li><p><strong>circle_tolerance</strong> – Tolerance for detecting circles. If less or equal
+to 0, no detection is performed. Circles are stored in compressed
+format.</p></li>
+<li><p><strong>validation</strong> (<em>&quot;crc32&quot;</em><em>, </em><em>&quot;checksum32&quot;</em><em>, </em><em>None</em>) – type of validation to
+include in the saved file.</p></li>
+<li><p><strong>standard_properties</strong> – Store standard OASIS properties in the file.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The standard OASIS options include the maximal string length and
+integer size used in the file, maximal numbers of polygon and path
+vertices, cell bounding boxes and cell offsets inside the file.
+Some of these properties are computationally expensive to calculate.
+Use only when required.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="../gettingstarted.html#getting-started"><span class="std std-ref">Getting Started</span></a></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gdstk.RawCell.html" class="btn btn-neutral float-left" title="gdstk.RawCell" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.GdsWriter.html" class="btn btn-neutral float-right" title="gdstk.GdsWriter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
