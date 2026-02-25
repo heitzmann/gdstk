@@ -1051,6 +1051,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
                 }
                 map.clear();
                 fclose(in);
+                if (error_code) *error_code = ErrorCode::NoError;
                 return library;
             } break;
             case GdsiiRecord::BGNSTR:
