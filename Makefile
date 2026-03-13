@@ -31,7 +31,7 @@ examples: lib
 	cmake --build build --target test
 
 %.out: %.cpp lib
-	$(CXX) $(CXXFLAGS) -o $@ $< $(shell pkg-config --with-path=build --cflags gdstk) $(shell pkg-config --with-path=build --libs gdstk)
+	$(CXX) $(CXXFLAGS) -o $@ $< $(shell pkg-config --with-path=build/lib/pkgconfig --cflags gdstk) $(shell pkg-config --with-path=build/lib/pkgconfig --libs gdstk)
 
 %.run: %.out
 	-./$<

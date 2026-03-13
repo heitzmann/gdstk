@@ -1,0 +1,22 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/../cmake_modules")
+
+find_dependency(ZLIB 1.2.7)
+find_dependency(Qhull 8)
+
+include("${CMAKE_CURRENT_LIST_DIR}/gdstkTargets.cmake")
+
+# Qhull is a private build dependency of gdstk but since gdstk is a static
+# library, consumers still need to link Qhull at final link time. We add it
+# here rather than as a PUBLIC link dependency in the build so that the
+# exported targets file does not contain a reference to the QHULL::QHULL
+# wrapper target (which is hard to recreate reliably across platforms).
+if(TARGET gdstk::gdstk AND TARGET QHULL::QHULL)
+    set_property(TARGET gdstk::gdstk APPEND PROPERTY
+        INTERFACE_LINK_LIBRARIES QHULL::QHULL)
+endif()
+
+check_required_components(Gdstk)

@@ -21,7 +21,7 @@ set(ALL_EXAMPLES
 foreach(EXAMPLE ${ALL_EXAMPLES})
     add_executable(${EXAMPLE} EXCLUDE_FROM_ALL "${EXAMPLE}.cpp")
     target_compile_features(${EXAMPLE} PRIVATE cxx_std_11)
-    target_link_libraries(${EXAMPLE} gdstk)
+    target_link_libraries(${EXAMPLE} PRIVATE gdstk)
     add_test(NAME ${EXAMPLE} COMMAND ${EXAMPLE})
 endforeach()
 

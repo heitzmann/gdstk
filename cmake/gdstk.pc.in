@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: gdstk
+Description: C++ library for creation and manipulation of GDSII and OASIS files
+Version: @PROJECT_VERSION@
+Requires: zlib
+Libs: -L${libdir} -lgdstk
+Libs.private: -lqhull_r -lm
+Cflags: -I${includedir}

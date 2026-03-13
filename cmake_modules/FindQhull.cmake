@@ -66,45 +66,36 @@ if(TARGET QHULL::QHULL)
   return()
 endif()
 
-# # Try to locate QHull using modern cmake config (available on latest Qhull version).
-# find_package(Qhull CONFIG QUIET)
-#
-# if(Qhull_FOUND)
-#   unset(Qhull_FOUND)
-#   set(QHULL_FOUND ON)
-#   set(HAVE_QHULL ON)
-# 
-#   message(STATUS "Found Qhull version ${Qhull_VERSION}")
-# 
-#   # Create interface library that effectively becomes an alias for the appropriate (static/dynamic) imported QHULL target
-#   add_library(QHULL::QHULL INTERFACE IMPORTED)
-# 
-#   if(TARGET Qhull::qhull_r AND TARGET Qhull::qhullstatic_r)
-#     if(QHULL_REQUIRED_TYPE MATCHES "STATIC")
-#       set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhullstatic_r)
-#       set(QHULL_LIBRARY_TYPE STATIC)
-#       # get_target_property(QHULL_LIBRARIES Qhull::qhullstatic_r IMPORTED_LOCATION_NOCONFIG)
-#       # get_target_property(QHULL_INCLUDE_DIRS Qhull::qhullstatic_r INTERFACE_INCLUDE_DIRECTORIES)
-#     else()
-#       set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhull_r)
-#       set(QHULL_LIBRARY_TYPE SHARED)
-#       # get_target_property(QHULL_LIBRARIES Qhull::qhull_r IMPORTED_LOCATION_NOCONFIG)
-#       # get_target_property(QHULL_INCLUDE_DIRS Qhull::qhull_r INTERFACE_INCLUDE_DIRECTORIES)
-#     endif()
-#   elseif(TARGET Qhull::qhull_r)
-#     set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhull_r)
-#     set(QHULL_LIBRARY_TYPE SHARED)  
-#     # get_target_property(QHULL_LIBRARIES Qhull::qhull_r IMPORTED_LOCATION_NOCONFIG)
-#     # get_target_property(QHULL_INCLUDE_DIRS Qhull::qhull_r INTERFACE_INCLUDE_DIRECTORIES)
-#   else()
-#     set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhullstatic_r)
-#     set(QHULL_LIBRARY_TYPE STATIC)
-#     # get_target_property(QHULL_LIBRARIES Qhull::qhullstatic_r IMPORTED_LOCATION_NOCONFIG)
-#     # get_target_property(QHULL_INCLUDE_DIRS Qhull::qhullstatic_r INTERFACE_INCLUDE_DIRECTORIES)
-#   endif()
-# 
-#   return()
-# endif()
+# Try to locate Qhull using modern cmake config (available on latest Qhull version
+# and via vcpkg). This is preferred over the manual search below.
+find_package(Qhull CONFIG QUIET)
+
+if(Qhull_FOUND)
+  set(QHULL_FOUND ON)
+  set(HAVE_QHULL ON)
+
+  message(STATUS "Found Qhull via CONFIG mode (version ${Qhull_VERSION})")
+
+  # Create an INTERFACE IMPORTED wrapper that delegates to the appropriate
+  # native Qhull target. INTERFACE IMPORTED is used because it does not
+  # require IMPORTED_LOCATION, making it robust across platforms and
+  # configurations (vcpkg, system installs, etc.).
+  add_library(QHULL::QHULL INTERFACE IMPORTED)
+
+  if(TARGET Qhull::qhull_r AND TARGET Qhull::qhullstatic_r)
+    if(QHULL_REQUIRED_TYPE MATCHES "STATIC")
+      set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhullstatic_r)
+    else()
+      set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhull_r)
+    endif()
+  elseif(TARGET Qhull::qhull_r)
+    set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhull_r)
+  elseif(TARGET Qhull::qhullstatic_r)
+    set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_LINK_LIBRARIES Qhull::qhullstatic_r)
+  endif()
+
+  return()
+endif()
 
 find_file(QHULL_HEADER
           NAMES libqhull_r.h
@@ -180,7 +171,7 @@ if(QHULL_FOUND)
   set_target_properties(QHULL::QHULL PROPERTIES IMPORTED_LINK_INTERFACE_LANGUAGES "CXX")
   set_target_properties(QHULL::QHULL PROPERTIES INTERFACE_COMPILE_DEFINITIONS "qh_QHpointer")
   if(MSVC)
-    set_target_properties(QHULL::QHULL PROPERTIES INTERFACE_COMPILE_DEFINITIONS "qh_QHpointer_dllimport")
+    set_property(TARGET QHULL::QHULL APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS "qh_QHpointer_dllimport")
   endif()
   if(WIN32 AND NOT (QHULL_REQUIRED_TYPE MATCHES "STATIC"))
     set_target_properties(QHULL::QHULL PROPERTIES IMPORTED_IMPLIB_RELEASE "${QHULL_LIBRARY}")
