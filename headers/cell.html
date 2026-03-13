@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cell.h &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="clipper_tools.h" href="clipper_tools.html" />
+    <link rel="prev" title="array.h" href="array.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_cpp.html#header-files">Header files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">array.h</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="curve.html">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="font.html">font.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdsii.html">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="oasis.html">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="repetition.html">repetition.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="robustpath.html">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="style.html">style.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_cpp.html">C++ Reference</a></li>
+      <li class="breadcrumb-item active">cell.h</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cell-h">
+<h1>cell.h<a class="headerlink" href="#cell-h" title="Link to this heading"></a></h1>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Must return true if the first argument is ordered before (is less than) the</span>
+<span class="c1">// second argument.</span>
+<span class="k">typedef</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">PolygonComparisonFunction</span><span class="p">)(</span><span class="n">Polygon</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="p">,</span><span class="w"> </span><span class="n">Polygon</span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="p">);</span>
+
+<span class="c1">// This structure is used for caching bounding box and convex hull results from</span>
+<span class="c1">// cells.  This is a snapshot of the cells at a specific point in time.  It</span>
+<span class="c1">// must be invalidated whenever the cell contents changes.</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">GeometryInfo</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">convex_hull</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="n">bounding_box_min</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Vec2</span><span class="w"> </span><span class="n">bounding_box_max</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// These flags indicate whether the convex hull and bounding box values are</span>
+<span class="w">    </span><span class="c1">// valid, even when convex_hull.count == 0 or bounding_box_min.x &gt;</span>
+<span class="w">    </span><span class="c1">// bounding_box_max.x (empty cell)</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">convex_hull_valid</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">bounding_box_valid</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">convex_hull</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">        </span><span class="n">convex_hull_valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="n">bounding_box_valid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">Cell</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// NULL-terminated string with cell name.  The GDSII specification allows</span>
+<span class="w">    </span><span class="c1">// only ASCII-encoded strings.  The OASIS specification restricts the</span>
+<span class="w">    </span><span class="c1">// allowed characters to the range 0x21–0x7E (the space character, 0x20, is</span>
+<span class="w">    </span><span class="c1">// forbidden).  Gdstk does NOT enforce either rule.</span>
+<span class="w">    </span><span class="c1">//</span>
+<span class="w">    </span><span class="c1">// Cells in a library are identified by their name, so names must be</span>
+<span class="w">    </span><span class="c1">// unique.  This rule is not enforced in Gdstk, but it is assumed to be</span>
+<span class="w">    </span><span class="c1">// followed (various hash maps are built based on cell names).</span>
+<span class="w">    </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Elements should be added to (or removed from) the cell using these arrays</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Polygon</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">polygon_array</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Reference</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">reference_array</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">FlexPath</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">flexpath_array</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">RobustPath</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">robustpath_array</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">label_array</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">Property</span><span class="o">*</span><span class="w"> </span><span class="n">properties</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Used by the python interface to store the associated PyObject* (if any).</span>
+<span class="w">    </span><span class="c1">// No functions in gdstk namespace should touch this value!</span>
+<span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">owner</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">init</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">name_</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">copy_string</span><span class="p">(</span><span class="n">name_</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">all</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">clear</span><span class="p">();</span>
+
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">free_all</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">polygon_array</span><span class="p">.</span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">polygon_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">            </span><span class="n">free_allocation</span><span class="p">(</span><span class="n">polygon_array</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">flexpath_array</span><span class="p">.</span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">flexpath_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">            </span><span class="n">free_allocation</span><span class="p">(</span><span class="n">flexpath_array</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">robustpath_array</span><span class="p">.</span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">robustpath_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">            </span><span class="n">free_allocation</span><span class="p">(</span><span class="n">robustpath_array</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">reference_array</span><span class="p">.</span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">reference_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">            </span><span class="n">free_allocation</span><span class="p">(</span><span class="n">reference_array</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">label_array</span><span class="p">.</span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">label_array</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">            </span><span class="n">free_allocation</span><span class="p">(</span><span class="n">label_array</span><span class="p">[</span><span class="n">j</span><span class="p">]);</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">clear</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Bounding box corners are returned in min and max.  For an empty cell,</span>
+<span class="w">    </span><span class="c1">// return min.x &gt; max.x.  Internally, this function simply calls the</span>
+<span class="w">    </span><span class="c1">// caching version with an empty cache.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">bounding_box</span><span class="p">(</span><span class="n">Vec2</span><span class="o">&amp;</span><span class="w"> </span><span class="n">min</span><span class="p">,</span><span class="w"> </span><span class="n">Vec2</span><span class="o">&amp;</span><span class="w"> </span><span class="n">max</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Caching version of the bounding box calculation.  The returned</span>
+<span class="w">    </span><span class="c1">// GeometryInfo is guaranteed to have the information about this cell</span>
+<span class="w">    </span><span class="c1">// instance (bounding_box_valid == true).</span>
+<span class="w">    </span><span class="n">GeometryInfo</span><span class="w"> </span><span class="nf">bounding_box</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">GeometryInfo</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">cache</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// The convex hull of the cell is appended to result (it doesn&#39;t need to be</span>
+<span class="w">    </span><span class="c1">// empty).  Internally, this function simply calls the caching version with</span>
+<span class="w">    </span><span class="c1">// an empty cache.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">convex_hull</span><span class="p">(</span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// Caching version of the convex hull calculation.</span>
+<span class="w">    </span><span class="n">GeometryInfo</span><span class="w"> </span><span class="nf">convex_hull</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">GeometryInfo</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">cache</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// This cell instance must be zeroed before copy_from.  If a new_name is</span>
+<span class="w">    </span><span class="c1">// NULL, use the same name as the source cell.  If deep_copy == true, new</span>
+<span class="w">    </span><span class="c1">// elements (polygons, paths, references, and labels) are allocated and</span>
+<span class="w">    </span><span class="c1">// copied from the source cell.  Otherwise, the same pointers are used.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">copy_from</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Cell</span><span class="o">&amp;</span><span class="w"> </span><span class="n">cell</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">new_name</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">deep_copy</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Append a (newly allocated) copy of all the polygons in the cell to</span>
+<span class="w">    </span><span class="c1">// result.  If paths are included, their polygonal representation is</span>
+<span class="w">    </span><span class="c1">// calculated and also appended.  Polygons from references are included up</span>
+<span class="w">    </span><span class="c1">// to depth levels, i.e., if depth == 0, no polygons from references are</span>
+<span class="w">    </span><span class="c1">// included, depth == 1 includes polygons from referenced cells (with their</span>
+<span class="w">    </span><span class="c1">// transformation properly applied), but not from references thereof, and</span>
+<span class="w">    </span><span class="c1">// so on.  Depth &lt; 0, removes the limit in the recursion depth.  If filter</span>
+<span class="w">    </span><span class="c1">// is true, only polygons with the indicated tag are appended.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_polygons</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">apply_repetitions</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">include_paths</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">filter</span><span class="p">,</span>
+<span class="w">                      </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Polygon</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Similar to get_polygons, but for paths and labels.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_flexpaths</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">apply_repetitions</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span>
+<span class="w">                       </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">FlexPath</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_robustpaths</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">apply_repetitions</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">RobustPath</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_labels</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">apply_repetitions</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">depth</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">filter</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Label</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Insert all dependencies in result.  Dependencies are cells that appear</span>
+<span class="w">    </span><span class="c1">// in this cell&#39;s references. If recursive, include the whole dependency</span>
+<span class="w">    </span><span class="c1">// tree (dependencies of dependencies).</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_dependencies</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">recursive</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">Cell</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_raw_dependencies</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">recursive</span><span class="p">,</span><span class="w"> </span><span class="n">Map</span><span class="o">&lt;</span><span class="n">RawCell</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Append all tags found in polygons and paths/labels to result.</span>
+<span class="w">    </span><span class="c1">// References are not included in the result.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_shape_tags</span><span class="p">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Tag</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">get_label_tags</span><span class="p">(</span><span class="n">Set</span><span class="o">&lt;</span><span class="n">Tag</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Transform a cell hierarchy into a flat cell, with no dependencies, by</span>
+<span class="w">    </span><span class="c1">// inserting the elements from this cell&#39;s references directly into the</span>
+<span class="w">    </span><span class="c1">// cell (with the corresponding transformations).  Removed references are</span>
+<span class="w">    </span><span class="c1">// appended to removed_references.</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">flatten</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">apply_repetitions</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Reference</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">removed_references</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Change the tags of all elements in this cell.  Map keys are the current</span>
+<span class="w">    </span><span class="c1">// tags and map values are the desired new tags.  Elements in references</span>
+<span class="w">    </span><span class="c1">// are not remapped (use get_dependencies to loop over and remap them).</span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">remap_tags</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">TagMap</span><span class="o">&amp;</span><span class="w"> </span><span class="n">map</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// These functions output the cell and its contents in the GDSII and SVG</span>
+<span class="w">    </span><span class="c1">// formats.  They are not supposed to be called by the user.  Use</span>
+<span class="w">    </span><span class="c1">// Library.write_gds and Cell.write_svg instead.</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">to_gds</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">max_points</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">precision</span><span class="p">,</span>
+<span class="w">                     </span><span class="k">const</span><span class="w"> </span><span class="n">tm</span><span class="o">*</span><span class="w"> </span><span class="n">timestamp</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">to_svg</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">precision</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span>
+<span class="w">                     </span><span class="n">PolygonComparisonFunction</span><span class="w"> </span><span class="n">comp</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Output this cell to filename in SVG format.  The geometry is drawn in</span>
+<span class="w">    </span><span class="c1">// the default units (px), but can be scaled freely.  Argument precision</span>
+<span class="w">    </span><span class="c1">// defines the maximum desired precision for floating point representation</span>
+<span class="w">    </span><span class="c1">// in the SVG file.  Arguments shape_style and label_style, if not NULL,</span>
+<span class="w">    </span><span class="c1">// can de used to customize the SVG style of elements by tag.  If</span>
+<span class="w">    </span><span class="c1">// background is not NULL, it should be a valid SVG color for the image</span>
+<span class="w">    </span><span class="c1">// background.  Argument pad defines the margin (in px) added around the</span>
+<span class="w">    </span><span class="c1">// cell bounding box, unless pad_as_percentage == true, in which case it is</span>
+<span class="w">    </span><span class="c1">// interpreted as a percentage of the largest bounding box dimension.</span>
+<span class="w">    </span><span class="c1">// Argument comp in to_svg can be used to sort the polygons in the SVG</span>
+<span class="w">    </span><span class="c1">// output, which affects their draw order.</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="nf">write_svg</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">precision</span><span class="p">,</span>
+<span class="w">                        </span><span class="n">StyleMap</span><span class="o">*</span><span class="w"> </span><span class="n">shape_style</span><span class="p">,</span><span class="w"> </span><span class="n">StyleMap</span><span class="o">*</span><span class="w"> </span><span class="n">label_style</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">background</span><span class="p">,</span>
+<span class="w">                        </span><span class="kt">double</span><span class="w"> </span><span class="n">pad</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">pad_as_percentage</span><span class="p">,</span><span class="w"> </span><span class="n">PolygonComparisonFunction</span><span class="w"> </span><span class="n">comp</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="array.html" class="btn btn-neutral float-left" title="array.h" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="clipper_tools.html" class="btn btn-neutral float-right" title="clipper_tools.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

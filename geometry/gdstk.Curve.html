@@ -1,0 +1,659 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdstk.Curve &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.FlexPath" href="gdstk.FlexPath.html" />
+    <link rel="prev" title="gdstk.Polygon" href="gdstk.Polygon.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_python.html">Python API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_python.html#geometry-construction">Geometry Construction</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Polygon.html">gdstk.Polygon</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdstk.Curve</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gdstk.Curve"><code class="docutils literal notranslate"><span class="pre">Curve</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.arc"><code class="docutils literal notranslate"><span class="pre">Curve.arc()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.bezier"><code class="docutils literal notranslate"><span class="pre">Curve.bezier()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.commands"><code class="docutils literal notranslate"><span class="pre">Curve.commands()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.cubic"><code class="docutils literal notranslate"><span class="pre">Curve.cubic()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.cubic_smooth"><code class="docutils literal notranslate"><span class="pre">Curve.cubic_smooth()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.horizontal"><code class="docutils literal notranslate"><span class="pre">Curve.horizontal()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.interpolation"><code class="docutils literal notranslate"><span class="pre">Curve.interpolation()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.parametric"><code class="docutils literal notranslate"><span class="pre">Curve.parametric()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.points"><code class="docutils literal notranslate"><span class="pre">Curve.points()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.quadratic"><code class="docutils literal notranslate"><span class="pre">Curve.quadratic()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.quadratic_smooth"><code class="docutils literal notranslate"><span class="pre">Curve.quadratic_smooth()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.segment"><code class="docutils literal notranslate"><span class="pre">Curve.segment()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.tolerance"><code class="docutils literal notranslate"><span class="pre">Curve.tolerance</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.turn"><code class="docutils literal notranslate"><span class="pre">Curve.turn()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Curve.vertical"><code class="docutils literal notranslate"><span class="pre">Curve.vertical()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.FlexPath.html">gdstk.FlexPath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.RobustPath.html">gdstk.RobustPath</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Repetition.html">gdstk.Repetition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.rectangle.html">gdstk.rectangle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.cross.html">gdstk.cross</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.regular_polygon.html">gdstk.regular_polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.ellipse.html">gdstk.ellipse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.racetrack.html">gdstk.racetrack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.text.html">gdstk.text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.contour.html">gdstk.contour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.offset.html">gdstk.offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.boolean.html">gdstk.boolean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.slice.html">gdstk.slice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.inside.html">gdstk.inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.all_inside.html">gdstk.all_inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.any_inside.html">gdstk.any_inside</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_python.html#library-organization">Library Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_python.html">Python API Reference</a></li>
+      <li class="breadcrumb-item active">gdstk.Curve</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdstk-curve">
+<h1>gdstk.Curve<a class="headerlink" href="#gdstk-curve" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gdstk.Curve">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gdstk.</span></span><span class="sig-name descname"><span class="pre">Curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gdstk.Curve" title="Link to this definition"></a></dt>
+<dd><p>Curve object for construction of complex polygons.</p>
+<p>The methods are loosely based on the definition of SVG paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> – Curve starting point. It can be a sequence of 2 numbers or a
+single complex value.</p></li>
+<li><p><strong>tolerance</strong> – Tolerance used for calculating the polygonal
+approximation of the curve.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/init.svg" class="align-center" src="../_images/init.svg" />
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.arc" title="gdstk.Curve.arc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arc</span></code></a>(radius, initial_angle, final_angle[, ...])</p></td>
+<td><p>Append an elliptical arc to this curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.bezier" title="gdstk.Curve.bezier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bezier</span></code></a>(xy[, relative])</p></td>
+<td><p>Append a Bézier curve to this curve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.commands" title="gdstk.Curve.commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">commands</span></code></a>(*args)</p></td>
+<td><p>Parse commands to append sections to this curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.cubic" title="gdstk.Curve.cubic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic</span></code></a>(xy[, relative])</p></td>
+<td><p>Append cubic Bézier curves to this curve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.cubic_smooth" title="gdstk.Curve.cubic_smooth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic_smooth</span></code></a>(xy[, relative])</p></td>
+<td><p>Append smooth cubic Bézier curves to this curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.horizontal" title="gdstk.Curve.horizontal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">horizontal</span></code></a>(x[, relative])</p></td>
+<td><p>Append horizontal segments to this curve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.interpolation" title="gdstk.Curve.interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolation</span></code></a>(points[, angles, tension_in, ...])</p></td>
+<td><p>Append a smooth interpolating curve through the given points.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.parametric" title="gdstk.Curve.parametric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parametric</span></code></a>(curve_function[, relative])</p></td>
+<td><p>Append a parametric curve to this curve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.points" title="gdstk.Curve.points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">points</span></code></a>()</p></td>
+<td><p>Return the polygonal approximation of this curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.quadratic" title="gdstk.Curve.quadratic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quadratic</span></code></a>(xy[, relative])</p></td>
+<td><p>Append quadratic Bézier curves to this curve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.quadratic_smooth" title="gdstk.Curve.quadratic_smooth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quadratic_smooth</span></code></a>(xy[, relative])</p></td>
+<td><p>Append smooth quadratic Bézier curves to this curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.segment" title="gdstk.Curve.segment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment</span></code></a>(xy[, relative])</p></td>
+<td><p>Append straight segments to this curve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.turn" title="gdstk.Curve.turn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">turn</span></code></a>(radius, angle)</p></td>
+<td><p>Append a circular turn to this curve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Curve.vertical" title="gdstk.Curve.vertical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical</span></code></a>(y[, relative])</p></td>
+<td><p>Append vertical segments to this curve.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Curve.tolerance" title="gdstk.Curve.tolerance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tolerance</span></code></a></p></td>
+<td><p>Tolerance used for calculating the polygonal approximation of the curve.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.arc">
+<span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.arc" title="Link to this definition"></a></dt>
+<dd><p>Append an elliptical arc to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<em>number</em><em> or </em><em>sequence</em><em>[</em><em>2</em><em>]</em>) – Circular arc radius or elliptical
+arc radii.</p></li>
+<li><p><strong>initial_angle</strong> – Starting angle (in radians).</p></li>
+<li><p><strong>final_angle</strong> – Ending angle (in radians).</p></li>
+<li><p><strong>rotation</strong> – Arc rotation.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">arc</span><span class="p">((</span><span class="mi">2</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/arc.svg" class="align-center" src="../_images/arc.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.bezier">
+<span class="sig-name descname"><span class="pre">bezier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.bezier" title="Link to this definition"></a></dt>
+<dd><p>Append a Bézier curve to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Curve control points.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">),</span>
+<span class="gp">... </span>          <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">control_poly</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">(),</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">bezier</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/bezier.svg" class="align-center" src="../_images/bezier.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.commands">
+<span class="sig-name descname"><span class="pre">commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.commands" title="Link to this definition"></a></dt>
+<dd><p>Parse commands to append sections to this curve.</p>
+<p>Commands are single characters followed by a pre-defined number of
+numerical arguments, according to the table below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command</p></th>
+<th class="head"><p>Primitive</p></th>
+<th class="head"><p>Arguments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>L/l</p></td>
+<td><p>Line segment</p></td>
+<td><p>x, y</p></td>
+</tr>
+<tr class="row-odd"><td><p>H/h</p></td>
+<td><p>Horizontal segment</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-even"><td><p>V/v</p></td>
+<td><p>Vertical segment</p></td>
+<td><p>y</p></td>
+</tr>
+<tr class="row-odd"><td><p>C/c</p></td>
+<td><p>Cubic Bézier</p></td>
+<td><p>x0, y0, x1, y1, x2, y2</p></td>
+</tr>
+<tr class="row-even"><td><p>S/s</p></td>
+<td><p>Smooth cubic Bézier</p></td>
+<td><p>x0, y0, x1, y1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Q/q</p></td>
+<td><p>Quadratic Bézier</p></td>
+<td><p>x0, y0, x1, y1</p></td>
+</tr>
+<tr class="row-even"><td><p>T/t</p></td>
+<td><p>Smooth quadratic Bézier</p></td>
+<td><p>x, y</p></td>
+</tr>
+<tr class="row-odd"><td><p>a</p></td>
+<td><p>Circular turn</p></td>
+<td><p>rad, ang</p></td>
+</tr>
+<tr class="row-even"><td><p>A</p></td>
+<td><p>Circular arc</p></td>
+<td><p>rad, ang0, ang1</p></td>
+</tr>
+<tr class="row-odd"><td><p>E</p></td>
+<td><p>Elliptical arc</p></td>
+<td><p>rad0, rad1, ang0, ang1, rot</p></td>
+</tr>
+</tbody>
+</table>
+<p>Uppercase commands assume that coordinates are absolute, whereas the
+lowercase versions assume they are relative to the previous endpoint.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The meaning and order of the arguments of all commands are identical
+to the corresponding method.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">commands</span><span class="p">(</span><span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>               <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/commands.svg" class="align-center" src="../_images/commands.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.cubic">
+<span class="sig-name descname"><span class="pre">cubic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.cubic" title="Link to this definition"></a></dt>
+<dd><p>Append cubic Bézier curves to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Each set of 3 consecutive points is
+interpreted as 2 control points and an end point.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">cubic</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">cubic</span><span class="p">([(</span><span class="mf">2.7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.8</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+<span class="gp">... </span>             <span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/cubic.svg" class="align-center" src="../_images/cubic.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.cubic_smooth">
+<span class="sig-name descname"><span class="pre">cubic_smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.cubic_smooth" title="Link to this definition"></a></dt>
+<dd><p>Append smooth cubic Bézier curves to this curve.</p>
+<p>The first control point is assumed to be the reflection of the last
+control point of this curve with respect to its end point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Each set of 2 consecutive points is
+interpreted as the second control point and an end point.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">cubic</span><span class="p">([</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span><span class="p">,</span> <span class="mf">2.5</span> <span class="o">+</span> <span class="mf">1.5</span><span class="n">j</span><span class="p">,</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="n">j</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">cubic_smooth</span><span class="p">([</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="n">j</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/cubic_smooth.svg" class="align-center" src="../_images/cubic_smooth.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.horizontal">
+<span class="sig-name descname"><span class="pre">horizontal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.horizontal" title="Link to this definition"></a></dt>
+<dd><p>Append horizontal segments to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>number</em><em> or </em><em>sequence</em>) – End point x coordinates.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.interpolation">
+<span class="sig-name descname"><span class="pre">interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tension_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tension_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_curl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_curl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.interpolation" title="Link to this definition"></a></dt>
+<dd><p>Append a smooth interpolating curve through the given points.</p>
+<p>Use the Hobby algorithm <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> to calculate a smooth interpolating
+curve made of cubic Bezier segments between each pair of points.  Angle
+and tension parameters can be specified at each point, and the curve can
+be open or closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>sequence</em><em>[</em><em>N</em><em>] of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Vertices in the interpolating curve.</p></li>
+<li><p><strong>angles</strong> (<code class="docutils literal notranslate"><span class="pre">None</span></code> or sequence[N + 1]) – Tangent angles at each point
+(in radians). Angles defined as <code class="docutils literal notranslate"><span class="pre">None</span></code> are automatically
+calculated.</p></li>
+<li><p><strong>tension_in</strong> (<em>number</em><em> or </em><em>sequence</em><em>[</em><em>N + 1</em><em>]</em>) – Tension parameter when
+arriving at each point. One value per point or a single value used
+for all points.</p></li>
+<li><p><strong>tension_out</strong> (<em>number</em><em> or </em><em>sequence</em><em>[</em><em>N + 1</em><em>]</em>) – Tension parameter when
+leaving each point. One value per point or a single value used for
+all points.</p></li>
+<li><p><strong>initial_curl</strong> – Ratio between the mock curvatures at the first point
+and at its neighbor. A value of 1 renders the first segment a good
+approximation for a circular arc. A value of 0 will better
+approximate a straight segment. It has no effect for closed curves
+or when an angle is defined for the first point.</p></li>
+<li><p><strong>final_curl</strong> – Ratio between the mock curvatures at the last point and
+at its neighbor. It has no effect for closed curves or when an
+angle is defined for the first point.</p></li>
+<li><p><strong>cycle</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, calculates control points for a closed curve,
+with an additional segment connecting the first and last points.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">control_poly_1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">(),</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">interpolation</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">cycle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">half_pi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">half_pi</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="n">half_pi</span><span class="p">,</span> <span class="o">-</span><span class="n">half_pi</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">control_poly_2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">(),</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">9</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">interpolation</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">cycle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/interpolation.svg" class="align-center" src="../_images/interpolation.svg" />
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Hobby, J.D. “Smooth, easy to compute interpolating splines.”
+<em>Discrete Comput Geom</em> 1, 123–140 (1986). <a class="reference external" href="https://doi.org/10.1007/BF02187690">DOI: 10.1007/BF02187690</a>.</p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.parametric">
+<span class="sig-name descname"><span class="pre">parametric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">curve_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.parametric" title="Link to this definition"></a></dt>
+<dd><p>Append a parametric curve to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>curve_function</strong> (<em>callable</em>) – Function that defines the curve. Must be
+a function of one argument (that varies from 0 to 1) that returns
+a 2-element sequence or complex with the coordinates of the curve.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the return values of <code class="docutils literal notranslate"><span class="pre">curve_function</span></code> are
+used as offsets from the current path position, i.e., to ensure a
+continuous path, <code class="docutils literal notranslate"><span class="pre">curve_function(0)</span></code> must be (0, 0). Otherwise,
+they are used as absolute coordinates.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">top</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">x</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">u</span>
+<span class="gp">... </span>    <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">parametric</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">parametric</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="n">j</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/parametric.svg" class="align-center" src="../_images/parametric.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.points">
+<span class="sig-name descname"><span class="pre">points</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.Curve.points" title="Link to this definition"></a></dt>
+<dd><p>Return the polygonal approximation of this curve.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">()</span>
+<span class="go">array([[0., 0.],</span>
+<span class="go">       [1., 0.],</span>
+<span class="go">       [0., 1.]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.quadratic">
+<span class="sig-name descname"><span class="pre">quadratic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.quadratic" title="Link to this definition"></a></dt>
+<dd><p>Append quadratic Bézier curves to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Each set of 2 consecutive points is
+interpreted as control point and an end point.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.Curve.cubic" title="gdstk.Curve.cubic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.Curve.cubic()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.quadratic_smooth">
+<span class="sig-name descname"><span class="pre">quadratic_smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.quadratic_smooth" title="Link to this definition"></a></dt>
+<dd><p>Append smooth quadratic Bézier curves to this curve.</p>
+<p>The control point is assumed to be the reflection of the last control
+point of this curve with respect to its end point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Curve end points.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.Curve.cubic_smooth" title="gdstk.Curve.cubic_smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.Curve.cubic_smooth()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.segment">
+<span class="sig-name descname"><span class="pre">segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.segment" title="Link to this definition"></a></dt>
+<dd><p>Append straight segments to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> – Segment end point. It can be a sequence of 2 numbers or a single
+complex. Multiple segments can be constructed by using a sequence
+of points.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">([</span><span class="mi">0</span><span class="n">j</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="mi">0</span><span class="n">j</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">segment</span><span class="p">([(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)],</span> <span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+</pre></div>
+</div>
+<img alt="../_images/segment.svg" class="align-center" src="../_images/segment.svg" />
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Curve.tolerance">
+<span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#gdstk.Curve.tolerance" title="Link to this definition"></a></dt>
+<dd><p>Tolerance used for calculating the polygonal approximation of the curve.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="o">-</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">arc</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">polygon_1</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="go">7</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Curve</span><span class="p">((</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">curve</span><span class="o">.</span><span class="n">arc</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">polygon_2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">curve</span><span class="o">.</span><span class="n">points</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">polygon_2</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="go">62</span>
+</pre></div>
+</div>
+<img alt="../_images/tolerance.svg" class="align-center" src="../_images/tolerance.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.turn">
+<span class="sig-name descname"><span class="pre">turn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.turn" title="Link to this definition"></a></dt>
+<dd><p>Append a circular turn to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> – Circular arc radius.</p></li>
+<li><p><strong>angle</strong> – Turning angle. Positive values turn counter clockwise and
+negative values, clockwise.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Curve.vertical">
+<span class="sig-name descname"><span class="pre">vertical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Curve.vertical" title="Link to this definition"></a></dt>
+<dd><p>Append vertical segments to this curve.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>number</em><em> or </em><em>sequence</em>) – End point y coordinates.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gdstk.Polygon.html" class="btn btn-neutral float-left" title="gdstk.Polygon" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.FlexPath.html" class="btn btn-neutral float-right" title="gdstk.FlexPath" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

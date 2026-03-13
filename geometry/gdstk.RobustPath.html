@@ -1,0 +1,1395 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdstk.RobustPath &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.Repetition" href="gdstk.Repetition.html" />
+    <link rel="prev" title="gdstk.FlexPath" href="gdstk.FlexPath.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_python.html">Python API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_python.html#geometry-construction">Geometry Construction</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Polygon.html">gdstk.Polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Curve.html">gdstk.Curve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.FlexPath.html">gdstk.FlexPath</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdstk.RobustPath</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gdstk.RobustPath"><code class="docutils literal notranslate"><span class="pre">RobustPath</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.apply_repetition"><code class="docutils literal notranslate"><span class="pre">RobustPath.apply_repetition()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.arc"><code class="docutils literal notranslate"><span class="pre">RobustPath.arc()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.bezier"><code class="docutils literal notranslate"><span class="pre">RobustPath.bezier()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.commands"><code class="docutils literal notranslate"><span class="pre">RobustPath.commands()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.copy"><code class="docutils literal notranslate"><span class="pre">RobustPath.copy()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.cubic"><code class="docutils literal notranslate"><span class="pre">RobustPath.cubic()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.cubic_smooth"><code class="docutils literal notranslate"><span class="pre">RobustPath.cubic_smooth()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.datatypes"><code class="docutils literal notranslate"><span class="pre">RobustPath.datatypes</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.delete_gds_property"><code class="docutils literal notranslate"><span class="pre">RobustPath.delete_gds_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.delete_property"><code class="docutils literal notranslate"><span class="pre">RobustPath.delete_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.ends"><code class="docutils literal notranslate"><span class="pre">RobustPath.ends</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.get_gds_property"><code class="docutils literal notranslate"><span class="pre">RobustPath.get_gds_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.get_property"><code class="docutils literal notranslate"><span class="pre">RobustPath.get_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.gradient"><code class="docutils literal notranslate"><span class="pre">RobustPath.gradient()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.horizontal"><code class="docutils literal notranslate"><span class="pre">RobustPath.horizontal()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.interpolation"><code class="docutils literal notranslate"><span class="pre">RobustPath.interpolation()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.layers"><code class="docutils literal notranslate"><span class="pre">RobustPath.layers</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.max_evals"><code class="docutils literal notranslate"><span class="pre">RobustPath.max_evals</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.mirror"><code class="docutils literal notranslate"><span class="pre">RobustPath.mirror()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.num_paths"><code class="docutils literal notranslate"><span class="pre">RobustPath.num_paths</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.offsets"><code class="docutils literal notranslate"><span class="pre">RobustPath.offsets()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.parametric"><code class="docutils literal notranslate"><span class="pre">RobustPath.parametric()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.path_spines"><code class="docutils literal notranslate"><span class="pre">RobustPath.path_spines()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.position"><code class="docutils literal notranslate"><span class="pre">RobustPath.position()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.properties"><code class="docutils literal notranslate"><span class="pre">RobustPath.properties</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.quadratic"><code class="docutils literal notranslate"><span class="pre">RobustPath.quadratic()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.quadratic_smooth"><code class="docutils literal notranslate"><span class="pre">RobustPath.quadratic_smooth()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.repetition"><code class="docutils literal notranslate"><span class="pre">RobustPath.repetition</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.rotate"><code class="docutils literal notranslate"><span class="pre">RobustPath.rotate()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.scale"><code class="docutils literal notranslate"><span class="pre">RobustPath.scale()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.scale_width"><code class="docutils literal notranslate"><span class="pre">RobustPath.scale_width</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.segment"><code class="docutils literal notranslate"><span class="pre">RobustPath.segment()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.set_datatypes"><code class="docutils literal notranslate"><span class="pre">RobustPath.set_datatypes()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.set_ends"><code class="docutils literal notranslate"><span class="pre">RobustPath.set_ends()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.set_gds_property"><code class="docutils literal notranslate"><span class="pre">RobustPath.set_gds_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.set_layers"><code class="docutils literal notranslate"><span class="pre">RobustPath.set_layers()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.set_property"><code class="docutils literal notranslate"><span class="pre">RobustPath.set_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.simple_path"><code class="docutils literal notranslate"><span class="pre">RobustPath.simple_path</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.size"><code class="docutils literal notranslate"><span class="pre">RobustPath.size</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.spine"><code class="docutils literal notranslate"><span class="pre">RobustPath.spine()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.to_polygons"><code class="docutils literal notranslate"><span class="pre">RobustPath.to_polygons()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.tolerance"><code class="docutils literal notranslate"><span class="pre">RobustPath.tolerance</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.translate"><code class="docutils literal notranslate"><span class="pre">RobustPath.translate()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.turn"><code class="docutils literal notranslate"><span class="pre">RobustPath.turn()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.vertical"><code class="docutils literal notranslate"><span class="pre">RobustPath.vertical()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.RobustPath.widths"><code class="docutils literal notranslate"><span class="pre">RobustPath.widths()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Repetition.html">gdstk.Repetition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.rectangle.html">gdstk.rectangle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.cross.html">gdstk.cross</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.regular_polygon.html">gdstk.regular_polygon</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.ellipse.html">gdstk.ellipse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.racetrack.html">gdstk.racetrack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.text.html">gdstk.text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.contour.html">gdstk.contour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.offset.html">gdstk.offset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.boolean.html">gdstk.boolean</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.slice.html">gdstk.slice</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.inside.html">gdstk.inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.all_inside.html">gdstk.all_inside</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.any_inside.html">gdstk.any_inside</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_python.html#library-organization">Library Organization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_python.html">Python API Reference</a></li>
+      <li class="breadcrumb-item active">gdstk.RobustPath</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdstk-robustpath">
+<h1>gdstk.RobustPath<a class="headerlink" href="#gdstk-robustpath" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gdstk.RobustPath">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gdstk.</span></span><span class="sig-name descname"><span class="pre">RobustPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'flush'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_evals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">simple_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datatype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gdstk.RobustPath" title="Link to this definition"></a></dt>
+<dd><p>Robust path creation.</p>
+<p>RobusPath can be used to create single and multiple parallel paths with
+parametrized widths and offsets. End caps can be customized freely.
+Intersections between adjacent sections are numerically determined so
+that curved sections do not need to be joined smoothly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>initial_point</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Starting point of the
+path.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em> or </em><em>sequence</em>) – Width of the paths. If this is a
+sequence, its length defines the number of paths created.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em> or </em><em>sequence</em>) – If this is a number, it is treated as
+the distance between centers of adjacent paths. If it is a
+sequence, each number represents the absolute offset from the
+center of the path.</p></li>
+<li><p><strong>ends</strong> – Definition for the end caps. One of “flush”, “extended”,
+“round”, “smooth”, a 2-tuple, or a callable. A 2-tuple defines the
+extension length on both ends of the path. A callable must accept
+4 arguments (cap end point and direction for both path sides) and
+return a sequence of points that define the cap shape.</p></li>
+<li><p><strong>tolerance</strong> – Tolerance used for calculating the polygonal
+approximation of the paths.</p></li>
+<li><p><strong>max_evals</strong> – Maximal number of path evaluations per section.  Used for
+intersection finding at joins and to create the polygonal
+approximation for each section.</p></li>
+<li><p><strong>simple_path</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the paths will be stored as GDSII path
+elements. They require less memory, but do not support “smooth” or
+callable joins and end caps, or width changes along the path.</p></li>
+<li><p><strong>scale_width</strong> – If <code class="docutils literal notranslate"><span class="pre">False</span></code>, the path widths are not scaled when
+transforming this path.</p></li>
+<li><p><strong>layer</strong> – layer number assigned to this path.</p></li>
+<li><p><strong>datatype</strong> – data type number assigned to this path.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">width</span></code> is a number and <code class="docutils literal notranslate"><span class="pre">offset</span></code> a sequence, the number of
+parallel paths is defined by the latter.</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">ends</span></code>, <code class="docutils literal notranslate"><span class="pre">layer</span></code>, and <code class="docutils literal notranslate"><span class="pre">datatype</span></code> can also be lists
+with one definition for each path created.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fpath</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">FlexPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fpath</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fpath</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpath</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpath</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rpath</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/init3.svg" class="align-center" src="../_images/init3.svg" />
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="mf">1.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;flush&quot;</span><span class="p">,</span> <span class="s2">&quot;extended&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="s2">&quot;round&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">layer</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">horizontal</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/init12.svg" class="align-center" src="../_images/init12.svg" />
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.apply_repetition" title="gdstk.RobustPath.apply_repetition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_repetition</span></code></a>()</p></td>
+<td><p>Create new robustpaths based on this object's <code class="docutils literal notranslate"><span class="pre">repetition</span></code> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.arc" title="gdstk.RobustPath.arc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">arc</span></code></a>(radius, initial_angle, final_angle[, ...])</p></td>
+<td><p>Append an elliptical arc to this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.bezier" title="gdstk.RobustPath.bezier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bezier</span></code></a>(xy[, width, offset, relative])</p></td>
+<td><p>Append a Bézier curve to this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.commands" title="gdstk.RobustPath.commands"><code class="xref py py-obj docutils literal notranslate"><span class="pre">commands</span></code></a>(path_commands...)</p></td>
+<td><p>Append sections to this path according to commands.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.copy" title="gdstk.RobustPath.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Create a copy this robustpath.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.cubic" title="gdstk.RobustPath.cubic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic</span></code></a>(xy[, width, offset, relative])</p></td>
+<td><p>Append a cubic Bézier curve to this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.cubic_smooth" title="gdstk.RobustPath.cubic_smooth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cubic_smooth</span></code></a>(xy[, width, offset, relative])</p></td>
+<td><p>Append a smooth cubic Bézier curve to this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.delete_gds_property" title="gdstk.RobustPath.delete_gds_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_gds_property</span></code></a>(attr)</p></td>
+<td><p>Delete a GDSII property of this element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.delete_property" title="gdstk.RobustPath.delete_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_property</span></code></a>(name)</p></td>
+<td><p>Delete the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.get_gds_property" title="gdstk.RobustPath.get_gds_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gds_property</span></code></a>(attr)</p></td>
+<td><p>Return a GDSII property of this element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.get_property" title="gdstk.RobustPath.get_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_property</span></code></a>(name)</p></td>
+<td><p>Return the values of the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.gradient" title="gdstk.RobustPath.gradient"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gradient</span></code></a>(u[, from_below])</p></td>
+<td><p>Calculate the gradient of this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.horizontal" title="gdstk.RobustPath.horizontal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">horizontal</span></code></a>(x[, width, offset, relative])</p></td>
+<td><p>Append a horizontal segment to this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.interpolation" title="gdstk.RobustPath.interpolation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolation</span></code></a>(points[, angles, tension_in, ...])</p></td>
+<td><p>Append a smooth interpolating curve through the given points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.mirror" title="gdstk.RobustPath.mirror"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mirror</span></code></a>(p1[, p2])</p></td>
+<td><p>Mirror this path across the line through <cite>p1</cite> and <cite>p2</cite>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.offsets" title="gdstk.RobustPath.offsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offsets</span></code></a>(u[, from_below])</p></td>
+<td><p>Calculate the offset of this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.parametric" title="gdstk.RobustPath.parametric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parametric</span></code></a>(path_function[, path_gradient, ...])</p></td>
+<td><p>Append a parametric curve to this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.path_spines" title="gdstk.RobustPath.path_spines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_spines</span></code></a>()</p></td>
+<td><p>Central spines of each parallel path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.position" title="gdstk.RobustPath.position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">position</span></code></a>(u[, from_below])</p></td>
+<td><p>Calculate the position of this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.quadratic" title="gdstk.RobustPath.quadratic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quadratic</span></code></a>(xy[, width, offset, relative])</p></td>
+<td><p>Append a quadratic Bézier curve to this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.quadratic_smooth" title="gdstk.RobustPath.quadratic_smooth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quadratic_smooth</span></code></a>(xy[, width, offset, relative])</p></td>
+<td><p>Append a smooth quadratic Bézier curve to this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.rotate" title="gdstk.RobustPath.rotate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotate</span></code></a>(angle[, center])</p></td>
+<td><p>Rotate this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.scale" title="gdstk.RobustPath.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale</span></code></a>(s[, center])</p></td>
+<td><p>Scale this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">segment</span></code></a>(xy[, width, offset, relative])</p></td>
+<td><p>Append a straight segment to this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.set_datatypes" title="gdstk.RobustPath.set_datatypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_datatypes</span></code></a>(*datatypes)</p></td>
+<td><p>Set the datatypes for all paths.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.set_ends" title="gdstk.RobustPath.set_ends"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_ends</span></code></a>(*ends)</p></td>
+<td><p>Set the end types for all paths.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.set_gds_property" title="gdstk.RobustPath.set_gds_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_gds_property</span></code></a>(attr, value)</p></td>
+<td><p>Set a GDSII property for this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.set_layers" title="gdstk.RobustPath.set_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_layers</span></code></a>(*layers)</p></td>
+<td><p>Set the layers for all paths.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.set_property" title="gdstk.RobustPath.set_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_property</span></code></a>(name, value)</p></td>
+<td><p>Set a property for this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.spine" title="gdstk.RobustPath.spine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spine</span></code></a>()</p></td>
+<td><p>Central path spine.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.to_polygons" title="gdstk.RobustPath.to_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_polygons</span></code></a>()</p></td>
+<td><p>Calculate the polygonal representations of this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.translate" title="gdstk.RobustPath.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a>(dx[, dy])</p></td>
+<td><p>Translate this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.turn" title="gdstk.RobustPath.turn"><code class="xref py py-obj docutils literal notranslate"><span class="pre">turn</span></code></a>(radius, angle[, width, offset])</p></td>
+<td><p>Append a circular turn to this path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.vertical" title="gdstk.RobustPath.vertical"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vertical</span></code></a>(y[, width, offset, relative])</p></td>
+<td><p>Append a vertical segment to this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.widths" title="gdstk.RobustPath.widths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">widths</span></code></a>(u[, from_below])</p></td>
+<td><p>Calculate the width of this path.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.datatypes" title="gdstk.RobustPath.datatypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">datatypes</span></code></a></p></td>
+<td><p>RobustPath data type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.ends" title="gdstk.RobustPath.ends"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ends</span></code></a></p></td>
+<td><p>End types for each path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.layers" title="gdstk.RobustPath.layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layers</span></code></a></p></td>
+<td><p>RobustPath layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.max_evals" title="gdstk.RobustPath.max_evals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_evals</span></code></a></p></td>
+<td><p>Maximal number of path evaluations per section.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.num_paths" title="gdstk.RobustPath.num_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">num_paths</span></code></a></p></td>
+<td><p>Number of paths.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.properties" title="gdstk.RobustPath.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">properties</span></code></a></p></td>
+<td><p>Properties of this element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.repetition" title="gdstk.RobustPath.repetition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">repetition</span></code></a></p></td>
+<td><p>Repetition associated with this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.scale_width" title="gdstk.RobustPath.scale_width"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scale_width</span></code></a></p></td>
+<td><p>Scale width flag.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.simple_path" title="gdstk.RobustPath.simple_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">simple_path</span></code></a></p></td>
+<td><p>Simple path flag.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.RobustPath.size" title="gdstk.RobustPath.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a></p></td>
+<td><p>Number of sections in this path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.RobustPath.tolerance" title="gdstk.RobustPath.tolerance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tolerance</span></code></a></p></td>
+<td><p>Path tolerance.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.apply_repetition">
+<span class="sig-name descname"><span class="pre">apply_repetition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.RobustPath.apply_repetition" title="Link to this definition"></a></dt>
+<dd><p>Create new robustpaths based on this object’s <code class="docutils literal notranslate"><span class="pre">repetition</span></code> attribute.</p>
+<p>After the repetition is applied, the original attribute is set to
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Newly created objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.arc">
+<span class="sig-name descname"><span class="pre">arc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.arc" title="Link to this definition"></a></dt>
+<dd><p>Append an elliptical arc to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> (<em>number</em><em> or </em><em>sequence</em><em>[</em><em>2</em><em>]</em>) – Circular arc radius or elliptical
+arc radii.</p></li>
+<li><p><strong>initial_angle</strong> – Starting angle (in radians).</p></li>
+<li><p><strong>final_angle</strong> – Ending angle (in radians).</p></li>
+<li><p><strong>rotation</strong> – Arc rotation.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">FlexPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">vertical</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">arc</span><span class="p">(</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">arc</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/arc2.svg" class="align-center" src="../_images/arc2.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.bezier">
+<span class="sig-name descname"><span class="pre">bezier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.bezier" title="Link to this definition"></a></dt>
+<dd><p>Append a Bézier curve to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Control points for the Bézier. Each point
+can be a coordinate pair or a complex.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">bezier</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">width</span><span class="o">=</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">u</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/bezier2.svg" class="align-center" src="../_images/bezier2.svg" />
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.commands">
+<span class="sig-name descname"><span class="pre">commands</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_commands...</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.commands" title="Link to this definition"></a></dt>
+<dd><p>Append sections to this path according to commands.</p>
+<p>Commands are single characters followed by a pre-defined number of
+numerical arguments, according to the table below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Command</p></th>
+<th class="head"><p>Primitive</p></th>
+<th class="head"><p>Arguments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>L/l</p></td>
+<td><p>Line segment</p></td>
+<td><p>x, y</p></td>
+</tr>
+<tr class="row-odd"><td><p>H/h</p></td>
+<td><p>Horizontal segment</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-even"><td><p>V/v</p></td>
+<td><p>Vertical segment</p></td>
+<td><p>y</p></td>
+</tr>
+<tr class="row-odd"><td><p>C/c</p></td>
+<td><p>Cubic Bézier</p></td>
+<td><p>x0, y0, x1, y1, x2, y2</p></td>
+</tr>
+<tr class="row-even"><td><p>S/s</p></td>
+<td><p>Smooth cubic Bézier</p></td>
+<td><p>x0, y0, x1, y1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Q/q</p></td>
+<td><p>Quadratic Bézier</p></td>
+<td><p>x0, y0, x1, y1</p></td>
+</tr>
+<tr class="row-even"><td><p>T/t</p></td>
+<td><p>Smooth quadratic Bézier</p></td>
+<td><p>x, y</p></td>
+</tr>
+<tr class="row-odd"><td><p>a</p></td>
+<td><p>Circular turn</p></td>
+<td><p>rad, ang</p></td>
+</tr>
+<tr class="row-even"><td><p>A</p></td>
+<td><p>Circular arc</p></td>
+<td><p>rad, ang0, ang1</p></td>
+</tr>
+<tr class="row-odd"><td><p>E</p></td>
+<td><p>Elliptical arc</p></td>
+<td><p>rad0, rad1, ang0, ang1, rot</p></td>
+</tr>
+</tbody>
+</table>
+<p>Uppercase commands assume that coordinates are absolute, whereas the
+lowercase versions assume they are relative to the previous endpoint.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>The meaning and order of the arguments of all commands are identical
+to the corresponding method.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="gp">... </span>                        <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">commands</span><span class="p">(</span><span class="s2">&quot;l&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">),</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/commands2.svg" class="align-center" src="../_images/commands2.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#gdstk.RobustPath" title="gdstk.RobustPath"><span class="pre">gdstk.RobustPath</span></a></span></span><a class="headerlink" href="#gdstk.RobustPath.copy" title="Link to this definition"></a></dt>
+<dd><p>Create a copy this robustpath.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Copy of this robustpath.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.cubic">
+<span class="sig-name descname"><span class="pre">cubic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.cubic" title="Link to this definition"></a></dt>
+<dd><p>Append a cubic Bézier curve to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><em>3 points</em>) – Control points and end point for the
+Bézier. Each point can be a coordinate pair or a complex.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">cubic</span><span class="p">([(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">cubic</span><span class="p">([(</span><span class="mf">0.8</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mf">2.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.5</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">cubic</span><span class="p">([(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)],</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/cubic2.svg" class="align-center" src="../_images/cubic2.svg" />
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.cubic_smooth">
+<span class="sig-name descname"><span class="pre">cubic_smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.cubic_smooth" title="Link to this definition"></a></dt>
+<dd><p>Append a smooth cubic Bézier curve to this path.</p>
+<p>The first control point of the Bézier is such that the gradient of the
+path is continuous.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><em>2 points</em>) – Second control point and end point for
+the Bézier. Each can be a coordinate pair or a complex.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">cubic</span><span class="p">([(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">cubic_smooth</span><span class="p">([(</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">cubic_smooth</span><span class="p">([(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">)],</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/cubic_smooth2.svg" class="align-center" src="../_images/cubic_smooth2.svg" />
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a>, <a class="reference internal" href="#gdstk.RobustPath.cubic" title="gdstk.RobustPath.cubic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.cubic()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.datatypes">
+<span class="sig-name descname"><span class="pre">datatypes</span></span><a class="headerlink" href="#gdstk.RobustPath.datatypes" title="Link to this definition"></a></dt>
+<dd><p>RobustPath data type.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.set_datatypes" title="gdstk.RobustPath.set_datatypes"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.set_datatypes()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.delete_gds_property">
+<span class="sig-name descname"><span class="pre">delete_gds_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.delete_gds_property" title="Link to this definition"></a></dt>
+<dd><p>Delete a GDSII property of this element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attr</strong> (<em>number</em>) – Property number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.delete_property">
+<span class="sig-name descname"><span class="pre">delete_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.delete_property" title="Link to this definition"></a></dt>
+<dd><p>Delete the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.ends">
+<span class="sig-name descname"><span class="pre">ends</span></span><a class="headerlink" href="#gdstk.RobustPath.ends" title="Link to this definition"></a></dt>
+<dd><p>End types for each path.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.set_ends" title="gdstk.RobustPath.set_ends"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.set_ends()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.get_gds_property">
+<span class="sig-name descname"><span class="pre">get_gds_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#gdstk.RobustPath.get_gds_property" title="Link to this definition"></a></dt>
+<dd><p>Return a GDSII property of this element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attr</strong> (<em>number</em>) – Property number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Property value. If the property number does not exist,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.get_property">
+<span class="sig-name descname"><span class="pre">get_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.RobustPath.get_property" title="Link to this definition"></a></dt>
+<dd><p>Return the values of the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of property values. If no property is found,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.gradient">
+<span class="sig-name descname"><span class="pre">gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_below</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.RobustPath.gradient" title="Link to this definition"></a></dt>
+<dd><p>Calculate the gradient of this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>number</em>) – Where in the path to calculate the position. The value
+must be in the range 0 thru <a class="reference internal" href="#gdstk.RobustPath.size" title="gdstk.RobustPath.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gdstk.RobustPath.size</span></code></a>,
+inclusive.</p></li>
+<li><p><strong>from_below</strong> – If there is a discontinuity at <code class="docutils literal notranslate"><span class="pre">u</span></code>, use the value
+approaching from below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The spine gradient of the path at <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.horizontal">
+<span class="sig-name descname"><span class="pre">horizontal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.horizontal" title="Link to this definition"></a></dt>
+<dd><p>Append a horizontal segment to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>number</em>) – End point x coordinate.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.interpolation">
+<span class="sig-name descname"><span class="pre">interpolation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tension_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tension_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_curl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_curl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.interpolation" title="Link to this definition"></a></dt>
+<dd><p>Append a smooth interpolating curve through the given points.</p>
+<p>Use the Hobby algorithm <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> to calculate a smooth interpolating
+path made of cubic Bezier segments between each pair of points.  Angle
+and tension parameters can be specified at each point, and the path can
+be open or closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>points</strong> (<em>sequence</em><em>[</em><em>N</em><em>] of </em><a class="reference internal" href="gdstk.Polygon.html#gdstk.Polygon.points" title="gdstk.Polygon.points"><em>points</em></a>) – Vertices in the interpolating path.</p></li>
+<li><p><strong>angles</strong> (<code class="docutils literal notranslate"><span class="pre">None</span></code> or sequence[N + 1]) – Tangent angles at each point
+(in radians). Angles defined as <code class="docutils literal notranslate"><span class="pre">None</span></code> are automatically
+calculated.</p></li>
+<li><p><strong>tension_in</strong> (<em>number</em><em> or </em><em>sequence</em><em>[</em><em>N + 1</em><em>]</em>) – Tension parameter when
+arriving at each point. One value per point or a single value used
+for all points.</p></li>
+<li><p><strong>tension_out</strong> (<em>number</em><em> or </em><em>sequence</em><em>[</em><em>N + 1</em><em>]</em>) – Tension parameter when
+leaving each point. One value per point or a single value used for
+all points.</p></li>
+<li><p><strong>initial_curl</strong> – Ratio between the mock curvatures at the first point
+and at its neighbor. A value of 1 renders the first segment a good
+approximation for a circular arc. A value of 0 will better
+approximate a straight segment. It has no effect for closed paths
+or when an angle is defined for the first point.</p></li>
+<li><p><strong>final_curl</strong> – Ratio between the mock curvatures at the last point and
+at its neighbor. It has no effect for closed paths or when an
+angle is defined for the first point.</p></li>
+<li><p><strong>cycle</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, calculates control points for a closed path,
+with an additional segment connecting the first and last points.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">half_pi</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">points</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="n">half_pi</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="n">half_pi</span><span class="p">,</span> <span class="o">-</span><span class="n">half_pi</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_1</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_1</span><span class="o">.</span><span class="n">interpolation</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">cycle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_2</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">8</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_2</span><span class="o">.</span><span class="n">interpolation</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">cycle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">relative</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/interpolation2.svg" class="align-center" src="../_images/interpolation2.svg" />
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a></p>
+</div>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Hobby, J.D. “Smooth, easy to compute interpolating splines.”
+<em>Discrete Comput Geom</em> 1, 123–140 (1986). <a class="reference external" href="https://doi.org/10.1007/BF02187690">DOI: 10.1007/BF02187690</a>.</p>
+</aside>
+</aside>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.layers">
+<span class="sig-name descname"><span class="pre">layers</span></span><a class="headerlink" href="#gdstk.RobustPath.layers" title="Link to this definition"></a></dt>
+<dd><p>RobustPath layer.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.set_layers" title="gdstk.RobustPath.set_layers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.set_layers()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.max_evals">
+<span class="sig-name descname"><span class="pre">max_evals</span></span><a class="headerlink" href="#gdstk.RobustPath.max_evals" title="Link to this definition"></a></dt>
+<dd><p>Maximal number of path evaluations per section.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.mirror">
+<span class="sig-name descname"><span class="pre">mirror</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.mirror" title="Link to this definition"></a></dt>
+<dd><p>Mirror this path across the line through <cite>p1</cite> and <cite>p2</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>p1</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – First point in the mirror line.</p></li>
+<li><p><strong>p2</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Second point in the mirror line.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.num_paths">
+<span class="sig-name descname"><span class="pre">num_paths</span></span><a class="headerlink" href="#gdstk.RobustPath.num_paths" title="Link to this definition"></a></dt>
+<dd><p>Number of paths.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.offsets">
+<span class="sig-name descname"><span class="pre">offsets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_below</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.RobustPath.offsets" title="Link to this definition"></a></dt>
+<dd><p>Calculate the offset of this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>number</em>) – Where in the path to calculate the width. The value must
+be in the range 0 thru <a class="reference internal" href="#gdstk.RobustPath.size" title="gdstk.RobustPath.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gdstk.RobustPath.size</span></code></a>, inclusive.</p></li>
+<li><p><strong>from_below</strong> – If there is a discontinuity at <code class="docutils literal notranslate"><span class="pre">u</span></code>, use the value
+approaching from below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The offsets of each path at <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.parametric">
+<span class="sig-name descname"><span class="pre">parametric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_gradient</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.parametric" title="Link to this definition"></a></dt>
+<dd><p>Append a parametric curve to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path_function</strong> (<em>callable</em>) – Function that defines the path. Must be a
+function of one argument (that varies from 0 to 1) that returns a
+2-element sequence or complex with the coordinates of the path.</p></li>
+<li><p><strong>path_gradient</strong> (<em>callable</em>) – Function that returns the path gradient.
+Must be a function of one argument (that varies from 0 to 1) that
+returns a 2-element sequence or complex with the gradient.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the return values of <code class="docutils literal notranslate"><span class="pre">path_function</span></code> are
+used as offsets from the current path position, i.e., to ensure a
+continuous path, <code class="docutils literal notranslate"><span class="pre">path_function(0)</span></code> must be (0, 0). Otherwise,
+they are used as absolute coordinates.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">spiral</span><span class="p">(</span><span class="n">u</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="n">rad</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u</span> <span class="o">**</span> <span class="mf">0.5</span>
+<span class="gp">... </span>   <span class="n">ang</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">u</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="p">(</span><span class="n">rad</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ang</span><span class="p">),</span> <span class="n">rad</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ang</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">parametric</span><span class="p">(</span><span class="n">spiral</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">u</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/parametric2.svg" class="align-center" src="../_images/parametric2.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.path_spines">
+<span class="sig-name descname"><span class="pre">path_spines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.RobustPath.path_spines" title="Link to this definition"></a></dt>
+<dd><p>Central spines of each parallel path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Copy of the points that make up each parallel path.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.position">
+<span class="sig-name descname"><span class="pre">position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_below</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.RobustPath.position" title="Link to this definition"></a></dt>
+<dd><p>Calculate the position of this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>number</em>) – Where in the path to calculate the position. The value
+must be in the range 0 thru <a class="reference internal" href="#gdstk.RobustPath.size" title="gdstk.RobustPath.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gdstk.RobustPath.size</span></code></a>,
+inclusive.</p></li>
+<li><p><strong>from_below</strong> – If there is a discontinuity at <code class="docutils literal notranslate"><span class="pre">u</span></code>, use the value
+approaching from below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The spine position of the path at <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#gdstk.RobustPath.properties" title="Link to this definition"></a></dt>
+<dd><p>Properties of this element.</p>
+<p>Properties are represented as a list of lists, each containing the
+property name followed by its values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.quadratic">
+<span class="sig-name descname"><span class="pre">quadratic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.quadratic" title="Link to this definition"></a></dt>
+<dd><p>Append a quadratic Bézier curve to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>sequence</em><em> of </em><em>2 points</em>) – Control point and end point for the
+Bézier. Each point can be a coordinate pair or a complex.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a>, <a class="reference internal" href="#gdstk.RobustPath.cubic" title="gdstk.RobustPath.cubic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.cubic()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.quadratic_smooth">
+<span class="sig-name descname"><span class="pre">quadratic_smooth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.quadratic_smooth" title="Link to this definition"></a></dt>
+<dd><p>Append a smooth quadratic Bézier curve to this path.</p>
+<p>The control point of the Bézier is such that the gradient of the path is
+continuous.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – End point for the Bézier.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a>,
+<a class="reference internal" href="#gdstk.RobustPath.cubic_smooth" title="gdstk.RobustPath.cubic_smooth"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.cubic_smooth()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.repetition">
+<span class="sig-name descname"><span class="pre">repetition</span></span><a class="headerlink" href="#gdstk.RobustPath.repetition" title="Link to this definition"></a></dt>
+<dd><p>Repetition associated with this element.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.rotate">
+<span class="sig-name descname"><span class="pre">rotate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.rotate" title="Link to this definition"></a></dt>
+<dd><p>Rotate this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>angle</strong> – Rotation angle (in radians).</p></li>
+<li><p><strong>center</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Center of the transformation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.scale" title="Link to this definition"></a></dt>
+<dd><p>Scale this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>s</strong> – Scaling factor.</p></li>
+<li><p><strong>center</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Center of the transformation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.scale_width">
+<span class="sig-name descname"><span class="pre">scale_width</span></span><a class="headerlink" href="#gdstk.RobustPath.scale_width" title="Link to this definition"></a></dt>
+<dd><p>Scale width flag.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.segment">
+<span class="sig-name descname"><span class="pre">segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.segment" title="Link to this definition"></a></dt>
+<dd><p>Append a straight segment to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xy</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Segment end point.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;smooth&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/segment2.svg" class="align-center" src="../_images/segment2.svg" />
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">path</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">RobustPath</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">offset</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">offset</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;smooth&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path</span><span class="o">.</span><span class="n">segment</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>    <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.2</span> <span class="o">-</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="k">lambda</span> <span class="n">u</span><span class="p">:</span> <span class="mf">0.2</span> <span class="o">+</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">u</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="gp">... </span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="../_images/segment11.svg" class="align-center" src="../_images/segment11.svg" />
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.set_datatypes">
+<span class="sig-name descname"><span class="pre">set_datatypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">datatypes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.set_datatypes" title="Link to this definition"></a></dt>
+<dd><p>Set the datatypes for all paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>datatypes</strong> – data type numbers for all paths.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.set_ends">
+<span class="sig-name descname"><span class="pre">set_ends</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">ends</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.set_ends" title="Link to this definition"></a></dt>
+<dd><p>Set the end types for all paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ends</strong> – Sequence of “flush”, “extended”, “round”, “smooth”, a 2-tuple,
+or a callable.</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath" title="gdstk.RobustPath"><code class="xref py py-class docutils literal notranslate"><span class="pre">gdstk.RobustPath</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.set_gds_property">
+<span class="sig-name descname"><span class="pre">set_gds_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.set_gds_property" title="Link to this definition"></a></dt>
+<dd><p>Set a GDSII property for this element.</p>
+<p>GDSII properties are stored under the special name “S_GDS_PROPERTY”, as
+defined by the OASIS specification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attr</strong> (<em>number</em>) – Property number.</p></li>
+<li><p><strong>value</strong> (<em>str</em>) – Property value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.set_layers">
+<span class="sig-name descname"><span class="pre">set_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">layers</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.set_layers" title="Link to this definition"></a></dt>
+<dd><p>Set the layers for all paths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>layers</strong> – layer numbers for all paths.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.set_property">
+<span class="sig-name descname"><span class="pre">set_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.set_property" title="Link to this definition"></a></dt>
+<dd><p>Set a property for this element.</p>
+<p>The property name does not have to be unique. Multiple properties can
+have the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Property name.</p></li>
+<li><p><strong>value</strong> (<em>str</em><em>, </em><em>bytes</em><em>, </em><em>number</em><em>, or </em><em>sequence</em><em> of </em><em>those</em>) – Values associated
+with the property.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>These properties can be used to associate custom metadata with an
+element, but general properties are not supported by GDSII files,
+only OASIS.  Use the specific methods to access GDSII properties.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.simple_path">
+<span class="sig-name descname"><span class="pre">simple_path</span></span><a class="headerlink" href="#gdstk.RobustPath.simple_path" title="Link to this definition"></a></dt>
+<dd><p>Simple path flag.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.size">
+<span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#gdstk.RobustPath.size" title="Link to this definition"></a></dt>
+<dd><p>Number of sections in this path.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>This attribute is read-only.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.spine">
+<span class="sig-name descname"><span class="pre">spine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.RobustPath.spine" title="Link to this definition"></a></dt>
+<dd><p>Central path spine.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Copy of the points that make up the path at zero offset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.to_polygons">
+<span class="sig-name descname"><span class="pre">to_polygons</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.RobustPath.to_polygons" title="Link to this definition"></a></dt>
+<dd><p>Calculate the polygonal representations of this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The polygonal contours defined by this path.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.RobustPath.tolerance">
+<span class="sig-name descname"><span class="pre">tolerance</span></span><a class="headerlink" href="#gdstk.RobustPath.tolerance" title="Link to this definition"></a></dt>
+<dd><p>Path tolerance.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.translate" title="Link to this definition"></a></dt>
+<dd><p>Translate this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dx</strong> – Translation in the x coordinate or translation vector.</p></li>
+<li><p><strong>dy</strong> – Translation in the y coordinate.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.turn">
+<span class="sig-name descname"><span class="pre">turn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">radius</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.turn" title="Link to this definition"></a></dt>
+<dd><p>Append a circular turn to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>radius</strong> – Circular arc radius.</p></li>
+<li><p><strong>angle</strong> – Turning angle. Positive values turn counter clockwise and
+negative values, clockwise.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em> or </em><em>sequence</em>) – Width at the end point(s). If this is a
+sequence, it must define the width for each path. The width is
+linearly tapered from its previous value.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em> or </em><em>sequence</em>) – If this is a number, it is treated as
+the distance between centers of adjacent paths. If it is a
+sequence, each number represents the absolute offset from the
+center of the path. The offsets are linearly tapered from their
+previous values.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.vertical">
+<span class="sig-name descname"><span class="pre">vertical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.RobustPath.vertical" title="Link to this definition"></a></dt>
+<dd><p>Append a vertical segment to this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>number</em>) – End point x coordinate.</p></li>
+<li><p><strong>width</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Width of this section. A tuple
+of 2 elements (number, str) can be used to define the width value
+and the interpolation type from the previous section to the end
+point (“constant”, “linear”, or “smooth”). If only a number is
+used, the interpolation defaults to “linear”. A callable must
+accept a single number from 0 to 1 and return the desired width at
+the corresponding position along the section.</p></li>
+<li><p><strong>offset</strong> (<em>number</em><em>, </em><em>tuple</em><em>, or </em><em>callable</em>) – Offset from the central path
+position. A tuple or callable can be used as in <code class="docutils literal notranslate"><span class="pre">width</span></code>.</p></li>
+<li><p><strong>relative</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, coordinates are relative to the last point.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Arguments <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">offset</span></code> can also be lists with one
+definition for each path.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">offset</span></code> is a single number or tuple, it is treated as the
+distance between adjacent paths.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#gdstk.RobustPath.segment" title="gdstk.RobustPath.segment"><code class="xref py py-meth docutils literal notranslate"><span class="pre">gdstk.RobustPath.segment()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.RobustPath.widths">
+<span class="sig-name descname"><span class="pre">widths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">from_below</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#gdstk.RobustPath.widths" title="Link to this definition"></a></dt>
+<dd><p>Calculate the width of this path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>u</strong> (<em>number</em>) – Where in the path to calculate the width. The value must
+be in the range 0 thru <a class="reference internal" href="#gdstk.RobustPath.size" title="gdstk.RobustPath.size"><code class="xref py py-attr docutils literal notranslate"><span class="pre">gdstk.RobustPath.size</span></code></a>, inclusive.</p></li>
+<li><p><strong>from_below</strong> – If there is a discontinuity at <code class="docutils literal notranslate"><span class="pre">u</span></code>, use the value
+approaching from below.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The widths of each path at <code class="docutils literal notranslate"><span class="pre">u</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gdstk.FlexPath.html" class="btn btn-neutral float-left" title="gdstk.FlexPath" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.Repetition.html" class="btn btn-neutral float-right" title="gdstk.Repetition" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

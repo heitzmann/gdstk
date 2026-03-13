@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>utils.h &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="vec.h" href="vec.html" />
+    <link rel="prev" title="style.h" href="style.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_cpp.html#header-files">Header files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">array.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cell.html">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="curve.html">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="font.html">font.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdsii.html">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="oasis.html">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="repetition.html">repetition.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="robustpath.html">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="style.html">style.h</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_cpp.html">C++ Reference</a></li>
+      <li class="breadcrumb-item active">utils.h</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utils-h">
+<h1>utils.h<a class="headerlink" href="#utils-h" title="Link to this heading"></a></h1>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Error codes</span>
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">ErrorCode</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">NoError</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// Warnings</span>
+<span class="w">    </span><span class="n">BooleanError</span><span class="p">,</span>
+<span class="w">    </span><span class="n">EmptyPath</span><span class="p">,</span>
+<span class="w">    </span><span class="n">IntersectionNotFound</span><span class="p">,</span>
+<span class="w">    </span><span class="n">MissingReference</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UnsupportedRecord</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UnofficialSpecification</span><span class="p">,</span>
+<span class="w">    </span><span class="n">InvalidRepetition</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Overflow</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// Errors</span>
+<span class="w">    </span><span class="n">ChecksumError</span><span class="p">,</span>
+<span class="w">    </span><span class="n">OutputFileOpenError</span><span class="p">,</span>
+<span class="w">    </span><span class="n">InputFileOpenError</span><span class="p">,</span>
+<span class="w">    </span><span class="n">InputFileError</span><span class="p">,</span>
+<span class="w">    </span><span class="n">FileError</span><span class="p">,</span>
+<span class="w">    </span><span class="n">InvalidFile</span><span class="p">,</span>
+<span class="w">    </span><span class="n">InsufficientMemory</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ZlibError</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="c1">// Tag encapsulates layer and data (text) type.  The implementation details</span>
+<span class="c1">// might change in the future.  The only guarantee is that a zeroed Tag</span>
+<span class="c1">// indicates layer 0 and type 0.</span>
+<span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">Tag</span><span class="p">;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="nf">make_tag</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">layer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">type</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">32</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="p">)</span><span class="n">layer</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">get_layer</span><span class="p">(</span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="n">tag</span><span class="p">;</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="nf">get_type</span><span class="p">(</span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)(</span><span class="n">tag</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_layer</span><span class="p">(</span><span class="n">Tag</span><span class="o">&amp;</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">layer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_tag</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span><span class="w"> </span><span class="n">get_type</span><span class="p">(</span><span class="n">tag</span><span class="p">));</span><span class="w"> </span><span class="p">};</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">set_type</span><span class="p">(</span><span class="n">Tag</span><span class="o">&amp;</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">type</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">make_tag</span><span class="p">(</span><span class="n">get_layer</span><span class="p">(</span><span class="n">tag</span><span class="p">),</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">GdsiiRecord</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="p">;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">tag_to_gds</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">,</span><span class="w"> </span><span class="n">GdsiiRecord</span><span class="w"> </span><span class="n">type_record</span><span class="p">);</span>
+
+<span class="c1">// Argument between 0 and 1, plus user data</span>
+<span class="k">typedef</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ParametricDouble</span><span class="p">)(</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+
+<span class="c1">// Argument between 0 and 1, plus user data</span>
+<span class="k">typedef</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">ParametricVec2</span><span class="p">)(</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+
+<span class="c1">// Arguments: first_point, first_direction, second_point, second_direction,</span>
+<span class="c1">// user data</span>
+<span class="k">typedef</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">EndFunction</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+
+<span class="c1">// Arguments: first_point, first_direction, second_point, second_direction,</span>
+<span class="c1">// center, width, user data</span>
+<span class="k">typedef</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">JoinFunction</span><span class="p">)(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span>
+<span class="w">                                    </span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+
+<span class="c1">// Arguments: radius, initial_angle, final_angle, center, user data</span>
+<span class="k">typedef</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">BendFunction</span><span class="p">)(</span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="p">,</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="p">);</span>
+
+<span class="c1">// Returns new dynamically allocated memory.  If len if not NULL, it is set to</span>
+<span class="c1">// the length of the string (including the null termination).</span>
+<span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">copy_string</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="o">*</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+
+<span class="c1">// If true, m is set to the multiplicative factor, i.e., angle = 0.5 * M_PI * m</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">is_multiple_of_pi_over_2</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">m</span><span class="p">);</span>
+
+<span class="c1">// Number of points needed to approximate an arc within some tolerance</span>
+<span class="kt">uint64_t</span><span class="w"> </span><span class="nf">arc_num_points</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">radius</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance</span><span class="p">);</span>
+
+<span class="kt">double</span><span class="w"> </span><span class="nf">elliptical_angle_transform</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">angle</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">radius_x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">radius_y</span><span class="p">);</span>
+
+<span class="c1">// Distance squared from p to the line defined by p1 and p2</span>
+<span class="kt">double</span><span class="w"> </span><span class="nf">distance_to_line_sq</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">);</span>
+
+<span class="c1">// Distance from p to the line defined by p1 and p2</span>
+<span class="kt">double</span><span class="w"> </span><span class="nf">distance_to_line</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">);</span>
+
+<span class="c1">// Finds the intersection between lines defined by point p0 and direction ut0</span>
+<span class="c1">// (unit vector along the line) and by point p1 and direction ut1.  Scalars u0</span>
+<span class="c1">// and u1 can be used to determine the intersection point:</span>
+<span class="c1">// p = p0 + u0 * ut0 == p1 + u1 * ut1</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">segments_intersection</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">ut0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">ut1</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u0</span><span class="p">,</span>
+<span class="w">                           </span><span class="kt">double</span><span class="o">&amp;</span><span class="w"> </span><span class="n">u1</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">scale_and_round_array</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">IntVec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">scaled_points</span><span class="p">);</span>
+
+<span class="c1">// Swap to big-endian (do nothing if the host is big-endian)</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">big_endian_swap16</span><span class="p">(</span><span class="kt">uint16_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">big_endian_swap32</span><span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">big_endian_swap64</span><span class="p">(</span><span class="kt">uint64_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="c1">// Swap to little-endian (do nothing if the host is little-endian)</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">little_endian_swap16</span><span class="p">(</span><span class="kt">uint16_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">little_endian_swap32</span><span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">little_endian_swap64</span><span class="p">(</span><span class="kt">uint64_t</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="c1">// Update the checksum32 of checksum with count values from bytes</span>
+<span class="kt">uint32_t</span><span class="w"> </span><span class="nf">checksum32</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">checksum</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">bytes</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+
+<span class="n">Vec2</span><span class="w"> </span><span class="nf">eval_line</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">);</span>
+
+<span class="c1">// Quadratic Bézier defined by control points p0, p1 and p2 at 0 ≤ t ≤ 1</span>
+<span class="n">Vec2</span><span class="w"> </span><span class="nf">eval_bezier2</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">);</span>
+
+<span class="c1">// Cubic Bézier defined by control points p0 through p3 at 0 ≤ t ≤ 1</span>
+<span class="n">Vec2</span><span class="w"> </span><span class="nf">eval_bezier3</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p0</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p1</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p2</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="w"> </span><span class="n">p3</span><span class="p">);</span>
+
+<span class="c1">// Evaluate a Bézier curve defined by count control points at 0 ≤ t ≤ 1</span>
+<span class="n">Vec2</span><span class="w"> </span><span class="nf">eval_bezier</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">t</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Vec2</span><span class="o">*</span><span class="w"> </span><span class="n">ctrl</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">count</span><span class="p">);</span>
+
+<span class="c1">// Calculates the control points for a smooth cubic Bézier interpolation</span>
+<span class="c1">// following:</span>
+<span class="c1">//</span>
+<span class="c1">// John D. Hobby. “Smooth, easy to compute interpolating splines.” Discrete</span>
+<span class="c1">// Comput. Geom., 1:123–140, 1986.</span>
+<span class="c1">//</span>
+<span class="c1">// Calculated control points ca and cb are stored in points, which must have</span>
+<span class="c1">// the appropriate count and layout:</span>
+<span class="c1">//</span>
+<span class="c1">// points[3 * count] = {p[0], ca[0], cb[0],</span>
+<span class="c1">//                      p[1], ca[1], cb[1],</span>
+<span class="c1">//                      …,</span>
+<span class="c1">//                      p[count - 1], ca[count - 1], cb[count - 1]};</span>
+<span class="c1">//</span>
+<span class="c1">// The last controls are only present if cycle == true.  Parameter angles can</span>
+<span class="c1">// be used to constrain the angle at any interpolation point by setting the</span>
+<span class="c1">// respective angle_constraints to true.  Defaults for tension (at each</span>
+<span class="c1">// interpolation point) and curl should be 1.</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">hobby_interpolation</span><span class="p">(</span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">Vec2</span><span class="o">*</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="o">*</span><span class="w"> </span><span class="n">angles</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="o">*</span><span class="w"> </span><span class="n">angle_constraints</span><span class="p">,</span>
+<span class="w">                         </span><span class="n">Vec2</span><span class="o">*</span><span class="w"> </span><span class="n">tension</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">initial_curl</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">final_curl</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">cycle</span><span class="p">);</span>
+
+<span class="c1">// Stores the convex hull of points into result</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">convex_hull</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+
+<span class="c1">// Return a global buffer with the representation of the value in fixed format</span>
+<span class="c1">// with a maximal precision set.  This function is meant for internal use only.</span>
+<span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">double_print</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">precision</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">buffer_size</span><span class="p">);</span>
+
+<span class="c1">// Returns the default SVG style for a given tag.  The return value points to a</span>
+<span class="c1">// statically allocated buffer that is overwritten in future calls to this</span>
+<span class="c1">// function.</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">default_svg_shape_style</span><span class="p">(</span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="nf">default_svg_label_style</span><span class="p">(</span><span class="n">Tag</span><span class="w"> </span><span class="n">tag</span><span class="p">);</span>
+
+<span class="c1">// Thread-safe version of localtime.</span>
+<span class="n">tm</span><span class="o">*</span><span class="w"> </span><span class="nf">get_now</span><span class="p">(</span><span class="n">tm</span><span class="o">&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+
+<span class="c1">// FNV-1a hash function (64 bits)</span>
+<span class="cp">#define HASH_FNV_PRIME 0x00000100000001b3</span>
+<span class="cp">#define HASH_FNV_OFFSET 0xcbf29ce484222325</span>
+<span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">hash</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HASH_FNV_OFFSET</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">byte</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)(</span><span class="o">&amp;</span><span class="n">key</span><span class="p">);</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">T</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">--</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="o">*</span><span class="n">byte</span><span class="o">++</span><span class="p">;</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">HASH_FNV_PRIME</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">inline</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">hash</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">key</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">HASH_FNV_OFFSET</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">key</span><span class="p">;</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="p">;</span><span class="w"> </span><span class="n">c</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="p">(</span><span class="kt">uint64_t</span><span class="p">)(</span><span class="o">*</span><span class="n">c</span><span class="p">);</span>
+<span class="w">        </span><span class="n">result</span><span class="w"> </span><span class="o">*=</span><span class="w"> </span><span class="n">HASH_FNV_PRIME</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">error_logger</span><span class="p">;</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">set_error_logger</span><span class="p">(</span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">log</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="style.html" class="btn btn-neutral float-left" title="style.h" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="vec.html" class="btn btn-neutral float-right" title="vec.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

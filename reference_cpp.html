@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>C++ Reference &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=a12e3537"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/tabs.js?v=3ee01567"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="allocator.h" href="headers/allocator.html" />
+    <link rel="prev" title="gdstk.oas_validate" href="library/gdstk.oas_validate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">C++ Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#header-files">Header files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="headers/allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/array.html">array.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/cell.html">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/curve.html">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/font.html">font.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/gdsii.html">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/map.html">map.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/oasis.html">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/repetition.html">repetition.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/robustpath.html">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/style.html">style.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/utils.html">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="headers/vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">C++ Reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="c-reference">
+<h1>C++ Reference<a class="headerlink" href="#c-reference" title="Link to this heading"></a></h1>
+<p>This reference covers only basic aspects of the C++ interface of Gdstk.  The
+user of the library is expected to go through the examples in this
+documentation and to inspect the source code for further details.</p>
+<section id="code-style">
+<h2>Code Style<a class="headerlink" href="#code-style" title="Link to this heading"></a></h2>
+<p>The library is fully contained in the <code class="docutils literal notranslate"><span class="pre">gdstk</span></code> namespace. Structs and enums
+use <code class="docutils literal notranslate"><span class="pre">PascalCase</span></code>, functions and variables (including constants),
+<code class="docutils literal notranslate"><span class="pre">snake_case</span></code>, and definitions are all <code class="docutils literal notranslate"><span class="pre">UPPER_CASE</span></code>.  Exceptions are the
+members of enums <code class="docutils literal notranslate"><span class="pre">GdsiiRecord</span></code> and <code class="docutils literal notranslate"><span class="pre">OasisRecord</span></code>, which use <code class="docutils literal notranslate"><span class="pre">UPPER_CASE</span></code>
+to better match their specification documents.</p>
+<p>The library uses only a minimal set of C++ features, namely, limited use of
+templates and overloading, no constructors or destructors, no virtual functions
+or inheritance, limited private members, and no use of the STL.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The user is responsible for the consistent initialization of variables,
+specially struct members.  In general, zeroing the whole struct is enough,
+with a few exceptions: <code class="docutils literal notranslate"><span class="pre">Library.name</span></code>, <code class="docutils literal notranslate"><span class="pre">Cell.name</span></code>, <code class="docutils literal notranslate"><span class="pre">Label.text</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">Reference.cell</span></code>, <code class="docutils literal notranslate"><span class="pre">Reference.rawcell</span></code>, or <code class="docutils literal notranslate"><span class="pre">Reference.name</span></code>, depending
+on the reference type.  <code class="docutils literal notranslate"><span class="pre">Curve</span></code>, <code class="docutils literal notranslate"><span class="pre">FlexPath</span></code>, and <code class="docutils literal notranslate"><span class="pre">RobustPath</span></code> require
+setting up a few variables to be in a consistent state.</p>
+<p>Other struct members can be zero, but probably shouldn’t:
+<code class="docutils literal notranslate"><span class="pre">Reference.magnification</span></code>, <code class="docutils literal notranslate"><span class="pre">Label.magnification</span></code>, <code class="docutils literal notranslate"><span class="pre">Curve.tolerance</span></code>,
+<code class="docutils literal notranslate"><span class="pre">FlexPath.spine.tolerance</span></code>, <code class="docutils literal notranslate"><span class="pre">RobustPath.tolerance</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RobustPath.max_evals</span></code>, <code class="docutils literal notranslate"><span class="pre">RobustPath.width_scale</span></code>,
+<code class="docutils literal notranslate"><span class="pre">RobustPath.offset_scale</span></code>, and <code class="docutils literal notranslate"><span class="pre">RobustPath.trafo</span></code>.</p>
+<p>Safe initialization of those structs and members are taken care of in their
+respective <code class="docutils literal notranslate"><span class="pre">init</span></code> methods.  The user can do it manually, of course, but
+the following idiom is safe to use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>StructName var = {};  // zero-initialize the struct
+var.init(…);          // initialize important members
+</pre></div>
+</div>
+</div>
+</section>
+<section id="memory-management">
+<h2>Memory Management<a class="headerlink" href="#memory-management" title="Link to this heading"></a></h2>
+<p>Dynamic memory management in Gdstk is realized through 4 functions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">void*</span> <span class="pre">allocate(uint64_t</span> <span class="pre">size)</span></code>: equivalent to <code class="docutils literal notranslate"><span class="pre">malloc(size)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void*</span> <span class="pre">reallocate(void*</span> <span class="pre">ptr,</span> <span class="pre">uint64_t</span> <span class="pre">size)</span></code>: equivalent to <code class="docutils literal notranslate"><span class="pre">realloc(ptr,</span>
+<span class="pre">1,</span> <span class="pre">size)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void*</span> <span class="pre">allocate_clear(uint64_t</span> <span class="pre">size)</span></code>: equivalent to <code class="docutils literal notranslate"><span class="pre">calloc(size)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">void</span> <span class="pre">free_allocation(void*</span> <span class="pre">ptr)</span></code>: equivalent to <code class="docutils literal notranslate"><span class="pre">free(ptr)</span></code></p></li>
+</ul>
+<p>These can be freely replaced in <code class="file docutils literal notranslate"><span class="pre">allocator.h</span></code> and <code class="file docutils literal notranslate"><span class="pre">allocator.cpp</span></code>
+with user-defined functions.  Their default implementations are just calls to
+their libc equivalents.</p>
+<p>The user is required to use these same functions for any structures that might
+be reallocated of freed by Gdstk.  In the examples in <a class="reference internal" href="gettingstarted.html#getting-started"><span class="std std-ref">Getting Started</span></a>
+and <a class="reference internal" href="how-tos.html#how-tos"><span class="std std-ref">How-Tos</span></a>, static allocations are used when we are certain the library
+will not modify those, for example, when creating a polygon that will not be
+transformed in any way.</p>
+</section>
+<section id="thread-safety">
+<h2>Thread Safety<a class="headerlink" href="#thread-safety" title="Link to this heading"></a></h2>
+<p>Gdstk is <em>not</em> thread-safe.  That said, the library does not use global
+variables, so it is safe to use threads as long as they do not modify the same
+data structures.</p>
+</section>
+<section id="header-files">
+<h2>Header files<a class="headerlink" href="#header-files" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="headers/allocator.html">allocator.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/array.html">array.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/cell.html">cell.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/curve.html">curve.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/flexpath.html">flexpath.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/font.html">font.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/gdsii.html">gdsii.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/gdstk.html">gdstk.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/label.html">label.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/library.html">library.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/map.html">map.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/oasis.html">oasis.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/polygon.html">polygon.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/property.html">property.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/rawcell.html">rawcell.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/reference.html">reference.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/repetition.html">repetition.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/robustpath.html">robustpath.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/style.html">style.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/utils.html">utils.h</a></li>
+<li class="toctree-l1"><a class="reference internal" href="headers/vec.html">vec.h</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="library/gdstk.oas_validate.html" class="btn btn-neutral float-left" title="gdstk.oas_validate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="headers/allocator.html" class="btn btn-neutral float-right" title="allocator.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

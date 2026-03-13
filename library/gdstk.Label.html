@@ -1,0 +1,447 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gdstk.Label &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="gdstk.Reference" href="gdstk.Reference.html" />
+    <link rel="prev" title="gdstk.any_inside" href="../geometry/gdstk.any_inside.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_python.html">Python API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_python.html#geometry-construction">Geometry Construction</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_python.html#library-organization">Library Organization</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">gdstk.Label</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#gdstk.Label"><code class="docutils literal notranslate"><span class="pre">Label</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.anchor"><code class="docutils literal notranslate"><span class="pre">Label.anchor</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.apply_repetition"><code class="docutils literal notranslate"><span class="pre">Label.apply_repetition()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.copy"><code class="docutils literal notranslate"><span class="pre">Label.copy()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.delete_gds_property"><code class="docutils literal notranslate"><span class="pre">Label.delete_gds_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.delete_property"><code class="docutils literal notranslate"><span class="pre">Label.delete_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.get_gds_property"><code class="docutils literal notranslate"><span class="pre">Label.get_gds_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.get_property"><code class="docutils literal notranslate"><span class="pre">Label.get_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.layer"><code class="docutils literal notranslate"><span class="pre">Label.layer</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.magnification"><code class="docutils literal notranslate"><span class="pre">Label.magnification</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.origin"><code class="docutils literal notranslate"><span class="pre">Label.origin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.properties"><code class="docutils literal notranslate"><span class="pre">Label.properties</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.repetition"><code class="docutils literal notranslate"><span class="pre">Label.repetition</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.rotation"><code class="docutils literal notranslate"><span class="pre">Label.rotation</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.set_gds_property"><code class="docutils literal notranslate"><span class="pre">Label.set_gds_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.set_property"><code class="docutils literal notranslate"><span class="pre">Label.set_property()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.text"><code class="docutils literal notranslate"><span class="pre">Label.text</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.texttype"><code class="docutils literal notranslate"><span class="pre">Label.texttype</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#gdstk.Label.x_reflection"><code class="docutils literal notranslate"><span class="pre">Label.x_reflection</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Reference.html">gdstk.Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Cell.html">gdstk.Cell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.RawCell.html">gdstk.RawCell</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.Library.html">gdstk.Library</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.GdsWriter.html">gdstk.GdsWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_gds.html">gdstk.read_gds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_oas.html">gdstk.read_oas</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.read_rawcells.html">gdstk.read_rawcells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_units.html">gdstk.gds_units</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_info.html">gdstk.gds_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.gds_timestamp.html">gdstk.gds_timestamp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.oas_precision.html">gdstk.oas_precision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.oas_validate.html">gdstk.oas_validate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_python.html">Python API Reference</a></li>
+      <li class="breadcrumb-item active">gdstk.Label</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gdstk-label">
+<h1>gdstk.Label<a class="headerlink" href="#gdstk-label" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="gdstk.Label">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">gdstk.</span></span><span class="sig-name descname"><span class="pre">Label</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">origin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'o'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">magnification</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_reflection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texttype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#gdstk.Label" title="Link to this definition"></a></dt>
+<dd><p>Text objects with out geometrical information.</p>
+<p>Labels do not create any new geometry in the layout. They can be used to
+add descriptions, flags, or comments to the design. For polygonal text,
+<a class="reference internal" href="../geometry/gdstk.text.html#gdstk.text" title="gdstk.text"><code class="xref py py-func docutils literal notranslate"><span class="pre">gdstk.text()</span></code></a> should be used instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> (<em>str</em>) – Text string.</p></li>
+<li><p><strong>origin</strong> (<em>coordinate pair</em><em> or </em><em>complex</em>) – Label position.</p></li>
+<li><p><strong>anchor</strong> (<em>str</em>) – Origin position with respect to the label text. One of
+“n”, “s”, “e”, “w”, “o”, “ne”, “nw”, “se”, or “sw”.</p></li>
+<li><p><strong>rotation</strong> – Rotation angle (in radians).</p></li>
+<li><p><strong>magnification</strong> – Scaling factor.</p></li>
+<li><p><strong>x_reflection</strong> – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the label is reflected across the
+horizontal axis before rotation.</p></li>
+<li><p><strong>layer</strong> – layer number assigned to this label.</p></li>
+<li><p><strong>texttype</strong> – text type number assigned to this label.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">rectangle</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datatype</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_o</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Center&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">rotation</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_n</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;North&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;n&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_s</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;South&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;s&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_e</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;East&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;e&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_w</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;West&quot;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_ne</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Northeast&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;ne&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_se</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Southeast&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;se&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_nw</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Northwest&quot;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;nw&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">label_sw</span> <span class="o">=</span> <span class="n">gdstk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s2">&quot;Southwest&quot;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;sw&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="../_images/init4.svg" class="align-center" src="../_images/init4.svg" />
+<p>Note that this example can only be correctly displayed in browsers
+with good support for text alignment in SVG images.</p>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>Label anchor and transformations (rotation, magnification and
+reflection) are not supported by the OASIS format.</p>
+</div>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.apply_repetition" title="gdstk.Label.apply_repetition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_repetition</span></code></a>()</p></td>
+<td><p>Create new labels based on this object's <code class="docutils literal notranslate"><span class="pre">repetition</span></code> attribute.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.copy" title="gdstk.Label.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>()</p></td>
+<td><p>Create a copy this label.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.delete_gds_property" title="gdstk.Label.delete_gds_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_gds_property</span></code></a>(attr)</p></td>
+<td><p>Delete a GDSII property of this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.delete_property" title="gdstk.Label.delete_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_property</span></code></a>(name)</p></td>
+<td><p>Delete the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.get_gds_property" title="gdstk.Label.get_gds_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gds_property</span></code></a>(attr)</p></td>
+<td><p>Return a GDSII property of this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.get_property" title="gdstk.Label.get_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_property</span></code></a>(name)</p></td>
+<td><p>Return the values of the first property of this element matching a name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.set_gds_property" title="gdstk.Label.set_gds_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_gds_property</span></code></a>(attr, value)</p></td>
+<td><p>Set a GDSII property for this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.set_property" title="gdstk.Label.set_property"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_property</span></code></a>(name, value)</p></td>
+<td><p>Set a property for this element.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.anchor" title="gdstk.Label.anchor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">anchor</span></code></a></p></td>
+<td><p>Label anchor.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.layer" title="gdstk.Label.layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">layer</span></code></a></p></td>
+<td><p>Label layer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.magnification" title="gdstk.Label.magnification"><code class="xref py py-obj docutils literal notranslate"><span class="pre">magnification</span></code></a></p></td>
+<td><p>Label scaling factor.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.origin" title="gdstk.Label.origin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">origin</span></code></a></p></td>
+<td><p>Label origin.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.properties" title="gdstk.Label.properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">properties</span></code></a></p></td>
+<td><p>Properties of this element.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.repetition" title="gdstk.Label.repetition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">repetition</span></code></a></p></td>
+<td><p>Repetition associated with this element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.rotation" title="gdstk.Label.rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rotation</span></code></a></p></td>
+<td><p>Label rotation angle.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.text" title="gdstk.Label.text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">text</span></code></a></p></td>
+<td><p>Label text.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#gdstk.Label.texttype" title="gdstk.Label.texttype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">texttype</span></code></a></p></td>
+<td><p>Label text type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#gdstk.Label.x_reflection" title="gdstk.Label.x_reflection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">x_reflection</span></code></a></p></td>
+<td><p>Label reflection across the x axis.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.anchor">
+<span class="sig-name descname"><span class="pre">anchor</span></span><a class="headerlink" href="#gdstk.Label.anchor" title="Link to this definition"></a></dt>
+<dd><p>Label anchor.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.apply_repetition">
+<span class="sig-name descname"><span class="pre">apply_repetition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Label.apply_repetition" title="Link to this definition"></a></dt>
+<dd><p>Create new labels based on this object’s <code class="docutils literal notranslate"><span class="pre">repetition</span></code> attribute.</p>
+<p>After the repetition is applied, the original attribute is set to
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Newly created objects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#gdstk.Label" title="gdstk.Label"><span class="pre">gdstk.Label</span></a></span></span><a class="headerlink" href="#gdstk.Label.copy" title="Link to this definition"></a></dt>
+<dd><p>Create a copy this label.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Copy of this label.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.delete_gds_property">
+<span class="sig-name descname"><span class="pre">delete_gds_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Label.delete_gds_property" title="Link to this definition"></a></dt>
+<dd><p>Delete a GDSII property of this element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attr</strong> (<em>number</em>) – Property number.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.delete_property">
+<span class="sig-name descname"><span class="pre">delete_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Label.delete_property" title="Link to this definition"></a></dt>
+<dd><p>Delete the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.get_gds_property">
+<span class="sig-name descname"><span class="pre">get_gds_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#gdstk.Label.get_gds_property" title="Link to this definition"></a></dt>
+<dd><p>Return a GDSII property of this element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attr</strong> (<em>number</em>) – Property number.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Property value. If the property number does not exist,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.get_property">
+<span class="sig-name descname"><span class="pre">get_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#gdstk.Label.get_property" title="Link to this definition"></a></dt>
+<dd><p>Return the values of the first property of this element matching a name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Property name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of property values. If no property is found,
+<code class="docutils literal notranslate"><span class="pre">None</span></code> is returned.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.layer">
+<span class="sig-name descname"><span class="pre">layer</span></span><a class="headerlink" href="#gdstk.Label.layer" title="Link to this definition"></a></dt>
+<dd><p>Label layer.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.magnification">
+<span class="sig-name descname"><span class="pre">magnification</span></span><a class="headerlink" href="#gdstk.Label.magnification" title="Link to this definition"></a></dt>
+<dd><p>Label scaling factor.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.origin">
+<span class="sig-name descname"><span class="pre">origin</span></span><a class="headerlink" href="#gdstk.Label.origin" title="Link to this definition"></a></dt>
+<dd><p>Label origin.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.properties">
+<span class="sig-name descname"><span class="pre">properties</span></span><a class="headerlink" href="#gdstk.Label.properties" title="Link to this definition"></a></dt>
+<dd><p>Properties of this element.</p>
+<p>Properties are represented as a list of lists, each containing the
+property name followed by its values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.repetition">
+<span class="sig-name descname"><span class="pre">repetition</span></span><a class="headerlink" href="#gdstk.Label.repetition" title="Link to this definition"></a></dt>
+<dd><p>Repetition associated with this element.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.rotation">
+<span class="sig-name descname"><span class="pre">rotation</span></span><a class="headerlink" href="#gdstk.Label.rotation" title="Link to this definition"></a></dt>
+<dd><p>Label rotation angle.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.set_gds_property">
+<span class="sig-name descname"><span class="pre">set_gds_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Label.set_gds_property" title="Link to this definition"></a></dt>
+<dd><p>Set a GDSII property for this element.</p>
+<p>GDSII properties are stored under the special name “S_GDS_PROPERTY”, as
+defined by the OASIS specification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attr</strong> (<em>number</em>) – Property number.</p></li>
+<li><p><strong>value</strong> (<em>str</em>) – Property value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="gdstk.Label.set_property">
+<span class="sig-name descname"><span class="pre">set_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">self</span></span></span><a class="headerlink" href="#gdstk.Label.set_property" title="Link to this definition"></a></dt>
+<dd><p>Set a property for this element.</p>
+<p>The property name does not have to be unique. Multiple properties can
+have the same name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Property name.</p></li>
+<li><p><strong>value</strong> (<em>str</em><em>, </em><em>bytes</em><em>, </em><em>number</em><em>, or </em><em>sequence</em><em> of </em><em>those</em>) – Values associated
+with the property.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition-notes admonition">
+<p class="admonition-title">Notes</p>
+<p>These properties can be used to associate custom metadata with an
+element, but general properties are not supported by GDSII files,
+only OASIS.  Use the specific methods to access GDSII properties.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#gdstk.Label.text" title="Link to this definition"></a></dt>
+<dd><p>Label text.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.texttype">
+<span class="sig-name descname"><span class="pre">texttype</span></span><a class="headerlink" href="#gdstk.Label.texttype" title="Link to this definition"></a></dt>
+<dd><p>Label text type.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="gdstk.Label.x_reflection">
+<span class="sig-name descname"><span class="pre">x_reflection</span></span><a class="headerlink" href="#gdstk.Label.x_reflection" title="Link to this definition"></a></dt>
+<dd><p>Label reflection across the x axis.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../geometry/gdstk.any_inside.html" class="btn btn-neutral float-left" title="gdstk.any_inside" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="gdstk.Reference.html" class="btn btn-neutral float-right" title="gdstk.Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

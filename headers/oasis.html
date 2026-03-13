@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>oasis.h &mdash; gdstk 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=34bb78ad" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=4c969af8" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=a12e3537"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/tabs.js?v=3ee01567"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pathcommon.h" href="pathcommon.html" />
+    <link rel="prev" title="map.h" href="map.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            gdstk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-tos.html">How-Tos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference_python.html">Python API Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../reference_cpp.html">C++ Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#code-style">Code Style</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#memory-management">Memory Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../reference_cpp.html#thread-safety">Thread Safety</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../reference_cpp.html#header-files">Header files</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="allocator.html">allocator.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="array.html">array.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cell.html">cell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clipper_tools.html">clipper_tools.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="curve.html">curve.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="flexpath.html">flexpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="font.html">font.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdsii.html">gdsii.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdstk.html">gdstk.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="gdswriter.html">gdswriter.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="label.html">label.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="library.html">library.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map.h</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">oasis.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pathcommon.html">pathcommon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polygon.html">polygon.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="property.html">property.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rawcell.html">rawcell.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="reference.html">reference.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="repetition.html">repetition.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="robustpath.html">robustpath.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="style.html">style.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">utils.h</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vec.html">vec.h</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">gdstk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../reference_cpp.html">C++ Reference</a></li>
+      <li class="breadcrumb-item active">oasis.h</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="oasis-h">
+<h1>oasis.h<a class="headerlink" href="#oasis-h" title="Link to this heading"></a></h1>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Configuration flags for Library.write_oas</span>
+<span class="cp">#define OASIS_CONFIG_PROPERTY_MAX_COUNTS 0x0001</span>
+<span class="cp">#define OASIS_CONFIG_PROPERTY_TOP_LEVEL 0x0002</span>
+<span class="cp">#define OASIS_CONFIG_PROPERTY_BOUNDING_BOX 0x0004</span>
+<span class="cp">#define OASIS_CONFIG_PROPERTY_CELL_OFFSET 0x0008</span>
+
+<span class="cp">#define OASIS_CONFIG_DETECT_RECTANGLES 0x0010</span>
+<span class="cp">#define OASIS_CONFIG_DETECT_TRAPEZOIDS 0x0020</span>
+
+<span class="cp">#define OASIS_CONFIG_INCLUDE_CRC32 0x0040</span>
+<span class="cp">#define OASIS_CONFIG_INCLUDE_CHECKSUM32 0x0080</span>
+
+<span class="cp">#define OASIS_CONFIG_STANDARD_PROPERTIES                                  \</span>
+<span class="cp">    (OASIS_CONFIG_PROPERTY_MAX_COUNTS | OASIS_CONFIG_PROPERTY_TOP_LEVEL | \</span>
+<span class="cp">     OASIS_CONFIG_PROPERTY_BOUNDING_BOX | OASIS_CONFIG_PROPERTY_CELL_OFFSET)</span>
+<span class="cp">#define OASIS_CONFIG_DETECT_ALL (OASIS_CONFIG_DETECT_RECTANGLES | OASIS_CONFIG_DETECT_TRAPEZOIDS)</span>
+
+<span class="c1">// Types and functions in this header are not meant to be used by the end user</span>
+<span class="c1">// of the library.  They are for internal use only.</span>
+
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_max_int_size_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_max_uint_size_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_max_string_size_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_max_polygon_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_max_path_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_top_level_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_bounding_box_available_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_bounding_box_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_cell_offset_property_name</span><span class="p">[];</span>
+<span class="k">extern</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">s_gds_property_name</span><span class="p">[];</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisDataType</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">RealPositiveInteger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealNegativeInteger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealPositiveReciprocal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealNegativeReciprocal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealPositiveRatio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealNegativeRatio</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealFloat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RealDouble</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UnsignedInteger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SignedInteger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">    </span><span class="n">AString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">  </span><span class="c1">// printable characters + space (0x20 through 0x7e)</span>
+<span class="w">    </span><span class="n">BString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w">  </span><span class="c1">// any bytes</span>
+<span class="w">    </span><span class="n">NString</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">  </span><span class="c1">// printable characters (0x21 through 0x7e), count &gt; 0</span>
+<span class="w">    </span><span class="n">ReferenceA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ReferenceB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ReferenceN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisRepetition</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Previous</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Rectangular</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RectangularX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RectangularY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ExplicitX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ExplicitXGrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ExplicitY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ExplicitYGrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Regular</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Linear</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Explicit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ExplicitGrid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisPointList</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">ManhattanHorizontalFirst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">ManhattanVerticalFirst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Manhattan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Octangular</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="n">General</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Relative</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisValidation</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">None</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">Crc32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">CheckSum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisInterval</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">AllValues</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">UpperBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">SingleValue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="n">Bounded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisDirection</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">E</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">S</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">NE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">NW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="n">SW</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="n">SE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="p">};</span>
+
+<span class="k">enum</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="nc">OasisRecord</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">PAD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="n">START</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="n">END</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CELLNAME_IMPLICIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CELLNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TEXTSTRING_IMPLICIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TEXTSTRING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPNAME_IMPLICIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPSTRING_IMPLICIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPSTRING</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LAYERNAME_DATA</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LAYERNAME_TEXT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CELL_REF_NUM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CELL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XYABSOLUTE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XYRELATIVE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PLACEMENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">17</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PLACEMENT_TRANSFORM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TEXT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">19</span><span class="p">,</span>
+<span class="w">    </span><span class="n">RECTANGLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">    </span><span class="n">POLYGON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">21</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TRAPEZOID_AB</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TRAPEZOID_A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span>
+<span class="w">    </span><span class="n">TRAPEZOID_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CTRAPEZOID</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">26</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CIRCLE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">27</span><span class="p">,</span>
+<span class="w">    </span><span class="n">PROPERTY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">28</span><span class="p">,</span>
+<span class="w">    </span><span class="n">LAST_PROPERTY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XNAME_IMPLICIT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XNAME</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">31</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XELEMENT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">    </span><span class="n">XGEOMETRY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">33</span><span class="p">,</span>
+<span class="w">    </span><span class="n">CBLOCK</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">34</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">OasisStream</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">FILE</span><span class="o">*</span><span class="w"> </span><span class="n">file</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="n">cursor</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">data_size</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">signature</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">crc32</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">checksum32</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ErrorCode</span><span class="w"> </span><span class="n">error_code</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span><span class="w"> </span><span class="nc">OasisState</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">circle_tolerance</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Map</span><span class="o">&lt;</span><span class="kt">uint64_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">property_name_map</span><span class="p">;</span>
+<span class="w">    </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">PropertyValue</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">property_value_array</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">config_flags</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">ErrorCode</span><span class="w"> </span><span class="nf">oasis_read</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">);</span>
+
+<span class="kt">size_t</span><span class="w"> </span><span class="nf">oasis_write</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">);</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">oasis_putc</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">);</span>
+
+<span class="kt">uint8_t</span><span class="o">*</span><span class="w"> </span><span class="nf">oasis_read_string</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">append_terminating_null</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">len</span><span class="p">);</span>
+
+<span class="kt">uint64_t</span><span class="w"> </span><span class="nf">oasis_read_unsigned_integer</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">);</span>
+
+<span class="kt">int64_t</span><span class="w"> </span><span class="nf">oasis_read_integer</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">);</span>
+
+<span class="kr">inline</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="nf">oasis_read_1delta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">oasis_read_integer</span><span class="p">(</span><span class="n">in</span><span class="p">);</span><span class="w"> </span><span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_read_2delta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_read_3delta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_read_gdelta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">&amp;</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">double</span><span class="w"> </span><span class="nf">oasis_read_real_by_type</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="n">OasisDataType</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+
+<span class="kr">inline</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">oasis_read_real</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">OasisDataType</span><span class="w"> </span><span class="n">type</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">oasis_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">ErrorCode</span><span class="o">::</span><span class="n">NoError</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">oasis_read_real_by_type</span><span class="p">(</span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// result must have at least 1 point in it, which will be used as reference for the relative deltas.</span>
+<span class="c1">// polygon indicates whether this is supposed to be a polygon point list (in which case there will</span>
+<span class="c1">// be an implicit extra delta for Manhattan types).</span>
+<span class="kt">uint64_t</span><span class="w"> </span><span class="nf">oasis_read_point_list</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">closed</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">result</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_read_repetition</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">in</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span><span class="w"> </span><span class="n">Repetition</span><span class="o">&amp;</span><span class="w"> </span><span class="n">repetition</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_unsigned_integer</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_integer</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+
+<span class="kr">inline</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_1delta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">oasis_write_integer</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_2delta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_3delta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_gdelta</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_real</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+
+<span class="c1">// Uses first point as reference, does not output it.  Deltas between neighboring points</span>
+<span class="c1">// will be calculated in-place: points[i] = points[i] - points[i - 1] (i = 1...count - 1)</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_point_list</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">IntVec2</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">closed</span><span class="p">);</span>
+<span class="c1">// Uses first point as reference, does not output it.</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_point_list</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Array</span><span class="o">&lt;</span><span class="n">Vec2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">points</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">,</span>
+<span class="w">                            </span><span class="kt">bool</span><span class="w"> </span><span class="n">closed</span><span class="p">);</span>
+
+<span class="c1">// This should only be called with repetition.get_count() &gt; 1</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">oasis_write_repetition</span><span class="p">(</span><span class="n">OasisStream</span><span class="o">&amp;</span><span class="w"> </span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Repetition</span><span class="w"> </span><span class="n">repetition</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">scaling</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="map.html" class="btn btn-neutral float-left" title="map.h" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pathcommon.html" class="btn btn-neutral float-right" title="pathcommon.h" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Lucas H. Gabrielli.</p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
