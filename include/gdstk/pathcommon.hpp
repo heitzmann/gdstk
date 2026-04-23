@@ -7,8 +7,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #ifndef GDSTK_HEADER_PATHCOMMON
 #define GDSTK_HEADER_PATHCOMMON
-
-#define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
 namespace gdstk {

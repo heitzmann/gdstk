@@ -8,8 +8,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #ifndef GDSTK_HEADER_ALLOCATOR
 #define GDSTK_HEADER_ALLOCATOR
 
-#define __STDC_FORMAT_MACROS 1
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -7,8 +7,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #ifndef GDSTK_HEADER_UTILS
 #define GDSTK_HEADER_UTILS
-
-#define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
 #define GDSTK_PRINT_BUFFER_COUNT 1024

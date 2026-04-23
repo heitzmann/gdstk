@@ -6,8 +6,6 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #ifndef GDSTK_HEADER_LAYERNAME
 #define GDSTK_HEADER_LAYERNAME
-
-#define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
 #include <stdint.h>

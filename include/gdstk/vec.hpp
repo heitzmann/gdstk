@@ -7,11 +7,9 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 #ifndef GDSTK_HEADER_VEC
 #define GDSTK_HEADER_VEC
-
-#define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
-#include <inttypes.h>
+#include <cinttypes>
 #include <math.h>
 
 namespace gdstk {

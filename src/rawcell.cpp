@@ -4,12 +4,10 @@ This file is part of gdstk, distributed under the terms of the
 Boost Software License - Version 1.0.  See the accompanying
 LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 */
-
-#define __STDC_FORMAT_MACROS 1
 #define _USE_MATH_DEFINES
 
 #include <assert.h>
-#include <inttypes.h>
+#include <cinttypes>
 #include <stdint.h>
 #include <stdio.h>
 
