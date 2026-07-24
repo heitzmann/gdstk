@@ -73,9 +73,13 @@ static inline Polygon* path_to_polygon(const ClipperLib::Path& path, double scal
     return polygon;
 }
 
+// NOTE: SortingPath objects are stored in gdstk::Array, which moves its items
+// with realloc/plain assignment into uninitialized memory. Storing an
+// std::vector iterator here is undefined behavior with MSVC debug iterators
+// (_ITERATOR_DEBUG_LEVEL=2), so the minimal point is kept as an index instead.
 struct SortingPath {
     ClipperLib::Path* path;
-    ClipperLib::Path::iterator min_point;
+    uint64_t min_index;
 };
 
 static inline bool point_less(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
@@ -83,7 +87,7 @@ static inline bool point_less(const ClipperLib::IntPoint& p1, const ClipperLib::
 }
 
 static inline bool path_less(const SortingPath& p1, const SortingPath& p2) {
-    return point_less(*p1.min_point, *p2.min_point);
+    return point_less((*p1.path)[p1.min_index], (*p2.path)[p2.min_index]);
 }
 
 static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
@@ -120,12 +124,10 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
     for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child != node->Childs.end();
          child++) {
         count += (*child)->Contour.size() + 3;
-        SortingPath sp = {&(*child)->Contour};
-        sp.min_point = sp.path->begin();
-        for (ClipperLib::Path::iterator point = sp.path->begin(); point != sp.path->end();
-             point++) {
-            if (point_less(*point, *sp.min_point)) {
-                sp.min_point = point;
+        SortingPath sp = {&(*child)->Contour, 0};
+        for (uint64_t point = 1; point < sp.path->size(); point++) {
+            if (point_less((*sp.path)[point], (*sp.path)[sp.min_index])) {
+                sp.min_index = point;
             }
         }
         holes.append(sp);
@@ -136,7 +138,7 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
 
     for (uint64_t i = 0; i < holes.count; i++) {
         // holes are guaranteed to be oriented opposite to their parent
-        const ClipperLib::Path::iterator hole_min = holes[i].min_point;
+        const ClipperLib::Path::iterator hole_min = holes[i].path->begin() + holes[i].min_index;
         const ClipperLib::Path::iterator p_end = contour->end();
         ClipperLib::Path::iterator p_closest = contour->end();
         ClipperLib::Path::iterator p_prev = contour->end() - 1;
