@@ -18,28 +18,34 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #include <gdstk/utils.hpp>
 #include <gdstk/vec.hpp>
 
-// Clipper
-#include <clipper/clipper.hpp>
+// Clipper2
+#include <clipper2/clipper.h>
 
 namespace gdstk {
 
-static inline ClipperLib::Path polygon_to_path(const Polygon& polygon, double scaling) {
+using Clipper2Lib::Point64;
+using Clipper2Lib::Path64;
+using Clipper2Lib::Paths64;
+using Clipper2Lib::PolyPath64;
+using Clipper2Lib::PolyTree64;
+
+static inline Path64 polygon_to_path(const Polygon& polygon, double scaling) {
     bool reverse = polygon.signed_area() < 0;
     uint64_t num = polygon.point_array.count;
-    ClipperLib::Path path(num);
+    Path64 path(num);
     const Vec2* p = reverse ? polygon.point_array.items + num - 1 : polygon.point_array.items;
-    ClipperLib::IntPoint* q = &path[0];
+    Point64* q = &path[0];
     if (reverse) {
         for (; num > 0; num--) {
-            q->X = llround(scaling * p->x);
-            q->Y = llround(scaling * p->y);
+            q->x = llround(scaling * p->x);
+            q->y = llround(scaling * p->y);
             p--;
             q++;
         }
     } else {
         for (; num > 0; num--) {
-            q->X = llround(scaling * p->x);
-            q->Y = llround(scaling * p->y);
+            q->x = llround(scaling * p->x);
+            q->y = llround(scaling * p->y);
             p++;
             q++;
         }
@@ -47,26 +53,25 @@ static inline ClipperLib::Path polygon_to_path(const Polygon& polygon, double sc
     return path;
 }
 
-static inline ClipperLib::Paths polygons_to_paths(const Array<Polygon*>& polygon_array,
-                                                  double scaling) {
+static inline Paths64 polygons_to_paths(const Array<Polygon*>& polygon_array, double scaling) {
     uint64_t num = polygon_array.count;
-    ClipperLib::Paths paths;
+    Paths64 paths;
     paths.reserve(num);
     for (uint64_t i = 0; i < num; i++) paths.push_back(polygon_to_path(*polygon_array[i], scaling));
     return paths;
 }
 
-static inline Polygon* path_to_polygon(const ClipperLib::Path& path, double scaling) {
+static inline Polygon* path_to_polygon(const Path64& path, double scaling) {
     const double invscaling = 1 / scaling;
     uint64_t num = path.size();
     Polygon* polygon = (Polygon*)allocate_clear(sizeof(Polygon));
     polygon->point_array.ensure_slots(num);
     polygon->point_array.count = num;
     Vec2* p = polygon->point_array.items;
-    const ClipperLib::IntPoint* q = &path[0];
+    const Point64* q = &path[0];
     for (; num > 0; num--) {
-        p->x = invscaling * q->X;
-        p->y = invscaling * q->Y;
+        p->x = invscaling * q->x;
+        p->y = invscaling * q->y;
         p++;
         q++;
     }
@@ -78,19 +83,19 @@ static inline Polygon* path_to_polygon(const ClipperLib::Path& path, double scal
 // std::vector iterator here is undefined behavior with MSVC debug iterators
 // (_ITERATOR_DEBUG_LEVEL=2), so the minimal point is kept as an index instead.
 struct SortingPath {
-    ClipperLib::Path* path;
+    const Path64* path;
     uint64_t min_index;
 };
 
-static inline bool point_less(const ClipperLib::IntPoint& p1, const ClipperLib::IntPoint& p2) {
-    return p1.X < p2.X || (p1.X == p2.X && p1.Y < p2.Y);
+static inline bool point_less(const Point64& p1, const Point64& p2) {
+    return p1.x < p2.x || (p1.x == p2.x && p1.y < p2.y);
 }
 
 static inline bool path_less(const SortingPath& p1, const SortingPath& p2) {
     return point_less((*p1.path)[p1.min_index], (*p2.path)[p2.min_index]);
 }
 
-static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
+static Path64 link_holes(const PolyPath64* node, ErrorCode& error_code) {
     /*
     static int dbg_counter = 0;
     char dbg_name[16];
@@ -115,126 +120,119 @@ static void link_holes(ClipperLib::PolyNode* node, ErrorCode& error_code) {
     printf("Debug library %s written with %ld polygons\n", dbg_name, dbg_cell.polygon_array.count);
     dbg_library.write_gds(dbg_name, 0, NULL);
     */
+    Path64 contour = node->Polygon();
+    uint64_t count = contour.size();
 
     Array<SortingPath> holes = {};
-    holes.ensure_slots(node->ChildCount());
+    holes.ensure_slots(node->Count());
 
-    ClipperLib::Path* contour = &node->Contour;
-    uint64_t count = contour->size();
-    for (ClipperLib::PolyNodes::iterator child = node->Childs.begin(); child != node->Childs.end();
-         child++) {
-        count += (*child)->Contour.size() + 3;
-        SortingPath sp = {&(*child)->Contour, 0};
-        for (uint64_t point = 1; point < sp.path->size(); point++) {
-            if (point_less((*sp.path)[point], (*sp.path)[sp.min_index])) {
-                sp.min_index = point;
+    for (size_t i = 0; i < node->Count(); i++) {
+        const Path64& child_poly = node->Child(i)->Polygon();
+        count += child_poly.size() + 3;
+        uint64_t min_index = 0;
+        for (uint64_t point = 1; point < child_poly.size(); point++) {
+            if (point_less(child_poly[point], child_poly[min_index])) {
+                min_index = point;
             }
         }
-        holes.append(sp);
+        holes.append({&child_poly, min_index});
     }
-    contour->reserve(count);
+    contour.reserve(count);
 
     sort(holes, path_less);
 
     for (uint64_t i = 0; i < holes.count; i++) {
         // holes are guaranteed to be oriented opposite to their parent
-        const ClipperLib::Path::iterator hole_min = holes[i].path->begin() + holes[i].min_index;
-        const ClipperLib::Path::iterator p_end = contour->end();
-        ClipperLib::Path::iterator p_closest = contour->end();
-        ClipperLib::Path::iterator p_prev = contour->end() - 1;
-        ClipperLib::Path::iterator p_next = contour->begin();
-        ClipperLib::cInt xnew = 0;
+        const Path64::const_iterator hole_min = holes[i].path->begin() + holes[i].min_index;
+        const Path64::const_iterator p_end = contour.end();
+        Path64::iterator p_closest = contour.end();
+        Path64::iterator p_prev = contour.end() - 1;
+        Path64::iterator p_next = contour.begin();
+        int64_t xnew = 0;
         for (; p_next != p_end; p_prev = p_next++) {
-            if ((p_next->Y <= hole_min->Y && hole_min->Y < p_prev->Y) ||
-                (p_prev->Y < hole_min->Y && hole_min->Y <= p_next->Y)) {
+            if ((p_next->y <= hole_min->y && hole_min->y < p_prev->y) ||
+                (p_prev->y < hole_min->y && hole_min->y <= p_next->y)) {
                 // Avoid integer overflow in the multiplication
-                double temp = (double)(p_prev->X - p_next->X) * (double)(hole_min->Y - p_next->Y) /
-                              (double)(p_prev->Y - p_next->Y);
-                ClipperLib::cInt x = p_next->X + (ClipperLib::cInt)llround(temp);
-                if ((x > xnew || p_closest == p_end) && x <= hole_min->X) {
+                double temp = (double)(p_prev->x - p_next->x) * (double)(hole_min->y - p_next->y) /
+                              (double)(p_prev->y - p_next->y);
+                int64_t x = p_next->x + (int64_t)llround(temp);
+                if ((x > xnew || p_closest == contour.end()) && x <= hole_min->x) {
                     xnew = x;
                     p_closest = p_next;
                 }
-            } else if ((p_next->Y == hole_min->Y && p_prev->Y == hole_min->Y) &&
-                       ((p_next->X <= hole_min->X && hole_min->X <= p_prev->X) ||
-                        (p_prev->X <= hole_min->X && hole_min->X <= p_next->X))) {
-                xnew = hole_min->X;
+            } else if ((p_next->y == hole_min->y && p_prev->y == hole_min->y) &&
+                       ((p_next->x <= hole_min->x && hole_min->x <= p_prev->x) ||
+                        (p_prev->x <= hole_min->x && hole_min->x <= p_next->x))) {
+                xnew = hole_min->x;
                 p_closest = p_next;
                 break;
             }
         }
 
-        if (p_closest == p_end) {
+        if (p_closest == contour.end()) {
             if (error_logger)
                 fprintf(error_logger, "[GDSTK] Unable to link hole in boolean operation.\n");
             error_code = ErrorCode::BooleanError;
         } else {
-            ClipperLib::IntPoint p_new(xnew, hole_min->Y);
-            if (p_new.X != p_closest->X || p_new.Y != p_closest->Y)
-                p_closest = contour->insert(p_closest, p_new);
-            p_closest = contour->insert(p_closest, holes[i].path->begin(), hole_min + 1);
-            p_closest = contour->insert(p_closest, hole_min, holes[i].path->end());
-            contour->insert(p_closest, p_new);
+            Point64 p_new(xnew, hole_min->y);
+            if (p_new.x != p_closest->x || p_new.y != p_closest->y)
+                p_closest = contour.insert(p_closest, p_new);
+            p_closest = contour.insert(p_closest, holes[i].path->begin(), hole_min + 1);
+            p_closest = contour.insert(p_closest, hole_min, holes[i].path->end());
+            contour.insert(p_closest, p_new);
         }
     }
     holes.clear();
+    return contour;
 }
 
-static void tree_to_polygons(const ClipperLib::PolyTree& tree, double scaling,
-                             Array<Polygon*>& polygon_array, ErrorCode& error_code) {
-    ClipperLib::PolyNode* node = tree.GetFirst();
-    while (node) {
-        if (!node->IsHole()) {
-            if (node->ChildCount() > 0) {
-                link_holes(node, error_code);
-            }
-            polygon_array.append(path_to_polygon(node->Contour, scaling));
+static void process_node(const PolyPath64* node, double scaling,
+                         Array<Polygon*>& polygon_array, ErrorCode& error_code) {
+    if (!node->IsHole()) {
+        if (node->Count() > 0) {
+            polygon_array.append(path_to_polygon(link_holes(node, error_code), scaling));
+        } else {
+            polygon_array.append(path_to_polygon(node->Polygon(), scaling));
         }
-        node = node->GetNext();
+    }
+    for (size_t i = 0; i < node->Count(); i++) {
+        process_node(node->Child(i), scaling, polygon_array, error_code);
     }
 }
 
-static void bounding_box(ClipperLib::Path& points, ClipperLib::cInt* bb) {
-    bb[0] = points[0].X;
-    bb[1] = points[0].X;
-    bb[2] = points[0].Y;
-    bb[3] = points[0].Y;
-    for (ClipperLib::Path::iterator it = points.begin(); it != points.end(); it++) {
-        if (it->X < bb[0]) bb[0] = it->X;
-        if (it->X > bb[1]) bb[1] = it->X;
-        if (it->Y < bb[2]) bb[2] = it->Y;
-        if (it->Y > bb[3]) bb[3] = it->Y;
+static void tree_to_polygons(const PolyTree64& tree, double scaling,
+                             Array<Polygon*>& polygon_array, ErrorCode& error_code) {
+    for (size_t i = 0; i < tree.Count(); i++) {
+        process_node(tree.Child(i), scaling, polygon_array, error_code);
     }
 }
 
 ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, Operation operation,
                   double scaling, Array<Polygon*>& result) {
-    ClipperLib::ClipType ct_operation = ClipperLib::ctUnion;
+    Clipper2Lib::ClipType ct_operation = Clipper2Lib::ClipType::Union;
     switch (operation) {
         case Operation::Or:
-            ct_operation = ClipperLib::ctUnion;
+            ct_operation = Clipper2Lib::ClipType::Union;
             break;
         case Operation::And:
-            ct_operation = ClipperLib::ctIntersection;
+            ct_operation = Clipper2Lib::ClipType::Intersection;
             break;
         case Operation::Xor:
-            ct_operation = ClipperLib::ctXor;
+            ct_operation = Clipper2Lib::ClipType::Xor;
             break;
         case Operation::Not:
-            ct_operation = ClipperLib::ctDifference;
+            ct_operation = Clipper2Lib::ClipType::Difference;
     }
 
-    ClipperLib::Paths paths1 = polygons_to_paths(polys1, scaling);
-    ClipperLib::Paths paths2 = polygons_to_paths(polys2, scaling);
+    Paths64 paths1 = polygons_to_paths(polys1, scaling);
+    Paths64 paths2 = polygons_to_paths(polys2, scaling);
 
-    // NOTE: ioStrictlySimple seems to hang on complex layouts
-    // ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
-    ClipperLib::Clipper clpr;
-    clpr.AddPaths(paths1, ClipperLib::ptSubject, true);
-    clpr.AddPaths(paths2, ClipperLib::ptClip, true);
+    Clipper2Lib::Clipper64 clpr;
+    clpr.AddSubject(paths1);
+    clpr.AddClip(paths2);
 
-    ClipperLib::PolyTree solution;
-    clpr.Execute(ct_operation, solution, ClipperLib::pftNonZero, ClipperLib::pftNonZero);
+    PolyTree64 solution;
+    clpr.Execute(ct_operation, Clipper2Lib::FillRule::NonZero, solution);
 
     ErrorCode error_code = ErrorCode::NoError;
     tree_to_polygons(solution, scaling, result, error_code);
@@ -243,37 +241,36 @@ ErrorCode boolean(const Array<Polygon*>& polys1, const Array<Polygon*>& polys2, 
 
 ErrorCode offset(const Array<Polygon*>& polygons, double distance, OffsetJoin join,
                  double tolerance, double scaling, bool use_union, Array<Polygon*>& result) {
-    ClipperLib::JoinType jt_join = ClipperLib::jtSquare;
-    ClipperLib::ClipperOffset clprof;
+    Clipper2Lib::JoinType jt_join = Clipper2Lib::JoinType::Bevel;
+    double miter_limit = 2.0;
+    double arc_tolerance = 0.0;
     switch (join) {
         case OffsetJoin::Bevel:
-            jt_join = ClipperLib::jtSquare;
+            jt_join = Clipper2Lib::JoinType::Bevel;
             break;
         case OffsetJoin::Miter:
-            jt_join = ClipperLib::jtMiter;
-            clprof.MiterLimit = tolerance;
+            jt_join = Clipper2Lib::JoinType::Square;
+            miter_limit = tolerance;
             break;
         case OffsetJoin::Round:
-            jt_join = ClipperLib::jtRound;
-            clprof.ArcTolerance = distance * scaling * (1.0 - cos(M_PI / tolerance));
+            jt_join = Clipper2Lib::JoinType::Round;
+            arc_tolerance = fabs(distance) * scaling * (1.0 - cos(M_PI / tolerance));
     }
 
-    ClipperLib::Paths original_polys = polygons_to_paths(polygons, scaling);
+    Clipper2Lib::ClipperOffset clprof(miter_limit, arc_tolerance);
+    Paths64 original_polys = polygons_to_paths(polygons, scaling);
     if (use_union) {
-        ClipperLib::Clipper clpr;
-        clpr.AddPaths(original_polys, ClipperLib::ptSubject, true);
-        ClipperLib::PolyTree joined_tree;
-        clpr.Execute(ClipperLib::ctUnion, joined_tree, ClipperLib::pftNonZero,
-                     ClipperLib::pftNonZero);
-        ClipperLib::Paths joined_polys;
-        ClipperLib::PolyTreeToPaths(joined_tree, joined_polys);
-        clprof.AddPaths(joined_polys, jt_join, ClipperLib::etClosedPolygon);
+        Clipper2Lib::Clipper64 clpr;
+        clpr.AddSubject(original_polys);
+        Paths64 joined_polys;
+        clpr.Execute(Clipper2Lib::ClipType::Union, Clipper2Lib::FillRule::NonZero, joined_polys);
+        clprof.AddPaths(joined_polys, jt_join, Clipper2Lib::EndType::Polygon);
     } else {
-        clprof.AddPaths(original_polys, jt_join, ClipperLib::etClosedPolygon);
+        clprof.AddPaths(original_polys, jt_join, Clipper2Lib::EndType::Polygon);
     }
 
-    ClipperLib::PolyTree solution;
-    clprof.Execute(solution, distance * scaling);
+    PolyTree64 solution;
+    clprof.Execute(distance * scaling, solution);
 
     ErrorCode error_code = ErrorCode::NoError;
     tree_to_polygons(solution, scaling, result, error_code);
@@ -283,41 +280,38 @@ ErrorCode offset(const Array<Polygon*>& polygons, double distance, OffsetJoin jo
 ErrorCode slice(const Polygon& polygon, const Array<double>& positions, bool x_axis, double scaling,
                 Array<Polygon*>* result) {
     ErrorCode error_code = ErrorCode::NoError;
-    ClipperLib::Paths subj;
+    Paths64 subj;
     subj.push_back(polygon_to_path(polygon, scaling));
 
-    ClipperLib::cInt bb[4];
-    bounding_box(subj[0], bb);
+    const Path64& subj_path = subj[0];
+    Clipper2Lib::Rect64 bb = Clipper2Lib::GetBounds(subj_path);
 
-    ClipperLib::Paths clip(1, ClipperLib::Path(4));
-    clip[0][0].X = clip[0][3].X = bb[0];
-    clip[0][1].X = clip[0][2].X = bb[1];
-    clip[0][0].Y = clip[0][1].Y = bb[2];
-    clip[0][2].Y = clip[0][3].Y = bb[3];
+    Paths64 clip(1, Path64(4));
+    clip[0][0].x = clip[0][3].x = bb.left;
+    clip[0][1].x = clip[0][2].x = bb.right;
+    clip[0][0].y = clip[0][1].y = bb.top;
+    clip[0][2].y = clip[0][3].y = bb.bottom;
 
-    ClipperLib::cInt pos = x_axis ? bb[0] : bb[2];
+    int64_t pos = x_axis ? bb.left : bb.top;
     for (uint64_t i = 0; i <= positions.count; i++) {
         if (x_axis) {
-            clip[0][0].X = clip[0][3].X = pos;
-            pos = i < positions.count ? llround(scaling * positions[i]) : bb[1];
-            clip[0][1].X = clip[0][2].X = pos;
-            if (clip[0][1].X == clip[0][0].X) continue;
+            clip[0][0].x = clip[0][3].x = pos;
+            pos = i < positions.count ? llround(scaling * positions[i]) : bb.right;
+            clip[0][1].x = clip[0][2].x = pos;
+            if (clip[0][1].x == clip[0][0].x) continue;
         } else {
-            clip[0][0].Y = clip[0][1].Y = pos;
-            pos = i < positions.count ? llround(scaling * positions[i]) : bb[3];
-            clip[0][2].Y = clip[0][3].Y = pos;
-            if (clip[0][2].Y == clip[0][0].Y) continue;
+            clip[0][0].y = clip[0][1].y = pos;
+            pos = i < positions.count ? llround(scaling * positions[i]) : bb.bottom;
+            clip[0][2].y = clip[0][3].y = pos;
+            if (clip[0][2].y == clip[0][0].y) continue;
         }
 
-        // NOTE: ioStrictlySimple seems to hang on complex layouts
-        // ClipperLib::Clipper clpr(ClipperLib::ioStrictlySimple);
-        ClipperLib::Clipper clpr;
-        clpr.AddPaths(subj, ClipperLib::ptSubject, true);
-        clpr.AddPaths(clip, ClipperLib::ptClip, true);
+        Clipper2Lib::Clipper64 clpr;
+        clpr.AddSubject(subj);
+        clpr.AddClip(clip);
 
-        ClipperLib::PolyTree solution;
-        clpr.Execute(ClipperLib::ctIntersection, solution, ClipperLib::pftNonZero,
-                     ClipperLib::pftNonZero);
+        PolyTree64 solution;
+        clpr.Execute(Clipper2Lib::ClipType::Intersection, Clipper2Lib::FillRule::NonZero, solution);
 
         tree_to_polygons(solution, scaling, result[i], error_code);
     }

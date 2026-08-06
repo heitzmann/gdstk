@@ -61,10 +61,10 @@ set(SOURCE_LIST
 
 # --- Library target ---
 
-add_library(gdstk STATIC ${SOURCE_LIST} ${HEADER_LIST} $<TARGET_OBJECTS:clipper>)
+add_library(gdstk STATIC ${SOURCE_LIST} ${HEADER_LIST} $<TARGET_OBJECTS:clipper2>)
 add_library(gdstk::gdstk ALIAS gdstk)
 
-target_compile_features(gdstk PUBLIC cxx_std_11)
+target_compile_features(gdstk PUBLIC cxx_std_17)
 
 set_target_properties(gdstk PROPERTIES
     POSITION_INDEPENDENT_CODE ON
@@ -90,7 +90,7 @@ target_include_directories(gdstk
         $<BUILD_INTERFACE:${gdstk_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     PRIVATE
-        $<TARGET_PROPERTY:clipper,INTERFACE_INCLUDE_DIRECTORIES>)
+        $<TARGET_PROPERTY:clipper2,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_link_libraries(gdstk
     PUBLIC
