@@ -7,6 +7,7 @@
 
 import hashlib
 import pathlib
+import struct
 from datetime import datetime
 from typing import Callable, Union
 
@@ -485,6 +486,99 @@ def test_layers_and_types(sample_library):
     assert ld == {(2, 4), (0, 0)}
     lt = sample_library.layers_and_texttypes()
     assert lt == {(5, 6)}
+
+
+@pytest.mark.parametrize("unit", [0, 2e-6])
+@pytest.mark.parametrize(
+    "rotation, reflection, magnification", [(0, False, 1), (0, True, 1), (numpy.pi / 2, False, 2)]
+)
+@pytest.mark.parametrize(
+    "origin, columns, rows, v1, v2",
+    [
+        ((0, 0), 2, 3, (20, 0), (0, 30)),
+        ((25, -35), 2, 3, (20, 0), (0, 30)),
+        ((-25, 35), 2, 3, (-20, 0), (0, -30)),
+        ((0, 0), 1, 4, (0, 0), (50, 0)),
+        ((-200, 0), 1, 4, (0, 0), (50, 0)),
+        ((0, 0), 2, 3, (0, 20), (30, 0)),
+        ((-90, -40), 2, 3, (0, 20), (30, 0)),
+        ((0, 0), 2, 3, (20, 10), (15, 30)),
+        ((-45, -20), 2, 3, (20, 10), (15, 30)),
+        ((-30, -21), 3, 2, (-20, 7), (15, -30)),
+        ((2147470000, -2147470000), 2, 3, (20, 0), (0, 30)),
+    ],
+)
+def test_read_gds_aref_vectors(
+    tmp_path, origin, columns, rows, v1, v2, rotation, reflection, magnification, unit
+):
+    library = gdstk.Library()
+    leaf = library.new_cell("LEAF").add(gdstk.rectangle((0, 0), (1, 2)))
+    library.new_cell("TOP").add(
+        gdstk.Reference(
+            leaf,
+            columns=columns,
+            rows=rows,
+            spacing=(10, 20),
+            rotation=rotation,
+            x_reflection=reflection,
+            magnification=magnification,
+        )
+    )
+    filename = tmp_path / "array.gds"
+    library.write_gds(filename)
+
+    # GDS AREF XY stores three absolute points. Construct the input independently
+    # of the writer's choice of which array vectors it can export as an AREF.
+    data = bytearray(filename.read_bytes())
+    cursor = 0
+    in_array = False
+    while cursor < len(data):
+        length, record = struct.unpack_from(">HH", data, cursor)
+        if record == 0x0B00:
+            in_array = True
+        elif in_array and record == 0x1302:
+            struct.pack_into(">HH", data, cursor + 4, columns, rows)
+        elif in_array and record == 0x1003:
+            struct.pack_into(
+                ">6i",
+                data,
+                cursor + 4,
+                *origin,
+                origin[0] + columns * v1[0],
+                origin[1] + columns * v1[1],
+                origin[0] + rows * v2[0],
+                origin[1] + rows * v2[1],
+            )
+            break
+        cursor += length
+    assert in_array and cursor < len(data)
+    filename.write_bytes(data)
+
+    result = gdstk.read_gds(filename, unit=unit)
+    reference = result["TOP"].references[0]
+    factor = result.precision / result.unit
+    repetition = reference.repetition
+    assert repetition.columns == columns and repetition.rows == rows
+    assert reference.origin == pytest.approx(numpy.array(origin) * factor)
+    assert reference.rotation == pytest.approx(rotation)
+    assert reference.magnification == magnification
+    assert reference.x_reflection == reflection
+    offsets = numpy.array(
+        [
+            (i * numpy.array(v1) + j * numpy.array(v2)) * factor
+            for i in range(columns)
+            for j in range(rows)
+        ]
+    )
+    # Absolute-to-relative subtraction loses a few bits for large coordinates.
+    atol = max(1e-12, 4 * numpy.finfo(float).eps * max(abs(x) for x in origin) * factor)
+    numpy.testing.assert_allclose(repetition.get_offsets(), offsets, rtol=0, atol=atol)
+    if rotation == 0 and not reflection and v1[1] == v2[0] == 0:
+        assert repetition.spacing is not None
+        assert repetition.spacing == pytest.approx(numpy.array((v1[0], v2[1])) * factor)
+    else:
+        assert repetition.v1 == pytest.approx(numpy.array(v1) * factor)
+        assert repetition.v2 == pytest.approx(numpy.array(v2) * factor)
 
 
 def test_rename_cell():
