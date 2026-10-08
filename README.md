@@ -24,6 +24,10 @@ The complete documentation is available [here](http://heitzmann.github.io/gdstk)
 
 The source files can be found in the _docs_ directory.
 
+On Windows, filenames passed to the C++ file I/O functions must be encoded as UTF-8.
+The Python interface handles encoding of strings and `pathlib.Path` objects automatically.
+On other platforms, filenames use the native filesystem encoding.
+
 
 ## Installation
 

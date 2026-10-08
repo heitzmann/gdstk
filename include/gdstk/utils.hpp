@@ -62,6 +62,10 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 
 namespace gdstk {
 
+// Open a file using a UTF-8 filename on Windows and the native filename
+// encoding elsewhere.  The mode and stream contents are unchanged.
+FILE* fopen_utf8(const char* filename, const char* mode);
+
 // Error codes
 enum struct ErrorCode {
     NoError = 0,
