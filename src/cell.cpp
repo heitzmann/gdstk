@@ -901,7 +901,7 @@ ErrorCode Cell::write_svg(const char* filename, double scaling, uint32_t precisi
     w += 2 * pad;
     h += 2 * pad;
 
-    FILE* out = fopen(filename, "w");
+    FILE* out = fopen_utf8(filename, "w");
     if (out == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open file for SVG output.\n", error_logger);
         return ErrorCode::OutputFileOpenError;

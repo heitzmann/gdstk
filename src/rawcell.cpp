@@ -97,7 +97,7 @@ Map<RawCell*> read_rawcells(const char* filename, ErrorCode* error_code) {
 
     RawSource* source = (RawSource*)allocate(sizeof(RawSource));
     source->uses = 0;
-    source->file = fopen(filename, "rb");
+    source->file = fopen_utf8(filename, "rb");
     if (source->file == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open input GDSII file.\n", error_logger);
         if (error_code) *error_code = ErrorCode::InputFileOpenError;

@@ -318,7 +318,7 @@ void Library::replace_cell(RawCell* old_cell, RawCell* new_cell) {
 
 ErrorCode Library::write_gds(const char* filename, uint64_t max_points, tm* timestamp) const {
     ErrorCode error_code = ErrorCode::NoError;
-    FILE* out = fopen(filename, "wb");
+    FILE* out = fopen_utf8(filename, "wb");
     if (out == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open GDSII file for output.\n", error_logger);
         return ErrorCode::OutputFileOpenError;
@@ -416,7 +416,7 @@ ErrorCode Library::write_oas(const char* filename, double circle_tolerance,
     if (compression_level > 9) compression_level = 9;
 
     OasisStream out;
-    out.file = fopen(filename, "wb");
+    out.file = fopen_utf8(filename, "wb");
     if (out.file == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open OASIS file for output.\n", error_logger);
         return ErrorCode::OutputFileOpenError;
@@ -949,7 +949,7 @@ Library read_gds(const char* filename, double unit, double tolerance, const Set<
     double width = 0;
     int16_t key = 0;
 
-    FILE* in = fopen(filename, "rb");
+    FILE* in = fopen_utf8(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
         if (error_code) *error_code = ErrorCode::InputFileOpenError;
@@ -1383,7 +1383,7 @@ Library read_oas(const char* filename, double unit, double tolerance, ErrorCode*
     Library library = {};
 
     OasisStream in = {};
-    in.file = fopen(filename, "rb");
+    in.file = fopen_utf8(filename, "rb");
     if (in.file == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open OASIS file for input.\n", error_logger);
         if (error_code) *error_code = ErrorCode::InputFileOpenError;
@@ -2576,7 +2576,7 @@ CLEANUP:
 ErrorCode gds_units(const char* filename, double& unit, double& precision) {
     uint8_t buffer[65537];
     uint64_t* data64 = (uint64_t*)(buffer + 4);
-    FILE* in = fopen(filename, "rb");
+    FILE* in = fopen_utf8(filename, "rb");
     if (in == NULL) {
         fputs("[GDSTK] Unable to open GDSII file for input.\n", stderr);
         return ErrorCode::InputFileOpenError;
@@ -2618,9 +2618,9 @@ tm gds_timestamp(const char* filename, const tm* new_timestamp, ErrorCode* error
         new_tm_buffer[5] = new_timestamp->tm_sec;
         big_endian_swap16(new_tm_buffer, 6);
         memcpy(new_tm_buffer + 6, new_tm_buffer, 6 * sizeof(uint16_t));
-        inout = fopen(filename, "r+b");
+        inout = fopen_utf8(filename, "r+b");
     } else {
-        inout = fopen(filename, "rb");
+        inout = fopen_utf8(filename, "rb");
     }
     if (inout == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open GDSII file.\n", error_logger);
@@ -2696,7 +2696,7 @@ ErrorCode gds_info(const char* filename, LibraryInfo& info) {
     uint64_t* data64 = (uint64_t*)(buffer + 4);
     char* str = (char*)(buffer + 4);
 
-    FILE* in = fopen(filename, "rb");
+    FILE* in = fopen_utf8(filename, "rb");
     if (in == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open GDSII file for input.\n", error_logger);
         return ErrorCode::InputFileOpenError;
@@ -2832,7 +2832,7 @@ ErrorCode gds_info(const char* filename, LibraryInfo& info) {
 }
 
 ErrorCode oas_precision(const char* filename, double& precision) {
-    FILE* in = fopen(filename, "rb");
+    FILE* in = fopen_utf8(filename, "rb");
     if (in == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open OASIS file for input.\n", error_logger);
         return ErrorCode::InputFileOpenError;
@@ -2864,7 +2864,7 @@ ErrorCode oas_precision(const char* filename, double& precision) {
 
 bool oas_validate(const char* filename, uint32_t* signature, ErrorCode* error_code) {
     uint8_t buffer[32 * 1024];
-    FILE* in = fopen(filename, "rb");
+    FILE* in = fopen_utf8(filename, "rb");
     if (in == NULL) {
         if (error_logger) fputs("[GDSTK] Unable to open OASIS file for input.\n", error_logger);
         if (error_code) *error_code = ErrorCode::InputFileOpenError;

@@ -7,10 +7,21 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define _USE_MATH_DEFINES
 
 #include <assert.h>
+#include <errno.h>
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
 #include <time.h>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 
 #include <gdstk/allocator.hpp>
 #include <gdstk/gdsii.hpp>
@@ -25,6 +36,41 @@ namespace gdstk {
 FILE* error_logger = stderr;
 
 void set_error_logger(FILE* log) { error_logger = log; }
+
+FILE* fopen_utf8(const char* filename, const char* mode) {
+#ifdef _WIN32
+    if (filename == NULL || mode == NULL || filename[0] == 0 || mode[0] == 0) {
+        errno = EINVAL;
+        return NULL;
+    }
+    int filename_size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1, NULL, 0);
+    int mode_size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, mode, -1, NULL, 0);
+    if (filename_size == 0 || mode_size == 0) {
+        errno = EILSEQ;
+        return NULL;
+    }
+    wchar_t* buffer = (wchar_t*)allocate(((uint64_t)filename_size + mode_size) * sizeof(wchar_t));
+    if (buffer == NULL) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    wchar_t* wide_mode = buffer + filename_size;
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, filename, -1, buffer, filename_size) ==
+            0 ||
+        MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, mode, -1, wide_mode, mode_size) == 0) {
+        free_allocation(buffer);
+        errno = EILSEQ;
+        return NULL;
+    }
+    FILE* result = _wfopen(buffer, wide_mode);
+    int saved_errno = errno;
+    free_allocation(buffer);
+    errno = saved_errno;
+    return result;
+#else
+    return fopen(filename, mode);
+#endif
+}
 
 void tag_to_gds(FILE* out, Tag tag, GdsiiRecord type_record) {
     uint32_t layer = get_layer(tag);
