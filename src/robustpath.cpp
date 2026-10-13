@@ -1628,7 +1628,7 @@ ErrorCode RobustPath::to_oas(OasisStream &out, OasisState &state) const {
         oasis_write_unsigned_integer(out, get_layer(el->tag));
         oasis_write_unsigned_integer(out, get_type(el->tag));
         uint64_t half_width =
-            (uint64_t)llround(interp(el->width_array[0], 0) * width_scale * state.scaling);
+            (uint64_t)llround(0.5 * interp(el->width_array[0], 0) * width_scale * state.scaling);
         oasis_write_unsigned_integer(out, half_width);
 
         switch (el->end_type) {

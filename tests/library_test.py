@@ -561,6 +561,16 @@ def test_roundtrip_path_ends(tmpdir: pathlib.Path):
         )
 
 
+@pytest.mark.parametrize("path_type", (gdstk.FlexPath, gdstk.RobustPath))
+def test_roundtrip_path_width_oas(path_type, tmp_path: pathlib.Path):
+    path = path_type((0, 0), 2, simple_path=True).segment((10, 0))
+    lib = gdstk.Library()
+    lib.new_cell("path_test").add(path)
+    lib.write_oas(tmp_path / "path_test.oas")
+    oas_path = gdstk.read_oas(tmp_path / "path_test.oas").cells[0].paths[0]
+    assert numpy.allclose(oas_path.widths(), 2)
+
+
 @pytest.mark.parametrize(
     "write_f, read_f",
     (
