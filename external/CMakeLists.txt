@@ -1,10 +1,16 @@
-## Clipper (vendored) — built as an OBJECT library, linked directly into gdstk.
+## Clipper2 (submodule) — built as an OBJECT library, linked directly into gdstk.
 
-add_library(clipper OBJECT clipper/clipper.cpp clipper/clipper.hpp)
+set(CLIPPER2_SRC
+    Clipper2/CPP/Clipper2Lib/src/clipper.engine.cpp
+    Clipper2/CPP/Clipper2Lib/src/clipper.offset.cpp
+    Clipper2/CPP/Clipper2Lib/src/clipper.rectclip.cpp
+)
 
-target_compile_features(clipper PRIVATE cxx_std_11)
+add_library(clipper2 OBJECT ${CLIPPER2_SRC})
 
-set_target_properties(clipper PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_compile_features(clipper2 PRIVATE cxx_std_17)
 
-target_include_directories(clipper PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+set_target_properties(clipper2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+target_include_directories(clipper2 PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Clipper2/CPP/Clipper2Lib/include>)
