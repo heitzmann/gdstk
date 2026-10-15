@@ -7,6 +7,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define _USE_MATH_DEFINES
 
 #include <cinttypes>
+#include <float.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -223,9 +224,26 @@ void FlexPath::transform(double magnification, bool x_reflection, double rotatio
 
 void FlexPath::remove_overlapping_points() {
     const double tol_sq = spine.tolerance * spine.tolerance;
+    const double relative_error = 4 * DBL_EPSILON;
     Array<Vec2>* array = &spine.point_array;
     for (uint64_t i = 1; i < array->count;) {
-        if (((*array)[i] - (*array)[i - 1]).length_sq() < tol_sq) {
+        const Vec2 delta = (*array)[i] - (*array)[i - 1];
+        const double length_sq = delta.length_sq();
+        if (length_sq < tol_sq) {
+            if (length_sq > 0 && isfinite(tol_sq)) {
+                // Translated coordinates can make a minimum-length segment look shorter.
+                // Only discard it when the difference exceeds the endpoint roundoff.
+                const Vec2 p = (*array)[i];
+                const Vec2 prev = (*array)[i - 1];
+                const double error_x = relative_error * fabs(p.x) + relative_error * fabs(prev.x);
+                const double error_y = relative_error * fabs(p.y) + relative_error * fabs(prev.y);
+                const double error =
+                    fabs(delta.x) * error_x + fabs(delta.y) * error_y + relative_error * tol_sq;
+                if (!(tol_sq - length_sq > error)) {
+                    i++;
+                    continue;
+                }
+            }
             array->remove(i);
             FlexPathElement* el = elements;
             for (uint64_t ne = 0; ne < num_elements; ne++, el++)

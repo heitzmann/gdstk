@@ -7,6 +7,7 @@
 
 from copy import deepcopy
 import numpy
+import pytest
 import gdstk
 
 from conftest import assert_same_shape
@@ -175,3 +176,42 @@ def test_min_length():
     path = gdstk.FlexPath(((0, 0), (tol, 0)), width=0.01, tolerance=tol)
     assert path.to_polygons()
 
+
+@pytest.mark.parametrize("origin", ((0, 0), (3.279, 5.584), (-3.28, -5.584), (1000, 1e6)))
+@pytest.mark.parametrize("direction", ((1, 0), (-1, 0), (0, 1), (0, -1)))
+@pytest.mark.parametrize("tol", (0.001, 0.0005))
+@pytest.mark.parametrize("operation", ("polygons", "gds", "oas"))
+def test_translated_min_length(origin, direction, tol, operation, tmp_path):
+    points = numpy.array((origin, numpy.array(origin) + tol * numpy.array(direction)))
+    path = gdstk.FlexPath(points, width=0.01, tolerance=tol, simple_path=True)
+    if operation == "polygons":
+        assert path.to_polygons()
+    else:
+        lib = gdstk.Library(unit=1e-6, precision=tol * 1e-6)
+        lib.new_cell("PATH").add(path)
+        filename = tmp_path / ("path." + operation)
+        getattr(lib, "write_" + operation)(filename)
+        restored = getattr(gdstk, "read_" + operation)(filename)
+        assert len(restored.cells[0].paths) == 1
+        numpy.testing.assert_array_equal(
+            numpy.rint(restored.cells[0].paths[0].spine() / tol), numpy.rint(points / tol)
+        )
+        if operation == "oas":
+            filename2 = tmp_path / "path2.oas"
+            restored.write_oas(filename2)
+            twice = gdstk.read_oas(filename2)
+            numpy.testing.assert_array_equal(
+                numpy.rint(twice.cells[0].paths[0].spine() / tol), numpy.rint(points / tol)
+            )
+    numpy.testing.assert_array_equal(path.spine(), points)
+
+
+@pytest.mark.parametrize("origin", ((0, 0), (3.279, 5.584), (-3.28, -5.584), (1000, 1e6)))
+@pytest.mark.parametrize("fraction", (0, 0.5, 0.9999))
+def test_sub_tolerance_length(origin, fraction):
+    tol = 0.001
+    points = numpy.array((origin, numpy.array(origin) + (fraction * tol, 0)))
+    path = gdstk.FlexPath(points, width=0.01, tolerance=tol)
+    with pytest.warns(RuntimeWarning, match="Empty path"):
+        assert path.to_polygons() == []
+    assert path.size == 1
