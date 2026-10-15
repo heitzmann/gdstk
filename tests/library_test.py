@@ -577,8 +577,8 @@ def test_read_gds_aref_vectors(
         assert repetition.spacing is not None
         assert repetition.spacing == pytest.approx(numpy.array((v1[0], v2[1])) * factor)
     else:
-        assert repetition.v1 == pytest.approx(numpy.array(v1) * factor)
-        assert repetition.v2 == pytest.approx(numpy.array(v2) * factor)
+        numpy.testing.assert_allclose(repetition.v1, numpy.array(v1) * factor, rtol=0, atol=atol)
+        numpy.testing.assert_allclose(repetition.v2, numpy.array(v2) * factor, rtol=0, atol=atol)
 
 
 def test_rename_cell():
