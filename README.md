@@ -6,6 +6,14 @@
 [![Package Builder](https://github.com/heitzmann/gdstk/actions/workflows/publish-packages.yml/badge.svg)](https://github.com/heitzmann/gdstk/actions/workflows/publish-packages.yml)
 [![Downloads](https://img.shields.io/github/downloads/heitzmann/gdstk/total.svg)](https://github.com/heitzmann/gdstk/releases)
 
+> [!NOTE]
+> The last release of gdstk is 1.0.2 on Oct 19, 2026.
+> For the past few years, I've been working professsionally in the development of [PhotonForge](https://www.flexcompute.com/photonforge/), a more complete tool for photonics design automation.
+> It did use gdstk under the hood for a while, but not since a few past versions.
+> Continuing the development of gdstk could become a conflict of interests, so I've been only merging PR's latelly.
+> Now, with PhotonForge v2.0 being [available for free](https://pypi.org/project/photonforge/), I do not see the need of continuing to support gdskt.
+> Thanks for everyone who contributed to this project or used it and suupported it in any way.
+
 Gdstk (GDSII Tool Kit) is a C++ library for creation and manipulation of GDSII and OASIS files.
 It is also available as a Python module meant to be a successor to [Gdspy](https://github.com/heitzmann/gdspy).
 
