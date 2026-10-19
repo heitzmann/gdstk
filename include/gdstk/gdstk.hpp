@@ -9,7 +9,7 @@ LICENSE file or <http://www.boost.org/LICENSE_1_0.txt>
 #define GDSTK_HEADER_GDSTK
 #define _USE_MATH_DEFINES
 
-#define GDSTK_VERSION "1.0.1"
+#define GDSTK_VERSION "1.0.2"
 
 // If GDSTK_CUSTOM_ALLOCATOR is defined, the user must supply implementations
 // for the following dynamic memory management functions:

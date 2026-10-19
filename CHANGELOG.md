@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 - 2026-10-19
+### Fixed
+- Undefined behavior when linking polygon holes that could crash MSVC debug builds.
+- Unicode file paths in native I/O on Windows.
+- Doubled `RobustPath` widths in OASIS output (#335).
+- GDSII array-reference vector detection for non-zero origins and large coordinates.
+
 ## 1.0.1 - 2026-07-10
 ### Fixed
 - Typos to `RobustPath` and `FlexPath` "extended" ends.
